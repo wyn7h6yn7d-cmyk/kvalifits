@@ -61,7 +61,7 @@ async function main() {
   const tmp512 = join(root, ".tmp-favicon-512.png");
   await circularPng(source, tmp512, 512);
 
-  const png128 = join(root, "public/favicon-v3.png");
+  const png128 = join(root, "public/favicon-v4.png");
   await sharp(tmp512).resize(128, 128).png({ compressionLevel: 9 }).toFile(png128);
   // Canonical names (some clients only request /favicon.ico)
   fs.copyFileSync(png128, join(root, "public/favicon.png"));
@@ -74,12 +74,12 @@ async function main() {
   fs.unlinkSync(tmp512);
 
   const icoBuf = await pngToIco(png128);
-  const icoPath = join(root, "public/favicon-v3.ico");
+  const icoPath = join(root, "public/favicon-v4.ico");
   fs.writeFileSync(icoPath, icoBuf);
   fs.writeFileSync(join(root, "public/favicon.ico"), icoBuf);
 
   console.log(
-    "Wrote public/favicon-v3.{png,ico}, public/favicon.{png,ico}, public/apple-touch-icon.png (from favicon-source.png)",
+    "Wrote public/favicon-v4.{png,ico}, public/favicon.{png,ico}, public/apple-touch-icon.png (from favicon-source.png)",
   );
 }
 

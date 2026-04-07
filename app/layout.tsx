@@ -21,8 +21,8 @@ export const metadata: Metadata = {
     "Kvalifits viib kokku tunnustatud tööandjad ja kvalifitseeritud töötajad — verifitseeritud oskused, sertifikaadid ja usaldusväärsed sobivused.",
   icons: {
     icon: [
-      { url: "/favicon-v3.ico", type: "image/x-icon" },
-      { url: "/favicon-v3.png", type: "image/png", sizes: "128x128" },
+      { url: "/favicon-v4.ico", type: "image/x-icon" },
+      { url: "/favicon-v4.png", type: "image/png", sizes: "128x128" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
