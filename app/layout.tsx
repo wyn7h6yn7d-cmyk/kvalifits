@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   },
   description:
     "Kvalifits viib kokku tunnustatud tööandjad ja kvalifitseeritud töötajad — verifitseeritud oskused, sertifikaadid ja usaldusväärsed sobivused.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/kvalifits-icon.svg", type: "image/svg+xml" },
+    ],
+  },
   metadataBase: new URL("https://kvalifits.ee"),
   openGraph: {
     title: "Kvalifits — verifitseeritud oskustega töövahendus",

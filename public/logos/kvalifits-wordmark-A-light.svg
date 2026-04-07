@@ -1,6 +1,6 @@
 <svg width="520" height="120" viewBox="0 0 520 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <title>Kvalifits</title>
-  <desc>Wordmark logo (default, dark).</desc>
+  <title>Kvalifits wordmark (A, light)</title>
+  <desc>Minimalistlik ja luksuslik wordmark heledal taustal.</desc>
   <rect width="520" height="120" fill="none"/>
   <g>
     <text x="34" y="78"
@@ -8,8 +8,8 @@
       font-size="56"
       font-weight="600"
       letter-spacing="-1.2"
-      fill="#FFFFFF"
-      fill-opacity="0.94">kvalifits</text>
+      fill="#0A0A0E"
+      fill-opacity="0.95">kvalifits</text>
     <circle cx="300" cy="72" r="6.5" fill="#E31F8D"/>
   </g>
 </svg>

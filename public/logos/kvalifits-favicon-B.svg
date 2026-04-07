@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Kvalifits favicon (B)</title>
+  <desc>Futuristlikum variant: k + aktsentpunkt.</desc>
+  <rect width="64" height="64" rx="16" fill="#0B0B12"/>
+  <defs>
+    <linearGradient id="kvb" x1="10" y1="8" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="rgba(168,85,247,0.55)"/>
+      <stop offset="0.6" stop-color="rgba(99,102,241,0.18)"/>
+      <stop offset="1" stop-color="rgba(0,0,0,0)"/>
+    </linearGradient>
+  </defs>
+  <path d="M8 8H64V64H8V8Z" fill="url(#kvb)" opacity="0.25"/>
+  <path d="M24 16C24.8284 16 25.5 16.6716 25.5 17.5V35.2L40.3 20.4C40.6 20.1 41 19.9 41.5 19.9H47.8C49.1 19.9 49.8 21.5 48.9 22.4L34.2 37.1L49.4 52.3C50.4 53.3 49.7 55.1 48.3 55.1H41.9C41.4 55.1 41 54.9 40.7 54.6L25.5 39.4V52.5C25.5 53.3284 24.8284 54 24 54H19.5C18.6716 54 18 53.3284 18 52.5V17.5C18 16.6716 18.6716 16 19.5 16H24Z" fill="#FFFFFF" fill-opacity="0.94"/>
+  <circle cx="48" cy="48" r="4" fill="#E31F8D"/>
+</svg>
+
