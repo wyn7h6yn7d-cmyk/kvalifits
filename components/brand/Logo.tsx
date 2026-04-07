@@ -10,7 +10,10 @@ export function Logo({
   className?: string;
   variant?: "wordmark" | "icon";
 }) {
-  const src = variant === "icon" ? "/kvalifits-icon.svg" : "/kvalifits-wordmark.svg";
+  const src =
+    variant === "icon"
+      ? "/brand/kvalifits-mark.png"
+      : "/brand/kvalifits-wordmark.png";
   const alt = variant === "icon" ? "Kvalifits ikoon" : "Kvalifits";
 
   return (
@@ -22,8 +25,8 @@ export function Logo({
       <Image
         src={src}
         alt={alt}
-        width={variant === "icon" ? 34 : 124}
-        height={variant === "icon" ? 34 : 26}
+        width={variant === "icon" ? 44 : 170}
+        height={variant === "icon" ? 44 : 36}
         priority
       />
     </Link>
