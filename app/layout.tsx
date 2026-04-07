@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s · Kvalifits",
   },
   description:
-    "Kvalifits viib kokku tunnustatud tööandjad ja kvalifitseeritud töötajad — verifitseeritud oskused, sertifikaadid ja usaldusväärsed sobivused.",
+    "Tööandjad ja spetsialistid ühes pädevuspõhises süsteemis. Verifitseeritud oskused, selge sobivus.",
   icons: {
     icon: [
       { url: "/favicon-v4.ico", type: "image/x-icon" },
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Kvalifits — verifitseeritud oskustega töövahendus",
     description:
-      "Premium tööplatvorm Eesti turule: sertifikaadid, kvalifikatsioonipõhine sobitamine ja usaldus tööandjate ning tööotsijate vahel.",
+      "Eesti tööturul: pädevus, sertifikaadid ja sobitamine, mida saab põhjendada.",
     type: "website",
     locale: "et_EE",
   },

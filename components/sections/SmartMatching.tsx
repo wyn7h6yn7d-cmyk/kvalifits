@@ -1,133 +1,294 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { BadgeCheck, Bell, Sparkles } from "lucide-react";
+import type { ComponentType } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  BadgeCheck,
+  CheckCircle2,
+  Fingerprint,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
+import { PortalBackground } from "@/components/site/portal-background";
+import { subtleSectionPortal } from "@/lib/site-portal-config";
+import { cn } from "@/lib/utils";
 
-const notes = [
+const FLOAT_CARDS = [
   {
-    text: "Sertifikaat kontrollitud",
-    meta: "A-pädevus · Eesti",
-    tone: "pink",
-  },
-  {
+    top: "lg:top-[6%]",
+    left: "lg:left-0",
+    right: "",
     text: "Sobid sellele positsioonile",
-    meta: "Sobivus 87%",
-    tone: "violet",
+    sub: "87%",
+    icon: Sparkles,
+    delay: 0,
+    drift: 5.5,
   },
   {
-    text: "Kandidaadi oskused vastavad nõuetele",
-    meta: "8/10 nõudest täidetud",
-    tone: "neutral",
+    top: "lg:top-[20%]",
+    left: "",
+    right: "lg:right-0",
+    text: "Sertifikaat kontrollitud",
+    sub: "A-pädevus",
+    icon: ShieldCheck,
+    delay: 0.4,
+    drift: 6.8,
+  },
+  {
+    top: "lg:bottom-[26%]",
+    left: "lg:left-[4%]",
+    right: "",
+    text: "Oskused vastavad nõuetele",
+    sub: "Võrdlus avatud",
+    icon: CheckCircle2,
+    delay: 0.8,
+    drift: 7.2,
   },
 ] as const;
 
-function Note({
+const SEGMENTS = 10;
+const FILLED = 8;
+
+function FloatingSignal({
+  className,
+  children,
+  drift,
+  delay,
+}: {
+  className?: string;
+  children: React.ReactNode;
+  drift: number;
+  delay: number;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.75, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      <motion.div
+        animate={reduce ? undefined : { y: [0, -10, 0] }}
+        transition={{
+          duration: drift,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: delay * 0.6,
+        }}
+      >
+        {children}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function SignalCard({
   text,
-  meta,
-  tone,
+  sub,
+  icon: Icon,
 }: {
   text: string;
-  meta: string;
-  tone: "pink" | "violet" | "neutral";
+  sub: string;
+  icon: ComponentType<{ className?: string }>;
 }) {
-  const bg =
-    tone === "pink"
-      ? "bg-[radial-gradient(circle_at_30%_0%,rgba(227,31,141,0.18),transparent_60%)]"
-      : tone === "violet"
-        ? "bg-[radial-gradient(circle_at_30%_0%,rgba(168,85,247,0.22),transparent_60%)]"
-        : "bg-[radial-gradient(circle_at_30%_0%,rgba(255,255,255,0.09),transparent_60%)]";
-
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.04] p-4 backdrop-blur-md">
-      <div aria-hidden="true" className={"absolute inset-0 " + bg} />
-      <div className="relative flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-2xl border border-white/[0.12] bg-white/[0.05]">
-            <Bell className="h-4 w-4 text-white/80" />
-          </div>
-          <div>
-            <div className="text-sm font-medium text-white/85">{text}</div>
-            <div className="mt-1 text-xs text-white/55">{meta}</div>
-          </div>
+    <div className="relative max-w-[280px] rounded-[22px] border border-white/[0.12] bg-gradient-to-b from-white/[0.11] to-white/[0.03] px-4 py-4 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.06)_inset] backdrop-blur-xl">
+      <div className="absolute -inset-px rounded-[22px] bg-gradient-to-br from-violet-400/10 via-transparent to-accent-pink/5 opacity-70" />
+      <div className="relative flex gap-3.5">
+        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
+          <Icon className="h-4 w-4 text-white/80" />
         </div>
-        <div className="text-xs text-white/45">•</div>
+        <div className="min-w-0">
+          <p className="text-[13px] font-medium leading-snug tracking-tight text-white/92">{text}</p>
+          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
+            {sub}
+          </p>
+        </div>
       </div>
     </div>
   );
 }
 
 export function SmartMatching() {
-  return (
-    <section id="tood" className="relative py-20 sm:py-24">
-      <Container>
-        <div className="grid items-center gap-12 lg:grid-cols-2">
-          <div className="max-w-xl">
-            <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
-              Nutikas sobitamine
-            </div>
-            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Sobitused, mis põhjendavad end.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-white/65">
-              Kvalifits ühendab verifitseerimise ja sobivusloogika — nii tööotsija kui
-              tööandja näevad selgelt, mis on kontrollitud ja miks see sobib.
-            </p>
+  const reduce = useReducedMotion();
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              <Badge variant="violet">
-                <Sparkles className="h-3.5 w-3.5 text-white/70" /> sobivusprotsent
-              </Badge>
-              <Badge variant="default">
-                <BadgeCheck className="h-3.5 w-3.5 text-white/60" /> verifitseeritud
-              </Badge>
-              <Badge variant="pink">aktsent</Badge>
+  return (
+    <section id="tood" className="relative scroll-mt-24 overflow-hidden py-28 sm:py-36">
+      {subtleSectionPortal.enabled ? (
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          style={{ opacity: subtleSectionPortal.opacity }}
+          aria-hidden="true"
+        >
+          <PortalBackground
+            variant={subtleSectionPortal.variant}
+            intensity={subtleSectionPortal.intensity}
+          />
+        </div>
+      ) : null}
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_0%,rgba(168,85,247,0.2),transparent_58%),radial-gradient(ellipse_80%_55%_at_100%_55%,rgba(227,31,141,0.08),transparent_52%),radial-gradient(ellipse_60%_50%_at_0%_40%,rgba(99,102,241,0.08),transparent_50%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.2] to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/55"
+      />
+
+      <Container className="relative">
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/50">
+            Sobituse mootor
+          </div>
+          <h2 className="mt-7 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
+            Nutikas sobitamine
+            <span className="mt-2 block text-gradient-brand font-semibold">
+              Tõend, mitte mulje.
+            </span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/52 sm:text-lg">
+            Tõendid, nõuded ja sobivus ühes arusaadavas näitajas.
+          </p>
+        </div>
+
+        {/* Lava: ruumiline sügavus */}
+        <div className="relative mx-auto mt-20 max-w-6xl">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[95%] max-w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-[48px] bg-[radial-gradient(ellipse_at_50%_40%,rgba(168,85,247,0.22),transparent_65%)] blur-3xl"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-[12%] top-[30%] h-72 w-72 rounded-full bg-violet-500/10 blur-3xl"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-[18%] right-[8%] h-64 w-64 rounded-full bg-accent-pink/10 blur-3xl"
+          />
+
+          <div className="relative rounded-[40px] border border-white/[0.12] bg-gradient-to-b from-white/[0.08] via-black/50 to-black/80 p-px shadow-[0_40px_120px_-40px_rgba(0,0,0,0.95)]">
+            <div className="absolute inset-0 rounded-[40px] bg-[linear-gradient(135deg,rgba(255,255,255,0.07)_0%,transparent_45%,transparent_100%)]" />
+            <div className="relative overflow-hidden rounded-[39px]">
+              {/* Sisemine kiht */}
+              <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:48px_48px]" />
+
+              <div className="relative px-6 pb-14 pt-12 sm:px-12 sm:pb-16 sm:pt-14 lg:min-h-[520px] lg:px-10 lg:pb-20 lg:pt-16">
+                {/* Desktop: ujuvad kaardid */}
+                <div className="hidden lg:block">
+                  {FLOAT_CARDS.map((c) => (
+                    <FloatingSignal
+                      key={c.text}
+                      drift={c.drift}
+                      delay={c.delay}
+                      className={cn(
+                        "absolute z-20 w-[min(100%,280px)]",
+                        c.top,
+                        c.left,
+                        c.right,
+                      )}
+                    >
+                      <SignalCard text={c.text} sub={c.sub} icon={c.icon} />
+                    </FloatingSignal>
+                  ))}
+                </div>
+
+                {/* Kesk — sobivus + segmentriba */}
+                <div className="relative z-10 mx-auto flex max-w-lg flex-col items-center text-center lg:max-w-xl">
+                  <div className="flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-white/42">
+                    <Fingerprint className="h-3.5 w-3.5 text-violet-300/70" />
+                    Sobivus
+                  </div>
+
+                  <div className="mt-5">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <motion.div
+                        animate={reduce ? undefined : { scale: [1, 1.02, 1] }}
+                        transition={{
+                          duration: 7,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <span className="block font-mono text-[clamp(3.5rem,11vw,6.75rem)] font-semibold leading-none tracking-[-0.04em] text-gradient-brand">
+                          87%
+                        </span>
+                      </motion.div>
+                    </motion.div>
+                  </div>
+                  <p className="mt-3 text-sm text-white/48">Selle positsiooniga</p>
+
+                  {/* Nõuete kattuvus */}
+                  <div className="mt-12 w-full text-left">
+                    <div className="flex items-end justify-between gap-4">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">
+                          Nõue ja pädevus
+                        </p>
+                        <p className="mt-2 text-lg font-medium text-white/88">8/10 täidetud</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs text-white/45">
+                        <BadgeCheck className="h-4 w-4 text-emerald-400/90" />
+                        Kattuvus
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex gap-1 sm:gap-1.5" role="img" aria-label="8 kümnest nõudest täidetud">
+                      {Array.from({ length: SEGMENTS }).map((_, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, scaleY: 0.4 }}
+                          whileInView={{ opacity: 1, scaleY: 1 }}
+                          viewport={{ once: true }}
+                          transition={{
+                            delay: 0.05 * i,
+                            duration: 0.35,
+                            ease: [0.22, 1, 0.36, 1],
+                          }}
+                          className={cn(
+                            "h-2 flex-1 origin-bottom rounded-full sm:h-2.5",
+                            i < FILLED
+                              ? "bg-gradient-to-r from-violet-400/85 via-fuchsia-400/60 to-[rgba(227,31,141,0.65)] shadow-[0_0_16px_-4px_rgba(168,85,247,0.45)]"
+                              : "bg-white/[0.07]",
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobiil / md — kaardid all */}
+                <div className="relative z-10 mx-auto mt-12 max-w-md space-y-4 lg:hidden">
+                  {FLOAT_CARDS.map((c, idx) => (
+                    <motion.div
+                      key={c.text}
+                      initial={{ opacity: 0, y: 12 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-20px" }}
+                      transition={{ duration: 0.5, delay: 0.08 * idx }}
+                    >
+                      <SignalCard text={c.text} sub={c.sub} icon={c.icon} />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-          >
-            <div
-              aria-hidden="true"
-              className="absolute -inset-6 rounded-[32px] bg-[radial-gradient(circle_at_30%_10%,rgba(168,85,247,0.22),transparent_55%),radial-gradient(circle_at_85%_80%,rgba(227,31,141,0.12),transparent_55%)] blur-2xl"
-            />
-
-            <div className="relative rounded-[28px] border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-xl">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-medium text-white/85">Teavitused</div>
-                <div className="text-xs text-white/45">reaalajas</div>
-              </div>
-
-              <div className="mt-5 grid gap-3">
-                {notes.map((n, idx) => (
-                  <motion.div
-                    key={n.text}
-                    initial={{ opacity: 0, x: 12 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: idx * 0.06 }}
-                  >
-                    <Note text={n.text} meta={n.meta} tone={n.tone} />
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3">
-                <div className="text-xs text-white/55">Sobivus</div>
-                <div className="text-sm font-medium text-white/85">87%</div>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </Container>
     </section>
   );
 }
-

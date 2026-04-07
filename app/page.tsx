@@ -1,3 +1,4 @@
+import { SectionDivider } from "@/components/site/SectionDivider";
 import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
 import { WhyKvalifits } from "@/components/sections/WhyKvalifits";
@@ -13,9 +14,12 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <SectionDivider />
+        <SmartMatching />
+        <SectionDivider />
         <WhyKvalifits />
         <Audience />
-        <SmartMatching />
+        <SectionDivider />
         <LoginAnchor />
         <FinalCTA />
       </main>

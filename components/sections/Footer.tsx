@@ -13,8 +13,7 @@ export function Footer() {
             <div>
               <Logo className="opacity-95" />
               <p className="mt-4 max-w-md text-sm leading-6 text-white/65">
-                Verifitseeritud tööplatvorm, mis ühendab tööandjad ja spetsialistid
-                päriselt kontrollitavate oskuste kaudu.
+                Eesti tööturul. Pädevus esikohal.
               </p>
             </div>
 
@@ -67,9 +66,7 @@ export function Footer() {
 
           <div className="flex flex-col gap-3 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
             <div>© {new Date().getFullYear()} Kvalifits</div>
-            <div className="text-white/45">
-              Verifitseeritud oskused · Usaldusväärsed sobivused
-            </div>
+            <div className="text-white/45">Eesti · pädevuspõhine töövahendus</div>
           </div>
         </div>
       </Container>

@@ -63,6 +63,72 @@ html {
   border-radius: 12px;
 }
 
+/* Premium display: gradient accent on key words */
+/* Tööportaali tausta animatsioonid (Hero) — ainult transform/opacity/stroke */
+@keyframes portal-dash-flow {
+  to {
+    stroke-dashoffset: -280;
+  }
+}
+
+@keyframes portal-pulse-ring {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  50% {
+    opacity: 0.58;
+  }
+}
+
+@keyframes portal-match-flicker {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.42;
+  }
+}
+
+.portal-bg-a--lines path.portal-bg-a__path {
+  stroke-dasharray: 8 14;
+  stroke-dashoffset: 0;
+  animation-name: portal-dash-flow;
+  animation-duration: var(--portal-dash-duration, 48s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.portal-bg-a__hub-ring {
+  animation: portal-pulse-ring var(--portal-pulse-duration, 22s) ease-in-out infinite;
+}
+
+.portal-bg-b__match {
+  animation: portal-match-flicker var(--portal-match-duration, 18s) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-bg-a--lines path.portal-bg-a__path,
+  .portal-bg-a__hub-ring,
+  .portal-bg-b__match {
+    animation: none !important;
+  }
+}
+
+.text-gradient-brand {
+  background: linear-gradient(
+    120deg,
+    #ffffff 0%,
+    #e8e4ff 35%,
+    #f472b6 55%,
+    #e31f8d 85%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
