@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   },
   description:
     "Kvalifits viib kokku tunnustatud tööandjad ja kvalifitseeritud töötajad — verifitseeritud oskused, sertifikaadid ja usaldusväärsed sobivused.",
-  // Versioned filenames bust CDN; do not use app/icon.png — Next injects /icon.png and it can override this.
   icons: {
     icon: [
       { url: "/favicon-v3.ico", type: "image/x-icon" },
