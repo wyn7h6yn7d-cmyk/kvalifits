@@ -62,8 +62,10 @@ async function main() {
   await circularPng(source, tmp512, 512);
 
   await sharp(tmp512).resize(128, 128).png({ compressionLevel: 9 }).toFile(join(root, "public/favicon.png"));
-  await sharp(tmp512).resize(128, 128).png({ compressionLevel: 9 }).toFile(join(root, "app/icon.png"));
-  await sharp(tmp512).resize(180, 180).png({ compressionLevel: 9 }).toFile(join(root, "app/apple-icon.png"));
+  await sharp(tmp512)
+    .resize(180, 180)
+    .png({ compressionLevel: 9 })
+    .toFile(join(root, "public/apple-touch-icon.png"));
 
   fs.unlinkSync(tmp512);
 
@@ -71,7 +73,7 @@ async function main() {
   fs.writeFileSync(join(root, "public/favicon.ico"), icoBuf);
 
   console.log(
-    "Wrote circular public/favicon.png, app/icon.png, app/apple-icon.png, public/favicon.ico (from favicon-source.png)",
+    "Wrote circular public/favicon.png, public/apple-touch-icon.png, public/favicon.ico (from favicon-source.png)",
   );
 }
 

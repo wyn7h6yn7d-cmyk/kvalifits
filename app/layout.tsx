@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+/** Bump when favicon assets change so browsers/CDNs fetch a new URL. */
+const FAVICON_CACHE_KEY = "3";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -21,8 +24,15 @@ export const metadata: Metadata = {
     "Kvalifits viib kokku tunnustatud tööandjad ja kvalifitseeritud töötajad — verifitseeritud oskused, sertifikaadid ja usaldusväärsed sobivused.",
   icons: {
     icon: [
-      { url: "/favicon.ico", type: "image/x-icon" },
-      { url: "/favicon.png", type: "image/png" },
+      { url: `/favicon.ico?v=${FAVICON_CACHE_KEY}`, type: "image/x-icon" },
+      { url: `/favicon.png?v=${FAVICON_CACHE_KEY}`, type: "image/png" },
+    ],
+    apple: [
+      {
+        url: `/apple-touch-icon.png?v=${FAVICON_CACHE_KEY}`,
+        sizes: "180x180",
+        type: "image/png",
+      },
     ],
   },
   metadataBase: new URL("https://kvalifits.ee"),
