@@ -13,7 +13,7 @@ export function Logo({
   const src =
     variant === "icon"
       ? "/brand/kvalifits-mark.png"
-      : "/brand/kvalifits-wordmark.png";
+      : "/kvalifits-wordmark.svg";
   const alt = variant === "icon" ? "Kvalifits ikoon" : "Kvalifits";
 
   return (
@@ -25,8 +25,8 @@ export function Logo({
       <Image
         src={src}
         alt={alt}
-        width={variant === "icon" ? 44 : 170}
-        height={variant === "icon" ? 44 : 36}
+        width={variant === "icon" ? 55 : 214}
+        height={variant === "icon" ? 55 : 45}
         priority
       />
     </Link>
