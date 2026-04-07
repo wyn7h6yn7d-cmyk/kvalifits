@@ -19,8 +19,8 @@ export function Logo({
       <Image
         src={
           variant === "icon"
-            ? "/brand/kvalifits-mark.png"
-            : "/brand/kvalifits-wordmark.png"
+            ? "/brand/kvalifits-mark-transparent.png"
+            : "/brand/kvalifits-wordmark-transparent.png"
         }
         alt={variant === "icon" ? "Kvalifits" : "Kvalifits"}
         width={variant === "icon" ? 52 : 200}
