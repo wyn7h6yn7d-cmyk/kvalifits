@@ -1,9 +1,0 @@
-<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <title>Kvalifits</title>
-  <desc>Icon logo: k + aktsentpunkt ringis.</desc>
-  <rect width="120" height="120" rx="28" fill="#0B0B12"/>
-  <circle cx="60" cy="60" r="42" stroke="#FFFFFF" stroke-opacity="0.85" stroke-width="2.2"/>
-  <path d="M52 36C53.6569 36 55 37.3431 55 39V62.8L74.8 43C75.4 42.4 76.2 42.1 77 42.1H85.8C88.5 42.1 89.8 45.3 87.9 47.2L68.1 67L88.6 87.5C90.6 89.5 89.2 93.2 86.3 93.2H77.2C76.4 93.2 75.6 92.9 75 92.3L55 72.3V90C55 91.6569 53.6569 93 52 93H45C43.3431 93 42 91.6569 42 90V39C42 37.3431 43.3431 36 45 36H52Z" fill="#FFFFFF" fill-opacity="0.94"/>
-  <circle cx="78.5" cy="78.5" r="6.8" fill="#E31F8D"/>
-</svg>
-

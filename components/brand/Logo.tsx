@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
@@ -10,12 +10,6 @@ export function Logo({
   className?: string;
   variant?: "wordmark" | "icon";
 }) {
-  const src =
-    variant === "icon"
-      ? "/brand/kvalifits-mark.png"
-      : "/kvalifits-wordmark.svg";
-  const alt = variant === "icon" ? "Kvalifits ikoon" : "Kvalifits";
-
   return (
     <Link
       href="/"
@@ -23,10 +17,14 @@ export function Logo({
       className={cn("inline-flex items-center gap-3", className)}
     >
       <Image
-        src={src}
-        alt={alt}
-        width={variant === "icon" ? 55 : 214}
-        height={variant === "icon" ? 55 : 45}
+        src={
+          variant === "icon"
+            ? "/brand/kvalifits-mark.png"
+            : "/brand/kvalifits-wordmark.png"
+        }
+        alt={variant === "icon" ? "Kvalifits" : "Kvalifits"}
+        width={variant === "icon" ? 52 : 200}
+        height={variant === "icon" ? 52 : 42}
         priority
       />
     </Link>

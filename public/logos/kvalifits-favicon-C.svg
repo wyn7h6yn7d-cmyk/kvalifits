@@ -1,8 +1,0 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <title>Kvalifits favicon (C)</title>
-  <desc>Kõige puhtam ja ajatum: k + punkt.</desc>
-  <rect width="64" height="64" rx="16" fill="#0B0B12"/>
-  <path d="M24 16C24.8284 16 25.5 16.6716 25.5 17.5V34.8L40 20.3C40.3 20 40.7 19.8 41.2 19.8H47C48.3 19.8 49 21.4 48.1 22.3L33.8 36.6L48.3 51.1C49.3 52.1 48.6 53.9 47.2 53.9H41.4C40.9 53.9 40.5 53.7 40.2 53.4L25.5 38.7V50.5C25.5 51.3284 24.8284 52 24 52H19.5C18.6716 52 18 51.3284 18 50.5V17.5C18 16.6716 18.6716 16 19.5 16H24Z" fill="#FFFFFF" fill-opacity="0.92"/>
-  <circle cx="47" cy="47" r="4" fill="#E31F8D"/>
-</svg>
-
