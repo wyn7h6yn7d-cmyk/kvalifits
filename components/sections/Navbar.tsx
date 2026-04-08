@@ -193,13 +193,13 @@ export function Navbar() {
                     asChild
                     variant="primary"
                     size="sm"
-                    className="h-7 shrink-0 rounded-md px-1 py-0 text-[13px] leading-none"
+                    className="h-7 shrink-0 rounded-md px-0.5 py-0 text-[13px] leading-none"
                   >
                     <Link
                       href="/auth/register"
                       className="inline-flex h-full min-h-0 items-center justify-center gap-1"
                     >
-                      {t("signup")} <ArrowRight className="h-3 w-3" />
+                      {t("signup")} <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                   </Button>
                 </>
