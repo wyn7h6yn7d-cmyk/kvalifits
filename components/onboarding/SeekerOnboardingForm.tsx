@@ -187,6 +187,9 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
         user_id: user.id,
         full_name: fullName,
+        // DB constraint: seeker_profiles.profile_title is NOT NULL in current schema.
+        // We don't ask it in the UI anymore, so we set a safe default.
+        profile_title: fullName,
         phone,
         location,
         about,
