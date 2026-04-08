@@ -24,10 +24,11 @@ export async function getRoleAndNextPath(locale: string) {
 
   const isBlocked = Boolean((profile as any)?.is_blocked);
   if (isBlocked) {
-    return { user, role: "seeker" as any, nextPath: `/${locale}/blocked` };
+    return { user, role: null, nextPath: `/${locale}/blocked` };
   }
 
-  const role = ((profile as any)?.role ?? null) as Role | null;
+  const fallbackRole = user.user_metadata?.role;
+  const role = (((profile as any)?.role ?? fallbackRole ?? null) as Role | null);
   if (!role) {
     return { user, role: null, nextPath: `/${locale}/auth/register` };
   }

@@ -94,14 +94,15 @@ export function Navbar() {
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
 
       if (!mounted) return;
-      const r = profile?.role;
+      const metaRole = user.user_metadata?.role;
+      const r = (profileErr ? metaRole : profile?.role) ?? metaRole ?? null;
       setRole(r === "seeker" || r === "employer" || r === "admin" ? r : null);
     }
 
