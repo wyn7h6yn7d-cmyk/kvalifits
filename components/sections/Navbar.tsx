@@ -128,8 +128,8 @@ export function Navbar() {
             ))}
           </nav>
 
-          <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2 lg:ml-2">
-            <div className="hidden h-full min-h-0 items-center gap-2 lg:flex">
+          <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center justify-end gap-1 sm:gap-1.5 lg:ml-1.5">
+            <div className="hidden h-full min-h-0 items-center gap-1.5 lg:flex">
               {authResolved && authed ? (
                 <>
                   {role === "seeker" ? (
