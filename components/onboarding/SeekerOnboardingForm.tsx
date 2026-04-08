@@ -20,7 +20,8 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const [avatarUploading, setAvatarUploading] = useState(false);
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [profileTitle, setProfileTitle] = useState("");
@@ -116,6 +117,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const skills = parseCsv(skillsCsv);
       const preferredJobTypes = parseCsv(preferredJobTypesCsv);
       const preferredLocations = parseCsv(preferredLocationsCsv);
+      const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
 
       const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
         user_id: user.id,
@@ -148,13 +150,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("avatarUrl")}</label>
-        <Input
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
-          required
-          placeholder={t("avatarUrlHint")}
-        />
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <label className="text-xs font-medium tracking-wide text-white/55">
             {t("avatarUpload")}
@@ -164,10 +160,14 @@ export function SeekerOnboardingForm({ locale }: Props) {
             accept="image/*"
             onChange={(e) => void onAvatarFileChange(e.target.files?.[0] ?? null)}
             className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+            required
           />
         </div>
         {avatarUploading ? (
           <div className="text-xs text-white/55">{t("avatarUploading")}</div>
+        ) : null}
+        {avatarUrl ? (
+          <div className="text-xs text-white/55">{t("avatarReady")}</div>
         ) : null}
       </div>
 
@@ -186,9 +186,15 @@ export function SeekerOnboardingForm({ locale }: Props) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">
-            {t("fullName")}
+            {t("firstName")}
           </label>
-          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">
+            {t("lastName")}
+          </label>
+          <Input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("phone")}</label>
