@@ -27,7 +27,7 @@ export function LoginForm({ locale }: { locale: string }) {
         password,
       });
       if (error) throw error;
-      router.push(`/${locale}`);
+      router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("unknownError"));

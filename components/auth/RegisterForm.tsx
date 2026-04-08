@@ -78,8 +78,7 @@ export function RegisterForm({ locale }: { locale: string }) {
         });
         // If row already exists, ignore
         if (seekerErr && seekerErr.code !== "23505") throw seekerErr;
-
-        router.push(`/${locale}/onboarding/seeker`);
+        router.push(`/${locale}/onboarding`);
         router.refresh();
         return;
       }
@@ -93,8 +92,7 @@ export function RegisterForm({ locale }: { locale: string }) {
         location: "",
       });
       if (employerErr && employerErr.code !== "23505") throw employerErr;
-
-      router.push(`/${locale}/onboarding/employer`);
+      router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("unknownError"));
