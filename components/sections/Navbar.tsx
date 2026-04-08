@@ -46,9 +46,7 @@ const langTriggerNavbar =
 
 export function Navbar() {
   const t = useTranslations("nav");
-  const locale = useLocale();
   const [scrolled, setScrolled] = useState(false);
-  const homeHash = (id: string) => `/${locale}#${id}`;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -86,24 +84,24 @@ export function Navbar() {
 
           <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2 lg:ml-2">
             <div className="hidden h-full min-h-0 items-center gap-2 lg:flex">
-              <a
-                href={homeHash("login")}
+              <Link
+                href="/auth/login"
                 className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
               >
                 {t("login")}
-              </a>
+              </Link>
               <Button
                 asChild
                 variant="primary"
                 size="sm"
                 className="h-7 shrink-0 rounded-md px-2.5 text-[13px] leading-none"
               >
-                <a
-                  href={homeHash("registreeru")}
+                <Link
+                  href="/auth/register"
                   className="inline-flex h-full min-h-0 items-center justify-center gap-1.5"
                 >
                   {t("signup")} <ArrowRight className="h-3.5 w-3.5" />
-                </a>
+                </Link>
               </Button>
               <div className="flex h-full shrink-0 items-center">
                 <LanguageSwitcher triggerClassName={langTriggerNavbar} />
@@ -149,10 +147,10 @@ export function Navbar() {
                     <div className="pt-2">
                       <div className="flex flex-col gap-3">
                         <Button asChild variant="ghost" className="w-full">
-                          <a href={homeHash("login")}>{t("login")}</a>
+                          <Link href="/auth/login">{t("login")}</Link>
                         </Button>
                         <Button asChild variant="primary" className="w-full">
-                          <a href={homeHash("registreeru")}>{t("signup")}</a>
+                          <Link href="/auth/register">{t("signup")}</Link>
                         </Button>
                       </div>
                     </div>

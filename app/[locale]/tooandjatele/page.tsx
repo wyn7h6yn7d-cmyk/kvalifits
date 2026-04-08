@@ -6,6 +6,7 @@ import { Footer } from "@/components/sections/Footer";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -21,7 +22,6 @@ export async function generateMetadata({ params }: Props) {
 export default async function TooandjatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
-  const homeHash = (id: string) => `/${locale}#${id}`;
 
   const details = [
     { icon: Building2, title: t("d1Title"), text: t("d1Text") },
@@ -53,10 +53,10 @@ export default async function TooandjatelePage({ params }: Props) {
                   size="lg"
                   className="h-12 rounded-2xl px-7"
                 >
-                  <a href={homeHash("registreeru")}>
+                  <Link href="/auth/register">
                     <UserPlus className="h-4 w-4" />
                     {t("ctaSignup")}
-                  </a>
+                  </Link>
                 </Button>
                 <Button
                   asChild
@@ -64,10 +64,10 @@ export default async function TooandjatelePage({ params }: Props) {
                   size="lg"
                   className="h-12 rounded-2xl px-7"
                 >
-                  <a href={homeHash("login")}>
+                  <Link href="/auth/login">
                     <LogIn className="h-4 w-4" />
                     {t("ctaLogin")}
-                  </a>
+                  </Link>
                 </Button>
               </div>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
