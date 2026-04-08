@@ -353,7 +353,11 @@
     "contactPhone": "Contact phone",
     "website": "Website",
     "industry": "Industry",
-    "logoUrl": "Logo URL",
+    "logoUrl": "Logo",
+    "logoUpload": "Upload logo (PNG/JPG)",
+    "logoUploading": "Uploading logo…",
+    "logoReady": "Logo added.",
+    "logoUploadError": "Logo upload failed. Please try again.",
     "companyDescription": "Company description"
   },
   "jobs": {

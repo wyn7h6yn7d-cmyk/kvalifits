@@ -33,6 +33,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   const [companyName, setCompanyName] = useState(initial?.company_name ?? "");
   const [registryCode, setRegistryCode] = useState(initial?.registry_code ?? "");
@@ -44,8 +45,37 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [companyDescription, setCompanyDescription] = useState(initial?.company_description ?? "");
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
 
+  async function onLogoFileChange(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setLogoUploading(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      const path = `${user.id}/logo-${Date.now()}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage.from("company-logos").upload(path, file, {
+        upsert: true,
+        contentType: file.type || undefined,
+      });
+      if (uploadErr) throw uploadErr;
+
+      const { data } = supabase.storage.from("company-logos").getPublicUrl(path);
+      setLogoUrl(data.publicUrl);
+    } catch {
+      setError(t("logoUploadError"));
+    } finally {
+      setLogoUploading(false);
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (logoUploading) return;
     setLoading(true);
     setError(null);
     try {
@@ -126,7 +156,34 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         </div>
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("logoUrl")}</label>
-          <Input value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} inputMode="url" />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-xs text-white/55">{t("logoUpload")}</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => void onLogoFileChange(e.target.files?.[0] ?? null)}
+              className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+            />
+          </div>
+
+          {logoUploading ? (
+            <div className="space-y-2">
+              <div className="text-xs text-white/55">{t("logoUploading")}</div>
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.08]">
+                <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-violet-400/70 via-fuchsia-400/60 to-pink-400/60" />
+              </div>
+            </div>
+          ) : null}
+
+          {logoUrl ? (
+            <div className="flex items-center gap-3 pt-1">
+              <div className="h-12 w-12 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoUrl} alt={t("logoUrl")} className="h-full w-full object-cover" />
+              </div>
+              <div className="text-xs text-white/55">{t("logoReady")}</div>
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -147,7 +204,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         </div>
       ) : null}
 
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
+      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading || logoUploading}>
         {loading ? t("saving") : t("saveAndContinue")}
       </Button>
     </form>

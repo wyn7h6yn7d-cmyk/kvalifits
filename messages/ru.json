@@ -353,7 +353,11 @@
     "contactPhone": "Контактный телефон",
     "website": "Сайт",
     "industry": "Отрасль",
-    "logoUrl": "URL логотипа",
+    "logoUrl": "Логотип",
+    "logoUpload": "Загрузить логотип (PNG/JPG)",
+    "logoUploading": "Загружаем логотип…",
+    "logoReady": "Логотип добавлен.",
+    "logoUploadError": "Не удалось загрузить логотип. Попробуйте ещё раз.",
     "companyDescription": "Описание компании"
   },
   "jobs": {

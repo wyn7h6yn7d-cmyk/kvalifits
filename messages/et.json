@@ -16,7 +16,7 @@
     "adminUsers": "Kasutajad",
     "seekerArea": "Minu profiil",
     "seekerAreaSubtitle": "Halda oma tööotsija profiili ja sertifikaate.",
-    "employerArea": "Ettevõte",
+    "employerArea": "Ettevõtte profiil",
     "employerAreaSubtitle": "Halda ettevõtte profiili ja kuulutusi.",
     "myJobs": "Kuulutused",
     "addJob": "Lisa kuulutus",
@@ -353,7 +353,11 @@
     "contactPhone": "Kontakt telefon",
     "website": "Veebileht",
     "industry": "Valdkond",
-    "logoUrl": "Logo URL",
+    "logoUrl": "Logo",
+    "logoUpload": "Lae logo üles (PNG/JPG)",
+    "logoUploading": "Laen logo üles…",
+    "logoReady": "Logo on lisatud.",
+    "logoUploadError": "Logo üleslaadimine ebaõnnestus. Palun proovi uuesti.",
     "companyDescription": "Ettevõtte kirjeldus"
   },
   "jobs": {
