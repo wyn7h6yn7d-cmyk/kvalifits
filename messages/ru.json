@@ -254,6 +254,7 @@
     "avatarUploadInProgress": "Загрузка фото профиля ещё идёт. Подождите, пока она завершится.",
     "avatarRequired": "Фото профиля обязательно.",
     "avatarReady": "Фото профиля добавлено.",
+    "avatarPreviewHint": "Предпросмотр",
     "linkedinUrl": "Ссылка LinkedIn (необязательно)",
     "linkedinUrlHint": "https://www.linkedin.com/in/…",
     "firstName": "Имя",

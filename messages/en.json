@@ -254,6 +254,7 @@
     "avatarUploadInProgress": "Your profile photo is still uploading. Please wait until it finishes.",
     "avatarRequired": "Profile photo is required.",
     "avatarReady": "Profile photo added.",
+    "avatarPreviewHint": "Preview",
     "linkedinUrl": "LinkedIn URL (optional)",
     "linkedinUrlHint": "https://www.linkedin.com/in/…",
     "firstName": "First name",

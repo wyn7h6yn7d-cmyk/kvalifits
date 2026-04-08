@@ -33,6 +33,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [preferredLocationsCsv, setPreferredLocationsCsv] = useState("");
 
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState("");
 
   function getErrorMessage(err: unknown) {
@@ -114,6 +115,9 @@ export function SeekerOnboardingForm({ locale }: Props) {
     setAvatarUploadError(null);
     setAvatarUploading(true);
     try {
+      if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+      setAvatarPreviewUrl(URL.createObjectURL(file));
+
       const supabase = createSupabaseBrowserClient();
       const {
         data: { user },
@@ -303,7 +307,20 @@ export function SeekerOnboardingForm({ locale }: Props) {
           </div>
         ) : null}
         {avatarUrl ? (
-          <div className="text-xs text-white/55">{t("avatarReady")}</div>
+          <div className="space-y-3">
+            <div className="text-xs text-white/55">{t("avatarReady")}</div>
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={avatarPreviewUrl ?? avatarUrl}
+                  alt={t("avatar")}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="text-xs text-white/45">{t("avatarPreviewHint")}</div>
+            </div>
+          </div>
         ) : null}
       </div>
 

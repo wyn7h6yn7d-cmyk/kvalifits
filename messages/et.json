@@ -254,6 +254,7 @@
     "avatarUploadInProgress": "Profiilipildi üleslaadimine käib veel. Palun oota, kuni see lõpetab.",
     "avatarRequired": "Profiilipilt on kohustuslik.",
     "avatarReady": "Profiilipilt on lisatud.",
+    "avatarPreviewHint": "Eelvaade",
     "linkedinUrl": "LinkedIn link (valikuline)",
     "linkedinUrlHint": "https://www.linkedin.com/in/…",
     "firstName": "Eesnimi",
