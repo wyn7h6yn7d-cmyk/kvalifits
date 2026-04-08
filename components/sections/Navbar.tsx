@@ -193,7 +193,7 @@ export function Navbar() {
                     asChild
                     variant="primary"
                     size="sm"
-                    className="h-7 shrink-0 rounded-md px-1.5 text-[13px] leading-none"
+                    className="h-7 shrink-0 rounded-md px-1.5 py-0 text-[13px] leading-none"
                   >
                     <Link
                       href="/auth/register"
