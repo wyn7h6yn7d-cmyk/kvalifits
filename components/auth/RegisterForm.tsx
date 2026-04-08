@@ -34,6 +34,9 @@ export function RegisterForm({ locale }: { locale: string }) {
         password,
         options: {
           emailRedirectTo: redirectTo,
+          data: {
+            role,
+          },
         },
       });
       if (error) throw error;
