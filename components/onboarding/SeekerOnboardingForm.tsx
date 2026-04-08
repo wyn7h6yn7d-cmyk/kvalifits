@@ -42,6 +42,21 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const m = (err as { message?: unknown }).message;
       return typeof m === "string" ? m : "";
     }
+    if (err && typeof err === "object") {
+      // Supabase errors sometimes come back as plain objects
+      for (const key of ["error", "error_description", "msg", "hint"]) {
+        if (key in err) {
+          const v = (err as Record<string, unknown>)[key];
+          if (typeof v === "string" && v.trim()) return v;
+        }
+      }
+      try {
+        const s = JSON.stringify(err);
+        return s === "{}" ? "" : s;
+      } catch {
+        // ignore
+      }
+    }
     return "";
   }
 
@@ -119,7 +134,13 @@ export function SeekerOnboardingForm({ locale }: Props) {
       setAvatarUrl(publicUrl);
     } catch (err) {
       const message = getErrorMessage(err);
-      if (message.toLowerCase().includes("row-level security")) {
+      const lower = message.toLowerCase();
+      if (
+        lower.includes("row level security") ||
+        lower.includes("row-level security") ||
+        lower.includes("new row violates") ||
+        lower.includes("permission denied")
+      ) {
         const msg = t("rlsError");
         setAvatarUploadError(msg);
         setError(msg);
@@ -185,7 +206,13 @@ export function SeekerOnboardingForm({ locale }: Props) {
       router.refresh();
     } catch (err) {
       const message = getErrorMessage(err);
-      if (message.toLowerCase().includes("row-level security")) {
+      const lower = message.toLowerCase();
+      if (
+        lower.includes("row level security") ||
+        lower.includes("row-level security") ||
+        lower.includes("new row violates") ||
+        lower.includes("permission denied")
+      ) {
         setError(t("rlsError"));
       } else {
         setError(message || t("unknownError"));
