@@ -18,22 +18,27 @@ export function EmployerNewJobForm({ locale }: Props) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
+  const [companyName, setCompanyName] = useState<string>("");
   const [location, setLocation] = useState("");
   const [workType, setWorkType] = useState("on_site");
   const [jobType, setJobType] = useState("full_time");
+  const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
   const [requirements, setRequirements] = useState("");
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [salaryCurrency, setSalaryCurrency] = useState("EUR");
+  const [applicationType, setApplicationType] = useState("external_url");
   const [applicationUrl, setApplicationUrl] = useState("");
+  const [packageDays, setPackageDays] = useState<30 | 90>(30);
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
+  async function saveDraft(mode: "draft" | "payment") {
     setLoading(true);
     setError(null);
+    setInfo(null);
 
     try {
       const supabase = createSupabaseBrowserClient();
@@ -44,14 +49,19 @@ export function EmployerNewJobForm({ locale }: Props) {
 
       const { data: employer, error: employerErr } = await supabase
         .from("employer_profiles")
-        .select("id")
+        .select("id,company_name")
         .eq("owner_user_id", user.id)
         .maybeSingle();
       if (employerErr) throw employerErr;
       if (!employer?.id) throw new Error(t("missingEmployerProfile"));
+      setCompanyName((employer.company_name ?? "").toString());
 
       const min = salaryMin.trim() ? Number(salaryMin) : null;
       const max = salaryMax.trim() ? Number(salaryMax) : null;
+
+      const fullDescription = summary.trim()
+        ? `${t("summaryLabel")}: ${summary.trim()}\n\n${description}`
+        : description;
 
       const { error: jobErr } = await supabase.from("job_posts").insert({
         employer_profile_id: employer.id,
@@ -60,19 +70,25 @@ export function EmployerNewJobForm({ locale }: Props) {
         location,
         work_type: workType,
         job_type: jobType,
-        description,
+        description: fullDescription,
         requirements,
         salary_min: Number.isFinite(min as number) ? min : null,
         salary_max: Number.isFinite(max as number) ? max : null,
         salary_currency: salaryCurrency,
-        application_type: "external_url",
+        application_type: applicationType,
         application_url: applicationUrl,
         status: "draft",
       });
       if (jobErr) throw jobErr;
 
-      // MVP: after draft creation, return to employer area (job management).
-      router.push(`/${locale}/account/employer`);
+      if (mode === "payment") {
+        setInfo(t("paymentTestModeSaved", { days: packageDays }));
+        router.push(`/${locale}/account/employer/jobs`);
+        router.refresh();
+        return;
+      }
+
+      router.push(`/${locale}/account/employer/jobs`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("unknownError"));
@@ -82,8 +98,58 @@ export function EmployerNewJobForm({ locale }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void saveDraft("draft");
+      }}
+      className="space-y-6"
+    >
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-sm font-medium text-white/85">{t("packageTitle")}</div>
+        <div className="mt-1 text-sm text-white/60">{t("packageHint")}</div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
+            <div className="text-sm text-white/80">{t("package30")}</div>
+            <input
+              type="radio"
+              name="package"
+              value="30"
+              checked={packageDays === 30}
+              onChange={() => setPackageDays(30)}
+            />
+          </label>
+          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
+            <div className="text-sm text-white/80">{t("package90")}</div>
+            <input
+              type="radio"
+              name="package"
+              value="90"
+              checked={packageDays === 90}
+              onChange={() => setPackageDays(90)}
+            />
+          </label>
+        </div>
+        <div className="mt-4">
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            disabled={loading}
+            onClick={() => void saveDraft("payment")}
+          >
+            {loading ? t("saving") : t("continueToPayment")}
+          </Button>
+          <div className="mt-2 text-xs text-white/50">{t("paymentTestModeNote")}</div>
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("companyNameLabel")}</label>
+          <Input value={companyName} readOnly aria-readonly="true" placeholder={t("companyNameAuto")} />
+        </div>
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("title")}</label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -108,11 +174,38 @@ export function EmployerNewJobForm({ locale }: Props) {
 
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("workType")}</label>
-          <Input value={workType} onChange={(e) => setWorkType(e.target.value)} required />
+          <select
+            value={workType}
+            onChange={(e) => setWorkType(e.target.value)}
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          >
+            <option value="on_site">{t("workTypeOnSite")}</option>
+            <option value="hybrid">{t("workTypeHybrid")}</option>
+            <option value="remote">{t("workTypeRemote")}</option>
+          </select>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobType")}</label>
-          <Input value={jobType} onChange={(e) => setJobType(e.target.value)} required />
+          <select
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          >
+            <option value="full_time">{t("jobTypeFullTime")}</option>
+            <option value="part_time">{t("jobTypePartTime")}</option>
+            <option value="contract">{t("jobTypeContract")}</option>
+            <option value="internship">{t("jobTypeInternship")}</option>
+          </select>
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("summary")}</label>
+          <textarea
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            rows={2}
+            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            placeholder={t("summaryPlaceholder")}
+          />
         </div>
       </div>
 
@@ -162,6 +255,11 @@ export function EmployerNewJobForm({ locale }: Props) {
       {error ? (
         <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
           {error}
+        </div>
+      ) : null}
+      {info ? (
+        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+          {info}
         </div>
       ) : null}
 
