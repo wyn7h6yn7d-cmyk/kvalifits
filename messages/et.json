@@ -251,6 +251,7 @@
     "avatar": "Profiilipilt (kohustuslik)",
     "avatarUpload": "Või lae pilt üles",
     "avatarUploading": "Laen pilti üles…",
+    "avatarUploadInProgress": "Profiilipildi üleslaadimine käib veel. Palun oota, kuni see lõpetab.",
     "avatarRequired": "Profiilipilt on kohustuslik.",
     "avatarReady": "Profiilipilt on lisatud.",
     "linkedinUrl": "LinkedIn link (valikuline)",

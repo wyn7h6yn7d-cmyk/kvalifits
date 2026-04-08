@@ -251,6 +251,7 @@
     "avatar": "Profile photo (required)",
     "avatarUpload": "Or upload a photo",
     "avatarUploading": "Uploading photo…",
+    "avatarUploadInProgress": "Your profile photo is still uploading. Please wait until it finishes.",
     "avatarRequired": "Profile photo is required.",
     "avatarReady": "Profile photo added.",
     "linkedinUrl": "LinkedIn URL (optional)",

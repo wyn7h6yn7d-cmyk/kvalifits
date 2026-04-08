@@ -129,6 +129,9 @@ export function SeekerOnboardingForm({ locale }: Props) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
 
+      if (avatarUploading) {
+        throw new Error(t("avatarUploadInProgress"));
+      }
       if (!avatarUrl.trim()) {
         throw new Error(t("avatarRequired"));
       }
