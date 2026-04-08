@@ -64,6 +64,30 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   const [linkedinUrl, setLinkedinUrl] = useState(initial.linkedin_url ?? "");
   const [avatarUrl, setAvatarUrl] = useState(initial.avatar_url ?? "");
 
+  function getErrorMessage(err: unknown) {
+    if (err instanceof Error) return err.message;
+    if (typeof err === "string") return err;
+    if (err && typeof err === "object" && "message" in err) {
+      const m = (err as { message?: unknown }).message;
+      return typeof m === "string" ? m : "";
+    }
+    if (err && typeof err === "object") {
+      for (const key of ["error", "error_description", "msg", "hint", "details"]) {
+        if (key in err) {
+          const v = (err as Record<string, unknown>)[key];
+          if (typeof v === "string" && v.trim()) return v;
+        }
+      }
+      try {
+        const s = JSON.stringify(err);
+        return s === "{}" ? "" : s;
+      } catch {
+        // ignore
+      }
+    }
+    return "";
+  }
+
   const [certificates, setCertificates] = useState<Certificate[]>(
     initial.certificates.length
       ? initial.certificates
@@ -180,13 +204,26 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         certificate_issuer: c.certificate_issuer,
         certificate_valid_from: c.certificate_valid_from,
         certificate_valid_until: c.certificate_valid_until,
+        // DB may still enforce NOT NULL; safe default if column exists.
+        certificate_image_url: "",
       }));
       const { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
       if (insErr) throw insErr;
 
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      const message = getErrorMessage(err);
+      const lower = message.toLowerCase();
+      if (
+        lower.includes("row level security") ||
+        lower.includes("row-level security") ||
+        lower.includes("new row violates") ||
+        lower.includes("permission denied")
+      ) {
+        setError(t("rlsError"));
+      } else {
+        setError(message || t("unknownError"));
+      }
     } finally {
       setLoading(false);
     }
