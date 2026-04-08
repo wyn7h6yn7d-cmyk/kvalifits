@@ -22,6 +22,8 @@ export default async function TooandjatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("pages.employers");
   const homeHash = (id: string) => `/${locale}#${id}`;
+  const pricingTitle =
+    locale === "et" ? "Hinnakiri" : locale === "ru" ? "Цены" : "Pricing";
 
   const details = [
     { icon: Building2, title: t("d1Title"), text: t("d1Text") },
@@ -44,26 +46,55 @@ export default async function TooandjatelePage({ params }: Props) {
           title={t("heroTitle")}
           subtitle={t("heroSubtitle")}
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Button asChild variant="primary" size="lg" className="h-12 rounded-2xl px-7">
-              <a href={homeHash("registreeru")}>
-                <UserPlus className="h-4 w-4" />
-                {t("ctaSignup")}
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 rounded-2xl px-7">
-              <a href={homeHash("login")}>
-                <LogIn className="h-4 w-4" />
-                {t("ctaLogin")}
-              </a>
-            </Button>
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
+            <div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <Button
+                  asChild
+                  variant="primary"
+                  size="lg"
+                  className="h-12 rounded-2xl px-7"
+                >
+                  <a href={homeHash("registreeru")}>
+                    <UserPlus className="h-4 w-4" />
+                    {t("ctaSignup")}
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="h-12 rounded-2xl px-7"
+                >
+                  <a href={homeHash("login")}>
+                    <LogIn className="h-4 w-4" />
+                    {t("ctaLogin")}
+                  </a>
+                </Button>
+              </div>
+              <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
+                {t("ctaHint")}
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
+              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                {pricingTitle}
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="text-sm font-medium text-white/85">30 päeva</div>
+                  <div className="font-mono text-lg font-semibold text-white">99 €</div>
+                </div>
+
+                <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                  <div className="text-sm font-medium text-white/85">90 päeva</div>
+                  <div className="font-mono text-lg font-semibold text-white">250 €</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
-            {t("ctaHint")}{" "}
-            <span className="whitespace-nowrap font-medium text-white/70">
-              30 päeva – 99 €
-            </span>
-          </p>
         </PageHero>
 
         <section className="border-t border-white/[0.06] py-14 sm:py-20">
