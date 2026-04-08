@@ -243,6 +243,7 @@
   },
   "onboarding": {
     "unknownError": "Midagi läks valesti.",
+    "rlsError": "Ligipääs keelatud (turvapoliitika). Palun proovi uuesti või anna teada, kui probleem püsib.",
     "notAuthed": "Pead olema sisse logitud.",
     "saving": "Salvestan…",
     "saveAndContinue": "Salvesta ja jätka",

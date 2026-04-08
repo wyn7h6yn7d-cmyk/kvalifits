@@ -60,7 +60,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_issuer: string;
       certificate_valid_from: string;
       certificate_valid_until: string;
-      certificate_image_url: string;
     }>
   >([
     {
@@ -69,7 +68,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_issuer: "",
       certificate_valid_from: "",
       certificate_valid_until: "",
-      certificate_image_url: "",
     },
   ]);
 
@@ -108,7 +106,12 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const publicUrl = data.publicUrl;
       setAvatarUrl(publicUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      const message = err instanceof Error ? err.message : "";
+      if (message.toLowerCase().includes("row-level security")) {
+        setError(t("rlsError"));
+      } else {
+        setError(message || t("unknownError"));
+      }
     } finally {
       setAvatarUploading(false);
     }
@@ -161,7 +164,12 @@ export function SeekerOnboardingForm({ locale }: Props) {
       router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      const message = err instanceof Error ? err.message : "";
+      if (message.toLowerCase().includes("row-level security")) {
+        setError(t("rlsError"));
+      } else {
+        setError(message || t("unknownError"));
+      }
     } finally {
       setLoading(false);
     }
@@ -305,7 +313,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                   certificate_issuer: "",
                   certificate_valid_from: "",
                   certificate_valid_until: "",
-                  certificate_image_url: "",
                 },
               ])
             }
@@ -381,23 +388,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                       )
                     }
                     required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">
-                    {t("certificateImageUrl")}
-                  </label>
-                  <Input
-                    value={c.certificate_image_url}
-                    onChange={(e) =>
-                      setCertificates((prev) =>
-                        prev.map((x, i) =>
-                          i === idx ? { ...x, certificate_image_url: e.target.value } : x
-                        )
-                      )
-                    }
-                    required
-                    placeholder={t("certificateImageUrlHint")}
                   />
                 </div>
                 <div className="space-y-2">

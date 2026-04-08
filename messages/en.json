@@ -243,6 +243,7 @@
   },
   "onboarding": {
     "unknownError": "Something went wrong.",
+    "rlsError": "Access denied (security policy). Please try again, or contact us if it persists.",
     "notAuthed": "You must be signed in.",
     "saving": "Saving…",
     "saveAndContinue": "Save and continue",
