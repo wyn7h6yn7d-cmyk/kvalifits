@@ -169,7 +169,7 @@ export default async function EmployerCandidatesPage({ params }: Props) {
 
                   {s.skills?.length ? (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {s.skills.slice(0, 6).map((skill) => (
+                      {s.skills.slice(0, 6).map((skill: string) => (
                         <span
                           key={skill}
                           className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/70"

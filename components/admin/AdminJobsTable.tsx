@@ -137,9 +137,9 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
               </Button>
               <Button
                 type="button"
-                variant="destructive"
+                variant="outline"
                 size="sm"
-                className="h-9 rounded-xl px-3 text-[13px]"
+                className="h-9 rounded-xl border-red-500/30 bg-red-500/10 px-3 text-[13px] text-red-100 hover:bg-red-500/15"
                 onClick={() => void deleteJob(j.id)}
                 disabled={busyId === j.id}
               >
