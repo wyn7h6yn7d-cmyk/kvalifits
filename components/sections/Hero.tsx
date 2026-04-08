@@ -193,17 +193,6 @@ export function Hero() {
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="max-w-[40rem] xl:max-w-[44rem]"
             >
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.14] bg-white/[0.05] px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md">
-                <Sparkles className="h-3.5 w-3.5 text-violet-300/90" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/50">
-                  {t("badgeBrand")}
-                </span>
-                <span className="h-3 w-px bg-white/15" aria-hidden="true" />
-                <span className="text-[13px] font-medium tracking-tight text-white/78">
-                  {t("badgeMarket")}
-                </span>
-              </div>
-
               <h1 className="mt-10 text-balance text-[2.85rem] font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.65rem] xl:text-[5.1rem]">
                 {t("headlineBefore")}{" "}
                 <span className="text-gradient-brand font-semibold">{t("headlineAccent")}</span>
