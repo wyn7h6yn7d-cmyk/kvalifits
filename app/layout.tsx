@@ -14,8 +14,6 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kvalifits.ee"),
-  title: "Kvalifits",
-  description: "Kvalifits — premium sobitus ja usaldusväärne kvalifikatsioonikontroll.",
   icons: {
     icon: [
       { url: "/favicon-v4.ico", type: "image/x-icon" },
