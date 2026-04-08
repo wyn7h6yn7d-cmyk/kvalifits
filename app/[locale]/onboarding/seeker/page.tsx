@@ -5,6 +5,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { SeekerOnboardingForm } from "@/components/onboarding/SeekerOnboardingForm";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -31,9 +32,7 @@ export default async function SeekerOnboardingPage({ params }: Props) {
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
         <AuthShell title={t("onboardingSeekerTitle")} subtitle={t("onboardingSeekerSubtitle")}>
-          <div className="text-sm text-white/70">
-            {t("onboardingNotImplementedYet")}
-          </div>
+          <SeekerOnboardingForm locale={locale} />
         </AuthShell>
       </main>
       <Footer />
