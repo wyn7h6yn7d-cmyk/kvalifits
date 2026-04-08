@@ -10,13 +10,16 @@ export async function requireAdmin(locale: string) {
 
   if (!user) redirect(`/${locale}/auth/login`);
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileErr } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "admin") redirect(`/${locale}/account`);
+  const metaRole = (user.user_metadata as any)?.role;
+  const role = (profileErr ? metaRole : profile?.role) ?? metaRole ?? null;
+
+  if (role !== "admin") redirect(`/${locale}/account`);
 
   return { supabase, user };
 }
