@@ -205,7 +205,12 @@ export function SeekerOnboardingForm({ locale }: Props) {
       });
       if (seekerErr) throw seekerErr;
 
-      const rows = certificates.map((c) => ({ user_id: user.id, ...c }));
+      const rows = certificates.map((c) => ({
+        user_id: user.id,
+        ...c,
+        // DB may still enforce NOT NULL on certificate_image_url in current schema.
+        certificate_image_url: "",
+      }));
       const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
       if (certErr) throw certErr;
 
