@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Menu, ArrowRight } from "lucide-react";
@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+
+type Role = "seeker" | "employer";
 
 const NAV_PATHS = [
   { href: "/", key: "home" as const },
@@ -46,13 +49,54 @@ const langTriggerNavbar =
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const locale = useLocale();
   const [scrolled, setScrolled] = useState(false);
+  const [role, setRole] = useState<Role | null>(null);
+  const [authed, setAuthed] = useState<boolean>(false);
+  const supabaseRef = useRef<ReturnType<typeof createSupabaseBrowserClient> | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      const supabase = (supabaseRef.current ??= createSupabaseBrowserClient());
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!mounted) return;
+      setAuthed(Boolean(user));
+
+      if (!user) {
+        setRole(null);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!mounted) return;
+      const r = profile?.role;
+      setRole(r === "seeker" || r === "employer" ? r : null);
+    }
+
+    void load();
+    const supabase = (supabaseRef.current ??= createSupabaseBrowserClient());
+    const { data: sub } = supabase.auth.onAuthStateChange(() => void load());
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   /** Üks kiht: taust + blur + border samal elemendil kui rida → üks pidev klaasriba */
@@ -84,25 +128,72 @@ export function Navbar() {
 
           <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2 lg:ml-2">
             <div className="hidden h-full min-h-0 items-center gap-2 lg:flex">
-              <Link
-                href="/auth/login"
-                className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-              >
-                {t("login")}
-              </Link>
-              <Button
-                asChild
-                variant="primary"
-                size="sm"
-                className="h-7 shrink-0 rounded-md px-2.5 text-[13px] leading-none"
-              >
-                <Link
-                  href="/auth/register"
-                  className="inline-flex h-full min-h-0 items-center justify-center gap-1.5"
-                >
-                  {t("signup")} <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </Button>
+              {authed ? (
+                <>
+                  {role === "seeker" ? (
+                    <Link
+                      href="/account/seeker"
+                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
+                    >
+                      {t("seekerArea")}
+                    </Link>
+                  ) : null}
+                  {role === "employer" ? (
+                    <>
+                      <Link
+                        href="/account/employer"
+                        className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
+                      >
+                        {t("employerArea")}
+                      </Link>
+                      <Button
+                        asChild
+                        variant="primary"
+                        size="sm"
+                        className="h-7 shrink-0 rounded-md px-2.5 text-[13px] leading-none"
+                      >
+                        <Link
+                          href="/account/employer/jobs/new"
+                          className="inline-flex h-full min-h-0 items-center justify-center gap-1.5"
+                        >
+                          {t("addJob")} <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </Button>
+                    </>
+                  ) : null}
+
+                  <form action={`/${locale}/auth/logout`} method="post">
+                    <button
+                      type="submit"
+                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
+                    >
+                      {t("logout")}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
+                  >
+                    {t("login")}
+                  </Link>
+                  <Button
+                    asChild
+                    variant="primary"
+                    size="sm"
+                    className="h-7 shrink-0 rounded-md px-2.5 text-[13px] leading-none"
+                  >
+                    <Link
+                      href="/auth/register"
+                      className="inline-flex h-full min-h-0 items-center justify-center gap-1.5"
+                    >
+                      {t("signup")} <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                </>
+              )}
               <div className="flex h-full shrink-0 items-center">
                 <LanguageSwitcher triggerClassName={langTriggerNavbar} />
               </div>
@@ -146,12 +237,39 @@ export function Navbar() {
 
                     <div className="pt-2">
                       <div className="flex flex-col gap-3">
-                        <Button asChild variant="ghost" className="w-full">
-                          <Link href="/auth/login">{t("login")}</Link>
-                        </Button>
-                        <Button asChild variant="primary" className="w-full">
-                          <Link href="/auth/register">{t("signup")}</Link>
-                        </Button>
+                        {authed ? (
+                          <>
+                            {role === "seeker" ? (
+                              <Button asChild variant="ghost" className="w-full">
+                                <Link href="/account/seeker">{t("seekerArea")}</Link>
+                              </Button>
+                            ) : null}
+                            {role === "employer" ? (
+                              <>
+                                <Button asChild variant="ghost" className="w-full">
+                                  <Link href="/account/employer">{t("employerArea")}</Link>
+                                </Button>
+                                <Button asChild variant="primary" className="w-full">
+                                  <Link href="/account/employer/jobs/new">{t("addJob")}</Link>
+                                </Button>
+                              </>
+                            ) : null}
+                            <form action={`/${locale}/auth/logout`} method="post">
+                              <Button variant="outline" className="w-full">
+                                {t("logout")}
+                              </Button>
+                            </form>
+                          </>
+                        ) : (
+                          <>
+                            <Button asChild variant="ghost" className="w-full">
+                              <Link href="/auth/login">{t("login")}</Link>
+                            </Button>
+                            <Button asChild variant="primary" className="w-full">
+                              <Link href="/auth/register">{t("signup")}</Link>
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
