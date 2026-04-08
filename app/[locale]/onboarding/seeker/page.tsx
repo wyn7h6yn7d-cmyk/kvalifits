@@ -31,7 +31,11 @@ export default async function SeekerOnboardingPage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("onboardingSeekerTitle")} subtitle={t("onboardingSeekerSubtitle")}>
+        <AuthShell
+          title={t("onboardingSeekerTitle")}
+          subtitle={t("onboardingSeekerSubtitle")}
+          maxWidthClassName="max-w-3xl"
+        >
           <SeekerOnboardingForm locale={locale} />
         </AuthShell>
       </main>

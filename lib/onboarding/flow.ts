@@ -28,6 +28,7 @@ export async function getRoleAndNextPath(locale: string) {
   }
 
   if (role === "seeker") {
+    const avatarOk = nonEmpty(user.user_metadata?.avatar_url);
     const { data: seeker } = await supabase
       .from("seeker_profiles")
       .select(
@@ -43,6 +44,7 @@ export async function getRoleAndNextPath(locale: string) {
 
     const completeByFlag = Boolean(seeker?.is_complete);
     const completeByFields =
+      avatarOk &&
       nonEmpty(seeker?.full_name) &&
       nonEmpty(seeker?.phone) &&
       nonEmpty(seeker?.location) &&

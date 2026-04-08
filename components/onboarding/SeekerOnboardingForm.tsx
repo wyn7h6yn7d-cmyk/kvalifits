@@ -29,12 +29,27 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [preferredJobTypesCsv, setPreferredJobTypesCsv] = useState("");
   const [preferredLocationsCsv, setPreferredLocationsCsv] = useState("");
 
-  const [certificateName, setCertificateName] = useState("");
-  const [certificateNumber, setCertificateNumber] = useState("");
-  const [certificateIssuer, setCertificateIssuer] = useState("");
-  const [certificateValidFrom, setCertificateValidFrom] = useState("");
-  const [certificateValidUntil, setCertificateValidUntil] = useState("");
-  const [certificateImageUrl, setCertificateImageUrl] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+
+  const [certificates, setCertificates] = useState<
+    Array<{
+      certificate_name: string;
+      certificate_number: string;
+      certificate_issuer: string;
+      certificate_valid_from: string;
+      certificate_valid_until: string;
+      certificate_image_url: string;
+    }>
+  >([
+    {
+      certificate_name: "",
+      certificate_number: "",
+      certificate_issuer: "",
+      certificate_valid_from: "",
+      certificate_valid_until: "",
+      certificate_image_url: "",
+    },
+  ]);
 
   function parseCsv(v: string) {
     return v
@@ -55,6 +70,11 @@ export function SeekerOnboardingForm({ locale }: Props) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
 
+      const { error: avatarErr } = await supabase.auth.updateUser({
+        data: { avatar_url: avatarUrl },
+      });
+      if (avatarErr) throw avatarErr;
+
       const skills = parseCsv(skillsCsv);
       const preferredJobTypes = parseCsv(preferredJobTypesCsv);
       const preferredLocations = parseCsv(preferredLocationsCsv);
@@ -74,15 +94,8 @@ export function SeekerOnboardingForm({ locale }: Props) {
       });
       if (seekerErr) throw seekerErr;
 
-      const { error: certErr } = await supabase.from("seeker_certificates").insert({
-        user_id: user.id,
-        certificate_name: certificateName,
-        certificate_number: certificateNumber,
-        certificate_issuer: certificateIssuer,
-        certificate_valid_from: certificateValidFrom,
-        certificate_valid_until: certificateValidUntil,
-        certificate_image_url: certificateImageUrl,
-      });
+      const rows = certificates.map((c) => ({ user_id: user.id, ...c }));
+      const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
       if (certErr) throw certErr;
 
       router.push(`/${locale}/onboarding`);
@@ -96,6 +109,16 @@ export function SeekerOnboardingForm({ locale }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("avatarUrl")}</label>
+        <Input
+          value={avatarUrl}
+          onChange={(e) => setAvatarUrl(e.target.value)}
+          required
+          placeholder={t("avatarUrlHint")}
+        />
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">
@@ -182,71 +205,154 @@ export function SeekerOnboardingForm({ locale }: Props) {
       </div>
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("certificateSection")}</div>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">
-              {t("certificateName")}
-            </label>
-            <Input
-              value={certificateName}
-              onChange={(e) => setCertificateName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">
-              {t("certificateNumber")}
-            </label>
-            <Input
-              value={certificateNumber}
-              onChange={(e) => setCertificateNumber(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">
-              {t("certificateIssuer")}
-            </label>
-            <Input
-              value={certificateIssuer}
-              onChange={(e) => setCertificateIssuer(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">
-              {t("certificateImageUrl")}
-            </label>
-            <Input
-              value={certificateImageUrl}
-              onChange={(e) => setCertificateImageUrl(e.target.value)}
-              required
-              placeholder={t("certificateImageUrlHint")}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">
-              {t("certificateValidFrom")}
-            </label>
-            <Input
-              type="date"
-              value={certificateValidFrom}
-              onChange={(e) => setCertificateValidFrom(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">
-              {t("certificateValidUntil")}
-            </label>
-            <Input
-              type="date"
-              value={certificateValidUntil}
-              onChange={(e) => setCertificateValidUntil(e.target.value)}
-              required
-            />
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm font-medium text-white/85">{t("certificateSection")}</div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-xl px-3 text-[13px]"
+            onClick={() =>
+              setCertificates((prev) => [
+                ...prev,
+                {
+                  certificate_name: "",
+                  certificate_number: "",
+                  certificate_issuer: "",
+                  certificate_valid_from: "",
+                  certificate_valid_until: "",
+                  certificate_image_url: "",
+                },
+              ])
+            }
+          >
+            {t("addCertificate")}
+          </Button>
+        </div>
+
+        <div className="mt-4 space-y-6">
+          {certificates.map((c, idx) => (
+            <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-xs font-medium tracking-wide text-white/55">
+                  {t("certificate")} #{idx + 1}
+                </div>
+                {certificates.length > 1 ? (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-white/55 hover:text-white/75"
+                    onClick={() =>
+                      setCertificates((prev) => prev.filter((_, i) => i !== idx))
+                    }
+                  >
+                    {t("remove")}
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateName")}
+                  </label>
+                  <Input
+                    value={c.certificate_name}
+                    onChange={(e) =>
+                      setCertificates((prev) =>
+                        prev.map((x, i) =>
+                          i === idx ? { ...x, certificate_name: e.target.value } : x
+                        )
+                      )
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateNumber")}
+                  </label>
+                  <Input
+                    value={c.certificate_number}
+                    onChange={(e) =>
+                      setCertificates((prev) =>
+                        prev.map((x, i) =>
+                          i === idx ? { ...x, certificate_number: e.target.value } : x
+                        )
+                      )
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateIssuer")}
+                  </label>
+                  <Input
+                    value={c.certificate_issuer}
+                    onChange={(e) =>
+                      setCertificates((prev) =>
+                        prev.map((x, i) =>
+                          i === idx ? { ...x, certificate_issuer: e.target.value } : x
+                        )
+                      )
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateImageUrl")}
+                  </label>
+                  <Input
+                    value={c.certificate_image_url}
+                    onChange={(e) =>
+                      setCertificates((prev) =>
+                        prev.map((x, i) =>
+                          i === idx ? { ...x, certificate_image_url: e.target.value } : x
+                        )
+                      )
+                    }
+                    required
+                    placeholder={t("certificateImageUrlHint")}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateValidFrom")}
+                  </label>
+                  <Input
+                    type="date"
+                    value={c.certificate_valid_from}
+                    onChange={(e) =>
+                      setCertificates((prev) =>
+                        prev.map((x, i) =>
+                          i === idx ? { ...x, certificate_valid_from: e.target.value } : x
+                        )
+                      )
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateValidUntil")}
+                  </label>
+                  <Input
+                    type="date"
+                    value={c.certificate_valid_until}
+                    onChange={(e) =>
+                      setCertificates((prev) =>
+                        prev.map((x, i) =>
+                          i === idx ? { ...x, certificate_valid_until: e.target.value } : x
+                        )
+                      )
+                    }
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

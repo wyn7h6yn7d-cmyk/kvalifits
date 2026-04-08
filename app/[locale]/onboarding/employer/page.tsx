@@ -31,7 +31,11 @@ export default async function EmployerOnboardingPage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("onboardingEmployerTitle")} subtitle={t("onboardingEmployerSubtitle")}>
+        <AuthShell
+          title={t("onboardingEmployerTitle")}
+          subtitle={t("onboardingEmployerSubtitle")}
+          maxWidthClassName="max-w-3xl"
+        >
           <EmployerOnboardingForm locale={locale} />
         </AuthShell>
       </main>
