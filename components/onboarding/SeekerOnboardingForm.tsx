@@ -19,6 +19,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
@@ -30,6 +31,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [preferredLocationsCsv, setPreferredLocationsCsv] = useState("");
 
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
 
   const [certificates, setCertificates] = useState<
     Array<{
@@ -58,6 +60,38 @@ export function SeekerOnboardingForm({ locale }: Props) {
       .filter(Boolean);
   }
 
+  async function onAvatarFileChange(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setAvatarUploading(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, {
+          upsert: true,
+          contentType: file.type || undefined,
+        });
+      if (uploadErr) throw uploadErr;
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = data.publicUrl;
+      setAvatarUrl(publicUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("unknownError"));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -70,8 +104,12 @@ export function SeekerOnboardingForm({ locale }: Props) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
 
+      if (!avatarUrl.trim()) {
+        throw new Error(t("avatarRequired"));
+      }
+
       const { error: avatarErr } = await supabase.auth.updateUser({
-        data: { avatar_url: avatarUrl },
+        data: { avatar_url: avatarUrl, linkedin_url: linkedinUrl || null },
       });
       if (avatarErr) throw avatarErr;
 
@@ -116,6 +154,32 @@ export function SeekerOnboardingForm({ locale }: Props) {
           onChange={(e) => setAvatarUrl(e.target.value)}
           required
           placeholder={t("avatarUrlHint")}
+        />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <label className="text-xs font-medium tracking-wide text-white/55">
+            {t("avatarUpload")}
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => void onAvatarFileChange(e.target.files?.[0] ?? null)}
+            className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+          />
+        </div>
+        {avatarUploading ? (
+          <div className="text-xs text-white/55">{t("avatarUploading")}</div>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">
+          {t("linkedinUrl")}
+        </label>
+        <Input
+          value={linkedinUrl}
+          onChange={(e) => setLinkedinUrl(e.target.value)}
+          placeholder={t("linkedinUrlHint")}
+          inputMode="url"
         />
       </div>
 
