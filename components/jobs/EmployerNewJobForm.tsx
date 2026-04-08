@@ -33,7 +33,6 @@ export function EmployerNewJobForm({ locale }: Props) {
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [salaryCurrency, setSalaryCurrency] = useState("EUR");
-  const [applicationType, setApplicationType] = useState("external_url");
   const [applicationUrl, setApplicationUrl] = useState("");
   const [packageDays, setPackageDays] = useState<30 | 90>(30);
   const [employerProfileOk, setEmployerProfileOk] = useState(true);
@@ -88,9 +87,6 @@ export function EmployerNewJobForm({ locale }: Props) {
     if (!summary.trim()) return t("errSummaryRequired");
     if (!description.trim()) return t("errDescriptionRequired");
     if (!requirements.trim()) return t("errRequirementsRequired");
-    if (!applicationType.trim()) return t("errApplicationTypeRequired");
-    if (!applicationUrl.trim()) return t("errApplicationUrlRequired");
-    if (!isValidHttpUrl(applicationUrl.trim())) return t("errApplicationUrlInvalid");
     return null;
   }
 
@@ -139,8 +135,10 @@ export function EmployerNewJobForm({ locale }: Props) {
         salary_min: Number.isFinite(min as number) ? min : null,
         salary_max: Number.isFinite(max as number) ? max : null,
         salary_currency: salaryCurrency,
-        application_type: applicationType,
-        application_url: applicationUrl,
+        application_type: "external_url",
+        // MVP test: application flow not shown on form yet.
+        // Keep DB happy with an empty string if the column is NOT NULL.
+        application_url: applicationUrl.trim() || "",
         status: "draft",
       });
       if (jobErr) throw jobErr;
@@ -227,12 +225,12 @@ export function EmployerNewJobForm({ locale }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-4">
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("companyNameLabel")}</label>
           <Input value={companyName} readOnly aria-readonly="true" placeholder={t("companyNameAuto")} />
         </div>
-        <div className="space-y-2 sm:col-span-2">
+        <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("title")}</label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
@@ -241,28 +239,6 @@ export function EmployerNewJobForm({ locale }: Props) {
             {t("location")}
           </label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">
-            {t("applicationUrl")}
-          </label>
-          <Input
-            value={applicationUrl}
-            onChange={(e) => setApplicationUrl(e.target.value)}
-            required
-            placeholder="https://…"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("applicationType")}</label>
-          <select
-            value={applicationType}
-            onChange={(e) => setApplicationType(e.target.value)}
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
-          >
-            <option value="external_url">{t("applicationTypeExternalUrl")}</option>
-          </select>
         </div>
 
         <div className="space-y-2">
@@ -290,7 +266,7 @@ export function EmployerNewJobForm({ locale }: Props) {
             <option value="internship">{t("jobTypeInternship")}</option>
           </select>
         </div>
-        <div className="space-y-2 sm:col-span-2">
+        <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("summary")}</label>
           <textarea
             value={summary}

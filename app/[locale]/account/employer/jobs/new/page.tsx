@@ -30,7 +30,7 @@ export default async function EmployerNewJobPage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("createTitle")} subtitle={t("createSubtitle")}>
+        <AuthShell title={t("createTitle")} subtitle={t("createSubtitle")} maxWidthClassName="max-w-3xl">
           <EmployerNewJobForm locale={locale} />
         </AuthShell>
       </main>
