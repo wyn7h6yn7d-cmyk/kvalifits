@@ -35,6 +35,16 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
 
+  function getErrorMessage(err: unknown) {
+    if (err instanceof Error) return err.message;
+    if (typeof err === "string") return err;
+    if (err && typeof err === "object" && "message" in err) {
+      const m = (err as { message?: unknown }).message;
+      return typeof m === "string" ? m : "";
+    }
+    return "";
+  }
+
   // Prefill readonly email (nice UX)
   useEffect(() => {
     let mounted = true;
@@ -108,7 +118,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const publicUrl = data.publicUrl;
       setAvatarUrl(publicUrl);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "";
+      const message = getErrorMessage(err);
       if (message.toLowerCase().includes("row-level security")) {
         const msg = t("rlsError");
         setAvatarUploadError(msg);
@@ -174,7 +184,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "";
+      const message = getErrorMessage(err);
       if (message.toLowerCase().includes("row-level security")) {
         setError(t("rlsError"));
       } else {
