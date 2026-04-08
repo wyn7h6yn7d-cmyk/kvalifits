@@ -90,6 +90,21 @@ export function EmployerNewJobForm({ locale }: Props) {
     return null;
   }
 
+  function slugify(value: string) {
+    const base = value
+      .trim()
+      .toLowerCase()
+      .replace(/ä/g, "a")
+      .replace(/ö/g, "o")
+      .replace(/õ/g, "o")
+      .replace(/ü/g, "u")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "")
+      .slice(0, 60);
+    const suffix = Math.random().toString(36).slice(2, 8);
+    return `${base || "job"}-${suffix}`;
+  }
+
   async function saveDraft(mode: "draft" | "payment") {
     const v = validate();
     if (v) {
@@ -133,6 +148,7 @@ export function EmployerNewJobForm({ locale }: Props) {
         employer_profile_id: employer.id,
         created_by: user.id,
         title,
+        slug: slugify(title),
         location,
         work_type: workType,
         job_type: jobType,
