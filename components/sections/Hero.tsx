@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -24,6 +25,8 @@ const heroSecondaryCta =
   "h-14 min-w-[180px] rounded-2xl border-white/[0.22] bg-white/[0.04] px-8 text-[15px] font-semibold tracking-tight text-white backdrop-blur-md transition-all duration-300 hover:border-white/[0.32] hover:bg-white/[0.09] hover:shadow-[0_0_40px_-12px_rgba(255,255,255,0.12)]";
 
 function HeroMatchMockup() {
+  const t = useTranslations("heroMockup");
+
   return (
     <div className="relative mx-auto w-full max-w-[min(100%,440px)]">
       <div
@@ -43,10 +46,10 @@ function HeroMatchMockup() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/40">
-                Sobitus
+                {t("matching")}
               </span>
               <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-300/90">
-                reaalajas
+                {t("live")}
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-white/40">
@@ -54,7 +57,7 @@ function HeroMatchMockup() {
                 <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-emerald-400/50" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
-              värske
+              {t("fresh")}
             </div>
           </div>
 
@@ -71,9 +74,9 @@ function HeroMatchMockup() {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
-                    Tööotsija
+                    {t("seeker")}
                   </div>
-                  <div className="truncate text-sm font-medium text-white/90">Elektrik</div>
+                  <div className="truncate text-sm font-medium text-white/90">{t("roleSample")}</div>
                 </div>
               </div>
             </motion.div>
@@ -86,7 +89,7 @@ function HeroMatchMockup() {
                 </span>
               </div>
               <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/35">
-                sobivus
+                {t("fit")}
               </span>
             </div>
 
@@ -102,9 +105,11 @@ function HeroMatchMockup() {
                 </div>
                 <div className="min-w-0">
                   <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
-                    Tööandja
+                    {t("employer")}
                   </div>
-                  <div className="truncate text-sm font-medium text-white/85">Positsioon</div>
+                  <div className="truncate text-sm font-medium text-white/85">
+                    {t("positionSample")}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -114,18 +119,18 @@ function HeroMatchMockup() {
 
           <div className="space-y-3.5">
             <p className="font-mono text-[11px] leading-relaxed tracking-[0.04em] text-white/55 sm:text-xs">
-              Elektrik · A-pädevus · Sobivus{" "}
+              {t("lineSample")}{" "}
               <span className="text-white/80">87%</span>
             </p>
 
             <div className="flex items-center gap-2.5 text-sm text-white/65">
               <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
-              <span>Sertifikaat kontrollitud</span>
+              <span>{t("verified")}</span>
             </div>
 
             <div>
               <div className="flex items-center justify-between text-[11px] text-white/45">
-                <span>Nõuded</span>
+                <span>{t("requirements")}</span>
                 <span className="font-mono tabular-nums text-white/55">8/10</span>
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
@@ -145,17 +150,18 @@ function HeroMatchMockup() {
 }
 
 export function Hero() {
+  const t = useTranslations("hero");
+
   return (
     <section
       id="avaleht"
-      className="relative min-h-[min(96vh,940px)] overflow-hidden scroll-mt-0"
+      className="relative min-h-[min(96vh,940px)] overflow-hidden scroll-mt-[var(--site-header-offset)]"
     >
       <AmbientBackground intensity={heroPortal.ambientIntensity} />
       <div className="absolute inset-0 z-0">
         <PortalBackground variant={heroPortal.variant} intensity={heroPortal.intensity} />
       </div>
 
-      {/* Luksuslik tumedam valgus: vignett + spotlight */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[1]"
@@ -167,8 +173,17 @@ export function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.55)_100%)] opacity-70" />
       </div>
 
+      {/* Tumedam ülariba: loetav navbar + vähem hero “bleed” läbi klaasi */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-36 bg-gradient-to-b from-[#050508]/92 via-[#050508]/45 to-transparent sm:h-40"
+      />
+
       <Container className="relative z-10">
-        <div className="flex flex-col justify-center pb-20 pt-24 sm:pb-24 sm:pt-28 lg:pb-32 lg:pt-36">
+        <div
+          className="flex flex-col justify-center pb-20 sm:pb-24 lg:pb-32"
+          style={{ paddingTop: "var(--site-hero-content-top)" }}
+        >
           <div className="grid items-center gap-16 lg:grid-cols-[1.08fr_0.92fr] lg:gap-20 xl:gap-24">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -179,40 +194,40 @@ export function Hero() {
               <div className="inline-flex items-center gap-3 rounded-full border border-white/[0.14] bg-white/[0.05] px-4 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 text-violet-300/90" />
                 <span className="text-[11px] font-semibold uppercase tracking-[0.32em] text-white/50">
-                  Kvalifits
+                  {t("badgeBrand")}
                 </span>
                 <span className="h-3 w-px bg-white/15" aria-hidden="true" />
                 <span className="text-[13px] font-medium tracking-tight text-white/78">
-                  Eesti tööturul
+                  {t("badgeMarket")}
                 </span>
               </div>
 
               <h1 className="mt-10 text-balance text-[2.85rem] font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.65rem] xl:text-[5.1rem]">
-                Töö, kus{" "}
-                <span className="text-gradient-brand font-semibold">pädevus</span>
+                {t("headlineBefore")}{" "}
+                <span className="text-gradient-brand font-semibold">{t("headlineAccent")}</span>
                 <br className="hidden sm:block" />
-                <span className="text-white/[0.96]">ei jää arvamuse taha.</span>
+                <span className="text-white/[0.96]">{t("headlineAfter")}</span>
               </h1>
 
               <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/55 sm:text-xl sm:leading-relaxed lg:text-[1.35rem] lg:leading-relaxed">
-                Oskused nähtaval. Sobivus nähtav. Ilma mürata.
+                {t("subheadline")}
               </p>
 
               <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
                 <Button asChild variant="primary" size="lg" className={cn(heroPrimaryCta)}>
                   <Link href="#toootsijatele">
-                    Otsin tööd <ArrowRight className="h-[1.05rem] w-[1.05rem]" />
+                    {t("ctaSeeker")} <ArrowRight className="h-[1.05rem] w-[1.05rem]" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className={cn(heroSecondaryCta)}>
-                  <Link href="#tooandjatele">Pakun tööd</Link>
+                  <Link href="#tooandjatele">{t("ctaEmployer")}</Link>
                 </Button>
               </div>
 
               <div className="mt-14 flex flex-wrap items-center gap-x-10 gap-y-2 border-t border-white/[0.09] pt-10 text-[13px] tracking-wide text-white/38">
-                <span className="text-white/48">Üle Eesti</span>
+                <span className="text-white/48">{t("footerAcross")}</span>
                 <span className="hidden h-3.5 w-px bg-white/12 sm:block" />
-                <span>Spetsialistid · meistrid · kontor · IT</span>
+                <span>{t("footerRoles")}</span>
               </div>
             </motion.div>
 

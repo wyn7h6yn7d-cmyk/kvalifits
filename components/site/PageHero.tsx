@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 
 import { AmbientBackground } from "@/components/site/AmbientBackground";
@@ -9,10 +10,12 @@ export function PageHero({
   eyebrow,
   title,
   subtitle,
+  children,
 }: {
   eyebrow: string;
   title: string;
   subtitle: string;
+  children?: ReactNode;
 }) {
   return (
     <section className="relative overflow-hidden">
@@ -32,6 +35,7 @@ export function PageHero({
               {title}
             </h1>
             <p className="mt-4 text-base leading-7 text-white/65">{subtitle}</p>
+            {children ? <div className="mt-8">{children}</div> : null}
           </motion.div>
         </div>
       </Container>

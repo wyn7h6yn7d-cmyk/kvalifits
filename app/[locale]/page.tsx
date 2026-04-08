@@ -8,11 +8,11 @@ import { LoginAnchor } from "@/components/sections/LoginAnchor";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { Footer } from "@/components/sections/Footer";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex-1 bg-black">
+    <div className="relative flex-1 bg-background">
       <Navbar />
-      <main>
+      <main className="relative z-0">
         <Hero />
         <SectionDivider />
         <SmartMatching />

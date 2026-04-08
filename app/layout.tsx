@@ -13,32 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Kvalifits — verifitseeritud oskustega töövahendus",
-    template: "%s · Kvalifits",
-  },
-  description:
-    "Tööandjad ja spetsialistid ühes pädevuspõhises süsteemis. Verifitseeritud oskused, selge sobivus.",
+  metadataBase: new URL("https://kvalifits.ee"),
   icons: {
     icon: [
       { url: "/favicon-v4.ico", type: "image/x-icon" },
       { url: "/favicon-v4.png", type: "image/png", sizes: "128x128" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-  },
-  metadataBase: new URL("https://kvalifits.ee"),
-  openGraph: {
-    title: "Kvalifits — verifitseeritud oskustega töövahendus",
-    description:
-      "Eesti tööturul: pädevus, sertifikaadid ja sobitamine, mida saab põhjendada.",
-    type: "website",
-    locale: "et_EE",
-  },
-  alternates: {
-    languages: {
-      et: "/",
-      en: "/en",
-    },
   },
 };
 
@@ -50,10 +31,11 @@ export default function RootLayout({
   return (
     <html
       lang="et"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-background text-foreground">
-        <div className="min-h-full flex flex-col">{children}</div>
+      <body className="m-0 min-h-[100dvh] bg-background p-0 text-foreground">
+        <div className="flex min-h-[100dvh] flex-col">{children}</div>
       </body>
     </html>
   );

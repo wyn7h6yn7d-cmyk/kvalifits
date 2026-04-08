@@ -1,7 +1,7 @@
 export const landingET = {
   nav: {
     home: "Avaleht",
-    jobs: "Tööd",
+    jobs: "Töökohad",
     employers: "Tööandjatele",
     seekers: "Tööotsijatele",
     how: "Kuidas toimib",
@@ -141,7 +141,7 @@ export const landingET = {
     blurb:
       "Kvalifits on verifitseeritud pädevusele ja usaldusele ehitatud töövahendusplatvorm Eesti turule.",
     links: {
-      jobs: "Tööd",
+      jobs: "Töökohad",
       employers: "Tööandjatele",
       seekers: "Tööotsijatele",
       contact: "Kontakt",

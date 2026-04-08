@@ -6,6 +6,15 @@
   --foreground: #f4f5f7;
   --accent-pink: #e31f8d;
 
+  /* Fixed navbar — keep Navbar.tsx bar height + shell padding in sync */
+  --site-header-top: 0.875rem;
+  --site-header-tail: 0.5rem;
+  --site-header-bar: 3.875rem;
+  --site-header-offset: calc(
+    var(--site-header-top) + var(--site-header-bar) + var(--site-header-tail)
+  );
+  --site-hero-content-top: calc(var(--site-header-offset) + 0.5rem);
+
   /* Surfaces */
   --card: rgba(255, 255, 255, 0.04);
   --card-2: rgba(255, 255, 255, 0.06);
@@ -20,6 +29,12 @@
   --violet-1: rgba(168, 85, 247, 0.65);
   --violet-2: rgba(99, 102, 241, 0.45);
   --violet-3: rgba(236, 72, 153, 0.20);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --site-header-top: 1.25rem;
+  }
 }
 
 @theme inline {
@@ -40,6 +55,8 @@
 }
 
 body {
+  margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
@@ -51,9 +68,12 @@ body {
   background: rgba(227, 31, 141, 0.22);
 }
 
-/* Slightly smoother text rendering on dark */
+/* Slightly smoother text rendering on dark; match body so no seam at viewport top */
 html {
+  margin: 0;
+  padding: 0;
   text-rendering: geometricPrecision;
+  background-color: var(--background);
 }
 
 /* Accessible focus ring for keyboard users */

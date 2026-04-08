@@ -1,15 +1,19 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
+import { RegistrationConsentText } from "@/components/legal/RegistrationConsentText";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
 export function FinalCTA() {
+  const t = useTranslations("finalCta");
+
   return (
-    <section id="registreeru" className="relative py-24 sm:py-32">
+    <section id="registreeru" className="relative scroll-mt-[var(--site-header-offset)] py-24 sm:py-32">
       <Container>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -34,24 +38,25 @@ export function FinalCTA() {
             <div className="relative grid items-center gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:gap-14">
               <div>
                 <h3 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
-                  Koht, kus{" "}
-                  <span className="text-gradient-brand">otsused on loetavad</span>.
+                  {t("titleBefore")}{" "}
+                  <span className="text-gradient-brand">{t("titleAccent")}</span>.
                 </h3>
                 <p className="mt-5 max-w-xl text-base leading-relaxed text-white/58 sm:text-lg">
-                  Profiil valmis. Sobivad signaalid esimesena.
+                  {t("subtitle")}
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <Button asChild variant="primary" size="lg" className="h-12 justify-center">
                   <Link href="#toootsijatele">
-                    Otsin tööd <ArrowRight className="h-4 w-4" />
+                    {t("ctaSeeker")} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 justify-center">
-                  <Link href="#tooandjatele">Pakun tööd</Link>
+                  <Link href="#tooandjatele">{t("ctaEmployer")}</Link>
                 </Button>
               </div>
             </div>
+            <RegistrationConsentText className="relative mt-10 max-w-xl" />
           </div>
         </motion.div>
       </Container>

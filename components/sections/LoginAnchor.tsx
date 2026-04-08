@@ -1,4 +1,4 @@
 export function LoginAnchor() {
-  return <div id="login" className="h-0 scroll-mt-24" aria-hidden="true" />;
+  return <div id="login" className="h-0 scroll-mt-[var(--site-header-offset)]" aria-hidden="true" />;
 }
 

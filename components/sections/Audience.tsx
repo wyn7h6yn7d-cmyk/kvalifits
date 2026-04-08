@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Briefcase,
+  CalendarDays,
   ClipboardList,
   Layers,
   Sparkles,
@@ -14,15 +15,18 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-const seekerSteps = [
-  { n: "01", title: "Oskused", line: "Pädevus, mida saab võrrelda." },
-  { n: "02", title: "Tõendid", line: "Load ja sertifikaadid ühes profiilis." },
-  { n: "03", title: "Sobivus", line: "Protsent ja põhjus — mitte oletus." },
-] as const;
-
 export function Audience() {
+  const t = useTranslations("audience");
+
+  const seekerSteps = [
+    { n: "01", title: t("step1Title"), line: t("step1Line") },
+    { n: "02", title: t("step2Title"), line: t("step2Line") },
+    { n: "03", title: t("step3Title"), line: t("step3Line") },
+  ] as const;
+
   return (
     <section className="relative py-20 sm:py-32">
       <div
@@ -33,19 +37,16 @@ export function Audience() {
       <Container>
         <div className="max-w-xl">
           <div className="text-xs font-medium uppercase tracking-[0.26em] text-white/45">
-            Sinu roll
+            {t("eyebrow")}
           </div>
           <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
-            Kaks rolli.
-            <span className="block text-white/48"> Üks loogika.</span>
+            {t("title")}
+            <span className="block text-white/48"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-white/52 sm:text-lg">
-            Pädevus ühel pool, nõuded teisel — sama tõlgendus.
-          </p>
+          <p className="mt-5 text-base leading-relaxed text-white/52 sm:text-lg">{t("subtitle")}</p>
         </div>
 
         <div className="mt-16 grid gap-14 lg:mt-20 lg:grid-cols-12 lg:items-start lg:gap-8 xl:gap-12">
-          {/* Tööotsija — vertikaalne voog, profiili keskne */}
           <motion.div
             id="toootsijatele"
             initial={{ opacity: 0, y: 20 }}
@@ -60,15 +61,15 @@ export function Audience() {
               </div>
               <div>
                 <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent-pink/90">
-                  Tööotsija
+                  {t("seekerLabel")}
                 </div>
-                <p className="text-sm font-medium text-white/45">Profiil</p>
+                <p className="text-sm font-medium text-white/45">{t("seekerSublabel")}</p>
               </div>
             </div>
 
             <h3 className="mt-6 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-              Näita tugevust,
-              <span className="block text-white/55"> mitte pikkust.</span>
+              {t("seekerTitle")}
+              <span className="block text-white/55"> {t("seekerTitleMuted")}</span>
             </h3>
 
             <div className="relative mt-10 border-l border-white/[0.1] pl-7 sm:pl-8">
@@ -115,14 +116,13 @@ export function Audience() {
                 className="h-12 w-full rounded-2xl sm:w-auto sm:min-w-[220px]"
               >
                 <Link href="/toootsijatele">
-                  Otsin tööd
+                  {t("seekerCta")}
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </Button>
             </div>
           </motion.div>
 
-          {/* Tööandja — kompaktne süsteemi-eelvaade, nõuete / värbamise keskne */}
           <motion.div
             id="tooandjatele"
             initial={{ opacity: 0, y: 24 }}
@@ -146,25 +146,25 @@ export function Audience() {
                       </div>
                       <div>
                         <div className="text-[10px] font-semibold uppercase tracking-[0.26em] text-violet-300/90">
-                          Tööandja
+                          {t("employerLabel")}
                         </div>
-                        <p className="text-xs text-white/45">Nõuded ja kandidaadid</p>
+                        <p className="text-xs text-white/45">{t("employerSublabel")}</p>
                       </div>
                     </div>
                     <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/40">
-                      eelvaade
+                      {t("preview")}
                     </span>
                   </div>
 
                   <h3 className="mt-5 text-lg font-semibold leading-snug tracking-tight text-white sm:text-xl">
-                    Värbamine ilma arvamisega
+                    {t("employerTitle")}
                   </h3>
 
                   <div className="mt-6 space-y-3 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
                     <div className="flex items-center justify-between gap-3 text-[13px]">
                       <span className="flex items-center gap-2 text-white/55">
                         <ClipboardList className="h-4 w-4 text-white/40" />
-                        Aktiivsed nõuded
+                        {t("activeReq")}
                       </span>
                       <span className="font-mono text-sm tabular-nums text-white/80">3</span>
                     </div>
@@ -172,7 +172,7 @@ export function Audience() {
                     <div className="flex items-center justify-between gap-3 text-[13px]">
                       <span className="flex items-center gap-2 text-white/55">
                         <Users className="h-4 w-4 text-white/40" />
-                        Sobivad kandidaadid
+                        {t("matchingCandidates")}
                       </span>
                       <div className="flex -space-x-2">
                         {[0, 1, 2].map((k) => (
@@ -190,7 +190,7 @@ export function Audience() {
                       <div className="flex items-center justify-between text-[11px] text-white/42">
                         <span className="flex items-center gap-1.5">
                           <Layers className="h-3.5 w-3.5 text-white/35" />
-                          Parim kattuvus
+                          {t("bestOverlap")}
                         </span>
                         <span className="font-mono tabular-nums text-white/65">8/10</span>
                       </div>
@@ -210,9 +210,53 @@ export function Audience() {
                     </div>
                   </div>
 
-                  <p className="mt-5 text-sm leading-relaxed text-white/52">
-                    Nõuded üks kord. Vastused kohe.
-                  </p>
+                  <div
+                    className="relative mt-6 overflow-hidden rounded-2xl"
+                    role="region"
+                    aria-label={t("employerPricingKicker")}
+                  >
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-[conic-gradient(from_125deg_at_50%_0%,rgba(168,85,247,0.35),transparent_42%,rgba(227,31,141,0.18),transparent_72%)] opacity-80"
+                    />
+                    <div className="relative rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.09] via-black/45 to-black/70 p-[1px] shadow-[0_20px_60px_-28px_rgba(168,85,247,0.45)]">
+                      <div className="rounded-[15px] bg-black/55 px-4 py-4 backdrop-blur-md sm:px-5 sm:py-5">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.26em] text-violet-200/85">
+                          {t("employerPricingKicker")}
+                        </div>
+
+                        <div className="mt-4 flex flex-col gap-3">
+                          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
+                              <Briefcase className="h-4 w-4 text-violet-200/80" />
+                            </div>
+                            <span className="text-[13px] font-medium leading-snug text-white/88">
+                              {t("employerPricingPostings")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
+                              <CalendarDays className="h-4 w-4 text-fuchsia-200/75" />
+                            </div>
+                            <span className="text-[13px] font-medium leading-snug text-white/88">
+                              {t("employerPricingDuration")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/[0.08] pt-4">
+                          <p className="max-w-[14rem] text-[11px] leading-relaxed text-white/42">
+                            {t("employerPricingHint")}
+                          </p>
+                          <div className="shrink-0 bg-gradient-to-br from-white to-violet-100/90 bg-clip-text text-right text-3xl font-semibold tracking-tight text-transparent tabular-nums sm:text-[2rem]">
+                            {t("employerPricingPrice")}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="mt-5 text-sm leading-relaxed text-white/52">{t("employerTagline")}</p>
 
                   <div className="mt-6">
                     <Button
@@ -221,7 +265,7 @@ export function Audience() {
                       className="h-12 w-full rounded-2xl border-white/[0.18] bg-white/[0.03] hover:bg-white/[0.08]"
                     >
                       <Link href="/tooandjatele">
-                        Pakun tööd
+                        {t("employerCta")}
                         <ArrowUpRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -230,7 +274,10 @@ export function Audience() {
               </div>
 
               <div className="pointer-events-none absolute -right-3 top-1/4 hidden h-24 w-24 rounded-full border border-white/[0.05] xl:block" />
-              <Sparkles className="pointer-events-none absolute -left-2 top-8 h-5 w-5 text-violet-400/30" aria-hidden />
+              <Sparkles
+                className="pointer-events-none absolute -left-2 top-8 h-5 w-5 text-violet-400/30"
+                aria-hidden
+              />
             </div>
           </motion.div>
         </div>

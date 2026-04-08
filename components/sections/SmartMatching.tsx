@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   BadgeCheck,
@@ -14,39 +15,6 @@ import { Container } from "@/components/ui/container";
 import { PortalBackground } from "@/components/site/portal-background";
 import { subtleSectionPortal } from "@/lib/site-portal-config";
 import { cn } from "@/lib/utils";
-
-const FLOAT_CARDS = [
-  {
-    top: "lg:top-[6%]",
-    left: "lg:left-0",
-    right: "",
-    text: "Sobid sellele positsioonile",
-    sub: "87%",
-    icon: Sparkles,
-    delay: 0,
-    drift: 5.5,
-  },
-  {
-    top: "lg:top-[20%]",
-    left: "",
-    right: "lg:right-0",
-    text: "Sertifikaat kontrollitud",
-    sub: "A-pädevus",
-    icon: ShieldCheck,
-    delay: 0.4,
-    drift: 6.8,
-  },
-  {
-    top: "lg:bottom-[26%]",
-    left: "lg:left-[4%]",
-    right: "",
-    text: "Oskused vastavad nõuetele",
-    sub: "Võrdlus avatud",
-    icon: CheckCircle2,
-    delay: 0.8,
-    drift: 7.2,
-  },
-] as const;
 
 const SEGMENTS = 10;
 const FILLED = 8;
@@ -115,6 +83,43 @@ function SignalCard({
 
 export function SmartMatching() {
   const reduce = useReducedMotion();
+  const t = useTranslations("smartMatching");
+
+  const floatCards = [
+    {
+      top: "lg:top-[5%]",
+      bottom: "",
+      left: "lg:left-3",
+      right: "",
+      text: t("card1"),
+      sub: t("card1Sub"),
+      icon: Sparkles,
+      delay: 0,
+      drift: 5.5,
+    },
+    {
+      top: "lg:top-[18%]",
+      bottom: "",
+      left: "",
+      right: "lg:right-3",
+      text: t("card2"),
+      sub: t("card2Sub"),
+      icon: ShieldCheck,
+      delay: 0.4,
+      drift: 6.8,
+    },
+    {
+      top: "",
+      bottom: "lg:bottom-5",
+      left: "",
+      right: "lg:right-3",
+      text: t("card3"),
+      sub: t("card3Sub"),
+      icon: CheckCircle2,
+      delay: 0.8,
+      drift: 7.2,
+    },
+  ] as const;
 
   return (
     <section id="tood" className="relative scroll-mt-24 overflow-hidden py-28 sm:py-36">
@@ -147,20 +152,17 @@ export function SmartMatching() {
       <Container className="relative">
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/50">
-            Sobituse mootor
+            {t("badge")}
           </div>
           <h2 className="mt-7 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
-            Nutikas sobitamine
-            <span className="mt-2 block text-gradient-brand font-semibold">
-              Tõend, mitte mulje.
-            </span>
+            {t("title")}
+            <span className="mt-2 block text-gradient-brand font-semibold">{t("titleAccent")}</span>
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/52 sm:text-lg">
-            Tõendid, nõuded ja sobivus ühes arusaadavas näitajas.
+            {t("subtitle")}
           </p>
         </div>
 
-        {/* Lava: ruumiline sügavus */}
         <div className="relative mx-auto mt-20 max-w-6xl">
           <div
             aria-hidden="true"
@@ -178,20 +180,19 @@ export function SmartMatching() {
           <div className="relative rounded-[40px] border border-white/[0.12] bg-gradient-to-b from-white/[0.08] via-black/50 to-black/80 p-px shadow-[0_40px_120px_-40px_rgba(0,0,0,0.95)]">
             <div className="absolute inset-0 rounded-[40px] bg-[linear-gradient(135deg,rgba(255,255,255,0.07)_0%,transparent_45%,transparent_100%)]" />
             <div className="relative overflow-hidden rounded-[39px]">
-              {/* Sisemine kiht */}
               <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:48px_48px]" />
 
-              <div className="relative px-6 pb-14 pt-12 sm:px-12 sm:pb-16 sm:pt-14 lg:min-h-[520px] lg:px-10 lg:pb-20 lg:pt-16">
-                {/* Desktop: ujuvad kaardid */}
+              <div className="relative px-6 pb-14 pt-12 sm:px-12 sm:pb-16 sm:pt-14 lg:min-h-[580px] lg:px-10 lg:pb-28 lg:pt-14">
                 <div className="hidden lg:block">
-                  {FLOAT_CARDS.map((c) => (
+                  {floatCards.map((c) => (
                     <FloatingSignal
                       key={c.text}
                       drift={c.drift}
                       delay={c.delay}
                       className={cn(
-                        "absolute z-20 w-[min(100%,280px)]",
+                        "absolute z-[15] w-[min(100%,260px)] max-lg:max-w-none",
                         c.top,
+                        c.bottom,
                         c.left,
                         c.right,
                       )}
@@ -201,11 +202,10 @@ export function SmartMatching() {
                   ))}
                 </div>
 
-                {/* Kesk — sobivus + segmentriba */}
-                <div className="relative z-10 mx-auto flex max-w-lg flex-col items-center text-center lg:max-w-xl">
+                <div className="relative z-20 mx-auto flex max-w-lg flex-col items-center text-center lg:max-w-xl lg:px-4">
                   <div className="flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-white/42">
                     <Fingerprint className="h-3.5 w-3.5 text-violet-300/70" />
-                    Sobivus
+                    {t("fitLabel")}
                   </div>
 
                   <div className="mt-5">
@@ -229,24 +229,27 @@ export function SmartMatching() {
                       </motion.div>
                     </motion.div>
                   </div>
-                  <p className="mt-3 text-sm text-white/48">Selle positsiooniga</p>
+                  <p className="mt-3 text-sm text-white/48">{t("withPosition")}</p>
 
-                  {/* Nõuete kattuvus */}
                   <div className="mt-12 w-full text-left">
                     <div className="flex items-end justify-between gap-4">
                       <div>
                         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">
-                          Nõue ja pädevus
+                          {t("reqSkill")}
                         </p>
-                        <p className="mt-2 text-lg font-medium text-white/88">8/10 täidetud</p>
+                        <p className="mt-2 text-lg font-medium text-white/88">{t("filled")}</p>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-white/45">
                         <BadgeCheck className="h-4 w-4 text-emerald-400/90" />
-                        Kattuvus
+                        {t("overlap")}
                       </div>
                     </div>
 
-                    <div className="mt-5 flex gap-1 sm:gap-1.5" role="img" aria-label="8 kümnest nõudest täidetud">
+                    <div
+                      className="mt-5 flex gap-1 sm:gap-1.5"
+                      role="img"
+                      aria-label={t("segmentsAria")}
+                    >
                       {Array.from({ length: SEGMENTS }).map((_, i) => (
                         <motion.div
                           key={i}
@@ -270,9 +273,8 @@ export function SmartMatching() {
                   </div>
                 </div>
 
-                {/* Mobiil / md — kaardid all */}
                 <div className="relative z-10 mx-auto mt-12 max-w-md space-y-4 lg:hidden">
-                  {FLOAT_CARDS.map((c, idx) => (
+                  {floatCards.map((c, idx) => (
                     <motion.div
                       key={c.text}
                       initial={{ opacity: 0, y: 12 }}
