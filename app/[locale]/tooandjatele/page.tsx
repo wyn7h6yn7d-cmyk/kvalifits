@@ -44,7 +44,7 @@ export default async function TooandjatelePage({ params }: Props) {
           title={t("heroTitle")}
           subtitle={t("heroSubtitle")}
         >
-          <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-center">
+          <div className="grid gap-6">
             <div>
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <Button
@@ -73,22 +73,26 @@ export default async function TooandjatelePage({ params }: Props) {
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
                 {t("ctaHint")}
               </p>
-            </div>
 
-            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
-              <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-                {t("pricingTitle")}
-              </div>
-
-              <div className="mt-4 space-y-3">
-                <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                  <div className="text-sm font-medium text-white/85">{t("pricingDuration30")}</div>
-                  <div className="font-mono text-lg font-semibold text-white">99 €</div>
+              <div className="mt-6 max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                  {t("pricingTitle")}
                 </div>
 
-                <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                  <div className="text-sm font-medium text-white/85">{t("pricingDuration90")}</div>
-                  <div className="font-mono text-lg font-semibold text-white">250 €</div>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                    <div className="text-sm font-medium text-white/85">
+                      {t("pricingDuration30")}
+                    </div>
+                    <div className="font-mono text-lg font-semibold text-white">99 €</div>
+                  </div>
+
+                  <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                    <div className="text-sm font-medium text-white/85">
+                      {t("pricingDuration90")}
+                    </div>
+                    <div className="font-mono text-lg font-semibold text-white">250 €</div>
+                  </div>
                 </div>
               </div>
             </div>
