@@ -1,0 +1,367 @@
+"use client";
+
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+type Certificate = {
+  id?: string;
+  certificate_name: string;
+  certificate_number: string;
+  certificate_issuer: string;
+  certificate_valid_from: string;
+  certificate_valid_until: string;
+};
+
+type Props = {
+  locale: string;
+  initial: {
+    email: string;
+    avatar_url: string | null;
+    linkedin_url: string | null;
+    seeker: {
+      full_name: string | null;
+      phone: string | null;
+      location: string | null;
+      about: string | null;
+      skills: string[] | null;
+      experience_level: string | null;
+      preferred_job_types: string[] | null;
+      preferred_locations: string[] | null;
+    } | null;
+    certificates: Certificate[];
+  };
+};
+
+export function SeekerProfileForm({ locale, initial }: Props) {
+  const t = useTranslations("onboarding");
+  const router = useRouter();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email] = useState(initial.email);
+  const [phone, setPhone] = useState(initial.seeker?.phone ?? "");
+  const [location, setLocation] = useState(initial.seeker?.location ?? "");
+  const [about, setAbout] = useState(initial.seeker?.about ?? "");
+  const [experienceLevel, setExperienceLevel] = useState(initial.seeker?.experience_level ?? "");
+  const [skillsCsv, setSkillsCsv] = useState((initial.seeker?.skills ?? []).join(", "));
+  const [preferredJobTypesCsv, setPreferredJobTypesCsv] = useState(
+    (initial.seeker?.preferred_job_types ?? []).join(", ")
+  );
+  const [preferredLocationsCsv, setPreferredLocationsCsv] = useState(
+    (initial.seeker?.preferred_locations ?? []).join(", ")
+  );
+  const [linkedinUrl, setLinkedinUrl] = useState(initial.linkedin_url ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(initial.avatar_url ?? "");
+
+  const [certificates, setCertificates] = useState<Certificate[]>(
+    initial.certificates.length
+      ? initial.certificates
+      : [
+          {
+            certificate_name: "",
+            certificate_number: "",
+            certificate_issuer: "",
+            certificate_valid_from: "",
+            certificate_valid_until: "",
+          },
+        ]
+  );
+
+  useEffect(() => {
+    const full = (initial.seeker?.full_name ?? "").trim();
+    if (!full) return;
+    const parts = full.split(/\s+/g);
+    if (parts.length === 1) {
+      setFirstName(parts[0] ?? "");
+      return;
+    }
+    setFirstName(parts.slice(0, -1).join(" "));
+    setLastName(parts[parts.length - 1] ?? "");
+  }, [initial.seeker?.full_name]);
+
+  function parseCsv(v: string) {
+    return v
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  async function onAvatarFileChange(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setAvatarUploading(true);
+    try {
+      if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+      setAvatarPreviewUrl(URL.createObjectURL(file));
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: uploadErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, {
+          upsert: true,
+          contentType: file.type || undefined,
+        });
+      if (uploadErr) throw uploadErr;
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      setAvatarUrl(data.publicUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("unknownError"));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      if (avatarUploading) throw new Error(t("avatarUploadInProgress"));
+      if (!avatarUrl.trim()) throw new Error(t("avatarRequired"));
+
+      const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
+      const skills = parseCsv(skillsCsv);
+      const preferredJobTypes = parseCsv(preferredJobTypesCsv);
+      const preferredLocations = parseCsv(preferredLocationsCsv);
+
+      const { error: metaErr } = await supabase.auth.updateUser({
+        data: { avatar_url: avatarUrl, linkedin_url: linkedinUrl || null },
+      });
+      if (metaErr) throw metaErr;
+
+      const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
+        user_id: user.id,
+        full_name: fullName,
+        profile_title: fullName,
+        phone,
+        location,
+        about,
+        skills,
+        experience_level: experienceLevel,
+        preferred_job_types: preferredJobTypes,
+        preferred_locations: preferredLocations,
+        profile_visible: true,
+      });
+      if (seekerErr) throw seekerErr;
+
+      // MVP sync: replace user's certificate set
+      const { error: delErr } = await supabase.from("seeker_certificates").delete().eq("user_id", user.id);
+      if (delErr) throw delErr;
+
+      const rows = certificates.map((c) => ({
+        user_id: user.id,
+        certificate_name: c.certificate_name,
+        certificate_number: c.certificate_number,
+        certificate_issuer: c.certificate_issuer,
+        certificate_valid_from: c.certificate_valid_from,
+        certificate_valid_until: c.certificate_valid_until,
+      }));
+      const { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
+      if (insErr) throw insErr;
+
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("unknownError"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs text-white/55">{t("avatarUpload")}</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => void onAvatarFileChange(e.target.files?.[0] ?? null)}
+            className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+          />
+        </div>
+        {avatarUploading ? (
+          <div className="space-y-2">
+            <div className="text-xs text-white/55">{t("avatarUploading")}</div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.08]">
+              <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-violet-400/70 via-fuchsia-400/60 to-pink-400/60" />
+            </div>
+          </div>
+        ) : null}
+        {avatarUrl ? (
+          <div className="flex items-center gap-3 pt-1">
+            <div className="h-12 w-12 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={avatarPreviewUrl ?? avatarUrl} alt={t("avatar")} className="h-full w-full object-cover" />
+            </div>
+            <div className="text-xs text-white/55">{t("avatarReady")}</div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("linkedinUrl")}</label>
+        <Input value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} placeholder={t("linkedinUrlHint")} />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("firstName")}</label>
+          <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("lastName")}</label>
+          <Input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("email")}</label>
+          <Input value={email} readOnly aria-readonly="true" />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("phone")}</label>
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} required />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("location")}</label>
+          <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("about")}</label>
+        <textarea
+          value={about}
+          onChange={(e) => setAbout(e.target.value)}
+          required
+          rows={4}
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("experienceLevel")}</label>
+          <Input value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} required placeholder={t("experienceLevelHint")} />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
+          <Input value={skillsCsv} onChange={(e) => setSkillsCsv(e.target.value)} required placeholder={t("csvHint")} />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredJobTypes")}</label>
+          <Input value={preferredJobTypesCsv} onChange={(e) => setPreferredJobTypesCsv(e.target.value)} required placeholder={t("csvHint")} />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredLocations")}</label>
+          <Input value={preferredLocationsCsv} onChange={(e) => setPreferredLocationsCsv(e.target.value)} required placeholder={t("csvHint")} />
+        </div>
+      </div>
+
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-sm font-medium text-white/85">{t("certificateSection")}</div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-xl px-3 text-[13px]"
+            onClick={() =>
+              setCertificates((prev) => [
+                ...prev,
+                {
+                  certificate_name: "",
+                  certificate_number: "",
+                  certificate_issuer: "",
+                  certificate_valid_from: "",
+                  certificate_valid_until: "",
+                },
+              ])
+            }
+          >
+            {t("addCertificate")}
+          </Button>
+        </div>
+
+        <div className="mt-4 space-y-6">
+          {certificates.map((c, idx) => (
+            <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-xs font-medium tracking-wide text-white/55">
+                  {t("certificate")} #{idx + 1}
+                </div>
+                {certificates.length > 1 ? (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-white/55 hover:text-white/75"
+                    onClick={() => setCertificates((prev) => prev.filter((_, i) => i !== idx))}
+                  >
+                    {t("remove")}
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateName")}</label>
+                  <Input value={c.certificate_name} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_name: e.target.value } : x)))} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateNumber")}</label>
+                  <Input value={c.certificate_number} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_number: e.target.value } : x)))} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateIssuer")}</label>
+                  <Input value={c.certificate_issuer} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_issuer: e.target.value } : x)))} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidFrom")}</label>
+                  <Input type="date" value={c.certificate_valid_from} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_from: e.target.value } : x)))} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidUntil")}</label>
+                  <Input type="date" value={c.certificate_valid_until} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_until: e.target.value } : x)))} required />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {error ? (
+        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+          {error}
+        </div>
+      ) : null}
+
+      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading || avatarUploading}>
+        {loading ? t("saving") : t("saveAndContinue")}
+      </Button>
+    </form>
+  );
+}
+
