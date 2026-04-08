@@ -32,7 +32,7 @@ export async function getRoleAndNextPath(locale: string) {
     const { data: seeker } = await supabase
       .from("seeker_profiles")
       .select(
-        "full_name,phone,location,profile_title,about,skills,experience_level,preferred_job_types,preferred_locations,is_complete"
+        "full_name,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,is_complete"
       )
       .eq("user_id", user.id)
       .maybeSingle();
@@ -48,7 +48,6 @@ export async function getRoleAndNextPath(locale: string) {
       nonEmpty(seeker?.full_name) &&
       nonEmpty(seeker?.phone) &&
       nonEmpty(seeker?.location) &&
-      nonEmpty(seeker?.profile_title) &&
       nonEmpty(seeker?.about) &&
       nonEmpty(seeker?.experience_level) &&
       Array.isArray(seeker?.skills) &&

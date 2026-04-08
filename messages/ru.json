@@ -256,6 +256,7 @@
     "linkedinUrlHint": "https://www.linkedin.com/in/…",
     "firstName": "Имя",
     "lastName": "Фамилия",
+    "email": "Email",
     "phone": "Телефон",
     "location": "Локация",
     "profileTitle": "Заголовок профиля",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -22,9 +22,9 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
-  const [profileTitle, setProfileTitle] = useState("");
   const [about, setAbout] = useState("");
   const [experienceLevel, setExperienceLevel] = useState("");
   const [skillsCsv, setSkillsCsv] = useState("");
@@ -33,6 +33,25 @@ export function SeekerOnboardingForm({ locale }: Props) {
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
+
+  // Prefill readonly email (nice UX)
+  useEffect(() => {
+    let mounted = true;
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (mounted) setEmail(user?.email ?? "");
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const [certificates, setCertificates] = useState<
     Array<{
@@ -71,6 +90,8 @@ export function SeekerOnboardingForm({ locale }: Props) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
+
+      setEmail(user.email ?? "");
 
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
@@ -124,7 +145,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
         full_name: fullName,
         phone,
         location,
-        profile_title: profileTitle,
         about,
         skills,
         experience_level: experienceLevel,
@@ -196,6 +216,10 @@ export function SeekerOnboardingForm({ locale }: Props) {
           </label>
           <Input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
         </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("email")}</label>
+          <Input value={email} readOnly aria-readonly="true" />
+        </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("phone")}</label>
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} required />
@@ -205,16 +229,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
             {t("location")}
           </label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">
-            {t("profileTitle")}
-          </label>
-          <Input
-            value={profileTitle}
-            onChange={(e) => setProfileTitle(e.target.value)}
-            required
-          />
         </div>
       </div>
 
