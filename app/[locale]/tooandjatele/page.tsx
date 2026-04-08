@@ -58,7 +58,12 @@ export default async function TooandjatelePage({ params }: Props) {
               </a>
             </Button>
           </div>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">{t("ctaHint")}</p>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
+            {t("ctaHint")}{" "}
+            <span className="whitespace-nowrap font-medium text-white/70">
+              30 päeva – 99 €
+            </span>
+          </p>
         </PageHero>
 
         <section className="border-t border-white/[0.06] py-14 sm:py-20">

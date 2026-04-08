@@ -28,7 +28,7 @@ function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(100%,440px)]">
+    <div className="relative mx-auto w-full max-w-[min(100%,480px)]">
       <div
         aria-hidden="true"
         className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-3xl"
@@ -42,17 +42,17 @@ function HeroMatchMockup() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.2),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_100%_100%,rgba(227,31,141,0.1),transparent_50%)]" />
 
-        <div className="relative flex flex-col gap-6 p-7 sm:p-8">
+        <div className="relative flex flex-col gap-7 p-8 sm:p-9">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/40">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.33em] text-white/50">
                 {t("matching")}
               </span>
-              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-300/90">
+              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-emerald-300/90">
                 {t("live")}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-white/40">
+            <div className="flex items-center gap-1.5 text-[11px] text-white/50">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-emerald-400/50" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -73,10 +73,12 @@ function HeroMatchMockup() {
                   <UserRound className="h-4 w-4 text-white/75" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-medium uppercase leading-snug tracking-[0.12em] text-white/40 break-words sm:tracking-[0.16em]">
+                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 break-words sm:tracking-[0.16em]">
                     {t("seeker")}
                   </div>
-                  <div className="truncate text-sm font-medium text-white/90">{t("roleSample")}</div>
+                  <div className="truncate text-sm font-medium text-white/90 sm:text-[15px]">
+                    {t("roleSample")}
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -88,7 +90,7 @@ function HeroMatchMockup() {
                   87<span className="text-sm text-white/45">%</span>
                 </span>
               </div>
-              <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/35">
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
               </span>
             </div>
@@ -104,10 +106,10 @@ function HeroMatchMockup() {
                   <Building2 className="h-4 w-4 text-white/70" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] font-medium uppercase leading-snug tracking-[0.12em] text-white/40 break-words sm:tracking-[0.16em]">
+                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 break-words sm:tracking-[0.16em]">
                     {t("employer")}
                   </div>
-                  <div className="truncate text-sm font-medium text-white/85">
+                  <div className="truncate text-sm font-medium text-white/85 sm:text-[15px]">
                     {t("positionSample")}
                   </div>
                 </div>
@@ -117,8 +119,8 @@ function HeroMatchMockup() {
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
 
-          <div className="space-y-3.5">
-            <p className="font-mono text-[11px] leading-relaxed tracking-[0.04em] text-white/55 sm:text-xs">
+          <div className="space-y-4">
+            <p className="font-mono text-[12px] leading-relaxed tracking-[0.04em] text-white/62 sm:text-[13px]">
               {t("lineSample")}{" "}
               <span className="text-white/80">87%</span>
             </p>
