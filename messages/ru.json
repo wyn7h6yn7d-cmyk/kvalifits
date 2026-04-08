@@ -198,6 +198,32 @@
       "p3Desc": "Верификация и обратная связь со временем укрепляют профиль."
     }
   },
+  "auth": {
+    "unknownError": "Что-то пошло не так.",
+    "loading": "Загрузка…",
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "password": "Пароль",
+    "passwordPlaceholder": "Ваш пароль",
+    "login": "Войти",
+    "loginTitle": "Войти",
+    "loginSubtitle": "Один аккаунт для управления вакансиями и профилем.",
+    "forgotPassword": "Забыли пароль?",
+    "createAccount": "Создать аккаунт",
+    "registerTitle": "Регистрация",
+    "registerSubtitle": "Выберите роль и создайте аккаунт с email и паролем.",
+    "registerCta": "Зарегистрироваться",
+    "alreadyHaveAccount": "У меня уже есть аккаунт",
+    "roleLabel": "Роль",
+    "roleSeeker": "Соискатель",
+    "roleEmployer": "Работодатель",
+    "signupNoUser": "Регистрация прошла, но пользователь не был получен.",
+    "onboardingSeekerTitle": "Заполните профиль соискателя",
+    "onboardingSeekerSubtitle": "Далее вы добавите профиль и данные сертификата.",
+    "onboardingEmployerTitle": "Заполните профиль работодателя",
+    "onboardingEmployerSubtitle": "Далее вы добавите данные компании и вакансии.",
+    "onboardingNotImplementedYet": "Формы онбординга добавим следующим шагом. Пока создана роль и записи в базе данных."
+  },
   "jobsFacets": {
     "sertifikaat": "Сертификат / допуск",
     "valdkond": "Отрасль",

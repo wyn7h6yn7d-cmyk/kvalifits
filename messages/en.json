@@ -198,6 +198,32 @@
       "p3Desc": "Verification and feedback help your profile strengthen over time."
     }
   },
+  "auth": {
+    "unknownError": "Something went wrong.",
+    "loading": "Loading…",
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "password": "Password",
+    "passwordPlaceholder": "Your password",
+    "login": "Log in",
+    "loginTitle": "Log in",
+    "loginSubtitle": "Use one account to manage job posts and your profile.",
+    "forgotPassword": "Forgot password?",
+    "createAccount": "Create account",
+    "registerTitle": "Sign up",
+    "registerSubtitle": "Choose a role and create an account with email and password.",
+    "registerCta": "Sign up",
+    "alreadyHaveAccount": "I already have an account",
+    "roleLabel": "Role",
+    "roleSeeker": "Job seeker",
+    "roleEmployer": "Employer",
+    "signupNoUser": "Sign-up succeeded, but no user was returned.",
+    "onboardingSeekerTitle": "Complete your seeker profile",
+    "onboardingSeekerSubtitle": "Next you’ll add your profile and certificate info.",
+    "onboardingEmployerTitle": "Complete your employer profile",
+    "onboardingEmployerSubtitle": "Next you’ll add your company info and job details.",
+    "onboardingNotImplementedYet": "Onboarding forms will be added next. For now, role + database records are created."
+  },
   "jobsFacets": {
     "sertifikaat": "Certificate / licence",
     "valdkond": "Industry",

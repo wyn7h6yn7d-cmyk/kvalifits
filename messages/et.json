@@ -198,6 +198,32 @@
       "p3Desc": "Verifitseerimine ja tagasiside aitavad profiilil aja jooksul tugevneda."
     }
   },
+  "auth": {
+    "unknownError": "Midagi läks valesti.",
+    "loading": "Laen…",
+    "email": "E-post",
+    "emailPlaceholder": "nimi@firma.ee",
+    "password": "Parool",
+    "passwordPlaceholder": "Sinu parool",
+    "login": "Logi sisse",
+    "loginTitle": "Logi sisse",
+    "loginSubtitle": "Kasuta sama kontot tööpakkumiste ja profiili haldamiseks.",
+    "forgotPassword": "Unustasid parooli?",
+    "createAccount": "Loo konto",
+    "registerTitle": "Registreeru",
+    "registerSubtitle": "Vali roll ja loo konto e-posti ja parooliga.",
+    "registerCta": "Registreeru",
+    "alreadyHaveAccount": "Mul on juba konto",
+    "roleLabel": "Roll",
+    "roleSeeker": "Tööotsija",
+    "roleEmployer": "Tööandja",
+    "signupNoUser": "Registreerimine õnnestus, aga kasutajat ei leitud.",
+    "onboardingSeekerTitle": "Täida tööotsija profiil",
+    "onboardingSeekerSubtitle": "Järgmise sammuna lisad profiili ja sertifikaadi info.",
+    "onboardingEmployerTitle": "Täida tööandja profiil",
+    "onboardingEmployerSubtitle": "Järgmise sammuna lisad ettevõtte info ja kuulutuse detailid.",
+    "onboardingNotImplementedYet": "Onboarding vormid lisame järgmises etapis. Praegu on roll + andmebaasi kirjed loodud."
+  },
   "jobsFacets": {
     "sertifikaat": "Sertifikaat / luba",
     "valdkond": "Valdkond",
