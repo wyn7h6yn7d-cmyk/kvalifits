@@ -17,6 +17,8 @@
     "employerAreaSubtitle": "Halda ettevõtte profiili ja kuulutusi.",
     "addJob": "Lisa kuulutus",
     "addJobSubtitle": "Loo uus töökuulutus.",
+    "candidates": "Kandidaadid",
+    "candidatesSubtitle": "Halda kandidaate ja sobitusi.",
     "logout": "Logi välja",
     "areaNotImplementedYet": "See vaade lisame järgmises etapis. Praegu töötab rollipõhine navigeerimine ja ligipääsukontroll.",
     "openMenu": "Ava menüü",

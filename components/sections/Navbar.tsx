@@ -15,11 +15,23 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Role = "seeker" | "employer";
 
-const NAV_PATHS = [
+const GUEST_NAV_PATHS = [
   { href: "/", key: "home" as const },
   { href: "/tooandjatele", key: "employers" as const },
   { href: "/toootsijatele", key: "seekers" as const },
   { href: "/tood", key: "jobs" as const },
+];
+
+const SEEKER_NAV_PATHS = [
+  { href: "/", key: "home" as const },
+  { href: "/tood", key: "jobs" as const },
+  { href: "/account/seeker", key: "seekerArea" as const },
+];
+
+const EMPLOYER_NAV_PATHS = [
+  { href: "/", key: "home" as const },
+  { href: "/account/employer", key: "employerArea" as const },
+  { href: "/account/employer/candidates", key: "candidates" as const },
 ];
 
 function NavLink({
@@ -109,6 +121,15 @@ export function Navbar() {
       "border-white/[0.15] bg-[rgba(5,5,8,0.85)] shadow-[0_0_0_1px_rgba(255,255,255,0.07)_inset,0_14px_44px_-12px_rgba(0,0,0,0.55),0_0_56px_-16px_rgba(124,58,237,0.09)]",
   );
 
+  const navPaths =
+    authResolved && authed
+      ? role === "employer"
+        ? EMPLOYER_NAV_PATHS
+        : role === "seeker"
+          ? SEEKER_NAV_PATHS
+          : GUEST_NAV_PATHS
+      : GUEST_NAV_PATHS;
+
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pb-[var(--site-header-tail)] pt-[var(--site-header-top)] sm:px-4">
       <div className="pointer-events-auto mx-auto flex w-full justify-center">
@@ -121,7 +142,7 @@ export function Navbar() {
             className="hidden h-full min-h-0 min-w-0 flex-1 items-center justify-center gap-2 lg:flex xl:gap-4"
             aria-label={t("menu")}
           >
-            {NAV_PATHS.map((item) => (
+            {navPaths.map((item) => (
               <NavLink key={item.href} href={item.href}>
                 {t(item.key)}
               </NavLink>
@@ -230,7 +251,7 @@ export function Navbar() {
                   <SheetTitle className="pr-12">{t("menu")}</SheetTitle>
 
                   <div className="mt-6 flex flex-col gap-4">
-                    {NAV_PATHS.map((item) => (
+                    {navPaths.map((item) => (
                       <motion.div
                         key={item.href}
                         initial={{ opacity: 0, x: 12 }}

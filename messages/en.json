@@ -17,6 +17,8 @@
     "employerAreaSubtitle": "Manage your company profile and job posts.",
     "addJob": "Create job",
     "addJobSubtitle": "Create a new job post.",
+    "candidates": "Candidates",
+    "candidatesSubtitle": "Manage candidates and matches.",
     "logout": "Log out",
     "areaNotImplementedYet": "This area will be added next. For now, role-based navigation and access control work end-to-end.",
     "openMenu": "Open menu",
