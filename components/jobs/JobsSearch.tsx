@@ -4,13 +4,8 @@ import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
 
-import type { Job } from "@/components/jobs/mock-data";
-import {
-  chipMatchesJob,
-  FACET_GROUPS,
-  popularProfileChips,
-  QUICK_CHIPS,
-} from "@/components/jobs/job-filters-config";
+import type { Job } from "@/components/jobs/types";
+import { chipMatchesJob, QUICK_CHIPS } from "@/components/jobs/job-filters-config";
 import { Chip } from "@/components/ui/chip";
 import { Container } from "@/components/ui/container";
 import { Input } from "@/components/ui/input";
@@ -26,12 +21,41 @@ const CERT_HIGHLIGHT = new Set([
   "Tööohutus",
 ]);
 
-const popularProfileSet = new Set(popularProfileChips as readonly string[]);
-
 function chipTone(label: string): "pink" | "violet" | "default" {
   if (CERT_HIGHLIGHT.has(label)) return "pink";
-  if (popularProfileSet.has(label)) return "violet";
   return "default";
+}
+
+function buildFacetGroups(jobs: Job[]) {
+  const uniq = (arr: string[]) => Array.from(new Set(arr.map((x) => x.trim()).filter(Boolean)));
+  const certs: string[] = [];
+  const domains: string[] = [];
+  const langs: string[] = [];
+  const locs: string[] = [];
+  const types: string[] = [];
+
+  for (const j of jobs) {
+    certs.push(...(j.requiredCerts ?? []));
+    domains.push(...(j.domains ?? []));
+    langs.push(...(j.languages ?? []));
+    types.push(j.type);
+
+    const raw = (j.location ?? "").toString();
+    const parts = raw
+      .split(/[/,|]/)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    locs.push(...parts);
+    if (raw.trim()) locs.push(raw.trim());
+  }
+
+  return [
+    { id: "sertifikaat", values: uniq(certs).slice(0, 30) },
+    { id: "valdkond", values: uniq(domains).slice(0, 30) },
+    { id: "keel", values: uniq(langs).slice(0, 30) },
+    { id: "asukoht", values: uniq(locs).slice(0, 30) },
+    { id: "tyyp", values: uniq(types).slice(0, 30) },
+  ].filter((g) => g.values.length);
 }
 
 function matchesJob(job: Job, q: string, selected: Set<string>) {
@@ -70,12 +94,14 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
   const t = useTranslations("jobsSearch");
   const tf = useTranslations("jobsFacets");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<Set<string>>(new Set(["Tallinn"]));
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const facetGroups = useMemo(() => buildFacetGroups(jobs), [jobs]);
 
   const results = useMemo(() => {
     return jobs
       .filter((j) => matchesJob(j, query, selected))
-      .sort((a, b) => b.matchPercent - a.matchPercent);
+      .slice();
   }, [jobs, query, selected]);
 
   const selectedArr = Array.from(selected);
@@ -112,28 +138,8 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                 </div>
               </div>
 
-              <div className="mt-7">
-                <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
-                  {t("profileSignals")}
-                </div>
-                <p className="mt-2 text-[11px] leading-relaxed text-white/40">
-                  {t("profileSignalsHint", { count: popularProfileChips.length })}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {popularProfileChips.map((c) => (
-                    <Chip
-                      key={c}
-                      label={c}
-                      selected={selected.has(c)}
-                      onClick={() => toggleChip(setSelected, c)}
-                      tone="violet"
-                    />
-                  ))}
-                </div>
-              </div>
-
               <div className="mt-7 space-y-6">
-                {FACET_GROUPS.map((f) => (
+                {facetGroups.map((f) => (
                   <div key={f.id}>
                     <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
                       {tf(f.id as "sertifikaat" | "valdkond" | "keel" | "asukoht" | "tyyp")}
@@ -211,9 +217,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
               <div>
                 {t("found")} <span className="text-white/75">{results.length}</span>
               </div>
-              <div className={cn("hidden sm:block", results.length ? "" : "opacity-0")}>
-                {t("signalFirst")}
-              </div>
+              <div className={cn("hidden sm:block", results.length ? "" : "opacity-0")} />
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-2">
