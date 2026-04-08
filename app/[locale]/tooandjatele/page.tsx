@@ -44,7 +44,7 @@ export default async function TooandjatelePage({ params }: Props) {
           title={t("heroTitle")}
           subtitle={t("heroSubtitle")}
         >
-          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px] lg:items-center">
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-center">
             <div>
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <Button
