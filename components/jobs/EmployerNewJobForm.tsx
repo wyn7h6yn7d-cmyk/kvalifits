@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "@/i18n/routing";
 
 type Props = {
   locale: string;
@@ -15,6 +16,7 @@ type Props = {
 export function EmployerNewJobForm({ locale }: Props) {
   const t = useTranslations("jobs");
   const router = useRouter();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,14 +36,76 @@ export function EmployerNewJobForm({ locale }: Props) {
   const [applicationType, setApplicationType] = useState("external_url");
   const [applicationUrl, setApplicationUrl] = useState("");
   const [packageDays, setPackageDays] = useState<30 | 90>(30);
+  const [employerProfileOk, setEmployerProfileOk] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadCompanyName() {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data: employer } = await supabase
+          .from("employer_profiles")
+          .select("company_name,contact_email,company_description,location")
+          .eq("owner_user_id", user.id)
+          .maybeSingle();
+        if (!mounted) return;
+        const name = (employer?.company_name ?? "").toString();
+        setCompanyName(name);
+        const ok =
+          Boolean(name.trim()) &&
+          Boolean((employer?.contact_email ?? "").toString().trim()) &&
+          Boolean((employer?.company_description ?? "").toString().trim()) &&
+          Boolean((employer?.location ?? "").toString().trim());
+        setEmployerProfileOk(ok);
+      } catch {
+        // ignore
+      }
+    }
+    void loadCompanyName();
+    return () => {
+      mounted = false;
+    };
+  }, [supabase]);
+
+  function isValidHttpUrl(v: string) {
+    try {
+      const u = new URL(v);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
+  function validate(): string | null {
+    if (!employerProfileOk) return t("employerProfileIncomplete");
+    if (!title.trim()) return t("errTitleRequired");
+    if (!location.trim()) return t("errLocationRequired");
+    if (!workType.trim()) return t("errWorkTypeRequired");
+    if (!jobType.trim()) return t("errJobTypeRequired");
+    if (!summary.trim()) return t("errSummaryRequired");
+    if (!description.trim()) return t("errDescriptionRequired");
+    if (!requirements.trim()) return t("errRequirementsRequired");
+    if (!applicationType.trim()) return t("errApplicationTypeRequired");
+    if (!applicationUrl.trim()) return t("errApplicationUrlRequired");
+    if (!isValidHttpUrl(applicationUrl.trim())) return t("errApplicationUrlInvalid");
+    return null;
+  }
 
   async function saveDraft(mode: "draft" | "payment") {
+    const v = validate();
+    if (v) {
+      setError(v);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setInfo(null);
 
     try {
-      const supabase = createSupabaseBrowserClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -88,10 +152,11 @@ export function EmployerNewJobForm({ locale }: Props) {
         return;
       }
 
+      setInfo(t("saveSuccess"));
       router.push(`/${locale}/account/employer/jobs`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(t("saveFailed"));
     } finally {
       setLoading(false);
     }
@@ -105,6 +170,23 @@ export function EmployerNewJobForm({ locale }: Props) {
       }}
       className="space-y-6"
     >
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-sm font-medium text-white/85">{t("introTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("introBody")}</div>
+      </div>
+
+      {!employerProfileOk ? (
+        <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/70">
+          <div className="font-medium text-white/85">{t("employerProfileIncompleteTitle")}</div>
+          <div className="mt-1 leading-relaxed text-white/60">{t("employerProfileIncompleteBody")}</div>
+          <div className="mt-3">
+            <Link href="/account/employer" className="text-sm font-medium text-white/80 underline hover:text-white">
+              {t("goToCompanyProfile")}
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("packageTitle")}</div>
         <div className="mt-1 text-sm text-white/60">{t("packageHint")}</div>
@@ -141,7 +223,7 @@ export function EmployerNewJobForm({ locale }: Props) {
           >
             {loading ? t("saving") : t("continueToPayment")}
           </Button>
-          <div className="mt-2 text-xs text-white/50">{t("paymentTestModeNote")}</div>
+          <div className="mt-2 text-xs text-white/50">{t("testModeNote")}</div>
         </div>
       </div>
 
@@ -170,6 +252,17 @@ export function EmployerNewJobForm({ locale }: Props) {
             required
             placeholder="https://…"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("applicationType")}</label>
+          <select
+            value={applicationType}
+            onChange={(e) => setApplicationType(e.target.value)}
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          >
+            <option value="external_url">{t("applicationTypeExternalUrl")}</option>
+          </select>
         </div>
 
         <div className="space-y-2">

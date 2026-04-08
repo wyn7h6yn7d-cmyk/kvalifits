@@ -12,7 +12,7 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function EmployerNewJobPage({ params }: Props) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "nav" });
+  const t = await getTranslations({ locale, namespace: "jobs" });
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -30,7 +30,7 @@ export default async function EmployerNewJobPage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("addJob")} subtitle={t("addJobSubtitle")}>
+        <AuthShell title={t("createTitle")} subtitle={t("createSubtitle")}>
           <EmployerNewJobForm locale={locale} />
         </AuthShell>
       </main>
