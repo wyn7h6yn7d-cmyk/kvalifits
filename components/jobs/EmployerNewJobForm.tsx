@@ -105,7 +105,7 @@ export function EmployerNewJobForm({ locale }: Props) {
     return `${base || "job"}-${suffix}`;
   }
 
-  async function saveDraft(mode: "draft" | "payment") {
+  async function saveDraft(mode: "publish" | "payment") {
     const v = validate();
     if (v) {
       setError(v);
@@ -144,6 +144,7 @@ export function EmployerNewJobForm({ locale }: Props) {
           ? `mailto:${(employer.contact_email ?? "").toString().trim()}`
           : "");
 
+      const nowIso = new Date().toISOString();
       const { error: jobErr } = await supabase.from("job_posts").insert({
         employer_profile_id: employer.id,
         created_by: user.id,
@@ -161,18 +162,19 @@ export function EmployerNewJobForm({ locale }: Props) {
         // We don't show an application link in the UI right now.
         // Keep DB happy with a non-empty fallback if there are NOT NULL / CHECK constraints.
         application_url: fallbackUrl || "https://www.kvalifits.ee",
-        status: "draft",
+        status: "published",
+        published_at: nowIso,
       });
       if (jobErr) throw jobErr;
 
       if (mode === "payment") {
-        setInfo(t("paymentTestModeSaved", { days: packageDays }));
+        setInfo(t("publishSuccess"));
         router.push(`/${locale}/account/employer/jobs`);
         router.refresh();
         return;
       }
 
-      setInfo(t("saveSuccess"));
+      setInfo(t("publishSuccess"));
       router.push(`/${locale}/account/employer/jobs`);
       router.refresh();
     } catch (err) {
@@ -203,7 +205,7 @@ export function EmployerNewJobForm({ locale }: Props) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        void saveDraft("draft");
+        void saveDraft("publish");
       }}
       className="space-y-6"
     >
@@ -258,9 +260,9 @@ export function EmployerNewJobForm({ locale }: Props) {
             disabled={loading}
             onClick={() => void saveDraft("payment")}
           >
-            {loading ? t("saving") : t("continueToPayment")}
+            {loading ? t("saving") : t("publishNow")}
           </Button>
-          <div className="mt-2 text-xs text-white/50">{t("testModeNote")}</div>
+          <div className="mt-2 text-xs text-white/50">{t("publishHint")}</div>
         </div>
       </div>
 
@@ -372,7 +374,7 @@ export function EmployerNewJobForm({ locale }: Props) {
       ) : null}
 
       <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
-        {loading ? t("saving") : t("createDraft")}
+        {loading ? t("saving") : t("publishNow")}
       </Button>
     </form>
   );
