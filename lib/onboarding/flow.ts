@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-type Role = "seeker" | "employer";
+type Role = "seeker" | "employer" | "admin";
 
 function nonEmpty(v: unknown) {
   return typeof v === "string" && v.trim().length > 0;
@@ -25,6 +25,10 @@ export async function getRoleAndNextPath(locale: string) {
   const role = (profile?.role ?? null) as Role | null;
   if (!role) {
     return { user, role: null, nextPath: `/${locale}/auth/register` };
+  }
+
+  if (role === "admin") {
+    return { user, role, nextPath: `/${locale}/admin` };
   }
 
   if (role === "seeker") {
@@ -62,7 +66,7 @@ export async function getRoleAndNextPath(locale: string) {
     return {
       user,
       role,
-      nextPath: isComplete ? `/${locale}` : `/${locale}/onboarding/seeker`,
+      nextPath: isComplete ? `/${locale}/account/seeker` : `/${locale}/onboarding/seeker`,
     };
   }
 
@@ -82,7 +86,7 @@ export async function getRoleAndNextPath(locale: string) {
   return {
     user,
     role,
-    nextPath: isComplete ? `/${locale}/tooandjatele` : `/${locale}/onboarding/employer`,
+    nextPath: isComplete ? `/${locale}/account/employer` : `/${locale}/onboarding/employer`,
   };
 }
 

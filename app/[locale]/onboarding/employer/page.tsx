@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Navbar } from "@/components/sections/Navbar";
 import { AuthShell } from "@/components/auth/AuthShell";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { EmployerOnboardingForm } from "@/components/onboarding/EmployerOnboardingForm";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -11,20 +11,11 @@ type Props = { params: Promise<{ locale: string }> };
 export default async function EmployerOnboardingPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (profile?.role !== "employer") redirect(`/${locale}/onboarding`);
+  const { role, nextPath } = await getRoleAndNextPath(locale);
+  if (!role) redirect(`/${locale}/auth/login`);
+  if (role !== "employer") redirect(nextPath);
+  // If employer is already complete, bounce to their product area (prevents loops).
+  if (nextPath !== `/${locale}/onboarding/employer`) redirect(nextPath);
 
   return (
     <div className="flex-1 bg-background">

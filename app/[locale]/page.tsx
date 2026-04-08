@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { SectionDivider } from "@/components/site/SectionDivider";
 import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
@@ -7,8 +9,18 @@ import { SmartMatching } from "@/components/sections/SmartMatching";
 import { LoginAnchor } from "@/components/sections/LoginAnchor";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { Footer } from "@/components/sections/Footer";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export default function HomePage() {
+type Props = { params: Promise<{ locale: string }> };
+
+export default async function HomePage({ params }: Props) {
+  const { locale } = await params;
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) redirect(`/${locale}/account`);
+
   return (
     <div className="relative flex-1 bg-background">
       <Navbar />

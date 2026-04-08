@@ -20,7 +20,8 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
     setError(null);
     try {
       const supabase = createSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/${locale}/auth/reset-password`;
+      // Use callback to exchange code → session, then land on reset form.
+      const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=/${locale}/auth/reset-password`;
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo,

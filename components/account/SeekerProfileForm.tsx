@@ -32,6 +32,7 @@ type Props = {
       experience_level: string | null;
       preferred_job_types: string[] | null;
       preferred_locations: string[] | null;
+      profile_visible?: boolean | null;
     } | null;
     certificates: Certificate[];
   };
@@ -61,6 +62,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   const [preferredLocationsCsv, setPreferredLocationsCsv] = useState(
     (initial.seeker?.preferred_locations ?? []).join(", ")
   );
+  const [profileVisible, setProfileVisible] = useState(Boolean(initial.seeker?.profile_visible));
   const [linkedinUrl, setLinkedinUrl] = useState(initial.linkedin_url ?? "");
   const [avatarUrl, setAvatarUrl] = useState(initial.avatar_url ?? "");
 
@@ -189,7 +191,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         experience_level: experienceLevel,
         preferred_job_types: preferredJobTypes,
         preferred_locations: preferredLocations,
-        profile_visible: true,
+        profile_visible: profileVisible,
       });
       if (seekerErr) throw seekerErr;
 
@@ -231,6 +233,26 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-sm font-medium text-white/85">{t("visibilityTitle")}</div>
+            <div className="mt-1 text-sm leading-relaxed text-white/60">{t("visibilityHint")}</div>
+          </div>
+          <label className="inline-flex shrink-0 cursor-pointer select-none items-center gap-2">
+            <input
+              type="checkbox"
+              checked={profileVisible}
+              onChange={(e) => setProfileVisible(e.target.checked)}
+              className="h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+            />
+            <span className="text-sm font-medium text-white/75">
+              {profileVisible ? t("visibilityOn") : t("visibilityOff")}
+            </span>
+          </label>
+        </div>
+      </div>
+
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -398,6 +420,21 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading || avatarUploading}>
         {loading ? t("saving") : t("saveAndContinue")}
       </Button>
+
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-sm font-medium text-white/85">{t("accountTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("accountHint")}</div>
+        <div className="mt-4">
+          <a
+            href={`mailto:support@kvalifits.ee?subject=${encodeURIComponent(
+              t("deleteAccountEmailSubject")
+            )}&body=${encodeURIComponent(t("deleteAccountEmailBody"))}`}
+            className="text-sm font-medium text-white/75 underline hover:text-white"
+          >
+            {t("deleteAccountCta")}
+          </a>
+        </div>
+      </div>
     </form>
   );
 }

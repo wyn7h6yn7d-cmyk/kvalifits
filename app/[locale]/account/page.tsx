@@ -25,6 +25,7 @@ export default async function AccountIndex({ params }: Props) {
 
   if (role === "seeker") redirect(`/${locale}/account/seeker`);
   if (role === "employer") redirect(`/${locale}/account/employer`);
+  if (role === "admin") redirect(`/${locale}/admin`);
 
   return (
     <div className="flex-1 bg-background">

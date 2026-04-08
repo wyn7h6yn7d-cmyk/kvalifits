@@ -13,7 +13,7 @@ import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-type Role = "seeker" | "employer";
+type Role = "seeker" | "employer" | "admin";
 
 const GUEST_NAV_PATHS = [
   { href: "/", key: "home" as const },
@@ -31,7 +31,15 @@ const SEEKER_NAV_PATHS = [
 const EMPLOYER_NAV_PATHS = [
   { href: "/", key: "home" as const },
   { href: "/account/employer", key: "employerArea" as const },
+  { href: "/account/employer/jobs", key: "myJobs" as const },
   { href: "/account/employer/candidates", key: "candidates" as const },
+];
+
+const ADMIN_NAV_PATHS = [
+  { href: "/", key: "home" as const },
+  { href: "/admin", key: "admin" as const },
+  { href: "/admin/jobs", key: "adminJobs" as const },
+  { href: "/admin/users", key: "adminUsers" as const },
 ];
 
 function NavLink({
@@ -101,7 +109,7 @@ export function Navbar() {
 
       if (!mounted) return;
       const r = profile?.role;
-      setRole(r === "seeker" || r === "employer" ? r : null);
+      setRole(r === "seeker" || r === "employer" || r === "admin" ? r : null);
     }
 
     void load();
@@ -127,6 +135,8 @@ export function Navbar() {
         ? EMPLOYER_NAV_PATHS
         : role === "seeker"
           ? SEEKER_NAV_PATHS
+          : role === "admin"
+            ? ADMIN_NAV_PATHS
           : GUEST_NAV_PATHS
       : GUEST_NAV_PATHS;
 
@@ -183,6 +193,14 @@ export function Navbar() {
                         </Link>
                       </Button>
                     </>
+                  ) : null}
+                  {role === "admin" ? (
+                    <Link
+                      href="/admin"
+                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
+                    >
+                      {t("admin")}
+                    </Link>
                   ) : null}
                   {role === null ? (
                     <Link
@@ -284,6 +302,19 @@ export function Navbar() {
                                 </Button>
                                 <Button asChild variant="primary" className="w-full">
                                   <Link href="/account/employer/jobs/new">{t("addJob")}</Link>
+                                </Button>
+                              </>
+                            ) : null}
+                            {role === "admin" ? (
+                              <>
+                                <Button asChild variant="ghost" className="w-full">
+                                  <Link href="/admin">{t("admin")}</Link>
+                                </Button>
+                                <Button asChild variant="outline" className="w-full">
+                                  <Link href="/admin/jobs">{t("adminJobs")}</Link>
+                                </Button>
+                                <Button asChild variant="outline" className="w-full">
+                                  <Link href="/admin/users">{t("adminUsers")}</Link>
                                 </Button>
                               </>
                             ) : null}
