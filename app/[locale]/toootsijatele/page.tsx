@@ -31,8 +31,11 @@ export default async function ToootsijatelePage({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    const { nextPath } = await getRoleAndNextPath(locale);
-    redirect(nextPath);
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    if ((profile as any)?.role !== "admin") {
+      const { nextPath } = await getRoleAndNextPath(locale);
+      redirect(nextPath);
+    }
   }
 
   const details = [

@@ -15,7 +15,7 @@ export default async function AdminUsersPage({ params }: Props) {
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id,email,role,created_at")
+    .select("*")
     .order("created_at", { ascending: false })
     .limit(300);
 
@@ -39,8 +39,12 @@ export default async function AdminUsersPage({ params }: Props) {
         <AuthShell title={t("usersTitle")} subtitle={t("usersSubtitle")} maxWidthClassName="max-w-5xl">
           <AdminUsersTable
             locale={locale}
-            users={(profiles ?? []).map((p) => ({
-              ...p,
+            users={(profiles ?? []).map((p: any) => ({
+              id: p.id,
+              email: p.email ?? null,
+              role: p.role ?? null,
+              created_at: p.created_at ?? null,
+              is_blocked: Boolean(p.is_blocked),
               has_seeker_profile: Boolean(seekerById.get(p.id)),
               seeker_visible: Boolean(seekerById.get(p.id)?.profile_visible),
               seeker_complete: Boolean(seekerById.get(p.id)?.is_complete),

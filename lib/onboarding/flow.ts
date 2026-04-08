@@ -18,11 +18,16 @@ export async function getRoleAndNextPath(locale: string) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("*")
     .eq("id", user.id)
     .maybeSingle();
 
-  const role = (profile?.role ?? null) as Role | null;
+  const isBlocked = Boolean((profile as any)?.is_blocked);
+  if (isBlocked) {
+    return { user, role: "seeker" as any, nextPath: `/${locale}/blocked` };
+  }
+
+  const role = ((profile as any)?.role ?? null) as Role | null;
   if (!role) {
     return { user, role: null, nextPath: `/${locale}/auth/register` };
   }

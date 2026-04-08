@@ -31,8 +31,12 @@ export default async function TooandjatelePage({ params }: Props) {
     data: { user },
   } = await supabase.auth.getUser();
   if (user) {
-    const { nextPath } = await getRoleAndNextPath(locale);
-    redirect(nextPath);
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    // Admin can browse marketing pages; seekers/employers go to product routing.
+    if ((profile as any)?.role !== "admin") {
+      const { nextPath } = await getRoleAndNextPath(locale);
+      redirect(nextPath);
+    }
   }
 
   const details = [

@@ -19,7 +19,11 @@ export default async function HomePage({ params }: Props) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (user) redirect(`/${locale}/account`);
+  if (user) {
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    // Admin can browse the public site; seekers/employers go to product area.
+    if ((profile as any)?.role !== "admin") redirect(`/${locale}/account`);
+  }
 
   return (
     <div className="relative flex-1 bg-background">
