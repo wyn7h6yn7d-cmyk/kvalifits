@@ -87,8 +87,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_issuer: string;
       certificate_valid_from: string;
       certificate_valid_until: string;
-      certificate_image_url: string;
-      uploading?: boolean;
     }>
   >([
     {
@@ -97,8 +95,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_issuer: "",
       certificate_valid_from: "",
       certificate_valid_until: "",
-      certificate_image_url: "",
-      uploading: false,
     },
   ]);
 
@@ -162,49 +158,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
     }
   }
 
-  async function onCertificateFileChange(idx: number, file: File | null) {
-    if (!file) return;
-    setError(null);
-    setCertificates((prev) => prev.map((c, i) => (i === idx ? { ...c, uploading: true } : c)));
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error(t("notAuthed"));
-
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `${user.id}/certificate-${idx + 1}-${Date.now()}.${ext}`;
-
-      const { error: uploadErr } = await supabase.storage
-        .from("certificate-images")
-        .upload(path, file, { upsert: true, contentType: file.type || undefined });
-      if (uploadErr) throw uploadErr;
-
-      const { data } = supabase.storage.from("certificate-images").getPublicUrl(path);
-      const publicUrl = data.publicUrl;
-      setCertificates((prev) =>
-        prev.map((c, i) =>
-          i === idx ? { ...c, certificate_image_url: publicUrl, uploading: false } : c
-        )
-      );
-    } catch (err) {
-      const message = getErrorMessage(err);
-      const lower = message.toLowerCase();
-      const msg =
-        lower.includes("row level security") ||
-        lower.includes("row-level security") ||
-        lower.includes("new row violates") ||
-        lower.includes("permission denied")
-          ? t("rlsError")
-          : message || t("unknownError");
-      setError(msg);
-      setCertificates((prev) =>
-        prev.map((c, i) => (i === idx ? { ...c, uploading: false } : c))
-      );
-    }
-  }
-
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -223,12 +176,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
       if (!avatarUrl.trim()) {
         if (avatarUploadError) throw new Error(avatarUploadError);
         throw new Error(t("avatarRequired"));
-      }
-      if (certificates.some((c) => c.uploading)) {
-        throw new Error(t("certificateUploadInProgress"));
-      }
-      if (certificates.some((c) => !c.certificate_image_url.trim())) {
-        throw new Error(t("certificateImageRequired"));
       }
 
       const { error: avatarErr } = await supabase.auth.updateUser({
@@ -258,7 +205,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       });
       if (seekerErr) throw seekerErr;
 
-      const rows = certificates.map(({ uploading, ...c }) => ({ user_id: user.id, ...c }));
+      const rows = certificates.map((c) => ({ user_id: user.id, ...c }));
       const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
       if (certErr) throw certErr;
 
@@ -438,8 +385,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                   certificate_issuer: "",
                   certificate_valid_from: "",
                   certificate_valid_until: "",
-                  certificate_image_url: "",
-                  uploading: false,
                 },
               ])
             }
@@ -516,29 +461,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                     }
                     required
                   />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">
-                    {t("certificateImage")}
-                  </label>
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-xs text-white/55">{t("certificateImageUpload")}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => void onCertificateFileChange(idx, e.target.files?.[0] ?? null)}
-                      className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
-                      required
-                    />
-                  </div>
-                  {c.uploading ? (
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.08]">
-                      <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-violet-400/70 via-fuchsia-400/60 to-pink-400/60" />
-                    </div>
-                  ) : null}
-                  {c.certificate_image_url ? (
-                    <div className="text-xs text-white/55">{t("certificateImageReady")}</div>
-                  ) : null}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">
