@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react";
 
 import type { Job } from "@/components/jobs/types";
 import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/routing";
 
 export function JobCard({ job }: { job: Job }) {
   return (
@@ -18,9 +19,9 @@ export function JobCard({ job }: { job: Job }) {
 
       <div className="relative flex items-start justify-between gap-4">
         <div>
-          <div className="text-lg font-semibold tracking-tight text-white/92">
+          <Link href={`/tood/${job.id}`} className="text-lg font-semibold tracking-tight text-white/92 hover:underline">
             {job.title}
-          </div>
+          </Link>
           <div className="mt-1 text-sm text-white/60">{job.company}</div>
         </div>
         {/* MVP: no match % / signals until real scoring exists */}

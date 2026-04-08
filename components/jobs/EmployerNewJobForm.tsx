@@ -109,7 +109,7 @@ export function EmployerNewJobForm({ locale }: Props) {
 
       const { data: employer, error: employerErr } = await supabase
         .from("employer_profiles")
-        .select("id,company_name")
+        .select("id,company_name,website,contact_email")
         .eq("owner_user_id", user.id)
         .maybeSingle();
       if (employerErr) throw employerErr;
@@ -122,6 +122,12 @@ export function EmployerNewJobForm({ locale }: Props) {
       const fullDescription = summary.trim()
         ? `${t("summaryLabel")}: ${summary.trim()}\n\n${description}`
         : description;
+
+      const fallbackUrl =
+        (employer.website ?? "").toString().trim() ||
+        ((employer.contact_email ?? "").toString().trim()
+          ? `mailto:${(employer.contact_email ?? "").toString().trim()}`
+          : "");
 
       const { error: jobErr } = await supabase.from("job_posts").insert({
         employer_profile_id: employer.id,
@@ -136,9 +142,9 @@ export function EmployerNewJobForm({ locale }: Props) {
         salary_max: Number.isFinite(max as number) ? max : null,
         salary_currency: salaryCurrency,
         application_type: "external_url",
-        // MVP test: application flow not shown on form yet.
-        // Keep DB happy with an empty string if the column is NOT NULL.
-        application_url: applicationUrl.trim() || "",
+        // We don't show an application link in the UI right now.
+        // Keep DB happy with a non-empty fallback if there are NOT NULL / CHECK constraints.
+        application_url: fallbackUrl || "https://www.kvalifits.ee",
         status: "draft",
       });
       if (jobErr) throw jobErr;
@@ -154,9 +160,26 @@ export function EmployerNewJobForm({ locale }: Props) {
       router.push(`/${locale}/account/employer/jobs`);
       router.refresh();
     } catch (err) {
-      setError(t("saveFailed"));
+      setError(getErrorMessage(err, t("saveFailed")));
     } finally {
       setLoading(false);
+    }
+  }
+
+  function getErrorMessage(err: unknown, fallback: string) {
+    if (!err) return fallback;
+    if (err instanceof Error) return err.message || fallback;
+    if (typeof err === "string") return err || fallback;
+    try {
+      const anyErr = err as any;
+      return (
+        anyErr?.message ||
+        anyErr?.error_description ||
+        anyErr?.error?.message ||
+        fallback
+      );
+    } catch {
+      return fallback;
     }
   }
 
