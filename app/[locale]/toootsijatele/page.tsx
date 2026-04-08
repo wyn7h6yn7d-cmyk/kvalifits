@@ -1,6 +1,5 @@
 import { BadgeCheck, LogIn, Target, UserPlus, UserRound } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
@@ -8,8 +7,6 @@ import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -25,18 +22,6 @@ export async function generateMetadata({ params }: Props) {
 export default async function ToootsijatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("pages.seekers");
-
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-    if ((profile as any)?.role !== "admin") {
-      const { nextPath } = await getRoleAndNextPath(locale);
-      redirect(nextPath);
-    }
-  }
 
   const details = [
     { icon: UserRound, title: t("d1Title"), text: t("d1Text") },

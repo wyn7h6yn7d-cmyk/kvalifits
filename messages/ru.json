@@ -278,6 +278,7 @@
     "accessBlockedSubtitle": "Доступ к вашему аккаунту временно ограничен.",
     "accessBlockedBody": "Если вы считаете, что это ошибка, напишите на support@kvalifits.ee.",
     "createAccount": "Создать аккаунт",
+    "alreadySignedIn": "Вы уже вошли в аккаунт. Чтобы создать новый аккаунт, сначала выйдите.",
     "registerTitle": "Регистрация",
     "registerSubtitle": "Выберите роль и создайте аккаунт с email и паролем.",
     "registerCta": "Зарегистрироваться",
