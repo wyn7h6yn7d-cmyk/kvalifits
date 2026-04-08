@@ -61,7 +61,7 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-2 md:gap-3">
+          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-2 md:gap-3">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
@@ -69,11 +69,11 @@ function HeroMatchMockup() {
               className="rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3 sm:px-4"
             >
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
                   <UserRound className="h-4 w-4 text-white/75" />
                 </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-medium uppercase leading-snug tracking-[0.12em] text-white/40 break-words sm:tracking-[0.16em]">
                     {t("seeker")}
                   </div>
                   <div className="truncate text-sm font-medium text-white/90">{t("roleSample")}</div>
@@ -100,11 +100,11 @@ function HeroMatchMockup() {
               className="rounded-2xl border border-white/[0.1] bg-white/[0.04] px-3 py-3 sm:px-4"
             >
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
                   <Building2 className="h-4 w-4 text-white/70" />
                 </div>
-                <div className="min-w-0">
-                  <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/40">
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] font-medium uppercase leading-snug tracking-[0.12em] text-white/40 break-words sm:tracking-[0.16em]">
                     {t("employer")}
                   </div>
                   <div className="truncate text-sm font-medium text-white/85">

@@ -70,10 +70,7 @@ export function Navbar() {
       <div className="pointer-events-auto mx-auto flex w-full justify-center">
         <div className={glassBar}>
           <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center">
-            <Logo
-              className="inline-flex h-full max-h-full min-h-0 items-center gap-0 leading-none"
-              imageClassName="h-8 w-auto max-h-9 sm:h-9"
-            />
+            <Logo className="inline-flex h-full max-h-full min-h-0 items-center leading-none" />
           </div>
 
           <nav

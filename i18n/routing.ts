@@ -5,6 +5,8 @@ import { defineRouting } from "next-intl/routing";
 export const routing = defineRouting({
   locales: ["et", "en", "ru"],
   defaultLocale: "et",
+  /** Ilma brauseri keeleta — külastaja ilma eesliiteta URLiga läheb alati vaikimisi eesti keelele. */
+  localeDetection: false,
   localePrefix: "always",
   localeCookie: {
     name: "NEXT_LOCALE",

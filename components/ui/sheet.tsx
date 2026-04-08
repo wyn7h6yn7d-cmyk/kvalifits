@@ -38,7 +38,8 @@ export const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed right-3 top-3 z-50 w-[calc(100%-24px)] max-w-sm rounded-2xl border border-white/[0.12] bg-[#0b0b12]/90 p-4 shadow-[0_30px_120px_rgba(0,0,0,0.55)] backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-right-6 data-[state=open]:slide-in-from-right-6",
+        "fixed right-6 top-[calc(var(--site-header-offset)+0.25rem)] z-50 w-[calc(100%-3rem)] max-w-sm rounded-2xl border border-white/[0.11] bg-[rgba(5,5,8,0.92)] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_12px_40px_-14px_rgba(0,0,0,0.5)] backdrop-blur-xl md:right-10 md:w-[calc(100%-5rem)]",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-right-6 data-[state=open]:slide-in-from-right-6",
         className
       )}
       {...props}
