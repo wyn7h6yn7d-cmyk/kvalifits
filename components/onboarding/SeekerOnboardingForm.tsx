@@ -20,6 +20,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarUploadError, setAvatarUploadError] = useState<string | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -81,6 +82,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   async function onAvatarFileChange(file: File | null) {
     if (!file) return;
     setError(null);
+    setAvatarUploadError(null);
     setAvatarUploading(true);
     try {
       const supabase = createSupabaseBrowserClient();
@@ -108,9 +110,13 @@ export function SeekerOnboardingForm({ locale }: Props) {
     } catch (err) {
       const message = err instanceof Error ? err.message : "";
       if (message.toLowerCase().includes("row-level security")) {
-        setError(t("rlsError"));
+        const msg = t("rlsError");
+        setAvatarUploadError(msg);
+        setError(msg);
       } else {
-        setError(message || t("unknownError"));
+        const msg = message || t("unknownError");
+        setAvatarUploadError(msg);
+        setError(msg);
       }
     } finally {
       setAvatarUploading(false);
@@ -133,6 +139,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
         throw new Error(t("avatarUploadInProgress"));
       }
       if (!avatarUrl.trim()) {
+        if (avatarUploadError) throw new Error(avatarUploadError);
         throw new Error(t("avatarRequired"));
       }
 
@@ -195,7 +202,12 @@ export function SeekerOnboardingForm({ locale }: Props) {
           />
         </div>
         {avatarUploading ? (
-          <div className="text-xs text-white/55">{t("avatarUploading")}</div>
+          <div className="space-y-2">
+            <div className="text-xs text-white/55">{t("avatarUploading")}</div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.08]">
+              <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-violet-400/70 via-fuchsia-400/60 to-pink-400/60" />
+            </div>
+          </div>
         ) : null}
         {avatarUrl ? (
           <div className="text-xs text-white/55">{t("avatarReady")}</div>
@@ -439,7 +451,13 @@ export function SeekerOnboardingForm({ locale }: Props) {
         </div>
       ) : null}
 
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        className="w-full"
+        disabled={loading || avatarUploading}
+      >
         {loading ? t("saving") : t("saveAndContinue")}
       </Button>
     </form>

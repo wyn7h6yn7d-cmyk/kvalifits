@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SeekerOnboardingForm } from "@/components/onboarding/SeekerOnboardingForm";
@@ -39,7 +38,6 @@ export default async function SeekerOnboardingPage({ params }: Props) {
           <SeekerOnboardingForm locale={locale} />
         </AuthShell>
       </main>
-      <Footer />
     </div>
   );
 }
