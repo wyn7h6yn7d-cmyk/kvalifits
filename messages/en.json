@@ -279,6 +279,7 @@
     "accessBlockedBody": "If you believe this is a mistake, contact support@kvalifits.ee.",
     "createAccount": "Create account",
     "alreadySignedIn": "You’re already signed in. To create a new account, please log out first.",
+    "logout": "Log out",
     "registerTitle": "Sign up",
     "registerSubtitle": "Choose a role and create an account with email and password.",
     "registerCta": "Sign up",

@@ -279,6 +279,7 @@
     "accessBlockedBody": "Kui arvad, et tegu on veaga, kirjuta support@kvalifits.ee.",
     "createAccount": "Loo konto",
     "alreadySignedIn": "Sa oled juba sisse logitud. Kui soovid luua uue konto, logi esmalt välja.",
+    "logout": "Logi välja",
     "registerTitle": "Registreeru",
     "registerSubtitle": "Vali roll ja loo konto e-posti ja parooliga.",
     "registerCta": "Registreeru",
