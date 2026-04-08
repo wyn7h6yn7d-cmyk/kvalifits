@@ -35,13 +35,6 @@ const EMPLOYER_NAV_PATHS = [
   { href: "/account/employer/candidates", key: "candidates" as const },
 ];
 
-const ADMIN_NAV_PATHS = [
-  { href: "/", key: "home" as const },
-  { href: "/admin", key: "admin" as const },
-  { href: "/admin/jobs", key: "adminJobs" as const },
-  { href: "/admin/users", key: "adminUsers" as const },
-];
-
 function NavLink({
   href,
   children,
@@ -136,7 +129,7 @@ export function Navbar() {
         : role === "seeker"
           ? SEEKER_NAV_PATHS
           : role === "admin"
-            ? ADMIN_NAV_PATHS
+            ? GUEST_NAV_PATHS
           : GUEST_NAV_PATHS
       : GUEST_NAV_PATHS;
 
@@ -309,12 +302,6 @@ export function Navbar() {
                               <>
                                 <Button asChild variant="ghost" className="w-full">
                                   <Link href="/admin">{t("admin")}</Link>
-                                </Button>
-                                <Button asChild variant="outline" className="w-full">
-                                  <Link href="/admin/jobs">{t("adminJobs")}</Link>
-                                </Button>
-                                <Button asChild variant="outline" className="w-full">
-                                  <Link href="/admin/users">{t("adminUsers")}</Link>
                                 </Button>
                               </>
                             ) : null}
