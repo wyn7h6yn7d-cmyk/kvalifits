@@ -53,6 +53,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [role, setRole] = useState<Role | null>(null);
   const [authed, setAuthed] = useState<boolean>(false);
+  const [authResolved, setAuthResolved] = useState<boolean>(false);
   const supabaseRef = useRef<ReturnType<typeof createSupabaseBrowserClient> | null>(null);
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export function Navbar() {
 
       if (!mounted) return;
       setAuthed(Boolean(user));
+      setAuthResolved(true);
 
       if (!user) {
         setRole(null);
@@ -128,7 +130,7 @@ export function Navbar() {
 
           <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2 lg:ml-2">
             <div className="hidden h-full min-h-0 items-center gap-2 lg:flex">
-              {authed ? (
+              {authResolved && authed ? (
                 <>
                   {role === "seeker" ? (
                     <Link
@@ -161,6 +163,14 @@ export function Navbar() {
                       </Button>
                     </>
                   ) : null}
+                  {role === null ? (
+                    <Link
+                      href="/account"
+                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
+                    >
+                      {t("account")}
+                    </Link>
+                  ) : null}
 
                   <form action={`/${locale}/auth/logout`} method="post">
                     <button
@@ -171,7 +181,7 @@ export function Navbar() {
                     </button>
                   </form>
                 </>
-              ) : (
+              ) : authResolved ? (
                 <>
                   <Link
                     href="/auth/login"
@@ -193,6 +203,8 @@ export function Navbar() {
                     </Link>
                   </Button>
                 </>
+              ) : (
+                <div className="h-7 w-[172px]" aria-hidden="true" />
               )}
               <div className="flex h-full shrink-0 items-center">
                 <LanguageSwitcher triggerClassName={langTriggerNavbar} />
@@ -237,7 +249,7 @@ export function Navbar() {
 
                     <div className="pt-2">
                       <div className="flex flex-col gap-3">
-                        {authed ? (
+                        {authResolved && authed ? (
                           <>
                             {role === "seeker" ? (
                               <Button asChild variant="ghost" className="w-full">
@@ -254,13 +266,18 @@ export function Navbar() {
                                 </Button>
                               </>
                             ) : null}
+                            {role === null ? (
+                              <Button asChild variant="ghost" className="w-full">
+                                <Link href="/account">{t("account")}</Link>
+                              </Button>
+                            ) : null}
                             <form action={`/${locale}/auth/logout`} method="post">
                               <Button variant="outline" className="w-full">
                                 {t("logout")}
                               </Button>
                             </form>
                           </>
-                        ) : (
+                        ) : authResolved ? (
                           <>
                             <Button asChild variant="ghost" className="w-full">
                               <Link href="/auth/login">{t("login")}</Link>
@@ -269,7 +286,7 @@ export function Navbar() {
                               <Link href="/auth/register">{t("signup")}</Link>
                             </Button>
                           </>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
