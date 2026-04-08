@@ -192,7 +192,6 @@ export function Navbar() {
                   <Button
                     asChild
                     variant="primary"
-                    size="sm"
                     className="h-7 shrink-0 rounded-md px-0 py-0 text-[13px] leading-none"
                   >
                     <Link
