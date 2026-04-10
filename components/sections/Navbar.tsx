@@ -31,6 +31,7 @@ const SEEKER_NAV_PATHS = [
 
 const EMPLOYER_NAV_PATHS = [
   { href: "/", key: "home" as const },
+  { href: "/hinnakiri", key: "pricing" as const },
   { href: "/account/employer/jobs", key: "myJobs" as const },
   { href: "/account/employer/candidates", key: "candidates" as const },
 ];
