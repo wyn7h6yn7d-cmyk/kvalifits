@@ -7,6 +7,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -22,6 +23,16 @@ export async function generateMetadata({ params }: Props) {
 export default async function TooandjatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+    : { data: null };
+  const role = profile?.role ?? user?.user_metadata?.role ?? null;
+  const showPricing = role === "employer";
 
   const details = [
     { icon: Building2, title: t("d1Title"), text: t("d1Text") },
@@ -74,27 +85,29 @@ export default async function TooandjatelePage({ params }: Props) {
                 {t("ctaHint")}
               </p>
 
-              <div className="mt-6 max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-                  {t("pricingTitle")}
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                    <div className="text-sm font-medium text-white/85">
-                      {t("pricingDuration30")}
-                    </div>
-                    <div className="font-mono text-lg font-semibold text-white">99 €</div>
+              {showPricing ? (
+                <div className="mt-6 max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
+                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                    {t("pricingTitle")}
                   </div>
 
-                  <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                    <div className="text-sm font-medium text-white/85">
-                      {t("pricingDuration90")}
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                      <div className="text-sm font-medium text-white/85">
+                        {t("pricingDuration30")}
+                      </div>
+                      <div className="font-mono text-lg font-semibold text-white">99 €</div>
                     </div>
-                    <div className="font-mono text-lg font-semibold text-white">250 €</div>
+
+                    <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                      <div className="text-sm font-medium text-white/85">
+                        {t("pricingDuration90")}
+                      </div>
+                      <div className="font-mono text-lg font-semibold text-white">250 €</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           </div>
         </PageHero>
