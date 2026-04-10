@@ -41,3 +41,5 @@ export const QUICK_CHIPS = [
   "IT",
   "Tervishoid",
 ] as const;
+
+export const DEFAULT_QUICK_CHIPS = QUICK_CHIPS;

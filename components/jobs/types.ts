@@ -4,7 +4,11 @@ export type Job = {
   company: string;
   location: string;
   type: string;
+  workType?: string;
+  jobType?: string;
+  summary?: string;
   salary?: string;
+  createdAt?: string;
   tags: string[];
   requiredCerts: string[];
   domains?: string[];

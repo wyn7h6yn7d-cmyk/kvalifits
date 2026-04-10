@@ -9,6 +9,46 @@ import type { Job } from "@/components/jobs/types";
 
 type Props = { params: Promise<{ locale: string }> };
 
+function normFacetValue(s: string) {
+  return s
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[\u2011\u2010\u2212]/g, "-");
+}
+
+function extractSummary(description: string | null | undefined) {
+  const raw = (description ?? "").toString().trim();
+  if (!raw) return undefined;
+
+  const firstBlock = raw.split(/\n\s*\n/)[0]?.trim() ?? "";
+  if (!firstBlock) return undefined;
+
+  // EmployerNewJobForm prefixes summary like: "Kokkuvõte: ..." or "Summary: ..."
+  const cleaned = firstBlock
+    .replace(/^(Kokkuvõte|Summary)\s*:\s*/i, "")
+    .trim();
+
+  return cleaned || undefined;
+}
+
+function extractKeywordCandidates(text: string) {
+  const tokens: string[] = [];
+  const parts = text
+    .split(/\n|,|;|\u2022|•|·|\/|\|/g)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  for (const p of parts) {
+    const v = normFacetValue(p);
+    if (!v) continue;
+    if (v.length < 2) continue;
+    // Avoid full sentences; keep "keyword-like" phrases.
+    if (v.length > 36) continue;
+    tokens.push(v);
+  }
+  return tokens;
+}
+
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.jobs" });
@@ -24,7 +64,9 @@ export default async function ToodPage() {
 
   const { data: jobs } = await supabase
     .from("job_posts")
-    .select("id,title,location,job_type,work_type,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at")
+    .select(
+      "id,title,location,job_type,work_type,description,requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
+    )
     .eq("status", "published")
     .order("created_at", { ascending: false })
     .limit(200);
@@ -48,7 +90,13 @@ export default async function ToodPage() {
         ? `${min ? `${min}` : ""}${min && max ? "–" : ""}${max ? `${max}` : ""} ${currency}`
         : undefined;
 
-    const type = [j.job_type, j.work_type].filter(Boolean).join(" / ") || "—";
+    const jobType = (j.job_type ?? "").toString().trim();
+    const workType = (j.work_type ?? "").toString().trim();
+    const type = [jobType, workType].filter(Boolean).join(" / ") || "—";
+
+    const summary = extractSummary(j.description);
+    const keywordText = `${j.title ?? ""}\n${j.requirements ?? ""}`;
+    const tags = Array.from(new Set(extractKeywordCandidates(keywordText))).slice(0, 8);
 
     return {
       id: j.id,
@@ -57,7 +105,11 @@ export default async function ToodPage() {
       location: j.location ?? "—",
       type,
       salary,
-      tags: [],
+      workType: workType || undefined,
+      jobType: jobType || undefined,
+      summary,
+      createdAt: j.created_at ?? undefined,
+      tags,
       requiredCerts: [],
       domains: [],
       languages: [],

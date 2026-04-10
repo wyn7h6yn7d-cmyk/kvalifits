@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
 
 import type { Job } from "@/components/jobs/types";
-import { chipMatchesJob, QUICK_CHIPS } from "@/components/jobs/job-filters-config";
+import { chipMatchesJob, DEFAULT_QUICK_CHIPS } from "@/components/jobs/job-filters-config";
 import { Chip } from "@/components/ui/chip";
 import { Container } from "@/components/ui/container";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,47 @@ function buildFacetGroups(jobs: Job[]) {
   ].filter((g) => g.values.length);
 }
 
+function buildQuickFilters(jobs: Job[]) {
+  const norm = (s: string) => s.trim().replace(/\s+/g, " ").replace(/[\u2011\u2010\u2212]/g, "-");
+
+  const keywordCounts = new Map<string, number>();
+  const locationCounts = new Map<string, number>();
+
+  for (const j of jobs) {
+    for (const raw of j.tags ?? []) {
+      const v = norm(raw);
+      if (!v) continue;
+      keywordCounts.set(v, (keywordCounts.get(v) ?? 0) + 1);
+    }
+
+    const rawLoc = (j.location ?? "").toString();
+    const parts = rawLoc
+      .split(/[/,|]/)
+      .map((p) => norm(p))
+      .filter(Boolean);
+    for (const v of parts.length ? parts : rawLoc.trim() ? [norm(rawLoc)] : []) {
+      if (!v) continue;
+      locationCounts.set(v, (locationCounts.get(v) ?? 0) + 1);
+    }
+  }
+
+  const top = (m: Map<string, number>, n: number) =>
+    Array.from(m.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([k]) => k)
+      .slice(0, n);
+
+  const keywords = top(keywordCounts, 10);
+  const locations = top(locationCounts, 8);
+
+  const hasReal = keywords.length + locations.length > 0;
+  return {
+    keywords,
+    locations,
+    fallback: hasReal ? [] : Array.from(DEFAULT_QUICK_CHIPS),
+  };
+}
+
 function matchesJob(job: Job, q: string, selected: Set<string>) {
   const hay = [
     job.title,
@@ -67,6 +108,7 @@ function matchesJob(job: Job, q: string, selected: Set<string>) {
     job.requiredCerts.join(" "),
     (job.domains ?? []).join(" "),
     (job.languages ?? []).join(" "),
+    (job.summary ?? ""),
   ]
     .join(" ")
     .toLowerCase();
@@ -97,6 +139,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const facetGroups = useMemo(() => buildFacetGroups(jobs), [jobs]);
+  const quick = useMemo(() => buildQuickFilters(jobs), [jobs]);
 
   const results = useMemo(() => {
     return jobs
@@ -126,7 +169,25 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                   {t("quick")}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {QUICK_CHIPS.map((c) => (
+                  {quick.keywords.map((c) => (
+                    <Chip
+                      key={c}
+                      label={c}
+                      selected={selected.has(c)}
+                      onClick={() => toggleChip(setSelected, c)}
+                      tone={chipTone(c)}
+                    />
+                  ))}
+                  {quick.locations.map((c) => (
+                    <Chip
+                      key={c}
+                      label={c}
+                      selected={selected.has(c)}
+                      onClick={() => toggleChip(setSelected, c)}
+                      tone={chipTone(c)}
+                    />
+                  ))}
+                  {quick.fallback.map((c) => (
                     <Chip
                       key={c}
                       label={c}
