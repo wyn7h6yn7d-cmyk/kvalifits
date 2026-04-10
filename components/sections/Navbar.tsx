@@ -36,7 +36,14 @@ const EMPLOYER_NAV_PATHS = [
   { href: "/account/employer/candidates", key: "candidates" as const },
 ];
 
-const ADMIN_NAV_PATHS = [{ href: "/admin", key: "admin" as const }];
+// Admins should still be able to navigate the public site easily.
+const ADMIN_NAV_PATHS = [
+  { href: "/", key: "home" as const },
+  { href: "/tooandjatele", key: "employers" as const },
+  { href: "/toootsijatele", key: "seekers" as const },
+  { href: "/tood", key: "jobs" as const },
+  { href: "/admin", key: "admin" as const },
+];
 
 function NavLink({
   href,
