@@ -27,7 +27,7 @@ function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(100%,560px)]">
+    <div className="relative mx-auto w-full max-w-[min(100%,600px)]">
       <div
         aria-hidden="true"
         className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-3xl"
