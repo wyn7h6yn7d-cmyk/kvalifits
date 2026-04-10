@@ -27,7 +27,7 @@ function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(100%,600px)]">
+    <div className="relative mx-auto w-full max-w-[min(100%,780px)]">
       <div
         aria-hidden="true"
         className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-3xl"
@@ -60,12 +60,12 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-2 md:gap-3">
+          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(300px,1fr)_auto_minmax(300px,1fr)] sm:items-center sm:gap-6 md:gap-8">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex min-h-[92px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3 sm:min-h-[98px] sm:px-4"
+              className="flex min-h-[104px] min-w-[300px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
@@ -108,7 +108,7 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="flex min-h-[92px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3 sm:min-h-[98px] sm:px-4"
+              className="flex min-h-[104px] min-w-[300px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
