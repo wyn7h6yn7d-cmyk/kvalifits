@@ -108,7 +108,17 @@
     "verified": "Certificate verified",
     "verifiedHint": "A key qualification has been verified",
     "requirements": "Requirements",
-    "requirementsHint": "The candidate meets 8 out of 10 requirements"
+    "requirementsHint": "The candidate meets 8 out of 10 requirements",
+    "explainSeekerTitle": "Candidate profile",
+    "explainSeekerText": "This shows the candidate role, qualifications, and the key signals derived from their profile.",
+    "explainFitTitle": "Fit result",
+    "explainFitText": "Your fit for this role is 87%. The result is based on comparing the candidate profile and role requirements.",
+    "explainEmployerTitle": "Role requirements",
+    "explainEmployerText": "This shows the role and expectations defined by the employer.",
+    "explainVerifiedTitle": "Qualification verified",
+    "explainVerifiedText": "A key certificate or qualification has been detected in the system and included in the match.",
+    "explainRequirementsTitle": "Requirements match",
+    "explainRequirementsText": "The candidate meets 8 out of 10 requirements, giving a quick snapshot of fit."
   },
   "smartMatching": {
     "badge": "Matching engine",

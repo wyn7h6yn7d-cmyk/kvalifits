@@ -108,7 +108,17 @@
     "verified": "Sertifikaat kontrollitud",
     "verifiedHint": "Oluline pädevus on kontrollitud",
     "requirements": "Nõuded",
-    "requirementsHint": "Tööotsija vastab 8 nõudele 10-st"
+    "requirementsHint": "Tööotsija vastab 8 nõudele 10-st",
+    "explainSeekerTitle": "Tööotsija profiil",
+    "explainSeekerText": "Siin kuvatakse tööotsija roll, pädevus ja profiili põhjal olulised andmed.",
+    "explainFitTitle": "Sobivuse tulemus",
+    "explainFitText": "Sinu sobivus antud positsioonile on 87%. Tulemus põhineb tööotsija profiili ja positsiooni nõuete võrdlusel.",
+    "explainEmployerTitle": "Positsiooni nõuded",
+    "explainEmployerText": "Siin kuvatakse tööandja poolt määratud roll ja sellele vastavad ootused.",
+    "explainVerifiedTitle": "Pädevus kontrollitud",
+    "explainVerifiedText": "Oluline sertifikaat või pädevus on süsteemis tuvastatud ja arvesse võetud.",
+    "explainRequirementsTitle": "Nõuete vastavus",
+    "explainRequirementsText": "Tööotsija vastab 8 nõudele 10-st, mis annab kiire ülevaate sobivusest."
   },
   "smartMatching": {
     "badge": "Sobituse mootor",

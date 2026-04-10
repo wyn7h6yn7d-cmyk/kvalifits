@@ -1,13 +1,12 @@
 "use client";
 
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
-  Building2,
   ShieldCheck,
-  UserRound,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,6 +24,21 @@ const heroSecondaryCta =
 
 function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
+  const explainId = useId();
+  const [active, setActive] = useState<"seeker" | "fit" | "employer" | "verified" | "requirements">("fit");
+
+  const explain = {
+    seeker: { title: t("explainSeekerTitle"), text: t("explainSeekerText") },
+    fit: { title: t("explainFitTitle"), text: t("explainFitText") },
+    employer: { title: t("explainEmployerTitle"), text: t("explainEmployerText") },
+    verified: { title: t("explainVerifiedTitle"), text: t("explainVerifiedText") },
+    requirements: { title: t("explainRequirementsTitle"), text: t("explainRequirementsText") },
+  } as const;
+
+  const activeTopBlock =
+    "border-white/[0.18] bg-white/[0.07] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_18px_60px_-34px_rgba(0,0,0,0.75)]";
+  const inactiveTopBlock =
+    "border-white/[0.10] bg-white/[0.05] hover:border-white/[0.14] hover:bg-white/[0.06]";
 
   return (
     <div className="relative mx-auto w-full max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
@@ -61,33 +75,55 @@ function HeroMatchMockup() {
           </div>
 
           <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_3.75rem_minmax(0,1fr)] sm:items-center sm:gap-4 md:gap-6">
-            <motion.div
+            <motion.button
+              type="button"
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex min-h-[104px] min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-4"
+              aria-pressed={active === "seeker"}
+              aria-controls={explainId}
+              onMouseEnter={() => setActive("seeker")}
+              onFocus={() => setActive("seeker")}
+              onClick={() => setActive("seeker")}
+              className={cn(
+                "flex min-h-[104px] min-w-0 items-center rounded-2xl border px-4 py-4 text-left transition-colors sm:min-h-[110px] sm:px-4",
+                active === "seeker" ? activeTopBlock : inactiveTopBlock
+              )}
             >
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
-                  <UserRound className="h-3.5 w-3.5 text-white/75" />
+              <div className="min-w-0 flex-1">
+                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
+                  {t("seeker")}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
-                    {t("seeker")}
-                  </div>
-                  <div className="max-w-full text-balance text-pretty text-[13.5px] font-semibold leading-snug text-white/92 sm:text-[14.5px] md:text-[16px] break-normal [hyphens:none]">
-                    {t("roleSample")}
-                  </div>
-                  <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
-                    {t("seekerHint")}
-                  </div>
+                <div className="mt-0.5 max-w-full text-balance text-pretty text-[13.5px] font-semibold leading-snug text-white/92 sm:text-[14.5px] md:text-[16px] break-normal [hyphens:none]">
+                  {t("roleSample")}
+                </div>
+                <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
+                  {t("seekerHint")}
                 </div>
               </div>
-            </motion.div>
+            </motion.button>
 
-            <div className="flex flex-col items-center gap-1 px-1">
+            <button
+              type="button"
+              aria-pressed={active === "fit"}
+              aria-controls={explainId}
+              onMouseEnter={() => setActive("fit")}
+              onFocus={() => setActive("fit")}
+              onClick={() => setActive("fit")}
+              className={cn(
+                "group flex flex-col items-center gap-1 rounded-2xl px-1 text-center outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2",
+                active === "fit" ? "text-white" : "text-white"
+              )}
+            >
               <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
-              <div className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px]">
+              <div
+                className={cn(
+                  "relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border bg-gradient-to-b shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px] transition-colors",
+                  active === "fit"
+                    ? "border-white/[0.18] from-violet-500/28 to-black/55"
+                    : "border-white/[0.14] from-violet-500/25 to-black/60"
+                )}
+              >
                 <span className="font-mono text-lg font-semibold tabular-nums text-white">
                   87<span className="text-sm text-white/45">%</span>
                 </span>
@@ -102,37 +138,58 @@ function HeroMatchMockup() {
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
               </span>
-            </div>
+            </button>
 
-            <motion.div
+            <motion.button
+              type="button"
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="flex min-h-[104px] min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-4"
+              aria-pressed={active === "employer"}
+              aria-controls={explainId}
+              onMouseEnter={() => setActive("employer")}
+              onFocus={() => setActive("employer")}
+              onClick={() => setActive("employer")}
+              className={cn(
+                "flex min-h-[104px] min-w-0 items-center rounded-2xl border px-4 py-4 text-left transition-colors sm:min-h-[110px] sm:px-4",
+                active === "employer" ? activeTopBlock : inactiveTopBlock
+              )}
             >
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
-                  <Building2 className="h-3.5 w-3.5 text-white/70" />
+              <div className="min-w-0 flex-1">
+                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
+                  {t("employer")}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
-                    {t("employer")}
-                  </div>
-                  <div className="max-w-full text-balance text-pretty text-[13.5px] font-semibold leading-snug text-white/90 sm:text-[14.5px] md:text-[16px] break-normal [hyphens:none]">
-                    {t("positionSample")}
-                  </div>
-                  <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
-                    {t("employerHint")}
-                  </div>
+                <div className="mt-0.5 max-w-full text-balance text-pretty text-[13.5px] font-semibold leading-snug text-white/90 sm:text-[14.5px] md:text-[16px] break-normal [hyphens:none]">
+                  {t("positionSample")}
+                </div>
+                <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
+                  {t("employerHint")}
                 </div>
               </div>
-            </motion.div>
+            </motion.button>
           </div>
 
-          <div className="-mt-1 text-center">
-            <div className="text-pretty text-[11px] leading-relaxed text-white/50 break-normal [hyphens:none]">
-              {t("compareLine")}
-            </div>
+          <div
+            id={explainId}
+            className="rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={active}
+                initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -4, filter: "blur(4px)" }}
+                transition={{ duration: 0.22 }}
+                className="min-h-[3.75rem]"
+              >
+                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">
+                  {explain[active].title}
+                </div>
+                <div className="mt-1 text-pretty text-[12.5px] leading-relaxed text-white/72 break-normal [hyphens:none]">
+                  {explain[active].text}
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
@@ -146,31 +203,57 @@ function HeroMatchMockup() {
               {t("lineHint")}
             </p>
 
-            <div className="flex items-center gap-2.5 text-sm text-white/65">
-              <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
-              <span>{t("verified")}</span>
-            </div>
-            <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
-              {t("verifiedHint")}
-            </p>
+            <button
+              type="button"
+              aria-pressed={active === "verified"}
+              aria-controls={explainId}
+              onMouseEnter={() => setActive("verified")}
+              onFocus={() => setActive("verified")}
+              onClick={() => setActive("verified")}
+              className={cn(
+                "w-full rounded-2xl border border-transparent p-0 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2",
+                active === "verified" ? "bg-white/[0.02]" : "hover:bg-white/[0.02]"
+              )}
+            >
+              <div className="flex items-center gap-2.5 text-sm text-white/65">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
+                <span className={cn(active === "verified" ? "text-white/85" : "")}>{t("verified")}</span>
+              </div>
+              <p className="mt-2 text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+                {t("verifiedHint")}
+              </p>
+            </button>
 
-            <div>
-              <div className="flex items-center justify-between text-[11px] text-white/45">
-                <span>{t("requirements")}</span>
-                <span className="font-mono tabular-nums text-white/55">8/10</span>
+            <button
+              type="button"
+              aria-pressed={active === "requirements"}
+              aria-controls={explainId}
+              onMouseEnter={() => setActive("requirements")}
+              onFocus={() => setActive("requirements")}
+              onClick={() => setActive("requirements")}
+              className={cn(
+                "w-full rounded-2xl border border-transparent p-0 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2",
+                active === "requirements" ? "bg-white/[0.02]" : "hover:bg-white/[0.02]"
+              )}
+            >
+              <div>
+                <div className="flex items-center justify-between text-[11px] text-white/45">
+                  <span className={cn(active === "requirements" ? "text-white/65" : "")}>{t("requirements")}</span>
+                  <span className="font-mono tabular-nums text-white/55">8/10</span>
+                </div>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "80%" }}
+                    transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="h-full rounded-full bg-gradient-to-r from-violet-500/80 via-fuchsia-500/70 to-[rgba(227,31,141,0.75)]"
+                  />
+                </div>
               </div>
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: "80%" }}
-                  transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  className="h-full rounded-full bg-gradient-to-r from-violet-500/80 via-fuchsia-500/70 to-[rgba(227,31,141,0.75)]"
-                />
-              </div>
-            </div>
-            <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
-              {t("requirementsHint")}
-            </p>
+              <p className="mt-2 text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+                {t("requirementsHint")}
+              </p>
+            </button>
           </div>
         </div>
       </div>
