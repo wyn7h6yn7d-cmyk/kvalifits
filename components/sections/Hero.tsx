@@ -72,7 +72,7 @@ function HeroMatchMockup() {
                   <UserRound className="h-4 w-4 text-white/75" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 sm:tracking-[0.16em] break-normal [hyphens:none]">
+                  <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.1em] text-white/50 sm:tracking-[0.12em]">
                     {t("seeker")}
                   </div>
                   <div className="text-pretty text-[15px] font-semibold leading-snug text-white/92 sm:text-[16px] break-normal [hyphens:none]">
@@ -115,7 +115,7 @@ function HeroMatchMockup() {
                   <Building2 className="h-4 w-4 text-white/70" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 sm:tracking-[0.16em] break-normal [hyphens:none]">
+                  <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.1em] text-white/50 sm:tracking-[0.12em]">
                     {t("employer")}
                   </div>
                   <div className="text-pretty text-[15px] font-semibold leading-snug text-white/90 sm:text-[16px] break-normal [hyphens:none]">
@@ -127,29 +127,6 @@ function HeroMatchMockup() {
                 </div>
               </div>
             </motion.div>
-
-            {/* Permanent diagram-style fit explanation in real empty space (below top row, above summary) */}
-            <div className="sm:col-span-3">
-              <div className="flex flex-col items-center pt-1.5 sm:pt-2">
-                <span
-                  aria-hidden="true"
-                  className="h-8 w-px bg-gradient-to-b from-white/22 via-white/12 to-transparent sm:h-10"
-                />
-                <span aria-hidden="true" className="mt-0.5 text-white/26">
-                  <ArrowRight className="h-3.5 w-3.5 -rotate-90" />
-                </span>
-                <div className="mt-1 w-[min(360px,92vw)] text-center">
-                  <div className="mx-auto inline-flex max-w-full flex-col items-center rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2 shadow-[0_18px_70px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl">
-                    <div className="text-pretty text-[11px] font-medium leading-snug text-white/68 break-normal [hyphens:none]">
-                      {t("fitExplanation")}
-                    </div>
-                    <div className="mt-1 hidden text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none] sm:block">
-                      {t("fitExplanationSecondary")}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
@@ -188,6 +165,51 @@ function HeroMatchMockup() {
             <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
               {t("requirementsHint")}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: outside-card permanent annotation on the right */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-full top-[120px] hidden w-[260px] pl-6 lg:block"
+      >
+        <span
+          className="absolute left-0 top-7 h-px w-16 bg-gradient-to-r from-white/24 via-white/10 to-transparent"
+          aria-hidden="true"
+        />
+        <span className="absolute left-14 top-7 -translate-y-1/2 text-white/24" aria-hidden="true">
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2 shadow-[0_18px_70px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+          <div className="text-pretty text-[11px] font-medium leading-snug text-white/68 break-normal [hyphens:none]">
+            {t("fitExplanation")}
+          </div>
+          <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none]">
+            {t("fitExplanationSecondary")}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile/tablet fallback: outside-card annotation below */}
+      <div className="mt-4 flex w-full justify-center lg:hidden">
+        <div className="relative w-[min(420px,96vw)]">
+          <span
+            aria-hidden="true"
+            className="absolute left-1/2 top-0 h-6 w-px -translate-x-1/2 bg-gradient-to-b from-white/22 via-white/10 to-transparent"
+          />
+          <span aria-hidden="true" className="absolute left-1/2 top-5 -translate-x-1/2 text-white/26">
+            <ArrowRight className="h-3.5 w-3.5 -rotate-90" />
+          </span>
+          <div className="pt-7 text-center">
+            <div className="mx-auto inline-flex max-w-full flex-col items-center rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2 shadow-[0_18px_70px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+              <div className="text-pretty text-[11px] font-medium leading-snug text-white/68 break-normal [hyphens:none]">
+                {t("fitExplanation")}
+              </div>
+              <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none]">
+                {t("fitExplanationSecondary")}
+              </div>
+            </div>
           </div>
         </div>
       </div>
