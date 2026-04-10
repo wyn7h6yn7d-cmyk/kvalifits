@@ -223,7 +223,7 @@ export function SmartMatching() {
                           ease: "easeInOut",
                         }}
                       >
-                        <span className="block font-mono text-[clamp(3.5rem,11vw,6.75rem)] font-semibold leading-none tracking-[-0.04em] text-gradient-brand">
+                        <span className="inline-block px-1 font-mono text-[clamp(3.5rem,11vw,6.75rem)] font-semibold leading-none tracking-[-0.04em] text-gradient-brand">
                           87%
                         </span>
                       </motion.div>
