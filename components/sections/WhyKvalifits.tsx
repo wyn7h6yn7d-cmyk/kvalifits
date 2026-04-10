@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
 
 const cardBase =
-  "h-full rounded-3xl border border-white/[0.08] bg-white/[0.02] px-6 py-8 sm:px-8";
+  "relative h-full overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02] px-6 py-8 sm:px-8";
 
 const ICONS = [Fingerprint, ShieldCheck, Landmark] as const;
 
@@ -52,6 +52,15 @@ export function WhyKvalifits() {
                 b.accentLeft && "border-l-[3px] border-l-accent-pink/60 pl-5 sm:pl-7",
               )}
             >
+              <div
+                aria-hidden="true"
+                className={cn(
+                  "pointer-events-none absolute -inset-16 opacity-70 blur-3xl",
+                  b.accentLeft
+                    ? "bg-[radial-gradient(circle_at_18%_22%,rgba(227,31,141,0.22),transparent_55%)]"
+                    : "bg-[radial-gradient(circle_at_22%_18%,rgba(168,85,247,0.18),transparent_55%)]",
+                )}
+              />
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.1] bg-white/[0.04]">
                 <b.icon className="h-5 w-5 text-white/75" />
               </div>
