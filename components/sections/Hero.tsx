@@ -60,7 +60,7 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="relative flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-2 md:gap-3">
+          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-2 md:gap-3">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
@@ -85,7 +85,7 @@ function HeroMatchMockup() {
               </div>
             </motion.div>
 
-            <div className="relative flex flex-col items-center gap-1 px-1">
+            <div className="flex flex-col items-center gap-1 px-1">
               <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
               <div className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px]">
                 <span className="font-mono text-lg font-semibold tabular-nums text-white">
@@ -102,67 +102,6 @@ function HeroMatchMockup() {
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
               </span>
-
-              {/* Desktop: permanent diagram-style annotation in upper-right empty space */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute right-6 top-0 hidden w-[240px] sm:block"
-              >
-                <div className="rounded-2xl border border-white/[0.12] bg-white/[0.03] px-3 py-2 shadow-[0_18px_70px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl">
-                  <div className="text-pretty text-[11px] font-medium leading-snug text-white/70 break-normal [hyphens:none]">
-                    {t("fitExplanation")}
-                  </div>
-                  <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none]">
-                    {t("fitExplanationSecondary")}
-                  </div>
-                </div>
-              </div>
-
-              {/* Desktop: thin angled line + arrow from 87% to label */}
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute hidden sm:block"
-                style={{
-                  left: "50%",
-                  top: "34px",
-                  width: "210px",
-                  height: "1px",
-                  transform: "translateX(20px) rotate(-18deg)",
-                  transformOrigin: "left center",
-                  background:
-                    "linear-gradient(90deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10), transparent)",
-                }}
-              />
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute hidden sm:block text-white/24"
-                style={{
-                  left: "50%",
-                  top: "34px",
-                  transform: "translateX(220px) translateY(-42px)",
-                }}
-              >
-                <ArrowRight className="h-3.5 w-3.5" />
-              </span>
-
-              {/* Mobile/tablet: keep a compact always-visible annotation below */}
-              <div className="mt-2 flex w-full flex-col items-center sm:hidden">
-                <span
-                  aria-hidden="true"
-                  className="h-6 w-px bg-gradient-to-b from-white/18 via-white/10 to-transparent"
-                />
-                <span aria-hidden="true" className="mt-0.5 text-white/26">
-                  <ArrowRight className="h-3.5 w-3.5 -rotate-90" />
-                </span>
-                <div className="mt-1 w-[min(320px,88vw)] text-center">
-                  <div className="text-pretty text-[11px] font-medium leading-snug text-white/62 break-normal [hyphens:none]">
-                    {t("fitExplanation")}
-                  </div>
-                  <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/48 break-normal [hyphens:none]">
-                    {t("fitExplanationSecondary")}
-                  </div>
-                </div>
-              </div>
             </div>
 
             <motion.div
@@ -188,6 +127,29 @@ function HeroMatchMockup() {
                 </div>
               </div>
             </motion.div>
+
+            {/* Permanent diagram-style fit explanation in real empty space (below top row, above summary) */}
+            <div className="sm:col-span-3">
+              <div className="flex flex-col items-center pt-1.5 sm:pt-2">
+                <span
+                  aria-hidden="true"
+                  className="h-8 w-px bg-gradient-to-b from-white/22 via-white/12 to-transparent sm:h-10"
+                />
+                <span aria-hidden="true" className="mt-0.5 text-white/26">
+                  <ArrowRight className="h-3.5 w-3.5 -rotate-90" />
+                </span>
+                <div className="mt-1 w-[min(360px,92vw)] text-center">
+                  <div className="mx-auto inline-flex max-w-full flex-col items-center rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2 shadow-[0_18px_70px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+                    <div className="text-pretty text-[11px] font-medium leading-snug text-white/68 break-normal [hyphens:none]">
+                      {t("fitExplanation")}
+                    </div>
+                    <div className="mt-1 hidden text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none] sm:block">
+                      {t("fitExplanationSecondary")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
