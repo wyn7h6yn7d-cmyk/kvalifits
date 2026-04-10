@@ -201,9 +201,17 @@ export function SeekerOnboardingForm({ locale }: Props) {
         experience_level: experienceLevel,
         preferred_job_types: preferredJobTypes,
         preferred_locations: preferredLocations,
-        profile_visible: true,
+        // Privacy-by-default: keep profile hidden until seeker explicitly enables visibility in their account.
+        profile_visible: false,
       });
       if (seekerErr) throw seekerErr;
+
+      // MVP sync: avoid duplicate certificate rows if user resubmits onboarding.
+      const { error: delErr } = await supabase
+        .from("seeker_certificates")
+        .delete()
+        .eq("user_id", user.id);
+      if (delErr) throw delErr;
 
       const rows = certificates.map((c) => ({
         user_id: user.id,

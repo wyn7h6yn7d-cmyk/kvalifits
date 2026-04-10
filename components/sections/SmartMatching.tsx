@@ -122,7 +122,7 @@ export function SmartMatching() {
   ] as const;
 
   return (
-    <section id="tood" className="relative scroll-mt-24 overflow-hidden py-28 sm:py-36">
+    <section id="tood" className="relative scroll-mt-24 overflow-hidden py-24 sm:py-32">
       {subtleSectionPortal.enabled ? (
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden"

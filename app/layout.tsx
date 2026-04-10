@@ -33,9 +33,9 @@ export default function RootLayout({
     <html
       lang="et"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="m-0 min-h-[100dvh] bg-background p-0 text-foreground">
+      <body className="m-0 min-h-[100dvh] overflow-x-hidden bg-background p-0 text-foreground">
         <div className="flex min-h-[100dvh] flex-col">
           {children}
           <Analytics />

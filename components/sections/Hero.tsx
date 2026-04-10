@@ -27,7 +27,7 @@ function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(100%,780px)]">
+    <div className="relative mx-auto w-full max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
       <div
         aria-hidden="true"
         className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-3xl"
@@ -292,7 +292,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="relative flex justify-center lg:justify-end"
+              className="relative flex min-w-0 justify-center lg:justify-end"
             >
               <HeroMatchMockup />
             </motion.div>

@@ -38,7 +38,9 @@ function buildFacetGroups(jobs: Job[]) {
     certs.push(...(j.requiredCerts ?? []));
     domains.push(...(j.domains ?? []));
     langs.push(...(j.languages ?? []));
-    types.push(j.type);
+    if (j.jobType) types.push(j.jobType);
+    if (j.workType) types.push(j.workType);
+    if (!j.jobType && !j.workType && j.type) types.push(j.type);
 
     const raw = (j.location ?? "").toString();
     const parts = raw
@@ -148,6 +150,8 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
   }, [jobs, query, selected]);
 
   const selectedArr = Array.from(selected);
+  const foundLabel =
+    results.length === 1 ? `Leitud 1 kuulutus` : `Leitud ${results.length} kuulutust`;
 
   return (
     <section className="py-14 sm:py-16">
@@ -275,8 +279,8 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
             </div>
 
             <div className="mt-6 flex items-center justify-between text-xs text-white/50">
-              <div>
-                {t("found")} <span className="text-white/75">{results.length}</span>
+              <div className="text-white/55">
+                <span className="text-white/70">{foundLabel}</span>
               </div>
               <div className={cn("hidden sm:block", results.length ? "" : "opacity-0")} />
             </div>

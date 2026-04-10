@@ -70,11 +70,11 @@ export const landingET = {
     title: "Kuidas Kvalifits toimib",
     subtitle: "Lihtne voog, mis skaleerub tõenduspõhiseks värbamiseks.",
     seeker: {
-      title: "Tööotsijale",
+      title: "Tööotsijatele",
       steps: ["Loo konto", "Lisa oskused ja sertifikaadid", "Saa sobivad töövõimalused", "Kandideeri kiirelt"],
     },
     employer: {
-      title: "Tööandjale",
+      title: "Tööandjatele",
       steps: ["Lisa tööpakkumine", "Määra nõutud kvalifikatsioonid", "Saa sobivad kandidaadid", "Värba kindlamalt"],
     },
   },

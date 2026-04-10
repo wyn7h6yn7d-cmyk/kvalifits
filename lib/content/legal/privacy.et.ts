@@ -26,7 +26,7 @@ export const privacyET: LegalDocument = {
         "Sõltuvalt sellest, kas kasutad platvormi tööotsija või tööandjana (või mõlemana), võime töödelda järgmisi andmekategooriaid:",
       ],
       listItems: [
-        "Konto andmed: nimi, e-posti aadress, parooli räsi (mitte lahtekujul parool), konto tüüp ja seaded.",
+        "Konto andmed: nimi, e-posti aadress, parooli räsi (mitte parool lahtisel kujul), konto tüüp ja seaded.",
         "Profiiliandmed: tööotsija puhul nt haridus, töökogemus, oskused, keeled, soovitud rollid; tööandja puhul ettevõtte nimi, kontaktisik, kuulutuste sisu.",
         "Dokumendid ja tõendid: üleslaaditud sertifikaadid, load või muud failid, mida otsustad platvormi kaudu jagada.",
         "Suhtlusandmed: platvormi sees saadetud sõnumid või taotlused, kui selline funktsioon on saadaval.",
@@ -60,7 +60,7 @@ export const privacyET: LegalDocument = {
       title: "Kui kaua andmeid säilitatakse",
       paragraphs: [
         "Säilitame andmeid ainult nii kaua, kui see on eesmärgi täitmiseks vajalik, välja arvatud juhul, kui seadus nõuab pikemat säilitamist (nt raamatupidamisnõuded).",
-        "Kui sulgevad konto, kustutame või anonüümime sinu isikuandmed mõistliku aja jooksul, välja arvatud andmed, mida peame seaduse alusel alles hoidma või mis on vajalik vaidluste lahendamiseks.",
+        "Kui sulged konto, kustutame või anonüümime sinu isikuandmed mõistliku aja jooksul, välja arvatud andmed, mida peame seaduse alusel alles hoidma või mis on vajalik vaidluste lahendamiseks.",
       ],
     },
     {
@@ -71,13 +71,13 @@ export const privacyET: LegalDocument = {
       ],
       listItems: [
         "Teenusepakkujatega (nt pilveteenus, e-posti saatmine), kellega on sõlmitud lepingud ja kes töötlevad andmeid meie juhiste järgi.",
-        "Kui oled tööotsija, võivad sinu profiiliandmed (sinu valikul või vastavalt seadistustele) olla nähtavad tööandjatele, kes kasutavad platvormi — eesmärgiga töövahendus.",
+        "Kui oled tööotsija, võivad sinu profiiliandmed (sinu valikul või vastavalt seadistustele) olla nähtavad tööandjatele, kes kasutavad platvormi — töövahenduse eesmärgil.",
         "Õigusasutustele, kui seadus seda nõuab või kaitsemaks õigustatud huve.",
       ],
     },
     {
       id: "kolmandad-riigid",
-      title: "Andmete ülekanne väljapoole EÜ-d",
+      title: "Andmete ülekanne väljapoole EMP-i",
       paragraphs: [
         "Kui kasutame teenusepakkujaid väljaspool Euroopa Majanduspiirkonda, tagame sobivad kaitsemeetmed (nt standardlepingutingimused või komisjoni otsused), kui see on nõutav.",
       ],
@@ -110,7 +110,7 @@ export const privacyET: LegalDocument = {
       id: "muudatused",
       title: "Poliitika muutmine",
       paragraphs: [
-        "Võime seda poliitikat aeg-ajalt uuendada. Oluliste muudatuste korral anname teada platvormi kaudu või e-posti teel, kui see on mõistlik. Jätkates teenuse kasutamist pärast muudatuste jõustumist, loetakse, et oled uuendustega tutvunud; kui nõusolek on vajalik, küsin selle eraldi.",
+        "Võime seda poliitikat aeg-ajalt uuendada. Oluliste muudatuste korral anname teada platvormi kaudu või e-posti teel, kui see on mõistlik. Jätkates teenuse kasutamist pärast muudatuste jõustumist, loetakse, et oled uuendustega tutvunud; kui nõusolek on vajalik, küsime selle eraldi.",
       ],
     },
     {

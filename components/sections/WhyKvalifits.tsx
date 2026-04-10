@@ -22,7 +22,7 @@ export function WhyKvalifits() {
   ] as const;
 
   return (
-    <section id="miks" className="relative scroll-mt-24 py-20 sm:py-28">
+    <section id="miks" className="relative scroll-mt-24 py-24 sm:py-32">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/[0.03] to-transparent"

@@ -35,6 +35,8 @@ const EMPLOYER_NAV_PATHS = [
   { href: "/account/employer/candidates", key: "candidates" as const },
 ];
 
+const ADMIN_NAV_PATHS = [{ href: "/admin", key: "admin" as const }];
+
 function NavLink({
   href,
   children,
@@ -130,7 +132,7 @@ export function Navbar() {
         : role === "seeker"
           ? SEEKER_NAV_PATHS
           : role === "admin"
-            ? GUEST_NAV_PATHS
+            ? ADMIN_NAV_PATHS
           : GUEST_NAV_PATHS
       : GUEST_NAV_PATHS;
 

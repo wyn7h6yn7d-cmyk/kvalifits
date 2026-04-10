@@ -49,6 +49,25 @@ function extractKeywordCandidates(text: string) {
   return tokens;
 }
 
+function mapWorkType(raw: string, tJobs: (key: string) => string) {
+  const v = raw.trim();
+  if (!v) return undefined;
+  if (v === "on_site") return tJobs("workTypeOnSite");
+  if (v === "hybrid") return tJobs("workTypeHybrid");
+  if (v === "remote") return tJobs("workTypeRemote");
+  return v;
+}
+
+function mapJobType(raw: string, tJobs: (key: string) => string) {
+  const v = raw.trim();
+  if (!v) return undefined;
+  if (v === "full_time") return tJobs("jobTypeFullTime");
+  if (v === "part_time") return tJobs("jobTypePartTime");
+  if (v === "contract") return tJobs("jobTypeContract");
+  if (v === "internship") return tJobs("jobTypeInternship");
+  return v;
+}
+
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.jobs" });
@@ -58,8 +77,10 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function ToodPage() {
+export default async function ToodPage({ params }: Props) {
+  const { locale } = await params;
   const t = await getTranslations("pages.jobs");
+  const tJobs = await getTranslations({ locale, namespace: "jobs" });
   const supabase = await createSupabaseServerClient();
 
   const { data: jobs } = await supabase
@@ -90,9 +111,9 @@ export default async function ToodPage() {
         ? `${min ? `${min}` : ""}${min && max ? "–" : ""}${max ? `${max}` : ""} ${currency}`
         : undefined;
 
-    const jobType = (j.job_type ?? "").toString().trim();
-    const workType = (j.work_type ?? "").toString().trim();
-    const type = [jobType, workType].filter(Boolean).join(" / ") || "—";
+    const jobType = mapJobType((j.job_type ?? "").toString(), tJobs);
+    const workType = mapWorkType((j.work_type ?? "").toString(), tJobs);
+    const type = [workType, jobType].filter(Boolean).join(" · ") || "—";
 
     const summary = extractSummary(j.description);
     const keywordText = `${j.title ?? ""}\n${j.requirements ?? ""}`;
@@ -105,8 +126,8 @@ export default async function ToodPage() {
       location: j.location ?? "—",
       type,
       salary,
-      workType: workType || undefined,
-      jobType: jobType || undefined,
+      workType,
+      jobType,
       summary,
       createdAt: j.created_at ?? undefined,
       tags,

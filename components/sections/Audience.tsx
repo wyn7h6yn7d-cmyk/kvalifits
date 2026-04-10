@@ -28,7 +28,7 @@ export function Audience() {
   ] as const;
 
   return (
-    <section className="relative py-20 sm:py-32">
+    <section className="relative py-24 sm:py-32">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent"

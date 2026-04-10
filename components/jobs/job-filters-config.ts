@@ -12,6 +12,8 @@ function norm(s: string) {
 /** Kas töökuulutus vastab ühele kiibile (AND loogika kasutab mitut kiipi). */
 export function chipMatchesJob(job: Job, chip: string): boolean {
   if (job.type === chip) return true;
+  if (job.workType === chip) return true;
+  if (job.jobType === chip) return true;
   if (job.tags.includes(chip)) return true;
   if (job.requiredCerts.includes(chip)) return true;
   if (job.domains?.includes(chip)) return true;

@@ -33,8 +33,6 @@ export function EmployerNewJobForm({ locale }: Props) {
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [salaryCurrency, setSalaryCurrency] = useState("EUR");
-  const [applicationUrl, setApplicationUrl] = useState("");
-  const [packageDays, setPackageDays] = useState<30 | 90>(30);
   const [employerProfileOk, setEmployerProfileOk] = useState(true);
 
   useEffect(() => {
@@ -68,15 +66,6 @@ export function EmployerNewJobForm({ locale }: Props) {
       mounted = false;
     };
   }, [supabase]);
-
-  function isValidHttpUrl(v: string) {
-    try {
-      const u = new URL(v);
-      return u.protocol === "http:" || u.protocol === "https:";
-    } catch {
-      return false;
-    }
-  }
 
   function validate(): string | null {
     if (!employerProfileOk) return t("employerProfileIncomplete");
@@ -189,11 +178,15 @@ export function EmployerNewJobForm({ locale }: Props) {
     if (err instanceof Error) return err.message || fallback;
     if (typeof err === "string") return err || fallback;
     try {
-      const anyErr = err as any;
+      const anyErr = err as {
+        message?: unknown;
+        error_description?: unknown;
+        error?: { message?: unknown };
+      };
       return (
-        anyErr?.message ||
-        anyErr?.error_description ||
-        anyErr?.error?.message ||
+        (typeof anyErr?.message === "string" ? anyErr.message : "") ||
+        (typeof anyErr?.error_description === "string" ? anyErr.error_description : "") ||
+        (typeof anyErr?.error?.message === "string" ? anyErr.error.message : "") ||
         fallback
       );
     } catch {
@@ -229,28 +222,6 @@ export function EmployerNewJobForm({ locale }: Props) {
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("packageTitle")}</div>
         <div className="mt-1 text-sm text-white/60">{t("packageHint")}</div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
-            <div className="text-sm text-white/80">{t("package30")}</div>
-            <input
-              type="radio"
-              name="package"
-              value="30"
-              checked={packageDays === 30}
-              onChange={() => setPackageDays(30)}
-            />
-          </label>
-          <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
-            <div className="text-sm text-white/80">{t("package90")}</div>
-            <input
-              type="radio"
-              name="package"
-              value="90"
-              checked={packageDays === 90}
-              onChange={() => setPackageDays(90)}
-            />
-          </label>
-        </div>
         <div className="mt-4">
           <Button
             type="button"

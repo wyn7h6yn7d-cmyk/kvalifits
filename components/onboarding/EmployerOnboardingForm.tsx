@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,45 @@ export function EmployerOnboardingForm({ locale }: Props) {
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
   const [companyDescription, setCompanyDescription] = useState("");
+
+  // Prefill from existing employer profile / auth email for smoother onboarding.
+  useEffect(() => {
+    let mounted = true;
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) return;
+
+        if (mounted && user.email) setContactEmail((prev) => prev || user.email || "");
+
+        const { data: employer } = await supabase
+          .from("employer_profiles")
+          .select(
+            "company_name,registry_code,contact_email,contact_phone,website,location,industry,company_description"
+          )
+          .eq("owner_user_id", user.id)
+          .maybeSingle();
+        if (!mounted || !employer) return;
+
+        setCompanyName((prev) => prev || (employer.company_name ?? "").toString());
+        setRegistryCode((prev) => prev || (employer.registry_code ?? "").toString());
+        setContactEmail((prev) => prev || (employer.contact_email ?? "").toString());
+        setContactPhone((prev) => prev || (employer.contact_phone ?? "").toString());
+        setWebsite((prev) => prev || (employer.website ?? "").toString());
+        setLocation((prev) => prev || (employer.location ?? "").toString());
+        setIndustry((prev) => prev || (employer.industry ?? "").toString());
+        setCompanyDescription((prev) => prev || (employer.company_description ?? "").toString());
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
