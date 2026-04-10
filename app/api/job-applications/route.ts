@@ -27,6 +27,9 @@ export async function POST(req: Request) {
     if (!consentToShare) return NextResponse.json({ error: "missing_consent" }, { status: 400 });
 
     const admin = createSupabaseAdminClient();
+    if (!admin) {
+      return NextResponse.json({ error: "missing_service_role_key" }, { status: 500 });
+    }
 
     const { data: profile, error: profileErr } = await admin
       .from("profiles")

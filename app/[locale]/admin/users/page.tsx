@@ -11,11 +11,14 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function AdminUsersPage({ params }: Props) {
   const { locale } = await params;
-  await requireAdmin(locale);
-  const admin = createSupabaseAdminClient();
   const t = await getTranslations({ locale, namespace: "admin" });
+  const { supabase } = await requireAdmin(locale);
 
-  const { data: profiles } = await admin
+  const admin = createSupabaseAdminClient();
+  const client = admin ?? supabase;
+  const isUsingAdmin = Boolean(admin);
+
+  const { data: profiles } = await client
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false })
@@ -24,11 +27,11 @@ export default async function AdminUsersPage({ params }: Props) {
   const ids = (profiles ?? []).map((p) => p.id);
 
   const { data: seekerRows } = ids.length
-    ? await admin.from("seeker_profiles").select("user_id,profile_visible,is_complete").in("user_id", ids)
+    ? await client.from("seeker_profiles").select("user_id,profile_visible,is_complete").in("user_id", ids)
     : { data: [] as any[] };
 
   const { data: employerRows } = ids.length
-    ? await admin.from("employer_profiles").select("owner_user_id").in("owner_user_id", ids)
+    ? await client.from("employer_profiles").select("owner_user_id").in("owner_user_id", ids)
     : { data: [] as any[] };
 
   const seekerById = new Map((seekerRows ?? []).map((r) => [r.user_id, r]));
@@ -39,6 +42,16 @@ export default async function AdminUsersPage({ params }: Props) {
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
         <AuthShell title={t("usersTitle")} subtitle={t("usersSubtitle")} maxWidthClassName="max-w-5xl">
+          {!isUsingAdmin ? (
+            <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-[12.5px] leading-relaxed text-white/70">
+              <div className="font-semibold text-white/85">Admin vaade on piiratud.</div>
+              <div className="mt-1">
+                Täieliku kasutajate nimekirja jaoks seadista serveris{" "}
+                <span className="font-mono text-white/85">SUPABASE_SERVICE_ROLE_KEY</span>. Hetkel näidatakse andmeid
+                vastavalt RLS reeglitele.
+              </div>
+            </div>
+          ) : null}
           <AdminUsersTable
             locale={locale}
             users={(profiles ?? []).map((p: any) => ({

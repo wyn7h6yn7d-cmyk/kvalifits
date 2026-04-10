@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -29,7 +30,7 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
       if (error) throw error;
       setSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(mapAuthError(err, t));
     } finally {
       setLoading(false);
     }

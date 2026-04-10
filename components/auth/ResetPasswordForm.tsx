@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -27,7 +28,7 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
       router.push(`/${locale}/auth/login?reset=success`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(mapAuthError(err, t));
     } finally {
       setLoading(false);
     }

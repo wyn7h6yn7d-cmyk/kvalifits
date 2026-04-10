@@ -276,6 +276,12 @@
   },
   "auth": {
     "unknownError": "Midagi läks valesti.",
+    "errorInvalidCredentials": "Vale e-post või parool.",
+    "errorEmailInUse": "Selle e-postiga konto on juba olemas.",
+    "errorEmailNotConfirmed": "Palun kinnita oma e-post ja proovi uuesti.",
+    "errorRateLimited": "Liiga palju katseid. Palun proovi mõne aja pärast uuesti.",
+    "errorInvalidEmail": "Palun sisesta korrektne e-posti aadress.",
+    "errorWeakPassword": "Parool on liiga nõrk. Palun vali tugevam parool.",
     "loading": "Laen…",
     "email": "E-post",
     "emailPlaceholder": "E-post",

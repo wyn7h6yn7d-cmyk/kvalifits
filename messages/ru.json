@@ -276,6 +276,12 @@
   },
   "auth": {
     "unknownError": "Что-то пошло не так.",
+    "errorInvalidCredentials": "Неверный email или пароль.",
+    "errorEmailInUse": "Аккаунт с этим email уже существует.",
+    "errorEmailNotConfirmed": "Подтвердите email и попробуйте ещё раз.",
+    "errorRateLimited": "Слишком много попыток. Попробуйте позже.",
+    "errorInvalidEmail": "Введите корректный email адрес.",
+    "errorWeakPassword": "Пароль слишком слабый. Выберите более надёжный пароль.",
     "loading": "Загрузка…",
     "email": "Email",
     "emailPlaceholder": "name@company.com",
