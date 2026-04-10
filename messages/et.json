@@ -98,6 +98,7 @@
     "employer": "Tööandja",
     "positionSample": "Positsioon",
     "fit": "sobivus",
+    "fitExplanation": "Sinu sobivus antud positsioonile on 87%.",
     "lineSample": "Elektrik · A-pädevus · Sobivus",
     "verified": "Sertifikaat kontrollitud",
     "requirements": "Nõuded"

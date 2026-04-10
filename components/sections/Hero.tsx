@@ -1,5 +1,6 @@
 "use client";
 
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -7,7 +8,6 @@ import {
   ArrowRight,
   Building2,
   ShieldCheck,
-  Sparkles,
   UserRound,
 } from "lucide-react";
 
@@ -26,9 +26,11 @@ const heroSecondaryCta =
 
 function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
+  const fitTipId = useId();
+  const [fitTipOpen, setFitTipOpen] = useState(false);
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(100%,480px)]">
+    <div className="relative mx-auto w-full max-w-[min(100%,560px)]">
       <div
         aria-hidden="true"
         className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-3xl"
@@ -76,7 +78,7 @@ function HeroMatchMockup() {
                   <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 break-words sm:tracking-[0.16em]">
                     {t("seeker")}
                   </div>
-                  <div className="truncate text-sm font-medium text-white/90 sm:text-[15px]">
+                  <div className="text-pretty break-words text-[15px] font-semibold leading-snug text-white/92 sm:text-[16px]">
                     {t("roleSample")}
                   </div>
                 </div>
@@ -85,11 +87,30 @@ function HeroMatchMockup() {
 
             <div className="flex flex-col items-center gap-1 px-1">
               <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
-              <div className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px]">
+              <button
+                type="button"
+                onClick={() => setFitTipOpen((v) => !v)}
+                onMouseEnter={() => setFitTipOpen(true)}
+                onMouseLeave={() => setFitTipOpen(false)}
+                onBlur={() => setFitTipOpen(false)}
+                aria-describedby={fitTipId}
+                className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] outline-none transition-colors hover:border-white/[0.18] focus-visible:ring-2 focus-visible:ring-white/30 sm:-mt-[13px]"
+              >
                 <span className="font-mono text-lg font-semibold tabular-nums text-white">
                   87<span className="text-sm text-white/45">%</span>
                 </span>
-              </div>
+                <span
+                  id={fitTipId}
+                  role="tooltip"
+                  className={cn(
+                    "pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-[min(260px,74vw)] -translate-x-1/2 rounded-2xl border border-white/[0.12] bg-[rgba(5,5,8,0.92)] px-3 py-2 text-center text-xs leading-relaxed text-white/75 shadow-[0_14px_50px_-18px_rgba(0,0,0,0.65)] backdrop-blur-xl",
+                    "opacity-0 translate-y-1 transition-[opacity,transform] duration-200",
+                    fitTipOpen ? "opacity-100 translate-y-0" : ""
+                  )}
+                >
+                  {t("fitExplanation")}
+                </span>
+              </button>
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
               </span>
@@ -109,7 +130,7 @@ function HeroMatchMockup() {
                   <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 break-words sm:tracking-[0.16em]">
                     {t("employer")}
                   </div>
-                  <div className="truncate text-sm font-medium text-white/85 sm:text-[15px]">
+                  <div className="text-pretty break-words text-[15px] font-semibold leading-snug text-white/90 sm:text-[16px]">
                     {t("positionSample")}
                   </div>
                 </div>

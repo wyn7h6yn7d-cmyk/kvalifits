@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,7 +36,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="m-0 min-h-[100dvh] bg-background p-0 text-foreground">
-        <div className="flex min-h-[100dvh] flex-col">{children}</div>
+        <div className="flex min-h-[100dvh] flex-col">
+          {children}
+          <Analytics />
+        </div>
       </body>
     </html>
   );

@@ -98,6 +98,7 @@
     "employer": "Employer",
     "positionSample": "Role",
     "fit": "fit",
+    "fitExplanation": "Your fit for this role is 87%.",
     "lineSample": "Electrician · Class A · Fit",
     "verified": "Certificate verified",
     "requirements": "Requirements"
