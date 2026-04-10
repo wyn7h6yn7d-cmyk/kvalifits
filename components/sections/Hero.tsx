@@ -1,6 +1,5 @@
 "use client";
 
-import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -26,8 +25,6 @@ const heroSecondaryCta =
 
 function HeroMatchMockup() {
   const t = useTranslations("heroMockup");
-  const fitTipId = useId();
-  const [fitTipOpen, setFitTipOpen] = useState(false);
 
   return (
     <div className="relative mx-auto w-full max-w-[min(100%,560px)]">
@@ -63,7 +60,7 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-2 md:gap-3">
+          <div className="relative flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-2 md:gap-3">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
@@ -88,17 +85,9 @@ function HeroMatchMockup() {
               </div>
             </motion.div>
 
-            <div className="flex flex-col items-center gap-1 px-1">
+            <div className="relative flex flex-col items-center gap-1 px-1">
               <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
-              <button
-                type="button"
-                onClick={() => setFitTipOpen((v) => !v)}
-                onMouseEnter={() => setFitTipOpen(true)}
-                onMouseLeave={() => setFitTipOpen(false)}
-                onBlur={() => setFitTipOpen(false)}
-                aria-describedby={fitTipId}
-                className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] outline-none transition-colors hover:border-white/[0.18] focus-visible:ring-2 focus-visible:ring-white/30 sm:-mt-[13px]"
-              >
+              <div className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px]">
                 <span className="font-mono text-lg font-semibold tabular-nums text-white">
                   87<span className="text-sm text-white/45">%</span>
                 </span>
@@ -106,47 +95,74 @@ function HeroMatchMockup() {
                   aria-hidden="true"
                   className={cn(
                     "absolute -right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/30 shadow-[0_0_0_3px_rgba(255,255,255,0.06)] transition-opacity",
-                    fitTipOpen ? "opacity-100 motion-safe:animate-pulse" : "opacity-55"
+                    "opacity-70 motion-safe:animate-pulse"
                   )}
                 />
-                <span
-                  id={fitTipId}
-                  role="tooltip"
-                  className={cn(
-                    "pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-[min(260px,74vw)] -translate-x-1/2 rounded-2xl border border-white/[0.12] bg-[rgba(5,5,8,0.92)] px-3 py-2 text-center text-xs leading-relaxed text-white/75 shadow-[0_14px_50px_-18px_rgba(0,0,0,0.65)] backdrop-blur-xl",
-                    "opacity-0 translate-y-1 transition-[opacity,transform] duration-200",
-                    fitTipOpen ? "opacity-100 translate-y-0" : ""
-                  )}
-                >
-                  <span className="block text-pretty">
-                    {t("fitExplanation")}
-                  </span>
-                  <span className="mt-1 block text-pretty text-white/60">
-                    {t("fitExplanationSecondary")}
-                  </span>
-                </span>
-
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "pointer-events-none absolute left-full top-1/2 hidden -translate-y-1/2 items-center gap-2 pl-4 sm:flex",
-                    "transition-opacity duration-200",
-                    fitTipOpen ? "opacity-100" : "opacity-70"
-                  )}
-                >
-                  <span className="h-px w-10 bg-gradient-to-r from-white/28 via-white/16 to-transparent" />
-                  <ArrowRight className="h-3.5 w-3.5 text-white/28" />
-                  <span className="max-w-[240px] text-pretty text-[11px] leading-snug text-white/60">
-                    {t("fitExplanation")}
-                  </span>
-                </span>
-              </button>
+              </div>
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
               </span>
-              <span className="mt-1 text-center text-[11px] leading-snug text-white/55 sm:hidden">
-                {t("fitExplanation")}
+
+              {/* Desktop: permanent diagram-style annotation in upper-right empty space */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute right-6 top-0 hidden w-[240px] sm:block"
+              >
+                <div className="rounded-2xl border border-white/[0.12] bg-white/[0.03] px-3 py-2 shadow-[0_18px_70px_-28px_rgba(0,0,0,0.75)] backdrop-blur-xl">
+                  <div className="text-pretty text-[11px] font-medium leading-snug text-white/70 break-normal [hyphens:none]">
+                    {t("fitExplanation")}
+                  </div>
+                  <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none]">
+                    {t("fitExplanationSecondary")}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: thin angled line + arrow from 87% to label */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute hidden sm:block"
+                style={{
+                  left: "50%",
+                  top: "34px",
+                  width: "210px",
+                  height: "1px",
+                  transform: "translateX(20px) rotate(-18deg)",
+                  transformOrigin: "left center",
+                  background:
+                    "linear-gradient(90deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10), transparent)",
+                }}
+              />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute hidden sm:block text-white/24"
+                style={{
+                  left: "50%",
+                  top: "34px",
+                  transform: "translateX(220px) translateY(-42px)",
+                }}
+              >
+                <ArrowRight className="h-3.5 w-3.5" />
               </span>
+
+              {/* Mobile/tablet: keep a compact always-visible annotation below */}
+              <div className="mt-2 flex w-full flex-col items-center sm:hidden">
+                <span
+                  aria-hidden="true"
+                  className="h-6 w-px bg-gradient-to-b from-white/18 via-white/10 to-transparent"
+                />
+                <span aria-hidden="true" className="mt-0.5 text-white/26">
+                  <ArrowRight className="h-3.5 w-3.5 -rotate-90" />
+                </span>
+                <div className="mt-1 w-[min(320px,88vw)] text-center">
+                  <div className="text-pretty text-[11px] font-medium leading-snug text-white/62 break-normal [hyphens:none]">
+                    {t("fitExplanation")}
+                  </div>
+                  <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/48 break-normal [hyphens:none]">
+                    {t("fitExplanationSecondary")}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <motion.div
