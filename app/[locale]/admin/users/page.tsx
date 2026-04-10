@@ -4,16 +4,18 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function AdminUsersPage({ params }: Props) {
   const { locale } = await params;
-  const { supabase } = await requireAdmin(locale);
+  await requireAdmin(locale);
+  const admin = createSupabaseAdminClient();
   const t = await getTranslations({ locale, namespace: "admin" });
 
-  const { data: profiles } = await supabase
+  const { data: profiles } = await admin
     .from("profiles")
     .select("*")
     .order("created_at", { ascending: false })
@@ -22,11 +24,11 @@ export default async function AdminUsersPage({ params }: Props) {
   const ids = (profiles ?? []).map((p) => p.id);
 
   const { data: seekerRows } = ids.length
-    ? await supabase.from("seeker_profiles").select("user_id,profile_visible,is_complete").in("user_id", ids)
+    ? await admin.from("seeker_profiles").select("user_id,profile_visible,is_complete").in("user_id", ids)
     : { data: [] as any[] };
 
   const { data: employerRows } = ids.length
-    ? await supabase.from("employer_profiles").select("owner_user_id").in("owner_user_id", ids)
+    ? await admin.from("employer_profiles").select("owner_user_id").in("owner_user_id", ids)
     : { data: [] as any[] };
 
   const seekerById = new Map((seekerRows ?? []).map((r) => [r.user_id, r]));
