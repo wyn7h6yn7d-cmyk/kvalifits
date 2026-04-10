@@ -60,22 +60,22 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_4.5rem_minmax(0,1fr)] sm:items-center sm:gap-4 md:gap-6">
+          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_3.75rem_minmax(0,1fr)] sm:items-center sm:gap-4 md:gap-6">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex min-h-[104px] min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
+              className="flex min-h-[104px] min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-4"
             >
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
-                  <UserRound className="h-4 w-4 text-white/75" />
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
+                  <UserRound className="h-3.5 w-3.5 text-white/75" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
+                  <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
                     {t("seeker")}
                   </div>
-                  <div className="text-balance text-pretty text-[14px] font-semibold leading-snug text-white/92 sm:text-[16px] break-normal [hyphens:none]">
+                  <div className="text-balance text-pretty text-[14px] font-semibold leading-snug text-white/92 sm:text-[15px] md:text-[16px] break-normal [hyphens:none]">
                     {t("roleSample")}
                   </div>
                   <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
@@ -108,17 +108,17 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="flex min-h-[104px] min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
+              className="flex min-h-[104px] min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-4"
             >
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
-                  <Building2 className="h-4 w-4 text-white/70" />
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
+                  <Building2 className="h-3.5 w-3.5 text-white/70" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
+                  <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
                     {t("employer")}
                   </div>
-                  <div className="text-balance text-pretty text-[14px] font-semibold leading-snug text-white/90 sm:text-[16px] break-normal [hyphens:none]">
+                  <div className="text-balance text-pretty text-[14px] font-semibold leading-snug text-white/90 sm:text-[15px] md:text-[16px] break-normal [hyphens:none]">
                     {t("positionSample")}
                   </div>
                   <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
