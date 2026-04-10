@@ -8,6 +8,7 @@ import { Menu, ArrowRight } from "lucide-react";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
@@ -116,7 +117,7 @@ export function Navbar() {
 
   /** Üks kiht: taust + blur + border samal elemendil kui rida → üks pidev klaasriba */
   const glassBar = cn(
-    "isolate flex h-[var(--site-header-bar)] min-h-0 w-full max-w-7xl items-center justify-between gap-2 rounded-2xl border px-2.5 py-0 backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-4 lg:justify-start lg:gap-0 lg:px-5",
+    "isolate flex h-[var(--site-header-bar)] min-h-0 w-full items-center justify-between gap-2 rounded-2xl border px-2.5 py-0 backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-4 lg:justify-start lg:gap-0 lg:px-5",
     "border-white/[0.11] bg-[rgba(5,5,8,0.78)] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_12px_40px_-14px_rgba(0,0,0,0.5),0_0_50px_-18px_rgba(124,58,237,0.07)]",
     scrolled &&
       "border-white/[0.15] bg-[rgba(5,5,8,0.85)] shadow-[0_0_0_1px_rgba(255,255,255,0.07)_inset,0_14px_44px_-12px_rgba(0,0,0,0.55),0_0_56px_-16px_rgba(124,58,237,0.09)]",
@@ -134,8 +135,8 @@ export function Navbar() {
       : GUEST_NAV_PATHS;
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-3 pb-[var(--site-header-tail)] pt-[var(--site-header-top)] sm:px-4">
-      <div className="pointer-events-auto mx-auto flex w-full justify-center">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-0 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
+      <Container className="pointer-events-auto flex w-full justify-center">
         <div className={glassBar}>
           <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center">
             <Logo className="inline-flex h-full max-h-full min-h-0 items-center leading-none" />
@@ -334,7 +335,7 @@ export function Navbar() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </header>
   );
 }
