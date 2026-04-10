@@ -65,7 +65,7 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex min-h-[104px] min-w-[300px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
+              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:min-w-[300px] sm:px-5"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
@@ -108,7 +108,7 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="flex min-h-[104px] min-w-[300px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
+              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:min-w-[300px] sm:px-5"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
