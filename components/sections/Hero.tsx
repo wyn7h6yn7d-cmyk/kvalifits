@@ -60,12 +60,12 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-6 md:gap-8">
+          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(280px,1fr)_auto_minmax(280px,1fr)] sm:items-center sm:gap-5 md:gap-7">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
+              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-6"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
@@ -75,7 +75,7 @@ function HeroMatchMockup() {
                   <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
                     {t("seeker")}
                   </div>
-                  <div className="text-pretty text-[15px] font-semibold leading-snug text-white/92 sm:text-[16px] break-normal [hyphens:none]">
+                  <div className="text-balance text-pretty text-[14px] font-semibold leading-snug text-white/92 sm:text-[16px] break-normal [hyphens:none]">
                     {t("roleSample")}
                   </div>
                   <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
@@ -108,7 +108,7 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
+              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-6"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
@@ -118,7 +118,7 @@ function HeroMatchMockup() {
                   <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
                     {t("employer")}
                   </div>
-                  <div className="text-pretty text-[15px] font-semibold leading-snug text-white/90 sm:text-[16px] break-normal [hyphens:none]">
+                  <div className="text-balance text-pretty text-[14px] font-semibold leading-snug text-white/90 sm:text-[16px] break-normal [hyphens:none]">
                     {t("positionSample")}
                   </div>
                   <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
