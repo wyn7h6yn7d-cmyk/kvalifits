@@ -95,13 +95,19 @@
     "fresh": "värske",
     "seeker": "Tööotsija",
     "roleSample": "Elektrik",
+    "seekerHint": "Tööotsija profiil",
     "employer": "Tööandja",
     "positionSample": "Positsioon",
+    "employerHint": "Positsiooni nõuded",
     "fit": "sobivus",
     "fitExplanation": "Sinu sobivus antud positsioonile on 87%.",
+    "fitExplanationSecondary": "Sobivus arvutatakse tööotsija andmete ja tööandja nõuete põhjal",
     "lineSample": "Elektrik · A-pädevus · Sobivus",
+    "lineHint": "Kiirülevaade peamistest sobivusnäitajatest",
     "verified": "Sertifikaat kontrollitud",
-    "requirements": "Nõuded"
+    "verifiedHint": "Oluline pädevus on kontrollitud",
+    "requirements": "Nõuded",
+    "requirementsHint": "Tööotsija vastab 8 nõudele 10-st"
   },
   "smartMatching": {
     "badge": "Sobituse mootor",

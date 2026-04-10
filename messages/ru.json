@@ -95,13 +95,19 @@
     "fresh": "свежее",
     "seeker": "Соискатель",
     "roleSample": "Электрик",
+    "seekerHint": "Tööotsija profiil",
     "employer": "Работодатель",
     "positionSample": "Позиция",
+    "employerHint": "Positsiooni nõuded",
     "fit": "совпадение",
-    "fitExplanation": "Ваше соответствие этой позиции — 87%.",
+    "fitExplanation": "Sinu sobivus antud positsioonile on 87%.",
+    "fitExplanationSecondary": "Sobivus arvutatakse tööotsija andmete ja tööandja nõuete põhjal",
     "lineSample": "Электрик · группа A · Совпадение",
+    "lineHint": "Kiirülevaade peamistest sobivusnäitajatest",
     "verified": "Сертификат проверен",
-    "requirements": "Требования"
+    "verifiedHint": "Oluline pädevus on kontrollitud",
+    "requirements": "Требования",
+    "requirementsHint": "Tööotsija vastab 8 nõudele 10-st"
   },
   "smartMatching": {
     "badge": "Движок подбора",

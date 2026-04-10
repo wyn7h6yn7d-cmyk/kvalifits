@@ -95,13 +95,19 @@
     "fresh": "fresh",
     "seeker": "Job seeker",
     "roleSample": "Electrician",
+    "seekerHint": "Tööotsija profiil",
     "employer": "Employer",
     "positionSample": "Role",
+    "employerHint": "Positsiooni nõuded",
     "fit": "fit",
-    "fitExplanation": "Your fit for this role is 87%.",
+    "fitExplanation": "Sinu sobivus antud positsioonile on 87%.",
+    "fitExplanationSecondary": "Sobivus arvutatakse tööotsija andmete ja tööandja nõuete põhjal",
     "lineSample": "Electrician · Class A · Fit",
+    "lineHint": "Kiirülevaade peamistest sobivusnäitajatest",
     "verified": "Certificate verified",
-    "requirements": "Requirements"
+    "verifiedHint": "Oluline pädevus on kontrollitud",
+    "requirements": "Requirements",
+    "requirementsHint": "Tööotsija vastab 8 nõudele 10-st"
   },
   "smartMatching": {
     "badge": "Matching engine",

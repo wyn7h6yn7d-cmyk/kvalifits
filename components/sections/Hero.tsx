@@ -68,18 +68,21 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3 sm:px-4"
+              className="flex min-h-[92px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3 sm:min-h-[98px] sm:px-4"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
                   <UserRound className="h-4 w-4 text-white/75" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 break-words sm:tracking-[0.16em]">
+                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 sm:tracking-[0.16em] break-normal [hyphens:none]">
                     {t("seeker")}
                   </div>
-                  <div className="text-pretty break-words text-[15px] font-semibold leading-snug text-white/92 sm:text-[16px]">
+                  <div className="text-pretty text-[15px] font-semibold leading-snug text-white/92 sm:text-[16px] break-normal [hyphens:none]">
                     {t("roleSample")}
+                  </div>
+                  <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
+                    {t("seekerHint")}
                   </div>
                 </div>
               </div>
@@ -100,6 +103,13 @@ function HeroMatchMockup() {
                   87<span className="text-sm text-white/45">%</span>
                 </span>
                 <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute -right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/30 shadow-[0_0_0_3px_rgba(255,255,255,0.06)] transition-opacity",
+                    fitTipOpen ? "opacity-100 motion-safe:animate-pulse" : "opacity-55"
+                  )}
+                />
+                <span
                   id={fitTipId}
                   role="tooltip"
                   className={cn(
@@ -108,11 +118,34 @@ function HeroMatchMockup() {
                     fitTipOpen ? "opacity-100 translate-y-0" : ""
                   )}
                 >
-                  {t("fitExplanation")}
+                  <span className="block text-pretty">
+                    {t("fitExplanation")}
+                  </span>
+                  <span className="mt-1 block text-pretty text-white/60">
+                    {t("fitExplanationSecondary")}
+                  </span>
+                </span>
+
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "pointer-events-none absolute left-full top-1/2 hidden -translate-y-1/2 items-center gap-2 pl-4 sm:flex",
+                    "transition-opacity duration-200",
+                    fitTipOpen ? "opacity-100" : "opacity-70"
+                  )}
+                >
+                  <span className="h-px w-10 bg-gradient-to-r from-white/28 via-white/16 to-transparent" />
+                  <ArrowRight className="h-3.5 w-3.5 text-white/28" />
+                  <span className="max-w-[240px] text-pretty text-[11px] leading-snug text-white/60">
+                    {t("fitExplanation")}
+                  </span>
                 </span>
               </button>
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
+              </span>
+              <span className="mt-1 text-center text-[11px] leading-snug text-white/55 sm:hidden">
+                {t("fitExplanation")}
               </span>
             </div>
 
@@ -120,18 +153,21 @@ function HeroMatchMockup() {
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="rounded-2xl border border-white/[0.1] bg-white/[0.04] px-3 py-3 sm:px-4"
+              className="flex min-h-[92px] items-center rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3 sm:min-h-[98px] sm:px-4"
             >
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
                   <Building2 className="h-4 w-4 text-white/70" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 break-words sm:tracking-[0.16em]">
+                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50 sm:tracking-[0.16em] break-normal [hyphens:none]">
                     {t("employer")}
                   </div>
-                  <div className="text-pretty break-words text-[15px] font-semibold leading-snug text-white/90 sm:text-[16px]">
+                  <div className="text-pretty text-[15px] font-semibold leading-snug text-white/90 sm:text-[16px] break-normal [hyphens:none]">
                     {t("positionSample")}
+                  </div>
+                  <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
+                    {t("employerHint")}
                   </div>
                 </div>
               </div>
@@ -145,11 +181,17 @@ function HeroMatchMockup() {
               {t("lineSample")}{" "}
               <span className="text-white/80">87%</span>
             </p>
+            <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+              {t("lineHint")}
+            </p>
 
             <div className="flex items-center gap-2.5 text-sm text-white/65">
               <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
               <span>{t("verified")}</span>
             </div>
+            <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+              {t("verifiedHint")}
+            </p>
 
             <div>
               <div className="flex items-center justify-between text-[11px] text-white/45">
@@ -165,6 +207,9 @@ function HeroMatchMockup() {
                 />
               </div>
             </div>
+            <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+              {t("requirementsHint")}
+            </p>
           </div>
         </div>
       </div>
