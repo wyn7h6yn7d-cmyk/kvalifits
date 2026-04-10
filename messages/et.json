@@ -102,6 +102,7 @@
     "fit": "sobivus",
     "fitExplanation": "Sinu sobivus antud positsioonile on 87%.",
     "fitExplanationSecondary": "Arvutatud tööotsija profiili ja positsiooni nõuete põhjal.",
+    "compareLine": "Tööotsija profiili ja positsiooni nõuete võrdlus",
     "lineSample": "Elektrik · B-pädevus · Sobivus",
     "lineHint": "Kiirülevaade rollist ja olulisematest signaalidest.",
     "verified": "Sertifikaat kontrollitud",

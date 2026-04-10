@@ -102,6 +102,7 @@
     "fit": "fit",
     "fitExplanation": "Your fit for this role is 87%.",
     "fitExplanationSecondary": "Fit is calculated from candidate data and role requirements.",
+    "compareLine": "Comparison between the candidate profile and role requirements",
     "lineSample": "Electrician · Class A · Fit",
     "lineHint": "A quick view of the key fit signals",
     "verified": "Certificate verified",

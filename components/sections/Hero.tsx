@@ -60,19 +60,19 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-stretch lg:gap-6">
+          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center sm:gap-6 md:gap-8">
             <motion.div
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:px-5"
+              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
             >
-              <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/35">
                   <UserRound className="h-4 w-4 text-white/75" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
+                  <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
                     {t("seeker")}
                   </div>
                   <div className="text-pretty text-[15px] font-semibold leading-snug text-white/92 sm:text-[16px] break-normal [hyphens:none]">
@@ -85,54 +85,37 @@ function HeroMatchMockup() {
               </div>
             </motion.div>
 
-            {/* Mobile-first: dedicated match + explanation block (always visible) */}
-            <div className="relative overflow-hidden rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.06] via-black/40 to-black/65 px-4 py-4 shadow-[0_18px_70px_-34px_rgba(0,0,0,0.75)]">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_0%,rgba(168,85,247,0.20),transparent_60%)]"
-              />
-              <div className="relative flex flex-col items-center text-center">
-                <div className="inline-flex items-center gap-2">
-                  <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_30px_-6px_rgba(168,85,247,0.55)]">
-                    <span className="font-mono text-lg font-semibold tabular-nums text-white">
-                      87<span className="text-sm text-white/45">%</span>
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "absolute -right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/30 shadow-[0_0_0_3px_rgba(255,255,255,0.06)] transition-opacity",
-                        "opacity-70 motion-safe:animate-pulse"
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="mt-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
-                  {t("fit")}
-                </div>
-
-                <div className="mt-3 max-w-[32rem]">
-                  <div className="text-pretty text-[11px] font-medium leading-snug text-white/72 break-normal [hyphens:none]">
-                    {t("fitExplanation")}
-                  </div>
-                  <div className="mt-1 text-pretty text-[10.5px] leading-snug text-white/50 break-normal [hyphens:none]">
-                    {t("fitExplanationSecondary")}
-                  </div>
-                </div>
+            <div className="flex flex-col items-center gap-1 px-1">
+              <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
+              <div className="relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.14] bg-gradient-to-b from-violet-500/25 to-black/60 shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px]">
+                <span className="font-mono text-lg font-semibold tabular-nums text-white">
+                  87<span className="text-sm text-white/45">%</span>
+                </span>
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute -right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/30 shadow-[0_0_0_3px_rgba(255,255,255,0.06)] transition-opacity",
+                    "opacity-70 motion-safe:animate-pulse"
+                  )}
+                />
               </div>
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
+                {t("fit")}
+              </span>
             </div>
 
             <motion.div
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.28 }}
-              className="flex min-w-0 items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:px-5"
+              className="flex min-h-[104px] items-center rounded-2xl border border-white/[0.10] bg-white/[0.05] px-4 py-4 sm:min-h-[110px] sm:px-5"
             >
-              <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
                   <Building2 className="h-4 w-4 text-white/70" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
+                  <div className="whitespace-nowrap text-[11px] font-medium uppercase leading-snug tracking-[0.12em] text-white/50">
                     {t("employer")}
                   </div>
                   <div className="text-pretty text-[15px] font-semibold leading-snug text-white/90 sm:text-[16px] break-normal [hyphens:none]">
@@ -144,6 +127,12 @@ function HeroMatchMockup() {
                 </div>
               </div>
             </motion.div>
+          </div>
+
+          <div className="-mt-1 text-center">
+            <div className="text-pretty text-[11px] leading-relaxed text-white/50 break-normal [hyphens:none]">
+              {t("compareLine")}
+            </div>
           </div>
 
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
