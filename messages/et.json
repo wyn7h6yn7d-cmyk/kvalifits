@@ -208,7 +208,9 @@
     "terms": "Kasutustingimused",
     "cookies": "Küpsiste poliitika",
     "dataRights": "Andmete kustutamine ja õigused",
-    "copyright": "Eesti · pädevuspõhine töövahendus"
+    "copyright": "Eesti · pädevuspõhine töövahendus",
+    "scrollToTopTitle": "Üles",
+    "scrollToTopAria": "Kerida lehe algusesse"
   },
   "pages": {
     "jobs": {

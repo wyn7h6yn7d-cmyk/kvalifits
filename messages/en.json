@@ -208,7 +208,9 @@
     "terms": "Terms of use",
     "cookies": "Cookie policy",
     "dataRights": "Data deletion & your rights",
-    "copyright": "Estonia · skills-first recruitment"
+    "copyright": "Estonia · skills-first recruitment",
+    "scrollToTopTitle": "Back to top",
+    "scrollToTopAria": "Scroll to top of page"
   },
   "pages": {
     "jobs": {
