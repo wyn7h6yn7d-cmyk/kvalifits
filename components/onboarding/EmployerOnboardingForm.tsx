@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Props = {
   locale: string;
@@ -129,7 +130,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
       router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
       setLoading(false);
     }

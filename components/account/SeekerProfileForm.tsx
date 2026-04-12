@@ -8,6 +8,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Certificate = {
   id?: string;
@@ -158,7 +159,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: data.publicUrl } : x))
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(errorMessageFromUnknown(err, t("unknownError")));
     }
   }
 
@@ -189,7 +190,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       setAvatarUrl(data.publicUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
       setAvatarUploading(false);
     }

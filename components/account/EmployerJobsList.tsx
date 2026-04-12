@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Job = {
   id: string;
@@ -43,7 +44,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
       setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status } : j)));
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
       setBusyId(null);
     }

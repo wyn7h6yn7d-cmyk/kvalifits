@@ -14,6 +14,7 @@ import {
 } from "@/lib/matching/profileRules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Job = {
   id: string;
@@ -183,7 +184,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       router.push(`/${locale}/account/employer`);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
       setLoading(false);
     }

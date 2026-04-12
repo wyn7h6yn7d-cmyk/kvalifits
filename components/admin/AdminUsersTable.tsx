@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Row = {
   id: string;
@@ -39,7 +40,7 @@ export function AdminUsersTable({ users }: { locale: string; users: Row[] }) {
       if (error) throw error;
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("unknownError"));
+      setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
       setBusyId(null);
     }
