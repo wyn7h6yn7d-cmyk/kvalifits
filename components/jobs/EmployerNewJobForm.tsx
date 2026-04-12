@@ -234,7 +234,9 @@ export function EmployerNewJobForm({ locale }: Props) {
       const withHint =
         lower.includes("schema cache") || lower.includes("column of 'job_posts'")
           ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}`
-          : raw;
+          : lower.includes("enum application_type")
+            ? `${raw}\n\n${t("jobApplicationTypeEnumFixHint")}`
+            : raw;
       setError(withHint);
     } finally {
       setLoading(false);

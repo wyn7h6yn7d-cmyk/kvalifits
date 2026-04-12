@@ -533,6 +533,7 @@
     "jobFieldGuideApplication": "On Kvalifits: apply through the platform. External link: full https:// URL to your careers page or form.",
     "jobFieldGuideEditLead": "When editing, the same minimums and formats apply — see the hints under each field.",
     "jobSchemaCacheCertFixHint": "If this error comes from Supabase (e.g. a column is missing on job_posts): open SQL Editor and run supabase/scripts/fix-job-posts-certificate-requirements.sql. It adds the structured matching columns and runs NOTIFY pgrst to refresh PostgREST’s schema cache; wait a few seconds and try again.",
+    "jobApplicationTypeEnumFixHint": "If this is an application_type enum error (e.g. in_app is not allowed): in SQL Editor run supabase/scripts/fix-job-posts-application-type-enum.sql; wait a few seconds and retry.",
     "publishNow": "Publish job post",
     "publishHint": "The post becomes public immediately and job seekers can apply. Payment will be connected later.",
     "publishSuccess": "Job post published.",

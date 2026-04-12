@@ -533,6 +533,7 @@
     "jobFieldGuideApplication": "Kvalifitsis: kandideerimine läbi platvormi. Väline link: täielik https://… aadress tööandja vormile või kandideerimislehele.",
     "jobFieldGuideEditLead": "Muutmisel kehtivad samad miinimumid ja formaadid — all on meeldetuletused iga välja kohta.",
     "jobSchemaCacheCertFixHint": "Kui see viga tuleb Supabase’ist (nt veergu ei leita job_posts tabelis): SQL Editor → käivita supabase/scripts/fix-job-posts-certificate-requirements.sql. Skript lisab puuduvad sobitusveerud ja teeb NOTIFY pgrst, et PostgREST skeema vahemälu uueneks; oota mõni sekund ja proovi uuesti.",
+    "jobApplicationTypeEnumFixHint": "Kui põhjuseks on application_type enum (nt väärtus „in_app“ pole lubatud): SQL Editor → käivita supabase/scripts/fix-job-posts-application-type-enum.sql; oota mõni sekund ja proovi uuesti.",
     "publishNow": "Avalda kuulutus",
     "publishHint": "Kuulutus läheb kohe avalikuks ja tööotsijad saavad kandideerida. Makse ühendame hiljem.",
     "publishSuccess": "Kuulutus on avaldatud.",

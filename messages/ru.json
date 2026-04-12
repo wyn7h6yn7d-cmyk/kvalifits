@@ -533,6 +533,7 @@
     "jobFieldGuideApplication": "В Kvalifits: отклик через платформу. Внешняя ссылка: полный https:// на страницу отклика или форму.",
     "jobFieldGuideEditLead": "При редактировании действуют те же минимумы и форматы — подсказки под каждым полем.",
     "jobSchemaCacheCertFixHint": "Если ошибка из Supabase (например, не найдена колонка в job_posts): SQL Editor → выполните supabase/scripts/fix-job-posts-certificate-requirements.sql. Скрипт добавит недостающие поля для матчинга и выполнит NOTIFY pgrst для обновления кэша схемы PostgREST; подождите несколько секунд и повторите действие.",
+    "jobApplicationTypeEnumFixHint": "Если ошибка из enum application_type (например, значение in_app не допускается): в SQL Editor выполните supabase/scripts/fix-job-posts-application-type-enum.sql; подождите несколько секунд и повторите.",
     "publishNow": "Опубликовать вакансию",
     "publishHint": "Вакансия сразу станет публичной, и соискатели смогут откликаться. Оплату подключим позже.",
     "publishSuccess": "Вакансия опубликована.",
