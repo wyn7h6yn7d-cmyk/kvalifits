@@ -1,8 +1,4 @@
--- Bootstrap + repair public.job_applications (Kandidaadid, in-app kandideerimine).
--- Kui tabel puudub (ERROR 42P01: relation "public.job_applications" does not exist),
--- loob selle; kui tabel on, lisab puuduvad veerud.
---
--- Eeldus: public.job_posts on olemas (FK). Käivita Supabase SQL Editoris üks kord.
+-- Create job_applications when 20260408 never ran on this database (repair / partial deploy).
 
 create table if not exists public.job_applications (
   id uuid primary key default gen_random_uuid(),
