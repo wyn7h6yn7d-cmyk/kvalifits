@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/routing";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Props = {
   locale: string;
@@ -228,30 +229,15 @@ export function EmployerNewJobForm({ locale }: Props) {
       router.push(`/${locale}/account/employer/jobs`);
       router.refresh();
     } catch (err) {
-      setError(getErrorMessage(err, t("saveFailed")));
+      const raw = errorMessageFromUnknown(err, t("saveFailed"));
+      const lower = raw.toLowerCase();
+      const withHint =
+        lower.includes("certificate_requirements") || lower.includes("schema cache")
+          ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}`
+          : raw;
+      setError(withHint);
     } finally {
       setLoading(false);
-    }
-  }
-
-  function getErrorMessage(err: unknown, fallback: string) {
-    if (!err) return fallback;
-    if (err instanceof Error) return err.message || fallback;
-    if (typeof err === "string") return err || fallback;
-    try {
-      const anyErr = err as {
-        message?: unknown;
-        error_description?: unknown;
-        error?: { message?: unknown };
-      };
-      return (
-        (typeof anyErr?.message === "string" ? anyErr.message : "") ||
-        (typeof anyErr?.error_description === "string" ? anyErr.error_description : "") ||
-        (typeof anyErr?.error?.message === "string" ? anyErr.error.message : "") ||
-        fallback
-      );
-    } catch {
-      return fallback;
     }
   }
 
@@ -266,6 +252,7 @@ export function EmployerNewJobForm({ locale }: Props) {
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("introTitle")}</div>
         <div className="mt-1 text-sm leading-relaxed text-white/60">{t("introBody")}</div>
+        <div className="mt-3 text-xs leading-relaxed text-white/50">{t("jobFieldGuideIntro")}</div>
       </div>
 
       {!employerProfileOk ? (
@@ -349,6 +336,7 @@ export function EmployerNewJobForm({ locale }: Props) {
             className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
             placeholder={t("summaryPlaceholder")}
           />
+          <div className="text-xs text-white/45">{t("jobFieldGuideSummary")}</div>
         </div>
       </div>
 
@@ -363,6 +351,7 @@ export function EmployerNewJobForm({ locale }: Props) {
           rows={6}
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
+        <div className="text-xs text-white/45">{t("jobFieldGuideDescription")}</div>
       </div>
 
       <div className="space-y-2">
@@ -375,7 +364,9 @@ export function EmployerNewJobForm({ locale }: Props) {
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           placeholder={t("jobRequirementLinesHint")}
         />
-        <div className="text-xs text-white/45">{t("jobRequirementLinesHelp")}</div>
+        <div className="text-xs text-white/45">
+          {t("jobRequirementLinesHelp")} {t("jobFieldGuideRequirementsExtra")}
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -387,6 +378,7 @@ export function EmployerNewJobForm({ locale }: Props) {
             required
             placeholder={t("csvHintJobs")}
           />
+          <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobKeywords")}</label>
@@ -396,6 +388,7 @@ export function EmployerNewJobForm({ locale }: Props) {
             required
             placeholder={t("csvHintJobs")}
           />
+          <div className="text-xs text-white/45">{t("jobFieldGuideKeywords")}</div>
         </div>
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobExperienceRequired")}</label>
@@ -414,6 +407,7 @@ export function EmployerNewJobForm({ locale }: Props) {
               </option>
             ))}
           </select>
+          <div className="text-xs text-white/45">{t("jobFieldGuideExperience")}</div>
         </div>
       </div>
 
@@ -423,8 +417,10 @@ export function EmployerNewJobForm({ locale }: Props) {
           value={certificateRequirements}
           onChange={(e) => setCertificateRequirements(e.target.value)}
           rows={2}
+          placeholder={t("jobCertRequirementsPlaceholder")}
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
+        <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
       </div>
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
@@ -463,6 +459,7 @@ export function EmployerNewJobForm({ locale }: Props) {
             />
           </div>
         ) : null}
+        <div className="mt-3 text-xs text-white/45">{t("jobFieldGuideApplication")}</div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -480,10 +477,11 @@ export function EmployerNewJobForm({ locale }: Props) {
           </label>
           <Input value={salaryCurrency} onChange={(e) => setSalaryCurrency(e.target.value)} />
         </div>
+        <div className="text-xs text-white/45 sm:col-span-3">{t("jobFieldGuideSalary")}</div>
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
           {error}
         </div>
       ) : null}
