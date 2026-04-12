@@ -30,6 +30,25 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  async function deleteJob(jobId: string, title: string) {
+    const ok = window.confirm(t("deleteJobConfirm", { title: title || "—" }));
+    if (!ok) return;
+
+    setBusyId(jobId);
+    setError(null);
+    try {
+      const { error } = await supabase.from("job_posts").delete().eq("id", jobId);
+      if (error) throw error;
+
+      setJobs((prev) => prev.filter((j) => j.id !== jobId));
+      router.refresh();
+    } catch (err) {
+      setError(errorMessageFromUnknown(err, t("unknownError")));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function setStatus(jobId: string, status: "draft" | "published" | "archived") {
     setBusyId(jobId);
     setError(null);
@@ -124,6 +143,17 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
               disabled={busyId === job.id}
             >
               {t("archive")}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-9 rounded-xl border-red-500/45 bg-red-500/[0.12] px-3 text-[13px] text-red-100 hover:bg-red-500/25 hover:text-white"
+              onClick={() => void deleteJob(job.id, job.title)}
+              disabled={busyId === job.id}
+            >
+              {t("deleteJob")}
             </Button>
           </div>
         </div>

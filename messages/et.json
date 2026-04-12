@@ -583,6 +583,8 @@
     "publish": "Avalda",
     "unpublish": "Võta maha",
     "archive": "Arhiveeri",
+    "deleteJob": "Kustuta",
+    "deleteJobConfirm": "Kas kustutada kuulutus \"{title}\"? Seda ei saa tagasi võtta. Seotud avaldused kustutatakse samuti.",
     "statusLabel": "Staatus",
     "status_draft": "mustand",
     "status_published": "avalik",

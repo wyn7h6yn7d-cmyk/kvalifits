@@ -583,6 +583,8 @@
     "publish": "Publish",
     "unpublish": "Unpublish",
     "archive": "Archive",
+    "deleteJob": "Delete",
+    "deleteJobConfirm": "Delete the job post \"{title}\"? This cannot be undone. Related applications will be removed as well.",
     "statusLabel": "Status",
     "status_draft": "draft",
     "status_published": "published",
