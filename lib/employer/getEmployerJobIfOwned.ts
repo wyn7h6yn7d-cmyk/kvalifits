@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED } from "@/lib/jobs/jobPostCertificateRequirementsSync";
 
 export type EmployerJobRow = {
   id: string;
@@ -14,7 +15,7 @@ export type EmployerJobRow = {
   required_skills: string[] | null;
   keywords: string[] | null;
   experience_level_required: string | null;
-  certificate_requirements: string | null;
+  certificate_requirements?: string | null;
 };
 
 export type EmployerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>;
@@ -25,15 +26,18 @@ export async function getEmployerJobIfOwned(
   userId: string,
   jobId: string
 ): Promise<EmployerJobRow | null> {
-  const { data: job, error } = await supabase
+  const { data: jobRaw, error } = await supabase
     .from("job_posts")
     .select(
-      "id,title,employer_profile_id,location,work_type,job_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements"
+      (JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED
+        ? "id,title,employer_profile_id,location,work_type,job_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements"
+        : "id,title,employer_profile_id,location,work_type,job_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required") as any
     )
     .eq("id", jobId)
     .maybeSingle();
 
-  if (error || !job) return null;
+  if (error || !jobRaw) return null;
+  const job = jobRaw as unknown as EmployerJobRow;
 
   const { data: ep, error: epErr } = await supabase
     .from("employer_profiles")

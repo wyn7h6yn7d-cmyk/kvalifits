@@ -135,7 +135,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                 experienceLabel: mapExperience(job.experience_level_required, tOnb),
                 requirementLines,
                 requiredSkills,
-                certRequirements: job.certificate_requirements,
+                certRequirements: job.certificate_requirements ?? null,
                 shortSummary: job.short_summary,
               }}
             />

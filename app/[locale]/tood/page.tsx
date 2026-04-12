@@ -5,6 +5,7 @@ import { Footer } from "@/components/sections/Footer";
 import { PageHero } from "@/components/site/PageHero";
 import { JobsSearch } from "@/components/jobs/JobsSearch";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED } from "@/lib/jobs/jobPostCertificateRequirementsSync";
 import type { Job } from "@/components/jobs/types";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -89,7 +90,9 @@ export default async function ToodPage({ params }: Props) {
   const { data: jobs } = await supabase
     .from("job_posts")
     .select(
-      "id,title,location,job_type,work_type,short_summary,description,requirements,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
+      (JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED
+        ? "id,title,location,job_type,work_type,short_summary,description,requirements,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
+        : "id,title,location,job_type,work_type,short_summary,description,requirements,required_skills,keywords,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at") as any
     )
     .eq("status", "published")
     .order("created_at", { ascending: false })
