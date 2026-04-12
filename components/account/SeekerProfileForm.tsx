@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
+import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessageFromUnknown } from "@/lib/utils";
@@ -208,7 +209,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       if (!user) throw new Error(t("notAuthed"));
 
       if (avatarUploading) throw new Error(t("avatarUploadInProgress"));
-      if (!avatarUrl.trim()) throw new Error(t("avatarRequired"));
+      if (!isSeekerAvatarFromStorageUpload(avatarUrl)) throw new Error(t("avatarRequired"));
 
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
       const title = profileTitle.trim();
@@ -234,7 +235,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
       const certImageCount = validCerts.filter((c) => c.certificate_image_url.trim()).length;
       const isComplete = seekerCoreComplete({
-        avatarOk: true,
+        avatarOk: isSeekerAvatarFromStorageUpload(avatarUrl),
         seeker: {
           full_name: fullName,
           profile_title: title,
@@ -332,6 +333,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
+        <div className="text-xs leading-relaxed text-white/45">{t("avatarFileOnlyHint")}</div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xs text-white/55">{t("avatarUpload")}</span>
           <input
@@ -339,6 +341,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
             accept="image/*"
             onChange={(e) => void onAvatarFileChange(e.target.files?.[0] ?? null)}
             className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+            required={!isSeekerAvatarFromStorageUpload(avatarUrl)}
           />
         </div>
         {avatarUploading ? (

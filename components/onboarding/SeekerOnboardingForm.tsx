@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
+import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -201,7 +202,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       if (avatarUploading) {
         throw new Error(t("avatarUploadInProgress"));
       }
-      if (!avatarUrl.trim()) {
+      if (!isSeekerAvatarFromStorageUpload(avatarUrl)) {
         if (avatarUploadError) throw new Error(avatarUploadError);
         throw new Error(t("avatarRequired"));
       }
@@ -235,7 +236,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
 
       const certImageCount = validCerts.filter((c) => c.certificate_image_url.trim()).length;
       const isComplete = seekerCoreComplete({
-        avatarOk: true,
+        avatarOk: isSeekerAvatarFromStorageUpload(avatarUrl),
         seeker: {
           full_name: fullName,
           profile_title: title,
@@ -313,6 +314,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
+        <div className="text-xs leading-relaxed text-white/45">{t("avatarFileOnlyHint")}</div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <label className="text-xs font-medium tracking-wide text-white/55">
             {t("avatarUpload")}

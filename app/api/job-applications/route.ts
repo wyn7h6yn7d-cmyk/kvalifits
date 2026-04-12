@@ -4,6 +4,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendEmailViaResend } from "@/lib/email/resend";
 import { calculateJobMatch } from "@/lib/matching/calculateJobMatch";
+import { seekerCoreComplete } from "@/lib/matching/profileRules";
+import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 
 type Body = {
   jobPostId?: string;
@@ -54,9 +56,23 @@ export async function POST(req: Request) {
 
     const { data: certs, error: certErr } = await admin
       .from("seeker_certificates")
-      .select("certificate_name,certificate_issuer")
+      .select("certificate_name,certificate_issuer,certificate_image_url")
       .eq("user_id", user.id);
     if (certErr) throw certErr;
+
+    const certWithImage = (certs ?? []).filter(
+      (c) => ((c as { certificate_image_url?: string | null }).certificate_image_url ?? "").toString().trim().length > 0
+    ).length;
+
+    const avatarOk = isSeekerAvatarFromStorageUpload(user.user_metadata?.avatar_url as string | undefined);
+    const profileReady = seekerCoreComplete({
+      avatarOk,
+      seeker,
+      certRowsWithImage: certWithImage,
+    });
+    if (!profileReady) {
+      return NextResponse.json({ error: "seeker_profile_required" }, { status: 400 });
+    }
 
     const { data: job, error: jobErr } = await admin
       .from("job_posts")

@@ -1,11 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { employerCoreComplete, seekerCoreComplete } from "@/lib/matching/profileRules";
+import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 
 type Role = "seeker" | "employer" | "admin";
-
-function nonEmpty(v: unknown) {
-  return typeof v === "string" && v.trim().length > 0;
-}
 
 export async function getRoleAndNextPath(locale: string) {
   const supabase = await createSupabaseServerClient();
@@ -39,11 +36,11 @@ export async function getRoleAndNextPath(locale: string) {
   }
 
   if (role === "seeker") {
-    const avatarOk = nonEmpty(user.user_metadata?.avatar_url);
+    const avatarOk = isSeekerAvatarFromStorageUpload(user.user_metadata?.avatar_url as string | undefined);
     const { data: seeker } = await supabase
       .from("seeker_profiles")
       .select(
-        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,is_complete"
+        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations"
       )
       .eq("user_id", user.id)
       .maybeSingle();
@@ -56,14 +53,11 @@ export async function getRoleAndNextPath(locale: string) {
     const certWithImage = (certRows ?? []).filter((c) => (c.certificate_image_url ?? "").toString().trim().length > 0)
       .length;
 
-    const completeByFlag = Boolean(seeker?.is_complete);
-    const completeByFields = seekerCoreComplete({
+    const isComplete = seekerCoreComplete({
       avatarOk,
       seeker: seeker ?? null,
       certRowsWithImage: certWithImage,
     });
-
-    const isComplete = completeByFlag || completeByFields;
     return {
       user,
       role,
