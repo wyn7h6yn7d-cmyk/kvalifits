@@ -5,6 +5,14 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import {
+  EXPERIENCE_LEVEL_VALUES,
+  employerCoreComplete,
+  isLikelyHttpUrl,
+  jobMatchingReady,
+  parseCommaList,
+  parseRequirementLines,
+} from "@/lib/matching/profileRules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/routing";
@@ -15,6 +23,7 @@ type Props = {
 
 export function EmployerNewJobForm({ locale }: Props) {
   const t = useTranslations("jobs");
+  const tOnb = useTranslations("onboarding");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
@@ -29,7 +38,15 @@ export function EmployerNewJobForm({ locale }: Props) {
   const [jobType, setJobType] = useState("full_time");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
-  const [requirements, setRequirements] = useState("");
+  const [requirementLinesText, setRequirementLinesText] = useState("");
+  const [requiredSkillsCsv, setRequiredSkillsCsv] = useState("");
+  const [keywordsCsv, setKeywordsCsv] = useState("");
+  const [experienceLevelRequired, setExperienceLevelRequired] = useState<
+    (typeof EXPERIENCE_LEVEL_VALUES)[number] | ""
+  >("");
+  const [certificateRequirements, setCertificateRequirements] = useState("");
+  const [applicationType, setApplicationType] = useState<"in_app" | "external_url">("in_app");
+  const [applicationUrlExternal, setApplicationUrlExternal] = useState("");
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [salaryCurrency, setSalaryCurrency] = useState("EUR");
@@ -45,18 +62,13 @@ export function EmployerNewJobForm({ locale }: Props) {
         if (!user) return;
         const { data: employer } = await supabase
           .from("employer_profiles")
-          .select("company_name,contact_email,company_description,location")
+          .select("company_name,contact_email,company_description,location,industry")
           .eq("owner_user_id", user.id)
           .maybeSingle();
         if (!mounted) return;
         const name = (employer?.company_name ?? "").toString();
         setCompanyName(name);
-        const ok =
-          Boolean(name.trim()) &&
-          Boolean((employer?.contact_email ?? "").toString().trim()) &&
-          Boolean((employer?.company_description ?? "").toString().trim()) &&
-          Boolean((employer?.location ?? "").toString().trim());
-        setEmployerProfileOk(ok);
+        setEmployerProfileOk(employerCoreComplete(employer ?? null));
       } catch {
         // ignore
       }
@@ -74,8 +86,47 @@ export function EmployerNewJobForm({ locale }: Props) {
     if (!workType.trim()) return t("errWorkTypeRequired");
     if (!jobType.trim()) return t("errJobTypeRequired");
     if (!summary.trim()) return t("errSummaryRequired");
+    if (summary.trim().length < 20) return t("errShortSummary");
     if (!description.trim()) return t("errDescriptionRequired");
-    if (!requirements.trim()) return t("errRequirementsRequired");
+    if (description.trim().length < 40) return t("errDescriptionLength");
+
+    const lines = parseRequirementLines(requirementLinesText);
+    if (lines.length < 2) return t("errRequirementLines");
+
+    const requiredSkills = parseCommaList(requiredSkillsCsv);
+    if (requiredSkills.length < 1) return t("errRequiredSkills");
+
+    const keywords = parseCommaList(keywordsCsv);
+    if (keywords.length < 1) return t("errKeywords");
+
+    if (!experienceLevelRequired) return t("errExperienceRequired");
+
+    if (applicationType === "external_url" && !isLikelyHttpUrl(applicationUrlExternal.trim())) {
+      return t("errApplicationUrlInvalid");
+    }
+
+    const appUrl =
+      applicationType === "external_url"
+        ? applicationUrlExternal.trim()
+        : "https://www.kvalifits.ee";
+
+    const ready = jobMatchingReady({
+      title: title.trim(),
+      location: location.trim(),
+      work_type: workType,
+      job_type: jobType,
+      short_summary: summary.trim(),
+      description: description.trim(),
+      requirement_lines: lines,
+      required_skills: requiredSkills,
+      keywords,
+      experience_level_required: experienceLevelRequired,
+      certificate_requirements: certificateRequirements.trim() || null,
+      application_type: applicationType,
+      application_url: appUrl,
+    });
+    if (!ready) return t("jobMatchingIncomplete");
+
     return null;
   }
 
@@ -123,9 +174,10 @@ export function EmployerNewJobForm({ locale }: Props) {
       const min = salaryMin.trim() ? Number(salaryMin) : null;
       const max = salaryMax.trim() ? Number(salaryMax) : null;
 
-      const fullDescription = summary.trim()
-        ? `${t("summaryLabel")}: ${summary.trim()}\n\n${description}`
-        : description;
+      const lines = parseRequirementLines(requirementLinesText);
+      const requiredSkills = parseCommaList(requiredSkillsCsv);
+      const keywords = parseCommaList(keywordsCsv);
+      const requirementsJoined = lines.join("\n");
 
       const fallbackUrl =
         (employer.website ?? "").toString().trim() ||
@@ -133,24 +185,33 @@ export function EmployerNewJobForm({ locale }: Props) {
           ? `mailto:${(employer.contact_email ?? "").toString().trim()}`
           : "");
 
+      const applicationUrl =
+        applicationType === "external_url"
+          ? applicationUrlExternal.trim()
+          : fallbackUrl || "https://www.kvalifits.ee";
+
       const nowIso = new Date().toISOString();
       const { error: jobErr } = await supabase.from("job_posts").insert({
         employer_profile_id: employer.id,
         created_by: user.id,
-        title,
+        title: title.trim(),
         slug: slugify(title),
-        location,
+        location: location.trim(),
         work_type: workType,
         job_type: jobType,
-        description: fullDescription,
-        requirements,
+        short_summary: summary.trim(),
+        description: description.trim(),
+        requirements: requirementsJoined,
+        requirement_lines: lines,
+        required_skills: requiredSkills,
+        keywords,
+        experience_level_required: experienceLevelRequired,
+        certificate_requirements: certificateRequirements.trim() || null,
         salary_min: Number.isFinite(min as number) ? min : null,
         salary_max: Number.isFinite(max as number) ? max : null,
         salary_currency: salaryCurrency,
-        application_type: "external_url",
-        // We don't show an application link in the UI right now.
-        // Keep DB happy with a non-empty fallback if there are NOT NULL / CHECK constraints.
-        application_url: fallbackUrl || "https://www.kvalifits.ee",
+        application_type: applicationType,
+        application_url: applicationUrl,
         status: "published",
         published_at: nowIso,
       });
@@ -284,6 +345,7 @@ export function EmployerNewJobForm({ locale }: Props) {
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             rows={2}
+            required
             className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
             placeholder={t("summaryPlaceholder")}
           />
@@ -304,16 +366,103 @@ export function EmployerNewJobForm({ locale }: Props) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">
-          {t("requirements")}
-        </label>
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("jobRequirementLines")}</label>
         <textarea
-          value={requirements}
-          onChange={(e) => setRequirements(e.target.value)}
+          value={requirementLinesText}
+          onChange={(e) => setRequirementLinesText(e.target.value)}
           required
           rows={5}
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          placeholder={t("jobRequirementLinesHint")}
         />
+        <div className="text-xs text-white/45">{t("jobRequirementLinesHelp")}</div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobRequiredSkills")}</label>
+          <Input
+            value={requiredSkillsCsv}
+            onChange={(e) => setRequiredSkillsCsv(e.target.value)}
+            required
+            placeholder={t("csvHintJobs")}
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobKeywords")}</label>
+          <Input
+            value={keywordsCsv}
+            onChange={(e) => setKeywordsCsv(e.target.value)}
+            required
+            placeholder={t("csvHintJobs")}
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobExperienceRequired")}</label>
+          <select
+            value={experienceLevelRequired}
+            onChange={(e) =>
+              setExperienceLevelRequired(e.target.value as (typeof EXPERIENCE_LEVEL_VALUES)[number] | "")
+            }
+            required
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          >
+            <option value="">{tOnb("experienceLevelPlaceholder")}</option>
+            {EXPERIENCE_LEVEL_VALUES.map((v) => (
+              <option key={v} value={v}>
+                {tOnb(`experienceLevelOption.${v}`)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("jobCertRequirements")}</label>
+        <textarea
+          value={certificateRequirements}
+          onChange={(e) => setCertificateRequirements(e.target.value)}
+          rows={2}
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+        />
+      </div>
+
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-sm font-medium text-white/85">{t("applicationType")}</div>
+        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
+            <input
+              type="radio"
+              name="applicationType"
+              checked={applicationType === "in_app"}
+              onChange={() => setApplicationType("in_app")}
+              className="h-4 w-4 border-white/[0.20] bg-white/[0.03]"
+            />
+            {t("applicationTypeInApp")}
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
+            <input
+              type="radio"
+              name="applicationType"
+              checked={applicationType === "external_url"}
+              onChange={() => setApplicationType("external_url")}
+              className="h-4 w-4 border-white/[0.20] bg-white/[0.03]"
+            />
+            {t("applicationTypeExternalUrl")}
+          </label>
+        </div>
+        {applicationType === "external_url" ? (
+          <div className="mt-4 space-y-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("applicationUrl")}</label>
+            <Input
+              value={applicationUrlExternal}
+              onChange={(e) => setApplicationUrlExternal(e.target.value)}
+              required
+              placeholder="https://…"
+              inputMode="url"
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -350,4 +499,3 @@ export function EmployerNewJobForm({ locale }: Props) {
     </form>
   );
 }
-

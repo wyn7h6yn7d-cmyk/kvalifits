@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -15,6 +16,7 @@ type Certificate = {
   certificate_issuer: string;
   certificate_valid_from: string;
   certificate_valid_until: string;
+  certificate_image_url: string;
 };
 
 type Props = {
@@ -25,6 +27,7 @@ type Props = {
     linkedin_url: string | null;
     seeker: {
       full_name: string | null;
+      profile_title: string | null;
       phone: string | null;
       location: string | null;
       about: string | null;
@@ -33,6 +36,9 @@ type Props = {
       preferred_job_types: string[] | null;
       preferred_locations: string[] | null;
       profile_visible?: boolean | null;
+      salary_expectation?: string | null;
+      work_authorization_notes?: string | null;
+      cv_url?: string | null;
     } | null;
     certificates: Certificate[];
   };
@@ -54,7 +60,11 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   const [phone, setPhone] = useState(initial.seeker?.phone ?? "");
   const [location, setLocation] = useState(initial.seeker?.location ?? "");
   const [about, setAbout] = useState(initial.seeker?.about ?? "");
-  const [experienceLevel, setExperienceLevel] = useState(initial.seeker?.experience_level ?? "");
+  const [profileTitle, setProfileTitle] = useState(initial.seeker?.profile_title ?? "");
+  const [experienceLevel, setExperienceLevel] = useState<(typeof EXPERIENCE_LEVEL_VALUES)[number] | "">(() => {
+    const v = initial.seeker?.experience_level ?? "";
+    return (EXPERIENCE_LEVEL_VALUES as readonly string[]).includes(v) ? (v as (typeof EXPERIENCE_LEVEL_VALUES)[number]) : "";
+  });
   const [skillsCsv, setSkillsCsv] = useState((initial.seeker?.skills ?? []).join(", "));
   const [preferredJobTypesCsv, setPreferredJobTypesCsv] = useState(
     (initial.seeker?.preferred_job_types ?? []).join(", ")
@@ -65,6 +75,9 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   const [profileVisible, setProfileVisible] = useState(Boolean(initial.seeker?.profile_visible));
   const [linkedinUrl, setLinkedinUrl] = useState(initial.linkedin_url ?? "");
   const [avatarUrl, setAvatarUrl] = useState(initial.avatar_url ?? "");
+  const [salaryExpectation, setSalaryExpectation] = useState(initial.seeker?.salary_expectation ?? "");
+  const [workAuthNotes, setWorkAuthNotes] = useState(initial.seeker?.work_authorization_notes ?? "");
+  const [cvUrl, setCvUrl] = useState(initial.seeker?.cv_url ?? "");
 
   function getErrorMessage(err: unknown) {
     if (err instanceof Error) return err.message;
@@ -92,7 +105,10 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
   const [certificates, setCertificates] = useState<Certificate[]>(
     initial.certificates.length
-      ? initial.certificates
+      ? initial.certificates.map((c) => ({
+          ...c,
+          certificate_image_url: c.certificate_image_url ?? "",
+        }))
       : [
           {
             certificate_name: "",
@@ -100,6 +116,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
             certificate_issuer: "",
             certificate_valid_from: "",
             certificate_valid_until: "",
+            certificate_image_url: "",
           },
         ]
   );
@@ -116,11 +133,33 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     setLastName(parts[parts.length - 1] ?? "");
   }, [initial.seeker?.full_name]);
 
-  function parseCsv(v: string) {
-    return v
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+  useEffect(() => {
+    const pt = (initial.seeker?.profile_title ?? "").trim();
+    if (pt) setProfileTitle(pt);
+  }, [initial.seeker?.profile_title]);
+
+  async function onCertificateFileChange(idx: number, file: File | null) {
+    if (!file) return;
+    setError(null);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/certificates/${idx}-${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true,
+        contentType: file.type || undefined,
+      });
+      if (uploadErr) throw uploadErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      setCertificates((prev) =>
+        prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: data.publicUrl } : x))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("unknownError"));
+    }
   }
 
   async function onAvatarFileChange(file: File | null) {
@@ -171,9 +210,43 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       if (!avatarUrl.trim()) throw new Error(t("avatarRequired"));
 
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
-      const skills = parseCsv(skillsCsv);
-      const preferredJobTypes = parseCsv(preferredJobTypesCsv);
-      const preferredLocations = parseCsv(preferredLocationsCsv);
+      const title = profileTitle.trim();
+      const skills = parseCommaList(skillsCsv);
+      const preferredJobTypes = parseCommaList(preferredJobTypesCsv);
+      const preferredLocations = parseCommaList(preferredLocationsCsv);
+
+      if (!experienceLevel) throw new Error(t("errExperienceLevelRequired"));
+      if (title.length < 3) throw new Error(t("errProfileTitleTooShort"));
+      if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
+      if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
+
+      const validCerts = certificates.filter(
+        (c) =>
+          c.certificate_name.trim() &&
+          c.certificate_number.trim() &&
+          c.certificate_issuer.trim() &&
+          c.certificate_valid_from &&
+          c.certificate_valid_until &&
+          c.certificate_image_url.trim()
+      );
+      if (validCerts.length < 1) throw new Error(t("errCertificateIncomplete"));
+
+      const certImageCount = validCerts.filter((c) => c.certificate_image_url.trim()).length;
+      const isComplete = seekerCoreComplete({
+        avatarOk: true,
+        seeker: {
+          full_name: fullName,
+          profile_title: title,
+          phone,
+          location,
+          about,
+          skills,
+          experience_level: experienceLevel,
+          preferred_job_types: preferredJobTypes,
+          preferred_locations: preferredLocations,
+        },
+        certRowsWithImage: certImageCount,
+      });
 
       const { error: metaErr } = await supabase.auth.updateUser({
         data: { avatar_url: avatarUrl, linkedin_url: linkedinUrl || null },
@@ -183,7 +256,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
         user_id: user.id,
         full_name: fullName,
-        profile_title: fullName,
+        profile_title: title,
         phone,
         location,
         about,
@@ -191,6 +264,10 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         experience_level: experienceLevel,
         preferred_job_types: preferredJobTypes,
         preferred_locations: preferredLocations,
+        salary_expectation: salaryExpectation.trim() || null,
+        work_authorization_notes: workAuthNotes.trim() || null,
+        cv_url: cvUrl.trim() || null,
+        is_complete: isComplete,
         profile_visible: profileVisible,
       });
       if (seekerErr) throw seekerErr;
@@ -199,15 +276,14 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       const { error: delErr } = await supabase.from("seeker_certificates").delete().eq("user_id", user.id);
       if (delErr) throw delErr;
 
-      const rows = certificates.map((c) => ({
+      const rows = validCerts.map((c) => ({
         user_id: user.id,
-        certificate_name: c.certificate_name,
-        certificate_number: c.certificate_number,
-        certificate_issuer: c.certificate_issuer,
+        certificate_name: c.certificate_name.trim(),
+        certificate_number: c.certificate_number.trim(),
+        certificate_issuer: c.certificate_issuer.trim(),
         certificate_valid_from: c.certificate_valid_from,
         certificate_valid_until: c.certificate_valid_until,
-        // DB may still enforce NOT NULL; safe default if column exists.
-        certificate_image_url: "",
+        certificate_image_url: c.certificate_image_url.trim(),
       }));
       const { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
       if (insErr) throw insErr;
@@ -309,6 +385,16 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           <label className="text-xs font-medium tracking-wide text-white/65">{t("location")}</label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
         </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("profileTitle")}</label>
+          <Input
+            value={profileTitle}
+            onChange={(e) => setProfileTitle(e.target.value)}
+            required
+            placeholder={t("profileTitleHint")}
+          />
+          <div className="text-xs text-white/45">{t("profileTitleHelp")}</div>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -325,7 +411,21 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("experienceLevel")}</label>
-          <Input value={experienceLevel} onChange={(e) => setExperienceLevel(e.target.value)} required placeholder={t("experienceLevelHint")} />
+          <select
+            value={experienceLevel}
+            onChange={(e) =>
+              setExperienceLevel(e.target.value as (typeof EXPERIENCE_LEVEL_VALUES)[number] | "")
+            }
+            required
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          >
+            <option value="">{t("experienceLevelPlaceholder")}</option>
+            {EXPERIENCE_LEVEL_VALUES.map((v) => (
+              <option key={v} value={v}>
+                {t(`experienceLevelOption.${v}`)}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
@@ -338,6 +438,31 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredLocations")}</label>
           <Input value={preferredLocationsCsv} onChange={(e) => setPreferredLocationsCsv(e.target.value)} required placeholder={t("csvHint")} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("salaryExpectation")}</label>
+          <Input
+            value={salaryExpectation}
+            onChange={(e) => setSalaryExpectation(e.target.value)}
+            placeholder={t("salaryExpectationHint")}
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("cvUrl")}</label>
+          <Input value={cvUrl} onChange={(e) => setCvUrl(e.target.value)} placeholder={t("cvUrlHint")} inputMode="url" />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("workAuthorization")}</label>
+          <textarea
+            value={workAuthNotes}
+            onChange={(e) => setWorkAuthNotes(e.target.value)}
+            rows={2}
+            placeholder={t("workAuthorizationHint")}
+            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          />
         </div>
       </div>
 
@@ -358,6 +483,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                   certificate_issuer: "",
                   certificate_valid_from: "",
                   certificate_valid_until: "",
+                  certificate_image_url: "",
                 },
               ])
             }
@@ -404,6 +530,29 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidUntil")}</label>
                   <Input type="date" value={c.certificate_valid_until} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_until: e.target.value } : x)))} required />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateImage")}</label>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => void onCertificateFileChange(idx, e.target.files?.[0] ?? null)}
+                    className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+                  />
+                  <div className="text-xs text-white/45">{t("certificateImageUploadHint")}</div>
+                  <div className="mt-2 space-y-2">
+                    <label className="text-xs font-medium tracking-wide text-white/55">{t("certificateImageUrl")}</label>
+                    <Input
+                      value={c.certificate_image_url}
+                      onChange={(e) =>
+                        setCertificates((prev) =>
+                          prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: e.target.value } : x))
+                        )
+                      }
+                      placeholder={t("certificateImageUrlHint")}
+                      inputMode="url"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

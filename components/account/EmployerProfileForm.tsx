@@ -18,6 +18,7 @@ type EmployerProfile = {
   company_description: string | null;
   location: string | null;
   industry: string | null;
+  company_size: string | null;
 };
 
 type Props = {
@@ -40,6 +41,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [website, setWebsite] = useState(initial?.website ?? "");
   const [locationValue, setLocationValue] = useState(initial?.location ?? "");
   const [industry, setIndustry] = useState(initial?.industry ?? "");
+  const [companySize, setCompanySize] = useState(initial?.company_size ?? "");
   const [companyDescription, setCompanyDescription] = useState(initial?.company_description ?? "");
 
   async function onSubmit(e: FormEvent) {
@@ -51,6 +53,9 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
+
+      if (industry.trim().length < 2) throw new Error(t("errIndustryRequired"));
+      if (companyDescription.trim().length < 40) throw new Error(t("errCompanyDescriptionTooShort"));
 
       const { data: existing, error: exErr } = await supabase
         .from("employer_profiles")
@@ -68,6 +73,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         company_description: companyDescription,
         location: locationValue,
         industry: industry || null,
+        company_size: companySize.trim() || null,
       };
 
       if (existing?.id) {
@@ -103,7 +109,21 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("industry")}</label>
-          <Input value={industry} onChange={(e) => setIndustry(e.target.value)} />
+          <Input
+            value={industry}
+            onChange={(e) => setIndustry(e.target.value)}
+            required
+            minLength={2}
+            placeholder={t("industryHint")}
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("companySize")}</label>
+          <Input
+            value={companySize}
+            onChange={(e) => setCompanySize(e.target.value)}
+            placeholder={t("companySizeHint")}
+          />
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("contactEmail")}</label>

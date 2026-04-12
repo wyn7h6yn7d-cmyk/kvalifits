@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -26,11 +27,15 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
+  const [profileTitle, setProfileTitle] = useState("");
   const [about, setAbout] = useState("");
-  const [experienceLevel, setExperienceLevel] = useState("");
+  const [experienceLevel, setExperienceLevel] = useState<(typeof EXPERIENCE_LEVEL_VALUES)[number] | "">("");
   const [skillsCsv, setSkillsCsv] = useState("");
   const [preferredJobTypesCsv, setPreferredJobTypesCsv] = useState("");
   const [preferredLocationsCsv, setPreferredLocationsCsv] = useState("");
+  const [salaryExpectation, setSalaryExpectation] = useState("");
+  const [workAuthNotes, setWorkAuthNotes] = useState("");
+  const [cvUrl, setCvUrl] = useState("");
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
@@ -87,6 +92,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_issuer: string;
       certificate_valid_from: string;
       certificate_valid_until: string;
+      certificate_image_url: string;
     }>
   >([
     {
@@ -95,14 +101,36 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_issuer: "",
       certificate_valid_from: "",
       certificate_valid_until: "",
+      certificate_image_url: "",
     },
   ]);
 
-  function parseCsv(v: string) {
-    return v
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+  async function onCertificateFileChange(idx: number, file: File | null) {
+    if (!file) return;
+    setError(null);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${user.id}/certificates/${idx}-${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true,
+        contentType: file.type || undefined,
+      });
+      if (uploadErr) throw uploadErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      const publicUrl = data.publicUrl;
+      setCertificates((prev) =>
+        prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: publicUrl } : x))
+      );
+    } catch (err) {
+      const message = getErrorMessage(err);
+      setError(message || t("unknownError"));
+    }
   }
 
   async function onAvatarFileChange(file: File | null) {
@@ -183,17 +211,49 @@ export function SeekerOnboardingForm({ locale }: Props) {
       });
       if (avatarErr) throw avatarErr;
 
-      const skills = parseCsv(skillsCsv);
-      const preferredJobTypes = parseCsv(preferredJobTypesCsv);
-      const preferredLocations = parseCsv(preferredLocationsCsv);
+      const skills = parseCommaList(skillsCsv);
+      const preferredJobTypes = parseCommaList(preferredJobTypesCsv);
+      const preferredLocations = parseCommaList(preferredLocationsCsv);
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
+      const title = profileTitle.trim();
+
+      if (!experienceLevel) throw new Error(t("errExperienceLevelRequired"));
+      if (title.length < 3) throw new Error(t("errProfileTitleTooShort"));
+      if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
+      if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
+
+      const validCerts = certificates.filter(
+        (c) =>
+          c.certificate_name.trim() &&
+          c.certificate_number.trim() &&
+          c.certificate_issuer.trim() &&
+          c.certificate_valid_from &&
+          c.certificate_valid_until &&
+          c.certificate_image_url.trim()
+      );
+      if (validCerts.length < 1) throw new Error(t("errCertificateIncomplete"));
+
+      const certImageCount = validCerts.filter((c) => c.certificate_image_url.trim()).length;
+      const isComplete = seekerCoreComplete({
+        avatarOk: true,
+        seeker: {
+          full_name: fullName,
+          profile_title: title,
+          phone,
+          location,
+          about,
+          skills,
+          experience_level: experienceLevel,
+          preferred_job_types: preferredJobTypes,
+          preferred_locations: preferredLocations,
+        },
+        certRowsWithImage: certImageCount,
+      });
 
       const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
         user_id: user.id,
         full_name: fullName,
-        // DB constraint: seeker_profiles.profile_title is NOT NULL in current schema.
-        // We don't ask it in the UI anymore, so we set a safe default.
-        profile_title: fullName,
+        profile_title: title,
         phone,
         location,
         about,
@@ -201,6 +261,10 @@ export function SeekerOnboardingForm({ locale }: Props) {
         experience_level: experienceLevel,
         preferred_job_types: preferredJobTypes,
         preferred_locations: preferredLocations,
+        salary_expectation: salaryExpectation.trim() || null,
+        work_authorization_notes: workAuthNotes.trim() || null,
+        cv_url: cvUrl.trim() || null,
+        is_complete: isComplete,
         // Privacy-by-default: keep profile hidden until seeker explicitly enables visibility in their account.
         profile_visible: false,
       });
@@ -213,11 +277,14 @@ export function SeekerOnboardingForm({ locale }: Props) {
         .eq("user_id", user.id);
       if (delErr) throw delErr;
 
-      const rows = certificates.map((c) => ({
+      const rows = validCerts.map((c) => ({
         user_id: user.id,
-        ...c,
-        // DB may still enforce NOT NULL on certificate_image_url in current schema.
-        certificate_image_url: "",
+        certificate_name: c.certificate_name.trim(),
+        certificate_number: c.certificate_number.trim(),
+        certificate_issuer: c.certificate_issuer.trim(),
+        certificate_valid_from: c.certificate_valid_from,
+        certificate_valid_until: c.certificate_valid_until,
+        certificate_image_url: c.certificate_image_url.trim(),
       }));
       const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
       if (certErr) throw certErr;
@@ -323,6 +390,16 @@ export function SeekerOnboardingForm({ locale }: Props) {
           </label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
         </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("profileTitle")}</label>
+          <Input
+            value={profileTitle}
+            onChange={(e) => setProfileTitle(e.target.value)}
+            required
+            placeholder={t("profileTitleHint")}
+          />
+          <div className="text-xs text-white/45">{t("profileTitleHelp")}</div>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -341,12 +418,21 @@ export function SeekerOnboardingForm({ locale }: Props) {
           <label className="text-xs font-medium tracking-wide text-white/65">
             {t("experienceLevel")}
           </label>
-          <Input
+          <select
             value={experienceLevel}
-            onChange={(e) => setExperienceLevel(e.target.value)}
+            onChange={(e) =>
+              setExperienceLevel(e.target.value as (typeof EXPERIENCE_LEVEL_VALUES)[number] | "")
+            }
             required
-            placeholder={t("experienceLevelHint")}
-          />
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          >
+            <option value="">{t("experienceLevelPlaceholder")}</option>
+            {EXPERIENCE_LEVEL_VALUES.map((v) => (
+              <option key={v} value={v}>
+                {t(`experienceLevelOption.${v}`)}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
@@ -381,6 +467,36 @@ export function SeekerOnboardingForm({ locale }: Props) {
         </div>
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("salaryExpectation")}</label>
+          <Input
+            value={salaryExpectation}
+            onChange={(e) => setSalaryExpectation(e.target.value)}
+            placeholder={t("salaryExpectationHint")}
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("cvUrl")}</label>
+          <Input
+            value={cvUrl}
+            onChange={(e) => setCvUrl(e.target.value)}
+            placeholder={t("cvUrlHint")}
+            inputMode="url"
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("workAuthorization")}</label>
+          <textarea
+            value={workAuthNotes}
+            onChange={(e) => setWorkAuthNotes(e.target.value)}
+            rows={2}
+            placeholder={t("workAuthorizationHint")}
+            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          />
+        </div>
+      </div>
+
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm font-medium text-white/85">{t("certificateSection")}</div>
@@ -398,6 +514,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
                   certificate_issuer: "",
                   certificate_valid_from: "",
                   certificate_valid_until: "",
+                  certificate_image_url: "",
                 },
               ])
             }
@@ -508,6 +625,37 @@ export function SeekerOnboardingForm({ locale }: Props) {
                     }
                     required
                   />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <label className="text-xs font-medium tracking-wide text-white/65">
+                    {t("certificateImage")}
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) =>
+                      void onCertificateFileChange(idx, e.target.files?.[0] ?? null)
+                    }
+                    className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+                  />
+                  <div className="text-xs text-white/45">{t("certificateImageUploadHint")}</div>
+                  <div className="mt-2 space-y-2">
+                    <label className="text-xs font-medium tracking-wide text-white/55">
+                      {t("certificateImageUrl")}
+                    </label>
+                    <Input
+                      value={c.certificate_image_url}
+                      onChange={(e) =>
+                        setCertificates((prev) =>
+                          prev.map((x, i) =>
+                            i === idx ? { ...x, certificate_image_url: e.target.value } : x
+                          )
+                        )
+                      }
+                      placeholder={t("certificateImageUrlHint")}
+                      inputMode="url"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

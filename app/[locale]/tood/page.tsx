@@ -86,7 +86,7 @@ export default async function ToodPage({ params }: Props) {
   const { data: jobs } = await supabase
     .from("job_posts")
     .select(
-      "id,title,location,job_type,work_type,description,requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
+      "id,title,location,job_type,work_type,short_summary,description,requirements,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
     )
     .eq("status", "published")
     .order("created_at", { ascending: false })
@@ -115,9 +115,25 @@ export default async function ToodPage({ params }: Props) {
     const workType = mapWorkType((j.work_type ?? "").toString(), tJobs);
     const type = [workType, jobType].filter(Boolean).join(" · ") || "—";
 
-    const summary = extractSummary(j.description);
-    const keywordText = `${j.title ?? ""}\n${j.requirements ?? ""}`;
-    const tags = Array.from(new Set(extractKeywordCandidates(keywordText))).slice(0, 8);
+    const summary =
+      (j.short_summary ?? "").toString().trim() || extractSummary(j.description);
+    const keywordText = `${j.title ?? ""}\n${j.requirements ?? ""}\n${(j.keywords ?? []).join("\n")}`;
+    const fromDbTags = [
+      ...((j.keywords as string[] | null) ?? []).map((x) => normFacetValue(x)).filter(Boolean),
+      ...((j.required_skills as string[] | null) ?? []).map((x) => normFacetValue(x)).filter(Boolean),
+    ];
+    const tags = Array.from(
+      new Set([...fromDbTags, ...extractKeywordCandidates(keywordText)])
+    ).slice(0, 12);
+
+    const certReq = (j.certificate_requirements ?? "").toString().trim();
+    const requiredCerts = certReq
+      ? certReq
+          .split(/[,;\n]/g)
+          .map((s: string) => normFacetValue(s))
+          .filter(Boolean)
+          .slice(0, 8)
+      : [];
 
     return {
       id: j.id,
@@ -131,7 +147,7 @@ export default async function ToodPage({ params }: Props) {
       summary,
       createdAt: j.created_at ?? undefined,
       tags,
-      requiredCerts: [],
+      requiredCerts,
       domains: [],
       languages: [],
     };

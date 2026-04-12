@@ -32,7 +32,7 @@ export default async function EmployerAccountPage({ params }: Props) {
   const { data: employer } = await supabase
     .from("employer_profiles")
     .select(
-      "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry"
+      "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry, company_size"
     )
     .eq("owner_user_id", user.id)
     .maybeSingle();

@@ -29,14 +29,16 @@ export default async function SeekerAccountPage({ params }: Props) {
   const { data: seeker } = await supabase
     .from("seeker_profiles")
     .select(
-      "full_name,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,profile_visible"
+      "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,profile_visible,salary_expectation,work_authorization_notes,cv_url"
     )
     .eq("user_id", user.id)
     .maybeSingle();
 
   const { data: certs } = await supabase
     .from("seeker_certificates")
-    .select("id,certificate_name,certificate_number,certificate_issuer,certificate_valid_from,certificate_valid_until")
+    .select(
+      "id,certificate_name,certificate_number,certificate_issuer,certificate_valid_from,certificate_valid_until,certificate_image_url"
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 

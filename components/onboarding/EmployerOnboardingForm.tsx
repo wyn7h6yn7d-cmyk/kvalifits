@@ -26,6 +26,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
   const [website, setWebsite] = useState("");
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
+  const [companySize, setCompanySize] = useState("");
   const [companyDescription, setCompanyDescription] = useState("");
 
   // Prefill from existing employer profile / auth email for smoother onboarding.
@@ -44,7 +45,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
         const { data: employer } = await supabase
           .from("employer_profiles")
           .select(
-            "company_name,registry_code,contact_email,contact_phone,website,location,industry,company_description"
+            "company_name,registry_code,contact_email,contact_phone,website,location,industry,company_description,company_size"
           )
           .eq("owner_user_id", user.id)
           .maybeSingle();
@@ -57,6 +58,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
         setWebsite((prev) => prev || (employer.website ?? "").toString());
         setLocation((prev) => prev || (employer.location ?? "").toString());
         setIndustry((prev) => prev || (employer.industry ?? "").toString());
+        setCompanySize((prev) => prev || (employer.company_size ?? "").toString());
         setCompanyDescription((prev) => prev || (employer.company_description ?? "").toString());
       } catch {
         // ignore
@@ -73,6 +75,13 @@ export function EmployerOnboardingForm({ locale }: Props) {
     setError(null);
 
     try {
+      if (industry.trim().length < 2) {
+        throw new Error(t("errIndustryRequired"));
+      }
+      if (companyDescription.trim().length < 40) {
+        throw new Error(t("errCompanyDescriptionTooShort"));
+      }
+
       const supabase = createSupabaseBrowserClient();
       const {
         data: { user },
@@ -97,6 +106,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
             company_description: companyDescription,
             location,
             industry: industry || null,
+            company_size: companySize.trim() || null,
           })
           .eq("id", existing.id);
         if (error) throw error;
@@ -111,6 +121,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
           company_description: companyDescription,
           location,
           industry: industry || null,
+          company_size: companySize.trim() || null,
         });
         if (error) throw error;
       }
@@ -168,7 +179,21 @@ export function EmployerOnboardingForm({ locale }: Props) {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("industry")}</label>
-          <Input value={industry} onChange={(e) => setIndustry(e.target.value)} />
+          <Input
+            value={industry}
+            onChange={(e) => setIndustry(e.target.value)}
+            required
+            minLength={2}
+            placeholder={t("industryHint")}
+          />
+        </div>
+        <div className="space-y-2 sm:col-span-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("companySize")}</label>
+          <Input
+            value={companySize}
+            onChange={(e) => setCompanySize(e.target.value)}
+            placeholder={t("companySizeHint")}
+          />
         </div>
       </div>
 

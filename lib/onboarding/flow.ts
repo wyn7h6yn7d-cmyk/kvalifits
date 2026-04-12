@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { employerCoreComplete, seekerCoreComplete } from "@/lib/matching/profileRules";
 
 type Role = "seeker" | "employer" | "admin";
 
@@ -42,31 +43,25 @@ export async function getRoleAndNextPath(locale: string) {
     const { data: seeker } = await supabase
       .from("seeker_profiles")
       .select(
-        "full_name,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,is_complete"
+        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,is_complete"
       )
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const { count: certCount } = await supabase
+    const { data: certRows } = await supabase
       .from("seeker_certificates")
-      .select("id", { count: "exact", head: true })
+      .select("certificate_image_url")
       .eq("user_id", user.id);
 
+    const certWithImage = (certRows ?? []).filter((c) => (c.certificate_image_url ?? "").toString().trim().length > 0)
+      .length;
+
     const completeByFlag = Boolean(seeker?.is_complete);
-    const completeByFields =
-      avatarOk &&
-      nonEmpty(seeker?.full_name) &&
-      nonEmpty(seeker?.phone) &&
-      nonEmpty(seeker?.location) &&
-      nonEmpty(seeker?.about) &&
-      nonEmpty(seeker?.experience_level) &&
-      Array.isArray(seeker?.skills) &&
-      seeker!.skills.length >= 1 &&
-      Array.isArray(seeker?.preferred_job_types) &&
-      seeker!.preferred_job_types.length >= 1 &&
-      Array.isArray(seeker?.preferred_locations) &&
-      seeker!.preferred_locations.length >= 1 &&
-      (certCount ?? 0) >= 1;
+    const completeByFields = seekerCoreComplete({
+      avatarOk,
+      seeker: seeker ?? null,
+      certRowsWithImage: certWithImage,
+    });
 
     const isComplete = completeByFlag || completeByFields;
     return {
@@ -79,15 +74,11 @@ export async function getRoleAndNextPath(locale: string) {
   // employer
   const { data: employer } = await supabase
     .from("employer_profiles")
-    .select("company_name,contact_email,company_description,location")
+    .select("company_name,contact_email,company_description,location,industry")
     .eq("owner_user_id", user.id)
     .maybeSingle();
 
-  const isComplete =
-    nonEmpty(employer?.company_name) &&
-    nonEmpty(employer?.contact_email) &&
-    nonEmpty(employer?.company_description) &&
-    nonEmpty(employer?.location);
+  const isComplete = employerCoreComplete(employer ?? null);
 
   return {
     user,

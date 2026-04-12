@@ -17,7 +17,9 @@ export default async function JobDetailPage({ params }: Props) {
 
   const { data: job } = await supabase
     .from("job_posts")
-    .select("id,title,location,job_type,work_type,description,requirements,employer_profile_id,status,created_at")
+    .select(
+      "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,certificate_requirements,employer_profile_id,status,created_at"
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -41,6 +43,14 @@ export default async function JobDetailPage({ params }: Props) {
           </div>
 
           <div className="mt-8 grid gap-6">
+            {(job.short_summary ?? "").toString().trim() ? (
+              <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+                <div className="text-xs font-medium tracking-wide text-white/55">{t("summary")}</div>
+                <div className="mt-2 text-sm leading-relaxed text-white/75 whitespace-pre-wrap">
+                  {(job.short_summary ?? "").toString()}
+                </div>
+              </div>
+            ) : null}
             <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
               <div className="text-sm font-medium text-white/85">{t("heroTitle")}</div>
               <div className="mt-3 space-y-4 text-sm leading-relaxed text-white/70">
@@ -49,9 +59,27 @@ export default async function JobDetailPage({ params }: Props) {
                   <div className="mt-1 whitespace-pre-wrap">{(job.description ?? "").toString()}</div>
                 </div>
                 <div>
-                  <div className="text-xs font-medium tracking-wide text-white/55">{t("heroEyebrow")}</div>
-                  <div className="mt-1 whitespace-pre-wrap">{(job.requirements ?? "").toString()}</div>
+                  <div className="text-xs font-medium tracking-wide text-white/55">{t("requirements")}</div>
+                  {Array.isArray(job.requirement_lines) && job.requirement_lines.length ? (
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-white/72">
+                      {(job.requirement_lines as string[])
+                        .filter(Boolean)
+                        .map((line, i) => (
+                          <li key={`${i}-${line.slice(0, 24)}`}>{line}</li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <div className="mt-1 whitespace-pre-wrap">{(job.requirements ?? "").toString()}</div>
+                  )}
                 </div>
+                {(job.certificate_requirements ?? "").toString().trim() ? (
+                  <div>
+                    <div className="text-xs font-medium tracking-wide text-white/55">{t("jobCertRequirements")}</div>
+                    <div className="mt-1 whitespace-pre-wrap">
+                      {(job.certificate_requirements ?? "").toString()}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
 
