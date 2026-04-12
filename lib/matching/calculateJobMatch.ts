@@ -1,0 +1,469 @@
+import { EXPERIENCE_LEVEL_VALUES, isExperienceLevel } from "@/lib/matching/profileRules";
+
+/** MVP weighted suitability (deterministic). Version bumps when the model changes. */
+export const MATCH_MODEL_VERSION = 2 as const;
+
+/** Fixed employer-facing weights (sum = 100). */
+export const MATCH_WEIGHTS = {
+  skillsKeywords: 35,
+  certificates: 25,
+  experience: 15,
+  roleTitle: 10,
+  location: 10,
+  workJobType: 5,
+} as const;
+
+export type SeekerMatchInput = {
+  profile_title: string | null;
+  full_name: string | null;
+  location: string | null;
+  about: string | null;
+  skills: string[] | null;
+  experience_level: string | null;
+  preferred_job_types: string[] | null;
+  preferred_locations: string[] | null;
+};
+
+export type SeekerCertificateInput = {
+  certificate_name: string | null;
+  certificate_issuer: string | null;
+};
+
+export type JobMatchInput = {
+  title: string | null;
+  location: string | null;
+  work_type: string | null;
+  job_type: string | null;
+  short_summary: string | null;
+  description: string | null;
+  requirements: string | null;
+  requirement_lines: string[] | null;
+  required_skills: string[] | null;
+  keywords: string[] | null;
+  experience_level_required: string | null;
+  certificate_requirements: string | null;
+};
+
+/**
+ * Stored on `job_applications.match_breakdown` (JSON).
+ * - `*_raw` are 0–1 sub-scores before applying fixed weights.
+ * - `*_contribution` are points (0–weight) added to the final percentage.
+ */
+export type MatchBreakdown = {
+  /** 2 = weighted MVP model; 1 = legacy rows (approximate display). */
+  modelVersion: number;
+  weights: typeof MATCH_WEIGHTS;
+
+  skills_keywords_raw: number;
+  certificate_raw: number;
+  experience_raw: number;
+  role_title_raw: number;
+  location_raw: number;
+  work_job_type_raw: number;
+
+  skills_keywords_contribution: number;
+  certificate_contribution: number;
+  experience_contribution: number;
+  role_title_contribution: number;
+  location_contribution: number;
+  work_job_type_contribution: number;
+
+  /** Structured requirement lines: token overlap (explainability). */
+  requirementsMatched: number;
+  requirementsTotal: number;
+
+  /** Tags = dedup(required_skills ∪ keywords). */
+  tag_total: number;
+  tag_matched_full: number;
+  tag_matched_partial: number;
+
+  /** Parsed certificate requirement phrases vs seeker evidence. */
+  certificate_slots_required: number;
+  certificate_slots_matched: number;
+
+  /** Machine codes; UI maps to copy. */
+  weak_areas: string[];
+  highlights: string[];
+};
+
+const EXP_RANK: Record<string, number> = {
+  entry: 1,
+  mid: 2,
+  senior: 3,
+  lead: 4,
+  executive: 5,
+};
+
+const STOP = new Set([
+  "and",
+  "or",
+  "the",
+  "for",
+  "a",
+  "an",
+  "of",
+  "in",
+  "to",
+  "with",
+  "on",
+  "at",
+  "as",
+  "by",
+]);
+
+function normBlob(parts: (string | null | undefined)[]) {
+  return parts
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[^a-z0-9äöõüß\s]+/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function words(s: string) {
+  return s
+    .split(/\s+/g)
+    .map((w) => w.trim())
+    .filter((w) => w.length > 1);
+}
+
+function significantWords(s: string) {
+  return words(normBlob([s])).filter((w) => w.length > 2 && !STOP.has(w));
+}
+
+function clamp01(x: number) {
+  return Math.max(0, Math.min(1, x));
+}
+
+function dedupeNormTags(items: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of items) {
+    const t = normBlob([raw]);
+    if (t.length < 2) continue;
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out.slice(0, 40);
+}
+
+/** 0 / 0.5 / 1 match strength for one tag against seeker skills + profile title blob. */
+function tagMatchStrength(
+  tag: string,
+  seekerSkillNorms: Set<string>,
+  titleBlob: string,
+  skillsBlob: string
+): number {
+  if (!tag) return 0;
+  if (seekerSkillNorms.has(tag)) return 1;
+  if (titleBlob.includes(tag) || skillsBlob.includes(tag)) return 1;
+  const tw = words(tag).filter((w) => w.length > 2);
+  if (!tw.length) return 0;
+  let hits = 0;
+  for (const w of tw) {
+    if (seekerSkillNorms.has(w) || titleBlob.includes(w) || skillsBlob.includes(w)) hits++;
+  }
+  const need = Math.max(1, Math.ceil(tw.length * 0.51));
+  if (hits >= tw.length) return 1;
+  if (hits >= need) return 0.5;
+  if (hits > 0) return 0.35;
+  return 0;
+}
+
+/**
+ * Blended 0–1: half from tag coverage (required_skills ∪ keywords), half from requirement_lines
+ * when both exist; single source if only one; neutral 0.5 when job has neither.
+ */
+function skillsKeywordsRaw(
+  job: JobMatchInput,
+  seekerSkills: string[],
+  profileTitle: string | null
+): {
+  raw: number;
+  tag_total: number;
+  tag_matched_full: number;
+  tag_matched_partial: number;
+  requirementsMatched: number;
+  requirementsTotal: number;
+} {
+  const skillNorms = new Set(seekerSkills.map((s) => normBlob([s])).filter(Boolean));
+  const titleBlob = normBlob([profileTitle]);
+  const skillsBlob = normBlob([seekerSkills.join(" ")]);
+
+  const tags = dedupeNormTags([
+    ...(job.required_skills ?? []).map((s) => String(s)),
+    ...(job.keywords ?? []).map((s) => String(s)),
+  ]);
+
+  let tagSum = 0;
+  let full = 0;
+  let partial = 0;
+  for (const tag of tags) {
+    const m = tagMatchStrength(tag, skillNorms, titleBlob, skillsBlob);
+    tagSum += m;
+    if (m >= 1) full++;
+    else if (m > 0) partial++;
+  }
+  const tagRaw = tags.length ? tagSum / tags.length : NaN;
+
+  const lines =
+    Array.isArray(job.requirement_lines) && job.requirement_lines.length
+      ? job.requirement_lines.map((s) => String(s).trim()).filter(Boolean)
+      : (job.requirements ?? "")
+          .split(/\r?\n/g)
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+  const seekerEvidence = normBlob([profileTitle, seekerSkills.join(" "), ...seekerSkills]);
+  let matched = 0;
+  const total = lines.length;
+  for (const line of lines) {
+    const lw = significantWords(line);
+    if (!lw.length) continue;
+    let hits = 0;
+    for (const w of lw) {
+      if (seekerEvidence.includes(w)) hits++;
+    }
+    if (hits >= Math.ceil(lw.length * 0.45)) matched++;
+  }
+  const lineRaw = total > 0 ? matched / total : NaN;
+
+  let raw: number;
+  if (!Number.isFinite(tagRaw) && !Number.isFinite(lineRaw)) raw = 0.5;
+  else if (!Number.isFinite(tagRaw)) raw = clamp01(lineRaw as number);
+  else if (!Number.isFinite(lineRaw)) raw = clamp01(tagRaw);
+  else raw = clamp01(0.5 * (tagRaw as number) + 0.5 * (lineRaw as number));
+
+  return {
+    raw,
+    tag_total: tags.length,
+    tag_matched_full: full,
+    tag_matched_partial: partial,
+    requirementsMatched: matched,
+    requirementsTotal: total,
+  };
+}
+
+function parseCertificateSlots(text: string | null): string[] {
+  if (!text?.trim()) return [];
+  return text
+    .split(/[,;\n\r]+/g)
+    .map((s) => s.trim())
+    .filter((s) => s.length >= 2)
+    .slice(0, 14);
+}
+
+/** 0–1: strong penalty when job specifies certs and seeker has none or no overlap. */
+function certificateRaw(
+  certs: SeekerCertificateInput[],
+  jobCertText: string | null,
+  jobKeywords: string[] | null
+): { raw: number; slots: number; matched: number } {
+  const slots = parseCertificateSlots(jobCertText);
+  const seekerBlob = normBlob(
+    certs.map((c) => `${c.certificate_name ?? ""} ${c.certificate_issuer ?? ""}`)
+  );
+
+  if (!slots.length) {
+    const kw = dedupeNormTags((jobKeywords ?? []).map(String));
+    const kwNeedle = kw.filter((k) => k.length > 3);
+    if (!kwNeedle.length) return { raw: 0.5, slots: 0, matched: 0 };
+    if (!certs.length) return { raw: 0.28, slots: kwNeedle.length, matched: 0 };
+    let h = 0;
+    for (const k of kwNeedle) {
+      if (seekerBlob.includes(k)) h++;
+    }
+    return { raw: clamp01(0.35 + (h / kwNeedle.length) * 0.55), slots: kwNeedle.length, matched: h };
+  }
+
+  if (!certs.length) return { raw: 0, slots: slots.length, matched: 0 };
+
+  let matched = 0;
+  for (const slot of slots) {
+    const slotNorm = normBlob([slot]);
+    if (!slotNorm) continue;
+    const sw = significantWords(slot);
+    if (seekerBlob.includes(slotNorm)) {
+      matched++;
+      continue;
+    }
+    if (!sw.length) continue;
+    let ok = 0;
+    for (const w of sw) {
+      if (w.length > 2 && seekerBlob.includes(w)) ok++;
+    }
+    if (ok >= Math.ceil(sw.length * 0.55)) matched++;
+  }
+  return { raw: clamp01(matched / slots.length), slots: slots.length, matched };
+}
+
+function experienceRaw(seekerExp: string | null, jobExp: string | null): number {
+  if (!jobExp || !isExperienceLevel(jobExp)) return 0.5;
+  if (!seekerExp || !isExperienceLevel(seekerExp)) return 0.22;
+  const sj = EXP_RANK[seekerExp] ?? 0;
+  const jj = EXP_RANK[jobExp] ?? 0;
+  if (sj <= 0 || jj <= 0) return 0.35;
+  if (sj >= jj) return 1;
+  const gap = jj - sj;
+  if (gap === 1) return 0.62;
+  if (gap === 2) return 0.38;
+  return 0.16;
+}
+
+/** Jaccard-like overlap on significant words between profile title and job title. */
+function roleTitleRaw(seekerTitle: string | null, jobTitle: string | null): number {
+  const a = new Set(significantWords(seekerTitle ?? ""));
+  const b = new Set(significantWords(jobTitle ?? ""));
+  if (!a.size && !b.size) return 0.5;
+  if (!a.size || !b.size) return 0.32;
+  let inter = 0;
+  for (const x of a) if (b.has(x)) inter++;
+  const union = a.size + b.size - inter;
+  const j = union ? inter / union : 0;
+  const sub =
+    normBlob([seekerTitle]).length > 4 &&
+    normBlob([jobTitle]).length > 4 &&
+    (normBlob([seekerTitle]).includes(normBlob([jobTitle])) ||
+      normBlob([jobTitle]).includes(normBlob([seekerTitle])));
+  return clamp01(Math.max(j, sub ? 0.55 : j));
+}
+
+function locationRaw(
+  jobLoc: string | null,
+  jobWork: string | null,
+  seekerLoc: string | null,
+  preferredLocs: string[] | null
+): number {
+  const jw = (jobWork ?? "").toLowerCase();
+  if (jw === "remote") return 0.92;
+  const jl = (jobLoc ?? "").toLowerCase().trim();
+  if (!jl) return 0.5;
+  const sl = (seekerLoc ?? "").toLowerCase().trim();
+  const prefs = (preferredLocs ?? []).map((s) => s.toLowerCase().trim()).filter(Boolean);
+  if (sl && (sl.includes(jl) || jl.includes(sl))) return 1;
+  if (prefs.some((p) => p && (jl.includes(p) || p.includes(jl)))) return 0.92;
+  if (jw === "hybrid") return 0.58;
+  return 0.28;
+}
+
+function workJobTypeRaw(
+  jobType: string | null,
+  workType: string | null,
+  preferredTypes: string[] | null
+): number {
+  const jt = (jobType ?? "").toLowerCase().trim();
+  const pj = (preferredTypes ?? []).map((s) => s.toLowerCase().trim()).filter(Boolean);
+  let typePart = 0.5;
+  if (jt && pj.length) {
+    const hit = pj.some((p) => p && (jt === p || jt.includes(p) || p.includes(jt)));
+    typePart = hit ? 1 : 0.22;
+  } else if (jt && !pj.length) typePart = 0.48;
+  else if (!jt) typePart = 0.5;
+
+  const wt = (workType ?? "").toLowerCase();
+  let workPart = 0.55;
+  if (wt === "remote") workPart = 1;
+  else if (wt === "hybrid") workPart = 0.88;
+  else if (wt === "on_site") workPart = 0.52;
+
+  return clamp01(0.58 * typePart + 0.42 * workPart);
+}
+
+function weakAreasFrom(args: {
+  skillsKw: number;
+  cert: number;
+  certSlots: number;
+  exp: number;
+  role: number;
+  loc: number;
+  wjt: number;
+}): string[] {
+  const w: string[] = [];
+  if (args.skillsKw < 0.38) w.push("skills_keywords");
+  if (args.certSlots > 0 && args.cert < 0.42) w.push("certificates");
+  if (args.exp < 0.45) w.push("experience");
+  if (args.role < 0.35) w.push("role_title");
+  if (args.loc < 0.45) w.push("location");
+  if (args.wjt < 0.42) w.push("work_job_type");
+  return w;
+}
+
+export function calculateJobMatch(
+  seeker: SeekerMatchInput,
+  certs: SeekerCertificateInput[],
+  job: JobMatchInput
+): { score: number; breakdown: MatchBreakdown } {
+  const seekerSkills = (seeker.skills ?? []).map((s) => String(s).trim()).filter(Boolean);
+
+  const sk = skillsKeywordsRaw(job, seekerSkills, seeker.profile_title);
+  const cert = certificateRaw(certs, job.certificate_requirements, job.keywords ?? []);
+  const ex = experienceRaw(seeker.experience_level, job.experience_level_required);
+  const role = roleTitleRaw(seeker.profile_title, job.title);
+  const loc = locationRaw(job.location, job.work_type, seeker.location, seeker.preferred_locations);
+  const wjt = workJobTypeRaw(job.job_type, job.work_type, seeker.preferred_job_types);
+
+  const w = MATCH_WEIGHTS;
+  const cSkills = Math.round(sk.raw * w.skillsKeywords);
+  const cCert = Math.round(cert.raw * w.certificates);
+  const cEx = Math.round(ex * w.experience);
+  const cRole = Math.round(role * w.roleTitle);
+  const cLoc = Math.round(loc * w.location);
+  const cWjt = Math.round(wjt * w.workJobType);
+
+  let score = cSkills + cCert + cEx + cRole + cLoc + cWjt;
+  score = Math.max(0, Math.min(100, score));
+
+  const weak = weakAreasFrom({
+    skillsKw: sk.raw,
+    cert: cert.raw,
+    certSlots: cert.slots,
+    exp: ex,
+    role,
+    loc,
+    wjt,
+  });
+
+  const highlights: string[] = [];
+  if (sk.raw >= 0.72) highlights.push("skillsStrong");
+  else if (sk.raw >= 0.42) highlights.push("skillsPartial");
+  if (sk.requirementsTotal && sk.requirementsMatched / sk.requirementsTotal >= 0.62) highlights.push("requirementsStrong");
+  else if (sk.requirementsTotal && sk.requirementsMatched > 0) highlights.push("requirementsPartial");
+  if (ex >= 0.9) highlights.push("experienceFit");
+  if (loc >= 0.85) highlights.push("locationFit");
+  if (cert.raw >= 0.72 && cert.slots > 0) highlights.push("certificatesStrong");
+  else if (cert.raw >= 0.55) highlights.push("certificatesSignal");
+  if (cert.slots > 0 && cert.raw < 0.35) highlights.push("certificateGap");
+  if (role >= 0.45) highlights.push("roleAlignment");
+
+  const breakdown: MatchBreakdown = {
+    modelVersion: MATCH_MODEL_VERSION as number,
+    weights: { ...MATCH_WEIGHTS },
+    skills_keywords_raw: sk.raw,
+    certificate_raw: cert.raw,
+    experience_raw: ex,
+    role_title_raw: role,
+    location_raw: loc,
+    work_job_type_raw: wjt,
+    skills_keywords_contribution: cSkills,
+    certificate_contribution: cCert,
+    experience_contribution: cEx,
+    role_title_contribution: cRole,
+    location_contribution: cLoc,
+    work_job_type_contribution: cWjt,
+    requirementsMatched: sk.requirementsMatched,
+    requirementsTotal: sk.requirementsTotal,
+    tag_total: sk.tag_total,
+    tag_matched_full: sk.tag_matched_full,
+    tag_matched_partial: sk.tag_matched_partial,
+    certificate_slots_required: cert.slots,
+    certificate_slots_matched: cert.matched,
+    weak_areas: weak,
+    highlights,
+  };
+
+  return { score, breakdown };
+}

@@ -87,7 +87,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
             </Button>
 
             <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
-              <Link href={`/account/employer/jobs/${job.id}/applications`}>{t("applications")}</Link>
+              <Link href={`/account/employer/jobs/${job.id}/applicants`}>{t("applicants")}</Link>
             </Button>
 
             {job.status !== "published" ? (

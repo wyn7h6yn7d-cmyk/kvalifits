@@ -66,7 +66,16 @@ export function JobApplyForm({ locale, jobPostId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobPostId, coverLetter, consentToShare: true }),
       });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
+        if (res.status === 409 && json.error === "duplicate_application") {
+          setError(t("applyDuplicate"));
+          return;
+        }
+        if (res.status === 400 && json.error === "seeker_profile_required") {
+          setError(t("applyProfileRequired"));
+          return;
+        }
         setError(t("applyFailed"));
         return;
       }
