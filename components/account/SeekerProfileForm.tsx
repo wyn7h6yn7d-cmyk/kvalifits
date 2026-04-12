@@ -302,7 +302,17 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       ) {
         setError(t("rlsError"));
       } else {
-        setError(message || t("unknownError"));
+        let shown = message || t("unknownError");
+        const l = shown.toLowerCase();
+        if (
+          (l.includes("seeker_profiles") &&
+            (l.includes("schema cache") || l.includes("could not find"))) ||
+          l.includes("salary_expectation") ||
+          l.includes("work_authorization_notes")
+        ) {
+          shown = `${shown}\n\n${t("seekerProfileStructuredColumnsFixHint")}`;
+        }
+        setError(shown);
       }
     } finally {
       setLoading(false);

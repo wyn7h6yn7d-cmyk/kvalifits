@@ -327,6 +327,7 @@
   "onboarding": {
     "unknownError": "Midagi läks valesti.",
     "rlsError": "Ligipääs keelatud (turvapoliitika). Palun proovi uuesti või anna teada, kui probleem püsib.",
+    "seekerProfileStructuredColumnsFixHint": "Kui see viga tuleb Supabase’ist (veergu ei leita seeker_profiles tabelis): SQL Editor → käivita supabase/scripts/fix-seeker-profiles-structured-fields.sql; oota mõni sekund ja salvesta uuesti.",
     "notAuthed": "Pead olema sisse logitud.",
     "saving": "Salvestan…",
     "saveAndContinue": "Salvesta ja jätka",

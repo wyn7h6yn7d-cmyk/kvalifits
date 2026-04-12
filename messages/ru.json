@@ -327,6 +327,7 @@
   "onboarding": {
     "unknownError": "Что-то пошло не так.",
     "rlsError": "Доступ запрещён (политика безопасности). Попробуйте ещё раз или сообщите нам, если проблема повторяется.",
+    "seekerProfileStructuredColumnsFixHint": "Если ошибка из Supabase (не найдена колонка в seeker_profiles): SQL Editor → выполните supabase/scripts/fix-seeker-profiles-structured-fields.sql; подождите несколько секунд и сохраните снова.",
     "notAuthed": "Нужно войти в аккаунт.",
     "saving": "Сохраняем…",
     "saveAndContinue": "Сохранить и продолжить",

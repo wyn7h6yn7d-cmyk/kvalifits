@@ -327,6 +327,7 @@
   "onboarding": {
     "unknownError": "Something went wrong.",
     "rlsError": "Access denied (security policy). Please try again, or contact us if it persists.",
+    "seekerProfileStructuredColumnsFixHint": "If this error comes from Supabase (a column is missing on seeker_profiles): open SQL Editor and run supabase/scripts/fix-seeker-profiles-structured-fields.sql; wait a few seconds and save again.",
     "notAuthed": "You must be signed in.",
     "saving": "Saving…",
     "saveAndContinue": "Save and continue",
