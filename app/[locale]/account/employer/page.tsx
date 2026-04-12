@@ -6,8 +6,9 @@ import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
-import { EmployerProfileForm } from "@/components/account/EmployerProfileForm";
+import { EmployerProfileForm, type EmployerProfile } from "@/components/account/EmployerProfileForm";
 import { EmployerJobsList } from "@/components/account/EmployerJobsList";
+import { employerProfileSelectColumns } from "@/lib/employer/employerCompanySizeSync";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -31,9 +32,7 @@ export default async function EmployerAccountPage({ params }: Props) {
 
   const { data: employer } = await supabase
     .from("employer_profiles")
-    .select(
-      "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry, company_size"
-    )
+    .select(employerProfileSelectColumns())
     .eq("owner_user_id", user.id)
     .maybeSingle();
 
@@ -54,7 +53,7 @@ export default async function EmployerAccountPage({ params }: Props) {
                 <div className="text-sm font-medium text-white/85">{tEmployer("companyProfile")}</div>
                 <div className="mt-1 text-sm text-white/60">{tEmployer("companyProfileSubtitle")}</div>
               </div>
-              <EmployerProfileForm locale={locale} initial={employer ?? null} />
+              <EmployerProfileForm locale={locale} initial={(employer as EmployerProfile | null) ?? null} />
             </section>
 
             <section className="space-y-4">

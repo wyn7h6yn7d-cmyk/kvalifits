@@ -7,6 +7,12 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  EMPLOYER_COMPANY_SIZE_DB_ENABLED,
+  employerCompanySizeField,
+  employerOnboardingSelectColumns,
+  type EmployerOnboardingPrefill,
+} from "@/lib/employer/employerCompanySizeSync";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Props = {
@@ -43,13 +49,12 @@ export function EmployerOnboardingForm({ locale }: Props) {
 
         if (mounted && user.email) setContactEmail((prev) => prev || user.email || "");
 
-        const { data: employer } = await supabase
+        const { data: employerRaw } = await supabase
           .from("employer_profiles")
-          .select(
-            "company_name,registry_code,contact_email,contact_phone,website,location,industry,company_description,company_size"
-          )
+          .select(employerOnboardingSelectColumns())
           .eq("owner_user_id", user.id)
           .maybeSingle();
+        const employer = employerRaw as EmployerOnboardingPrefill | null;
         if (!mounted || !employer) return;
 
         setCompanyName((prev) => prev || (employer.company_name ?? "").toString());
@@ -59,7 +64,9 @@ export function EmployerOnboardingForm({ locale }: Props) {
         setWebsite((prev) => prev || (employer.website ?? "").toString());
         setLocation((prev) => prev || (employer.location ?? "").toString());
         setIndustry((prev) => prev || (employer.industry ?? "").toString());
-        setCompanySize((prev) => prev || (employer.company_size ?? "").toString());
+        if (EMPLOYER_COMPANY_SIZE_DB_ENABLED) {
+          setCompanySize((prev) => prev || (employer.company_size ?? "").toString());
+        }
         setCompanyDescription((prev) => prev || (employer.company_description ?? "").toString());
       } catch {
         // ignore
@@ -95,6 +102,8 @@ export function EmployerOnboardingForm({ locale }: Props) {
         .eq("owner_user_id", user.id)
         .maybeSingle();
 
+      const sizeFields = employerCompanySizeField(companySize.trim());
+
       if (existing?.id) {
         const { error } = await supabase
           .from("employer_profiles")
@@ -107,7 +116,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
             company_description: companyDescription,
             location,
             industry: industry || null,
-            company_size: companySize.trim() || null,
+            ...sizeFields,
           })
           .eq("id", existing.id);
         if (error) throw error;
@@ -122,7 +131,7 @@ export function EmployerOnboardingForm({ locale }: Props) {
           company_description: companyDescription,
           location,
           industry: industry || null,
-          company_size: companySize.trim() || null,
+          ...sizeFields,
         });
         if (error) throw error;
       }
@@ -188,14 +197,16 @@ export function EmployerOnboardingForm({ locale }: Props) {
             placeholder={t("industryHint")}
           />
         </div>
-        <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("companySize")}</label>
-          <Input
-            value={companySize}
-            onChange={(e) => setCompanySize(e.target.value)}
-            placeholder={t("companySizeHint")}
-          />
-        </div>
+        {EMPLOYER_COMPANY_SIZE_DB_ENABLED ? (
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("companySize")}</label>
+            <Input
+              value={companySize}
+              onChange={(e) => setCompanySize(e.target.value)}
+              placeholder={t("companySizeHint")}
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="space-y-2">

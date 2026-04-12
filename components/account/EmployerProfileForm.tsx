@@ -5,11 +5,15 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import {
+  EMPLOYER_COMPANY_SIZE_DB_ENABLED,
+  employerCompanySizeField,
+} from "@/lib/employer/employerCompanySizeSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
-type EmployerProfile = {
+export type EmployerProfile = {
   id: string;
   company_name: string | null;
   registry_code: string | null;
@@ -19,7 +23,7 @@ type EmployerProfile = {
   company_description: string | null;
   location: string | null;
   industry: string | null;
-  company_size: string | null;
+  company_size?: string | null;
 };
 
 type Props = {
@@ -74,7 +78,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         company_description: companyDescription,
         location: locationValue,
         industry: industry || null,
-        company_size: companySize.trim() || null,
+        ...employerCompanySizeField(companySize.trim()),
       };
 
       if (existing?.id) {
@@ -118,14 +122,16 @@ export function EmployerProfileForm({ locale, initial }: Props) {
             placeholder={t("industryHint")}
           />
         </div>
-        <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("companySize")}</label>
-          <Input
-            value={companySize}
-            onChange={(e) => setCompanySize(e.target.value)}
-            placeholder={t("companySizeHint")}
-          />
-        </div>
+        {EMPLOYER_COMPANY_SIZE_DB_ENABLED ? (
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("companySize")}</label>
+            <Input
+              value={companySize}
+              onChange={(e) => setCompanySize(e.target.value)}
+              placeholder={t("companySizeHint")}
+            />
+          </div>
+        ) : null}
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("contactEmail")}</label>
           <Input type="email" value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} required />
