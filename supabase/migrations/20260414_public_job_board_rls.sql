@@ -9,20 +9,9 @@ for select
 to anon, authenticated
 using ((status)::text = 'published');
 
--- Employer name on listings: allow reading a company row only if it has at least one published job.
+-- Employer name on listings: superseded by 20260415 (security definer helper avoids RLS recursion
+-- when job_posts policies reference employer_profiles). Kept as drop-only for idempotency.
 drop policy if exists "employer_profiles_select_for_published_jobs" on public.employer_profiles;
-create policy "employer_profiles_select_for_published_jobs"
-on public.employer_profiles
-for select
-to anon, authenticated
-using (
-  exists (
-    select 1
-    from public.job_posts jp
-    where jp.employer_profile_id = employer_profiles.id
-      and (jp.status)::text = 'published'
-  )
-);
 
 -- Employers must still read/update their own company row (e.g. drafts, onboarding).
 drop policy if exists "employer_profiles_select_own" on public.employer_profiles;
