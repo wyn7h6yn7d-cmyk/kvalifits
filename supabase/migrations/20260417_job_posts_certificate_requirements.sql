@@ -8,5 +8,3 @@ comment on column public.job_posts.certificate_requirements is
   'Certificate / qualification expectations (comma or newline separated); used by matching when set.';
 
 notify pgrst, 'reload schema';
-
--- App: set NEXT_PUBLIC_JOB_POST_CERTIFICATE_REQUIREMENTS_SYNC=1 after deploy (see lib/jobs/jobPostCertificateRequirementsSync.ts).

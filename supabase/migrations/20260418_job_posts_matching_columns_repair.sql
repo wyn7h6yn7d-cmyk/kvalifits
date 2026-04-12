@@ -1,8 +1,4 @@
--- Fixes PostgREST "Could not find the '…' column of 'job_posts' in the schema cache"
--- when the DB predates structured matching columns (e.g. experience_level_required,
--- certificate_requirements). Idempotent — safe to re-run.
---
--- Run in Supabase SQL Editor once; wait a few seconds, then retry publish/save in the app.
+-- Repair job_posts structured columns on DBs that missed 20260411 (idempotent).
 
 alter table public.job_posts
   add column if not exists short_summary text,

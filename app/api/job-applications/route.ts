@@ -6,7 +6,6 @@ import { sendEmailViaResend } from "@/lib/email/resend";
 import { calculateJobMatch } from "@/lib/matching/calculateJobMatch";
 import { seekerCoreComplete } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
-import { JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED } from "@/lib/jobs/jobPostCertificateRequirementsSync";
 
 type Body = {
   jobPostId?: string;
@@ -78,9 +77,7 @@ export async function POST(req: Request) {
     const { data: jobRaw, error: jobErr } = await admin
       .from("job_posts")
       .select(
-        (JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED
-          ? "id,title,location,work_type,job_type,employer_profile_id,status,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements"
-          : "id,title,location,work_type,job_type,employer_profile_id,status,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required") as any
+        "id,title,location,work_type,job_type,employer_profile_id,status,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements"
       )
       .eq("id", jobPostId)
       .maybeSingle();

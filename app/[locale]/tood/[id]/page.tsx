@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED } from "@/lib/jobs/jobPostCertificateRequirementsSync";
 import { JobApplyForm } from "@/components/jobs/JobApplyForm";
 
 type Props = {
@@ -21,9 +20,7 @@ export default async function JobDetailPage({ params }: Props) {
   const { data: jobRaw } = await supabase
     .from("job_posts")
     .select(
-      (JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED
-        ? "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,certificate_requirements,employer_profile_id,status,created_at"
-        : "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,employer_profile_id,status,created_at") as any
+      "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,certificate_requirements,employer_profile_id,status,created_at"
     )
     .eq("id", id)
     .maybeSingle();

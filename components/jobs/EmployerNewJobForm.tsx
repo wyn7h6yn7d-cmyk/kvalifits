@@ -17,10 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/routing";
 import { errorMessageFromUnknown } from "@/lib/utils";
-import {
-  JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED,
-  jobPostCertificateRequirementsField,
-} from "@/lib/jobs/jobPostCertificateRequirementsSync";
 
 type Props = {
   locale: string;
@@ -126,9 +122,7 @@ export function EmployerNewJobForm({ locale }: Props) {
       required_skills: requiredSkills,
       keywords,
       experience_level_required: experienceLevelRequired,
-      certificate_requirements: JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED
-        ? certificateRequirements.trim() || null
-        : null,
+      certificate_requirements: certificateRequirements.trim() || null,
       application_type: applicationType,
       application_url: appUrl,
     });
@@ -213,7 +207,7 @@ export function EmployerNewJobForm({ locale }: Props) {
         required_skills: requiredSkills,
         keywords,
         experience_level_required: experienceLevelRequired,
-        ...jobPostCertificateRequirementsField(certificateRequirements.trim()),
+        certificate_requirements: certificateRequirements.trim() || null,
         salary_min: Number.isFinite(min as number) ? min : null,
         salary_max: Number.isFinite(max as number) ? max : null,
         salary_currency: salaryCurrency,
@@ -238,7 +232,7 @@ export function EmployerNewJobForm({ locale }: Props) {
       const raw = errorMessageFromUnknown(err, t("saveFailed"));
       const lower = raw.toLowerCase();
       const withHint =
-        lower.includes("certificate_requirements") || lower.includes("schema cache")
+        lower.includes("schema cache") || lower.includes("column of 'job_posts'")
           ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}`
           : raw;
       setError(withHint);
@@ -427,11 +421,6 @@ export function EmployerNewJobForm({ locale }: Props) {
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
         <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
-        {!JOB_POST_CERTIFICATE_REQUIREMENTS_DB_ENABLED ? (
-          <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.08] px-3 py-2 text-xs leading-relaxed text-amber-100/90">
-            {t("jobCertColumnOptInHint")}
-          </div>
-        ) : null}
       </div>
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
