@@ -7,7 +7,7 @@ create policy "job_posts_select_published_public"
 on public.job_posts
 for select
 to anon, authenticated
-using (status = 'published'::text);
+using ((status)::text = 'published');
 
 -- Employer name on listings: allow reading a company row only if it has at least one published job.
 drop policy if exists "employer_profiles_select_for_published_jobs" on public.employer_profiles;
@@ -20,7 +20,7 @@ using (
     select 1
     from public.job_posts jp
     where jp.employer_profile_id = employer_profiles.id
-      and jp.status = 'published'::text
+      and (jp.status)::text = 'published'
   )
 );
 
