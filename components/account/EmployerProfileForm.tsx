@@ -62,13 +62,6 @@ export function EmployerProfileForm({ locale, initial }: Props) {
       if (industry.trim().length < 2) throw new Error(t("errIndustryRequired"));
       if (companyDescription.trim().length < 40) throw new Error(t("errCompanyDescriptionTooShort"));
 
-      const { data: existing, error: exErr } = await supabase
-        .from("employer_profiles")
-        .select("id")
-        .eq("owner_user_id", user.id)
-        .maybeSingle();
-      if (exErr) throw exErr;
-
       const payload = {
         company_name: companyName,
         registry_code: registryCode || null,
@@ -81,16 +74,11 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         ...employerCompanySizeField(companySize.trim()),
       };
 
-      if (existing?.id) {
-        const { error } = await supabase.from("employer_profiles").update(payload).eq("id", existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("employer_profiles").insert({
-          owner_user_id: user.id,
-          ...payload,
-        });
-        if (error) throw error;
-      }
+      const { error } = await supabase.from("employer_profiles").upsert(
+        { owner_user_id: user.id, ...payload },
+        { onConflict: "owner_user_id" }
+      );
+      if (error) throw error;
 
       router.push(`/${locale}/account/employer`);
       router.refresh();

@@ -9,6 +9,9 @@ import type { Job } from "@/components/jobs/types";
 
 type Props = { params: Promise<{ locale: string }> };
 
+// Always query Supabase at request time (session + RLS); avoids stale empty listings.
+export const dynamic = "force-dynamic";
+
 function normFacetValue(s: string) {
   return s
     .trim()

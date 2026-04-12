@@ -49,11 +49,12 @@ export function EmployerOnboardingForm({ locale }: Props) {
 
         if (mounted && user.email) setContactEmail((prev) => prev || user.email || "");
 
-        const { data: employerRaw } = await supabase
+        const { data: employerRaw, error: prefillErr } = await supabase
           .from("employer_profiles")
           .select(employerOnboardingSelectColumns())
           .eq("owner_user_id", user.id)
           .maybeSingle();
+        if (prefillErr) return;
         const employer = employerRaw as EmployerOnboardingPrefill | null;
         if (!mounted || !employer) return;
 
@@ -96,32 +97,12 @@ export function EmployerOnboardingForm({ locale }: Props) {
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
 
-      const { data: existing } = await supabase
-        .from("employer_profiles")
-        .select("id")
-        .eq("owner_user_id", user.id)
-        .maybeSingle();
-
       const sizeFields = employerCompanySizeField(companySize.trim());
 
-      if (existing?.id) {
-        const { error } = await supabase
-          .from("employer_profiles")
-          .update({
-            company_name: companyName,
-            registry_code: registryCode || null,
-            contact_email: contactEmail,
-            contact_phone: contactPhone || null,
-            website: website || null,
-            company_description: companyDescription,
-            location,
-            industry: industry || null,
-            ...sizeFields,
-          })
-          .eq("id", existing.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("employer_profiles").insert({
+      // Registration already inserts a placeholder row (unique on owner_user_id). Use upsert so we
+      // never hit duplicate-key if a prior select returned no row (RLS/race).
+      const { error } = await supabase.from("employer_profiles").upsert(
+        {
           owner_user_id: user.id,
           company_name: companyName,
           registry_code: registryCode || null,
@@ -132,9 +113,10 @@ export function EmployerOnboardingForm({ locale }: Props) {
           location,
           industry: industry || null,
           ...sizeFields,
-        });
-        if (error) throw error;
-      }
+        },
+        { onConflict: "owner_user_id" }
+      );
+      if (error) throw error;
 
       router.push(`/${locale}/onboarding`);
       router.refresh();

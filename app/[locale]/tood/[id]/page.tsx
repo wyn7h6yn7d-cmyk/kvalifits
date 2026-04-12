@@ -10,6 +10,8 @@ type Props = {
   params: Promise<{ locale: string; id: string }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function JobDetailPage({ params }: Props) {
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "pages.jobs" });
