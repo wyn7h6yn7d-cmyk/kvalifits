@@ -3,8 +3,6 @@ import { LegalSiteShell } from "@/components/legal/LegalSiteShell";
 import { getTerms, type LegalLocale } from "@/lib/content/legal";
 import { legalPageMetadata } from "@/lib/content/legal/metadata";
 
-const docPath = "/tingimused";
-
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -20,7 +18,7 @@ export default async function TingimusedPage({ params }: Props) {
   const doc = getTerms(l);
 
   return (
-    <LegalSiteShell docPath={docPath}>
+    <LegalSiteShell>
       <LegalDocumentView doc={doc} showToc />
     </LegalSiteShell>
   );

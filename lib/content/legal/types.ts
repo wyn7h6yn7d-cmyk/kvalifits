@@ -51,6 +51,8 @@ export type ContactPageContent = {
     title: string;
     lead: string;
   };
+  /** Mailto recipient when displayed emails use placeholders like [e-post]. */
+  formMailTo?: string;
   footnote?: string;
 };
 

@@ -3,8 +3,6 @@ import { LegalSiteShell } from "@/components/legal/LegalSiteShell";
 import { getCookiePolicy, type LegalLocale } from "@/lib/content/legal";
 import { legalPageMetadata } from "@/lib/content/legal/metadata";
 
-const docPath = "/kupsised";
-
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -20,7 +18,7 @@ export default async function KupsisedPage({ params }: Props) {
   const doc = getCookiePolicy(l);
 
   return (
-    <LegalSiteShell docPath={docPath}>
+    <LegalSiteShell>
       <LegalDocumentView doc={doc} showToc />
     </LegalSiteShell>
   );

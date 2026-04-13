@@ -5,54 +5,45 @@ import { PL } from "./placeholders";
 export const contactET: ContactPageContent = {
   path: "/kontakt",
   metaTitle: "Kontakt",
-  metaDescription:
-    "Võta Kvalifitsiga ühendust: e-post, ettevõtte andmed ja kontaktivorm.",
+  metaDescription: "Võta meiega ühendust — loeme kirjad ja vastame tööpäeviti.",
   h1: "Kontakt",
-  lead:
-    "Kui sul on küsimusi platvormi, partnerluse või andmekaitse kohta, kirjuta meile. Vastame esimesel võimalusel.",
+  lead: "Küsimus platvormi kohta või tahad lihtsalt kirjutada? Vastame tööpäeviti nii kiiresti kui saame.",
   lastUpdated: "2026-04-13",
   blocks: [
     {
       title: "Ettevõte",
       lines: [
-        PL.companyName,
+        "Kvalifits OÜ",
         `Registrikood: ${PL.registryCode}`,
         `Aadress: ${PL.legalAddress}`,
+        "Üldkontakt: [e-post]",
+        "Telefon: [telefon]",
       ],
       icon: "building2",
       span: 2,
     },
     {
-      title: "E-post",
-      lines: [`Üldised küsimused: ${PL.emailGeneral}`, `Andmekaitse: ${PL.emailPrivacy}`],
+      title: "Privaatsus",
+      lines: ["Konto või isikuandmed: [e-post]"],
       icon: "mail",
       span: 1,
     },
     {
       title: "Telefon ja tööaeg",
-      lines: [PL.phone, PL.supportHours],
+      lines: ["Vastame tööpäeviti: [kellaajad]"],
       icon: "phone",
       span: 1,
     },
     {
       title: "Veeb ja sotsiaalmeedia",
-      lines: [PL.socialWeb],
+      lines: ["Veeb: kvalifits.ee", "Sotsiaalmeedia — täpsustame peagi"],
       icon: "share2",
-      span: 2,
-    },
-    {
-      title: "Taotluste töötlemine",
-      lines: [
-        "Andmekaitse- ja kustutamistaotlused palun märgista selgelt teema real.",
-        "Eesmärgiga vastame ühe kuu jooksul; üksikasjad: /andmekaitse.",
-      ],
-      icon: "clock",
       span: 2,
     },
   ],
   formAside: {
     title: "Kirjuta meile",
-    lead: "Täida väljad — avaneb sinu e-posti rakendus ja saad kiri enne saatmist üle kontrollida.",
+    lead: "Täida väljad — avaneb sinu e-post ja saad kiri enne saatmist ise üle vaadata.",
   },
   form: {
     nameLabel: "Nimi",
@@ -60,10 +51,8 @@ export const contactET: ContactPageContent = {
     subjectLabel: "Teema",
     messageLabel: "Sõnum",
     submitLabel: "Saada e-kiri",
-    privacyHint:
-      "Saates sõnumi kinnitad, et oled tutvunud privaatsuspoliitikaga (/privaatsus) ja et sinu kontaktandmeid kasutatakse üksnes vastamiseks.",
-    successNote: "Sinu e-posti klient avaneb — kontrolli sõnum enne saatmist.",
+    privacyHint: "Kasutame sinu kontakti ainult vastamiseks. Loe lähemalt: /privaatsus.",
+    successNote: "Avaneb sinu e-post — vaata kiri veel kord enne saatmist.",
   },
-  footnote:
-    "Kohatäited (telefon, tööaeg, sotsiaalmeedia) asendatakse päris andmetega; hoia kontaktileht ja footer ühtsed.",
+  formMailTo: "info@kvalifits.ee",
 };

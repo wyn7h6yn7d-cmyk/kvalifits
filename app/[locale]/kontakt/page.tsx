@@ -3,8 +3,6 @@ import { LegalSiteShell } from "@/components/legal/LegalSiteShell";
 import { getContactPage, type LegalLocale } from "@/lib/content/legal";
 import { legalPageMetadata } from "@/lib/content/legal/metadata";
 
-const docPath = "/kontakt";
-
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -20,7 +18,7 @@ export default async function KontaktPage({ params }: Props) {
   const content = getContactPage(l);
 
   return (
-    <LegalSiteShell docPath={docPath}>
+    <LegalSiteShell>
       <ContactPageView content={content} />
     </LegalSiteShell>
   );

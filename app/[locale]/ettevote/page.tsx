@@ -3,8 +3,6 @@ import { LegalSiteShell } from "@/components/legal/LegalSiteShell";
 import { getCompanyPage, type LegalLocale } from "@/lib/content/legal";
 import { legalPageMetadata } from "@/lib/content/legal/metadata";
 
-const docPath = "/ettevote";
-
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -26,7 +24,7 @@ export default async function EttevotePage({ params }: Props) {
   };
 
   return (
-    <LegalSiteShell docPath={docPath}>
+    <LegalSiteShell>
       <LegalDocumentView doc={prose} showToc={false} />
     </LegalSiteShell>
   );

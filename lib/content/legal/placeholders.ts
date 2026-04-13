@@ -1,18 +1,12 @@
 /**
- * Asenda need väärtused päris ettevõtte ja juristi kinnituse järel.
- * Tekstides kasutatakse täpselt neid sulge, et otsing/asendamine oleks lihtne.
+ * Asenda [registrikood], [aadress], [telefon], [kellaajad] ja sotsiaalmeedia read päris andmetega.
+ * Üld- ja privaatsuskontakt on kvalifits.ee domeenil (soovi korral muuda).
  */
 export const PL = {
-  companyName: "[Ettevõtte nimi]",
-  registryCode: "[Registrikood]",
-  legalAddress: "[Juriidiline aadress]",
-  emailGeneral: "[E-posti aadress]",
-  emailPrivacy: "[Andmekaitse kontakt]",
-  operatorName: "[Platvormi operaatori nimi]",
-  /** Asenda päris numbriga; seni placeholder. */
-  phone: "[Telefon — lisame peagi]",
-  /** Nt tööpäevad ja eelistatud vastamisaeg. */
-  supportHours: "[Tööaeg / vastamisaeg — tulekul]",
-  /** Nt LinkedIn või muu ametlik kanal. */
-  socialWeb: "[Sotsiaalmeedia / veeb — tulekul]",
+  companyName: "Kvalifits OÜ",
+  registryCode: "[registrikood]",
+  legalAddress: "[aadress]",
+  emailGeneral: "info@kvalifits.ee",
+  emailPrivacy: "privacy@kvalifits.ee",
+  operatorName: "Kvalifits OÜ",
 } as const;

@@ -117,7 +117,7 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
                 <p className="mt-2 text-sm leading-relaxed text-white/55">{content.formAside.lead}</p>
               </div>
             ) : null}
-            <ContactForm form={content.form} mailTo={PL.emailGeneral} />
+            <ContactForm form={content.form} mailTo={content.formMailTo ?? PL.emailGeneral} />
           </aside>
         </div>
 
