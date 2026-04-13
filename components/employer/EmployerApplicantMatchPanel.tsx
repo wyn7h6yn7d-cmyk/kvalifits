@@ -83,6 +83,33 @@ function penaltyLabel(code: string, t: (key: string) => string) {
   }
 }
 
+function highlightLabel(code: string, t: (key: string) => string) {
+  switch (code) {
+    case "skillsStrong":
+      return t("applicantHighlight_skillsStrong");
+    case "skillsPartial":
+      return t("applicantHighlight_skillsPartial");
+    case "requirementsStrong":
+      return t("applicantHighlight_requirementsStrong");
+    case "requirementsPartial":
+      return t("applicantHighlight_requirementsPartial");
+    case "experienceFit":
+      return t("applicantHighlight_experienceFit");
+    case "locationFit":
+      return t("applicantHighlight_locationFit");
+    case "certificatesSignal":
+      return t("applicantHighlight_certificatesSignal");
+    case "certificatesStrong":
+      return t("applicantHighlight_certificatesStrong");
+    case "certificateGap":
+      return t("applicantHighlight_certificateGap");
+    case "roleAlignment":
+      return t("applicantHighlight_roleAlignment");
+    default:
+      return "";
+  }
+}
+
 export function EmployerApplicantMatchPanel({
   score,
   breakdown,
@@ -143,6 +170,9 @@ export function EmployerApplicantMatchPanel({
     const scoreLabelSimple = score == null ? "—" : `${score}%`;
     const penaltyPoints = bd.penalty_points ?? 0;
     const penaltyCodes = (bd.penalty_codes ?? []) as string[];
+    const highlights = Array.isArray(bd.highlights)
+      ? (bd.highlights.filter((x): x is string => typeof x === "string") as string[])
+      : [];
     const basePoints =
       (bd.skills_keywords_contribution ?? 0) +
       (bd.certificate_contribution ?? 0) +
@@ -195,6 +225,23 @@ export function EmployerApplicantMatchPanel({
         {clampedToZero ? (
           <div className="mt-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-100/90">
             {t("applicantMatchClampedToZero", { unclamped })}
+          </div>
+        ) : null}
+
+        {highlights.length ? (
+          <div className="mt-3 rounded-2xl border border-emerald-500/18 bg-emerald-500/8 px-4 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/85">
+              {t("applicantDetailWhyStrong")}
+            </div>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-emerald-100/85">
+              {highlights
+                .map((c) => highlightLabel(c, t))
+                .filter(Boolean)
+                .slice(0, 4)
+                .map((line, i) => (
+                  <li key={`${i}-${line.slice(0, 16)}`}>{line}</li>
+                ))}
+            </ul>
           </div>
         ) : null}
 

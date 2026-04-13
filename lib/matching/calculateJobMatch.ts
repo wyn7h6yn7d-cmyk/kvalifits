@@ -138,6 +138,78 @@ function significantWords(s: string) {
   return words(normBlob([s])).filter((w) => w.length > 2 && !STOP.has(w));
 }
 
+/**
+ * Small deterministic generalization layer.
+ * We avoid black-box semantics but allow controlled related-word matching.
+ *
+ * Approach:
+ * - normalize -> tokens
+ * - conservative stemming (mainly plural/case endings)
+ * - canonicalize via compact synonym families
+ */
+const SYN_FAMILIES: Record<string, string[]> = {
+  // Trades / roles (ET)
+  elektrik: ["elektrik", "elektritood", "elektritoo", "elektripaigaldaja", "elektripaigaldus", "elektrialane"],
+  plekksepp: ["plekksepp", "plekitood", "plekitoo", "plekidetail", "plekist", "metallitooline", "metallitood", "metallitööline"],
+  ventilatsioon: ["ventilatsioon", "ventilatsiooni", "hvac", "kliima", "kliimaseade", "kliimaseadmed"],
+  ehitus: ["ehitus", "ehitaja", "ehitustood", "ehitustoo"],
+  paigaldus: ["paigaldus", "paigaldaja", "montaaž", "montaa", "install", "installer"],
+
+  // Tools / tech
+  cad: ["cad", "autocad", "auto-cad"],
+  autocad: ["autocad", "auto-cad"],
+
+  // Certificates / qualifications (ET)
+  "a-padev": ["a-padev", "a-pädevus", "apadev", "apädevus"],
+  "b-padev": ["b-padev", "b-pädevus", "bpadev", "bpädevus"],
+  kutse: ["kutse", "kutsetunnistus", "kutsetase", "kutse4", "tase4", "kutse tase 4"],
+  toohutus: ["toohutus", "tööohutus", "ohutus", "ohutuskoolitus"],
+};
+
+const SYN_CANON: Map<string, string> = (() => {
+  const m = new Map<string, string>();
+  for (const [canon, variants] of Object.entries(SYN_FAMILIES)) {
+    for (const v of variants) {
+      const k = normBlob([v]);
+      if (k) m.set(k, canon);
+    }
+  }
+  return m;
+})();
+
+function stemToken(tok: string) {
+  const t = tok.trim();
+  if (t.length < 4) return t;
+  // Very conservative suffix stripping: handles common plural/declension endings without being language-specific.
+  const SUF = ["idega", "idele", "idelt", "idest", "idel", "idega", "idega", "id", "de", "te", "ga", "le", "lt", "st", "s", "d"];
+  for (const suf of SUF) {
+    if (t.length > suf.length + 2 && t.endsWith(suf)) {
+      return t.slice(0, -suf.length);
+    }
+  }
+  return t;
+}
+
+function tokenizeToCanonSet(textParts: Array<string | null | undefined>) {
+  const blob = normBlob(textParts);
+  const base = words(blob).filter((w) => w.length > 2 && !STOP.has(w));
+  const out = new Set<string>();
+  for (const raw of base) {
+    const stem = stemToken(raw);
+    const canon = SYN_CANON.get(stem) ?? SYN_CANON.get(raw) ?? stem;
+    if (canon.length > 1) out.add(canon);
+  }
+  return out;
+}
+
+function overlapScore(a: Set<string>, b: Set<string>) {
+  if (!a.size || !b.size) return 0;
+  let inter = 0;
+  for (const x of a) if (b.has(x)) inter++;
+  const union = a.size + b.size - inter;
+  return union ? inter / union : 0;
+}
+
 function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
 }
@@ -167,18 +239,18 @@ function tagMatchStrength(
   skillsBlob: string
 ): number {
   if (!tag) return 0;
+  // Fast path: exact substring / exact skill tag.
   if (seekerSkillNorms.has(tag)) return 1;
   if (titleBlob.includes(tag) || skillsBlob.includes(tag)) return 1;
-  const tw = words(tag).filter((w) => w.length > 2);
-  if (!tw.length) return 0;
-  let hits = 0;
-  for (const w of tw) {
-    if (seekerSkillNorms.has(w) || titleBlob.includes(w) || skillsBlob.includes(w)) hits++;
-  }
-  const need = Math.max(1, Math.ceil(tw.length * 0.51));
-  if (hits >= tw.length) return 1;
-  if (hits >= need) return 0.5;
-  if (hits > 0) return 0.35;
+
+  // Generalized token-family overlap (deterministic).
+  const tagSet = tokenizeToCanonSet([tag]);
+  if (!tagSet.size) return 0;
+  const seekerSet = tokenizeToCanonSet([titleBlob, skillsBlob, ...Array.from(seekerSkillNorms)]);
+  const j = overlapScore(tagSet, seekerSet);
+  if (j >= 0.66) return 1;
+  if (j >= 0.38) return 0.6; // strong partial
+  if (j >= 0.2) return 0.35; // weak partial
   return 0;
 }
 
@@ -201,6 +273,7 @@ function skillsKeywordsRaw(
   const skillNorms = new Set(seekerSkills.map((s) => normBlob([s])).filter(Boolean));
   const titleBlob = normBlob([profileTitle]);
   const skillsBlob = normBlob([seekerSkills.join(" ")]);
+  const seekerTokenSet = tokenizeToCanonSet([profileTitle, seekerSkills.join(" "), ...seekerSkills]);
 
   const tags = dedupeNormTags([
     ...(job.required_skills ?? []).map((s) => String(s)),
@@ -226,17 +299,16 @@ function skillsKeywordsRaw(
           .map((s) => s.trim())
           .filter(Boolean);
 
-  const seekerEvidence = normBlob([profileTitle, seekerSkills.join(" "), ...seekerSkills]);
   let matched = 0;
   const total = lines.length;
   for (const line of lines) {
-    const lw = significantWords(line);
-    if (!lw.length) continue;
-    let hits = 0;
-    for (const w of lw) {
-      if (seekerEvidence.includes(w)) hits++;
-    }
-    if (hits >= Math.ceil(lw.length * 0.45)) matched++;
+    const lineSet = tokenizeToCanonSet([line]);
+    if (!lineSet.size) continue;
+    const j = overlapScore(lineSet, seekerTokenSet);
+    // Evidence thresholds:
+    // - >=0.34: meaningful evidence
+    // - >=0.55: strong evidence
+    if (j >= 0.34) matched++;
   }
   const lineRaw = total > 0 ? matched / total : NaN;
 
@@ -275,7 +347,8 @@ function certificateRaw(
   jobKeywords: string[] | null
 ): { raw: number; slots: number; matched: number } {
   const slots = parseCertificateSlots(jobCertText);
-  const seekerBlob = normBlob(
+  const seekerBlob = normBlob(certs.map((c) => `${c.certificate_name ?? ""} ${c.certificate_issuer ?? ""}`));
+  const seekerCertSet = tokenizeToCanonSet(
     certs.map((c) => `${c.certificate_name ?? ""} ${c.certificate_issuer ?? ""}`)
   );
 
@@ -287,7 +360,9 @@ function certificateRaw(
     if (!certs.length) return { raw: 0.08, slots: kwNeedle.length, matched: 0 };
     let h = 0;
     for (const k of kwNeedle) {
-      if (seekerBlob.includes(k)) h++;
+      const kwSet = tokenizeToCanonSet([k]);
+      const j = overlapScore(kwSet, seekerCertSet);
+      if (j >= 0.34 || seekerBlob.includes(k)) h++;
     }
     // If we can only infer from keywords, keep the ceiling modest.
     return { raw: clamp01(0.18 + (h / kwNeedle.length) * 0.62), slots: kwNeedle.length, matched: h };
@@ -299,17 +374,13 @@ function certificateRaw(
   for (const slot of slots) {
     const slotNorm = normBlob([slot]);
     if (!slotNorm) continue;
-    const sw = significantWords(slot);
     if (seekerBlob.includes(slotNorm)) {
       matched++;
       continue;
     }
-    if (!sw.length) continue;
-    let ok = 0;
-    for (const w of sw) {
-      if (w.length > 2 && seekerBlob.includes(w)) ok++;
-    }
-    if (ok >= Math.ceil(sw.length * 0.55)) matched++;
+    const slotSet = tokenizeToCanonSet([slot]);
+    const j = overlapScore(slotSet, seekerCertSet);
+    if (j >= 0.34) matched++;
   }
   return { raw: clamp01(matched / slots.length), slots: slots.length, matched };
 }
@@ -330,21 +401,19 @@ function experienceRaw(seekerExp: string | null, jobExp: string | null): number 
 
 /** Jaccard-like overlap on significant words between profile title and job title. */
 function roleTitleRaw(seekerTitle: string | null, jobTitle: string | null): number {
-  const a = new Set(significantWords(seekerTitle ?? ""));
-  const b = new Set(significantWords(jobTitle ?? ""));
+  const a = tokenizeToCanonSet([seekerTitle]);
+  const b = tokenizeToCanonSet([jobTitle]);
   // Stricter: missing/empty titles shouldn't produce neutral score.
   if (!a.size && !b.size) return 0.18;
   if (!a.size || !b.size) return 0.08;
-  let inter = 0;
-  for (const x of a) if (b.has(x)) inter++;
-  const union = a.size + b.size - inter;
-  const j = union ? inter / union : 0;
+  const j = overlapScore(a, b);
   const sub =
     normBlob([seekerTitle]).length > 4 &&
     normBlob([jobTitle]).length > 4 &&
     (normBlob([seekerTitle]).includes(normBlob([jobTitle])) ||
       normBlob([jobTitle]).includes(normBlob([seekerTitle])));
-  return clamp01(Math.max(j, sub ? 0.55 : j));
+  // Boost substring alignment modestly, but still deterministic.
+  return clamp01(Math.max(j, sub ? 0.6 : j));
 }
 
 function locationRaw(
