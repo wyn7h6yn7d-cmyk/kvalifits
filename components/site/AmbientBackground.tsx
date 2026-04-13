@@ -73,8 +73,9 @@ export function AmbientBackground({
         }
       />
 
+      {/* Smallest layer: skip on narrow viewports to cut compositing cost */}
       <motion.div
-        className="absolute top-20 left-[-220px] h-[420px] w-[520px] rounded-full blur-3xl"
+        className="absolute top-20 left-[-220px] hidden h-[420px] w-[520px] rounded-full blur-3xl md:block"
         style={{
           background:
             "radial-gradient(circle at 50% 50%, rgba(99,102,241,0.30), rgba(0,0,0,0) 68%)",

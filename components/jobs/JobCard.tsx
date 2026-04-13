@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+import Image from "next/image";
 import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -16,7 +18,7 @@ function formatDate(iso: string | undefined, locale: string) {
   return d.toLocaleDateString(tag, { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
-export function JobCard({ job }: { job: Job }) {
+function JobCardComponent({ job }: { job: Job }) {
   const locale = useLocale();
   const t = useTranslations("jobCard");
   const posted = formatDate(job.createdAt, locale);
@@ -42,12 +44,24 @@ export function JobCard({ job }: { job: Job }) {
           </Link>
           <div className="flex items-center gap-2.5">
             {job.companyLogoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={job.companyLogoUrl}
-                alt=""
-                className="h-8 w-8 shrink-0 rounded-lg border border-white/[0.10] bg-white/[0.04] object-contain"
-              />
+              job.companyLogoUrl.startsWith("data:") || job.companyLogoUrl.startsWith("blob:") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={job.companyLogoUrl}
+                  alt=""
+                  className="h-8 w-8 shrink-0 rounded-lg border border-white/[0.10] bg-white/[0.04] object-contain"
+                />
+              ) : (
+                <Image
+                  src={job.companyLogoUrl}
+                  alt=""
+                  width={32}
+                  height={32}
+                  sizes="32px"
+                  loading="lazy"
+                  className="h-8 w-8 shrink-0 rounded-lg border border-white/[0.10] bg-white/[0.04] object-contain"
+                />
+              )
             ) : null}
             <div className="text-sm text-white/60">{job.company}</div>
           </div>
@@ -134,4 +148,6 @@ export function JobCard({ job }: { job: Job }) {
     </div>
   );
 }
+
+export const JobCard = memo(JobCardComponent);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useDeferredValue, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
 
@@ -138,15 +138,16 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
   const tf = useTranslations("jobsFacets");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const deferredQuery = useDeferredValue(query);
 
   const facetGroups = useMemo(() => buildFacetGroups(jobs), [jobs]);
   const quick = useMemo(() => buildQuickFilters(jobs), [jobs]);
 
   const results = useMemo(() => {
     return jobs
-      .filter((j) => matchesJob(j, query, selected))
+      .filter((j) => matchesJob(j, deferredQuery, selected))
       .slice();
-  }, [jobs, query, selected]);
+  }, [jobs, deferredQuery, selected]);
 
   const selectedArr = Array.from(selected);
   const foundLabel = t("foundCount", { count: results.length });

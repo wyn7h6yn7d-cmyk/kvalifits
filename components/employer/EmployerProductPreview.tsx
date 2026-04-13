@@ -187,6 +187,20 @@ export function EmployerProductPreview() {
                   <span className="hidden text-[11px] text-white/35 sm:inline">{t("previewDemoHint")}</span>
                 </div>
 
+                <div className="mb-6 rounded-2xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                    {t("previewFitSummaryTitle")}
+                  </div>
+                  <ul className="mt-3 space-y-2.5">
+                    {fitBullets(selected).map((line, i) => (
+                      <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-white/70">
+                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-violet-400/70" aria-hidden />
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
                 <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,11rem)_1fr] lg:gap-5 xl:gap-8">
                   <div className="rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
@@ -212,20 +226,6 @@ export function EmployerProductPreview() {
                       {t(detailKey(selected, "JobBlock"))}
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-6 rounded-2xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
-                    {t("previewFitSummaryTitle")}
-                  </div>
-                  <ul className="mt-3 space-y-2.5">
-                    {fitBullets(selected).map((line, i) => (
-                      <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-white/70">
-                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-violet-400/70" aria-hidden />
-                        <span>{line}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </div>
             </div>

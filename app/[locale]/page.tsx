@@ -1,12 +1,33 @@
+import dynamic from "next/dynamic";
+
 import { SectionDivider } from "@/components/site/SectionDivider";
+import { BelowFoldSectionSkeleton } from "@/components/site/BelowFoldSectionSkeleton";
 import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
-import { WhyKvalifits } from "@/components/sections/WhyKvalifits";
-import { Audience } from "@/components/sections/Audience";
-import { SmartMatching } from "@/components/sections/SmartMatching";
 import { LoginAnchor } from "@/components/sections/LoginAnchor";
-import { FinalCTA } from "@/components/sections/FinalCTA";
 import { Footer } from "@/components/sections/Footer";
+
+const sectionLoading = () => <BelowFoldSectionSkeleton />;
+
+const SmartMatching = dynamic(
+  () => import("@/components/sections/SmartMatching").then((m) => ({ default: m.SmartMatching })),
+  { loading: sectionLoading },
+);
+
+const WhyKvalifits = dynamic(
+  () => import("@/components/sections/WhyKvalifits").then((m) => ({ default: m.WhyKvalifits })),
+  { loading: sectionLoading },
+);
+
+const Audience = dynamic(
+  () => import("@/components/sections/Audience").then((m) => ({ default: m.Audience })),
+  { loading: sectionLoading },
+);
+
+const FinalCTA = dynamic(
+  () => import("@/components/sections/FinalCTA").then((m) => ({ default: m.FinalCTA })),
+  { loading: sectionLoading },
+);
 
 type Props = { params: Promise<{ locale: string }> };
 

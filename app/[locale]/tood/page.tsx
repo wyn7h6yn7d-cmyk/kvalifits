@@ -122,7 +122,7 @@ export default async function ToodPage({ params }: Props) {
   const { data: jobs } = await supabase
     .from("job_posts")
     .select(
-      "id,title,location,job_type,work_type,short_summary,description,requirements,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
+      "id,title,location,job_type,work_type,short_summary,description,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
     )
     .eq("status", "published")
     .order("created_at", { ascending: false })
@@ -153,8 +153,10 @@ export default async function ToodPage({ params }: Props) {
     const workType = mapWorkType((j.work_type ?? "").toString(), tJobs);
     const type = [workType, jobType].filter(Boolean).join(" · ") || "—";
 
+    const rawDesc = (j.description ?? "").toString();
+    const descForSummary = rawDesc.length > 2500 ? rawDesc.slice(0, 2500) : rawDesc;
     const summary =
-      (j.short_summary ?? "").toString().trim() || extractSummary(j.description);
+      (j.short_summary ?? "").toString().trim() || extractSummary(descForSummary);
     const kw = ((j.keywords as string[] | null) ?? []).map((x) => normFacetValue(x)).filter(Boolean);
     const skills = ((j.required_skills as string[] | null) ?? [])
       .map((x) => normFacetValue(x))

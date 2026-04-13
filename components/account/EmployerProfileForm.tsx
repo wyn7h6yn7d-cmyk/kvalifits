@@ -11,6 +11,7 @@ import {
 } from "@/lib/employer/employerCompanySizeSync";
 import { formatEmployerProfileSaveError } from "@/lib/employer/employerProfileSaveError";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
+import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessageFromUnknown } from "@/lib/utils";
@@ -80,19 +81,20 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
-      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      const prepared = await prepareRasterImageForUpload(file, "employerLogo");
+      const ext = (prepared.name.split(".").pop() || "png").toLowerCase();
       if (!["png", "jpg", "jpeg", "webp", "gif"].includes(ext)) {
         throw new Error(t("logoUploadError"));
       }
       const path = `${user.id}/employer-logo/${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, prepared, {
         upsert: true,
-        contentType: file.type || undefined,
+        contentType: prepared.type || undefined,
       });
       if (uploadErr) throw uploadErr;
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
-      setLogoPreviewUrl(URL.createObjectURL(file));
+      setLogoPreviewUrl(URL.createObjectURL(prepared));
       setLogoUrl(data.publicUrl);
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("logoUploadError")));

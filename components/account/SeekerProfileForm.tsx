@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
+import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessageFromUnknown } from "@/lib/utils";
@@ -150,11 +151,18 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      if (file.type === "application/pdf" && file.size > MAX_CV_BYTES) {
+        setError(t("cvFileTooLarge", { maxMb: Math.floor(MAX_CV_BYTES / 1024 / 1024) }));
+        return;
+      }
+      const uploadFile = file.type.startsWith("image/")
+        ? await prepareRasterImageForUpload(file, "certificate")
+        : file;
+      const ext = (uploadFile.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${user.id}/certificates/${idx}-${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, uploadFile, {
         upsert: true,
-        contentType: file.type || undefined,
+        contentType: uploadFile.type || undefined,
       });
       if (uploadErr) throw uploadErr;
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
@@ -171,22 +179,23 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     setError(null);
     setAvatarUploading(true);
     try {
+      const uploadFile = await prepareRasterImageForUpload(file, "avatar");
       if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
-      setAvatarPreviewUrl(URL.createObjectURL(file));
+      setAvatarPreviewUrl(URL.createObjectURL(uploadFile));
 
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
 
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const ext = (uploadFile.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${user.id}/avatar-${Date.now()}.${ext}`;
 
       const { error: uploadErr } = await supabase.storage
         .from("avatars")
-        .upload(path, file, {
+        .upload(path, uploadFile, {
           upsert: true,
-          contentType: file.type || undefined,
+          contentType: uploadFile.type || undefined,
         });
       if (uploadErr) throw uploadErr;
 
@@ -205,6 +214,10 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     setCvUploading(true);
     setCvFileName(file.name);
     try {
+      if (file.size > MAX_CV_BYTES) {
+        setError(t("cvFileTooLarge", { maxMb: Math.floor(MAX_CV_BYTES / 1024 / 1024) }));
+        return;
+      }
       const {
         data: { user },
       } = await supabase.auth.getUser();
