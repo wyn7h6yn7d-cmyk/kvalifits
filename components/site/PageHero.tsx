@@ -11,11 +11,14 @@ export function PageHero({
   title,
   subtitle,
   children,
+  prepend,
 }: {
   eyebrow: string;
   title: string;
   subtitle: ReactNode;
   children?: ReactNode;
+  /** Rendered first (e.g. tutorial) — full width above eyebrow/title/subtitle */
+  prepend?: ReactNode;
 }) {
   return (
     <section className="relative overflow-hidden">
@@ -27,6 +30,7 @@ export function PageHero({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
+            {prepend ? <div className="mb-10 w-full sm:mb-12">{prepend}</div> : null}
             <div className="mx-auto max-w-3xl">
               <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
                 {eyebrow}

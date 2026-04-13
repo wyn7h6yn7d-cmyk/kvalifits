@@ -128,13 +128,17 @@ export function EmployerProductPreview() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-[minmax(0,300px)_1fr] lg:items-stretch">
-              <div className="border-b border-white/[0.08] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
-                <div className="sticky top-20 space-y-1 p-4 sm:p-5">
+            <div className="grid min-h-0 lg:grid-cols-[minmax(0,300px)_1fr] lg:items-stretch">
+              <div className="flex min-h-0 flex-col border-b border-white/[0.08] lg:h-full lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+                <div className="sticky top-20 space-y-1 p-4 sm:p-5 lg:static lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
                   <div className="px-1 pb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
                     {t("previewApplicantsTitle")}
                   </div>
-                  <div className="space-y-2.5" role="listbox" aria-label={t("previewApplicantsTitle")}>
+                  <div
+                    className="space-y-2.5 lg:flex-1"
+                    role="listbox"
+                    aria-label={t("previewApplicantsTitle")}
+                  >
                     {applicants.map((a) => {
                       const active = selected === a.id;
                       return (
@@ -179,7 +183,7 @@ export function EmployerProductPreview() {
                 </div>
               </div>
 
-              <div className="p-4 sm:p-6 lg:p-7">
+              <div className="flex min-h-0 flex-col p-4 sm:p-6 lg:h-full lg:min-h-0 lg:p-7">
                 <div className="mb-5 flex items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
                   <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
                     {t("previewDetailTitle")}
@@ -201,28 +205,28 @@ export function EmployerProductPreview() {
                   </ul>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,11rem)_1fr] lg:gap-5 xl:gap-8">
-                  <div className="rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
+                <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,11rem)_1fr] lg:items-stretch lg:gap-5 xl:gap-8">
+                  <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
                       {t("previewSeekerColumnTitle")}
                     </div>
-                    <div className="mt-3 whitespace-pre-line text-sm leading-relaxed text-white/72">
+                    <div className="mt-3 flex-1 whitespace-pre-line text-sm leading-relaxed text-white/72">
                       {t(detailKey(selected, "SeekerBlock"))}
                     </div>
                   </div>
 
-                  <div className="flex justify-center lg:items-start lg:pt-1">
+                  <div className="flex h-full min-h-0 justify-center lg:items-center">
                     <PreviewScoreRing
                       score={applicants.find((x) => x.id === selected)!.score}
                       label={suitabilityLabel}
                     />
                   </div>
 
-                  <div className="rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
+                  <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
                       {t("previewJobColumnTitle")}
                     </div>
-                    <div className="mt-3 whitespace-pre-line text-sm leading-relaxed text-white/72">
+                    <div className="mt-3 flex-1 whitespace-pre-line text-sm leading-relaxed text-white/72">
                       {t(detailKey(selected, "JobBlock"))}
                     </div>
                   </div>
