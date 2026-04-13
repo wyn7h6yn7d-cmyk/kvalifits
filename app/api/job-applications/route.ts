@@ -56,19 +56,15 @@ export async function POST(req: Request) {
 
     const { data: certs, error: certErr } = await admin
       .from("seeker_certificates")
-      .select("certificate_name,certificate_issuer,certificate_image_url")
+      .select("certificate_name,certificate_issuer")
       .eq("user_id", user.id);
     if (certErr) throw certErr;
-
-    const certWithImage = (certs ?? []).filter(
-      (c) => ((c as { certificate_image_url?: string | null }).certificate_image_url ?? "").toString().trim().length > 0
-    ).length;
 
     const avatarOk = isSeekerAvatarFromStorageUpload(user.user_metadata?.avatar_url as string | undefined);
     const profileReady = seekerCoreComplete({
       avatarOk,
       seeker,
-      certRowsWithImage: certWithImage,
+      certRowsWithImage: 0,
     });
     if (!profileReady) {
       return NextResponse.json({ error: "seeker_profile_required" }, { status: 400 });

@@ -95,16 +95,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       certificate_valid_until: string;
       certificate_image_url: string;
     }>
-  >([
-    {
-      certificate_name: "",
-      certificate_number: "",
-      certificate_issuer: "",
-      certificate_valid_from: "",
-      certificate_valid_until: "",
-      certificate_image_url: "",
-    },
-  ]);
+  >([]);
 
   async function onCertificateFileChange(idx: number, file: File | null) {
     if (!file) return;
@@ -223,18 +214,16 @@ export function SeekerOnboardingForm({ locale }: Props) {
       if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
       if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
 
-      const validCerts = certificates.filter(
-        (c) =>
-          c.certificate_name.trim() &&
-          c.certificate_number.trim() &&
-          c.certificate_issuer.trim() &&
-          c.certificate_valid_from &&
-          c.certificate_valid_until &&
-          c.certificate_image_url.trim()
-      );
-      if (validCerts.length < 1) throw new Error(t("errCertificateIncomplete"));
-
-      const certImageCount = validCerts.filter((c) => c.certificate_image_url.trim()).length;
+      // Certificates are optional. If provided, only persist reasonably complete rows.
+      const validCerts = certificates
+        .map((c) => ({
+          ...c,
+          certificate_name: c.certificate_name.trim(),
+          certificate_number: c.certificate_number.trim(),
+          certificate_issuer: c.certificate_issuer.trim(),
+          certificate_image_url: c.certificate_image_url.trim(),
+        }))
+        .filter((c) => c.certificate_name && c.certificate_issuer);
       const isComplete = seekerCoreComplete({
         avatarOk: isSeekerAvatarFromStorageUpload(avatarUrl),
         seeker: {
@@ -248,7 +237,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
           preferred_job_types: preferredJobTypes,
           preferred_locations: preferredLocations,
         },
-        certRowsWithImage: certImageCount,
+        certRowsWithImage: 0,
       });
 
       const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
@@ -278,17 +267,20 @@ export function SeekerOnboardingForm({ locale }: Props) {
         .eq("user_id", user.id);
       if (delErr) throw delErr;
 
-      const rows = validCerts.map((c) => ({
-        user_id: user.id,
-        certificate_name: c.certificate_name.trim(),
-        certificate_number: c.certificate_number.trim(),
-        certificate_issuer: c.certificate_issuer.trim(),
-        certificate_valid_from: c.certificate_valid_from,
-        certificate_valid_until: c.certificate_valid_until,
-        certificate_image_url: c.certificate_image_url.trim(),
-      }));
-      const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
-      if (certErr) throw certErr;
+      if (validCerts.length) {
+        const rows = validCerts.map((c) => ({
+          user_id: user.id,
+          certificate_name: c.certificate_name,
+          certificate_number: c.certificate_number || null,
+          certificate_issuer: c.certificate_issuer,
+          certificate_valid_from: c.certificate_valid_from || null,
+          certificate_valid_until: c.certificate_valid_until || null,
+          // Kept for storage uploads (user never enters URL manually).
+          certificate_image_url: c.certificate_image_url || null,
+        }));
+        const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
+        if (certErr) throw certErr;
+      }
 
       router.push(`/${locale}/onboarding`);
       router.refresh();
@@ -585,7 +577,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                         )
                       )
                     }
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -618,7 +609,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                         )
                       )
                     }
-                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -635,7 +625,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                         )
                       )
                     }
-                    required
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
@@ -651,23 +640,6 @@ export function SeekerOnboardingForm({ locale }: Props) {
                     className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
                   />
                   <div className="text-xs text-white/45">{t("certificateImageUploadHint")}</div>
-                  <div className="mt-2 space-y-2">
-                    <label className="text-xs font-medium tracking-wide text-white/55">
-                      {t("certificateImageUrl")}
-                    </label>
-                    <Input
-                      value={c.certificate_image_url}
-                      onChange={(e) =>
-                        setCertificates((prev) =>
-                          prev.map((x, i) =>
-                            i === idx ? { ...x, certificate_image_url: e.target.value } : x
-                          )
-                        )
-                      }
-                      placeholder={t("certificateImageUrlHint")}
-                      inputMode="url"
-                    />
-                  </div>
                 </div>
               </div>
             </div>

@@ -18,7 +18,7 @@ type Certificate = {
   certificate_issuer: string;
   certificate_valid_from: string;
   certificate_valid_until: string;
-  certificate_image_url: string;
+  certificate_image_url?: string | null;
 };
 
 type Props = {
@@ -109,18 +109,9 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     initial.certificates.length
       ? initial.certificates.map((c) => ({
           ...c,
-          certificate_image_url: c.certificate_image_url ?? "",
+          certificate_image_url: (c as any).certificate_image_url ?? "",
         }))
-      : [
-          {
-            certificate_name: "",
-            certificate_number: "",
-            certificate_issuer: "",
-            certificate_valid_from: "",
-            certificate_valid_until: "",
-            certificate_image_url: "",
-          },
-        ]
+      : []
   );
 
   useEffect(() => {
@@ -222,18 +213,16 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
       if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
 
-      const validCerts = certificates.filter(
-        (c) =>
-          c.certificate_name.trim() &&
-          c.certificate_number.trim() &&
-          c.certificate_issuer.trim() &&
-          c.certificate_valid_from &&
-          c.certificate_valid_until &&
-          c.certificate_image_url.trim()
-      );
-      if (validCerts.length < 1) throw new Error(t("errCertificateIncomplete"));
-
-      const certImageCount = validCerts.filter((c) => c.certificate_image_url.trim()).length;
+      // Certificates are optional. If provided, only persist reasonably complete rows.
+      const validCerts = certificates
+        .map((c) => ({
+          ...c,
+          certificate_name: c.certificate_name.trim(),
+          certificate_number: c.certificate_number.trim(),
+          certificate_issuer: c.certificate_issuer.trim(),
+          certificate_image_url: (c.certificate_image_url ?? "").trim(),
+        }))
+        .filter((c) => c.certificate_name && c.certificate_issuer);
       const isComplete = seekerCoreComplete({
         avatarOk: isSeekerAvatarFromStorageUpload(avatarUrl),
         seeker: {
@@ -247,7 +236,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           preferred_job_types: preferredJobTypes,
           preferred_locations: preferredLocations,
         },
-        certRowsWithImage: certImageCount,
+        certRowsWithImage: 0,
       });
 
       const { error: metaErr } = await supabase.auth.updateUser({
@@ -278,17 +267,20 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       const { error: delErr } = await supabase.from("seeker_certificates").delete().eq("user_id", user.id);
       if (delErr) throw delErr;
 
-      const rows = validCerts.map((c) => ({
-        user_id: user.id,
-        certificate_name: c.certificate_name.trim(),
-        certificate_number: c.certificate_number.trim(),
-        certificate_issuer: c.certificate_issuer.trim(),
-        certificate_valid_from: c.certificate_valid_from,
-        certificate_valid_until: c.certificate_valid_until,
-        certificate_image_url: c.certificate_image_url.trim(),
-      }));
-      const { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
-      if (insErr) throw insErr;
+      if (validCerts.length) {
+        const rows = validCerts.map((c) => ({
+          user_id: user.id,
+          certificate_name: c.certificate_name,
+          certificate_number: c.certificate_number || null,
+          certificate_issuer: c.certificate_issuer,
+          certificate_valid_from: c.certificate_valid_from || null,
+          certificate_valid_until: c.certificate_valid_until || null,
+          // Kept for storage uploads (user never enters URL manually).
+          certificate_image_url: c.certificate_image_url || null,
+        }));
+        const { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
+        if (insErr) throw insErr;
+      }
 
       router.refresh();
     } catch (err) {
@@ -527,23 +519,23 @@ export function SeekerProfileForm({ locale, initial }: Props) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateName")}</label>
-                  <Input value={c.certificate_name} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_name: e.target.value } : x)))} required />
+                  <Input value={c.certificate_name} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_name: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateNumber")}</label>
-                  <Input value={c.certificate_number} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_number: e.target.value } : x)))} required />
+                  <Input value={c.certificate_number} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_number: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateIssuer")}</label>
-                  <Input value={c.certificate_issuer} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_issuer: e.target.value } : x)))} required />
+                  <Input value={c.certificate_issuer} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_issuer: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidFrom")}</label>
-                  <Input type="date" value={c.certificate_valid_from} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_from: e.target.value } : x)))} required />
+                  <Input type="date" value={c.certificate_valid_from} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_from: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidUntil")}</label>
-                  <Input type="date" value={c.certificate_valid_until} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_until: e.target.value } : x)))} required />
+                  <Input type="date" value={c.certificate_valid_until} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_until: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateImage")}</label>
@@ -554,19 +546,6 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                     className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
                   />
                   <div className="text-xs text-white/45">{t("certificateImageUploadHint")}</div>
-                  <div className="mt-2 space-y-2">
-                    <label className="text-xs font-medium tracking-wide text-white/55">{t("certificateImageUrl")}</label>
-                    <Input
-                      value={c.certificate_image_url}
-                      onChange={(e) =>
-                        setCertificates((prev) =>
-                          prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: e.target.value } : x))
-                        )
-                      }
-                      placeholder={t("certificateImageUrlHint")}
-                      inputMode="url"
-                    />
-                  </div>
                 </div>
               </div>
             </div>

@@ -64,6 +64,7 @@ export type SeekerCoreFields = {
 export function seekerCoreComplete(args: {
   avatarOk: boolean;
   seeker: SeekerCoreFields | null;
+  /** Legacy param kept for compatibility; certificates are optional now. */
   certRowsWithImage: number;
 }): boolean {
   const s = args.seeker;
@@ -81,7 +82,6 @@ export function seekerCoreComplete(args: {
   const jt = Array.isArray(s.preferred_job_types) ? s.preferred_job_types.filter(Boolean) : [];
   const loc = Array.isArray(s.preferred_locations) ? s.preferred_locations.filter(Boolean) : [];
   if (jt.length < 1 || loc.length < 1) return false;
-  if (args.certRowsWithImage < 1) return false;
   return true;
 }
 

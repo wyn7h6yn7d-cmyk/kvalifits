@@ -47,16 +47,13 @@ export async function getRoleAndNextPath(locale: string) {
 
     const { data: certRows } = await supabase
       .from("seeker_certificates")
-      .select("certificate_image_url")
+      .select("id")
       .eq("user_id", user.id);
-
-    const certWithImage = (certRows ?? []).filter((c) => (c.certificate_image_url ?? "").toString().trim().length > 0)
-      .length;
 
     const isComplete = seekerCoreComplete({
       avatarOk,
       seeker: seeker ?? null,
-      certRowsWithImage: certWithImage,
+      certRowsWithImage: 0,
     });
     return {
       user,

@@ -37,7 +37,7 @@ export default async function SeekerAccountPage({ params }: Props) {
   const { data: certs } = await supabase
     .from("seeker_certificates")
     .select(
-      "id,certificate_name,certificate_number,certificate_issuer,certificate_valid_from,certificate_valid_until,certificate_image_url"
+      "id,certificate_name,certificate_number,certificate_issuer,certificate_valid_from,certificate_valid_until"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
