@@ -454,6 +454,7 @@
     "seekerViewJob": "Открыть вакансию",
     "seekerWithdraw": "Отозвать отклик",
     "seekerWithdrawConfirm": "Отозвать этот отклик? Работодатель больше не увидит вас как активного кандидата.",
+    "seekerWithdrawPolicyFixHint": "Не удалось отозвать отклик (политика безопасности). Запустите миграцию Supabase `20260424_job_applications_withdraw_policy.sql` или добавьте UPDATE-политику для `job_applications`.",
     "seekerNextStepHint": "Дальше: ждите ответ или пересмотрите вакансию.",
     "seekerWithdrawnHint": "Отклик отозван. При необходимости можно откликнуться снова.",
     "seekerApplicationStatus_submitted": "Отправлено",

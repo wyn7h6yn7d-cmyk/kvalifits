@@ -78,15 +78,23 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
       if (userErr) throw userErr;
       if (!user) throw new Error(t("notAuthed"));
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("job_applications")
         .update({ status: "withdrawn", updated_at: new Date().toISOString() })
         .eq("id", id)
-        .eq("seeker_user_id", user.id)
-        .select("id");
+        .eq("seeker_user_id", user.id);
       if (error) throw error;
-      if (!data?.length) {
-        throw new Error(t("unknownError"));
+
+      // Verify persistence (some DBs may be missing UPDATE policy; update can be a no-op without error).
+      const { data: check, error: checkErr } = await supabase
+        .from("job_applications")
+        .select("status")
+        .eq("id", id)
+        .eq("seeker_user_id", user.id)
+        .maybeSingle();
+      if (checkErr) throw checkErr;
+      if ((check?.status ?? "").toString().toLowerCase() !== "withdrawn") {
+        throw new Error(t("seekerWithdrawPolicyFixHint"));
       }
 
       // Remove immediately from the list (premium UX + matches server-side filter).

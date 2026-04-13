@@ -454,6 +454,7 @@
     "seekerViewJob": "Ava kuulutus",
     "seekerWithdraw": "Võta avaldus tagasi",
     "seekerWithdrawConfirm": "Kas võtta see kandideerimine tagasi? Tööandja ei näe seda enam aktiivse kandidaadina.",
+    "seekerWithdrawPolicyFixHint": "Avalduse tagasivõtmine ebaõnnestus (turvapoliitika). Palun käivita Supabase SQL-is migratsioon `20260424_job_applications_withdraw_policy.sql` või lisa UPDATE policy `job_applications` tabelile.",
     "seekerNextStepHint": "Järgmine samm: oota tagasisidet või vaata kuulutus üle.",
     "seekerWithdrawnHint": "Avaldus on tagasi võetud. Soovi korral saad kandideerida uuesti.",
     "seekerApplicationStatus_submitted": "Kandideeritud",

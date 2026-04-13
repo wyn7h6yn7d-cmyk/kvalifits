@@ -454,6 +454,7 @@
     "seekerViewJob": "View job",
     "seekerWithdraw": "Withdraw",
     "seekerWithdrawConfirm": "Withdraw this application? The employer will no longer see you as an active applicant.",
+    "seekerWithdrawPolicyFixHint": "Withdrawing failed (security policy). Run Supabase migration `20260424_job_applications_withdraw_policy.sql` or add an UPDATE policy on `job_applications`.",
     "seekerNextStepHint": "Next: wait for updates or review the job post.",
     "seekerWithdrawnHint": "This application has been withdrawn. You can apply again if needed.",
     "seekerApplicationStatus_submitted": "Submitted",
