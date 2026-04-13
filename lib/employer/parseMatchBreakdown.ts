@@ -49,6 +49,8 @@ export function parseMatchBreakdown(raw: unknown): Partial<MatchBreakdown> | nul
       penalty_codes: Array.isArray(o.penalty_codes)
         ? (o.penalty_codes as unknown[]).filter((x): x is string => typeof x === "string")
         : [],
+      score_before_soft_floor: num(o.score_before_soft_floor),
+      soft_floor_applied: num(o.soft_floor_applied),
     };
   }
 

@@ -18,6 +18,7 @@ export function RegisterForm({ locale }: { locale: string }) {
   const [role, setRole] = useState<Role>("seeker");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +28,10 @@ export function RegisterForm({ locale }: { locale: string }) {
     setError(null);
 
     try {
+      if (password !== passwordConfirm) {
+        throw new Error(t("errorPasswordMismatch"));
+      }
+
       const supabase = createSupabaseBrowserClient();
       const redirectTo = `${window.location.origin}/${locale}/auth/callback`;
 
@@ -161,6 +166,21 @@ export function RegisterForm({ locale }: { locale: string }) {
           required
           minLength={8}
           placeholder={t("passwordPlaceholder")}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-xs font-medium tracking-wide text-white/65">
+          {t("passwordConfirm")}
+        </label>
+        <Input
+          value={passwordConfirm}
+          onChange={(e) => setPasswordConfirm(e.target.value)}
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          placeholder={t("passwordConfirmPlaceholder")}
         />
       </div>
 

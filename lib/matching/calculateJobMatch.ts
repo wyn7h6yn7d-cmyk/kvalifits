@@ -7,7 +7,7 @@ import {
 } from "@/lib/matching/normalization";
 
 /** MVP weighted suitability (deterministic). Version bumps when the model changes. */
-export const MATCH_MODEL_VERSION = 3 as const;
+export const MATCH_MODEL_VERSION = 4 as const;
 
 /** Fixed employer-facing weights (sum = 100). */
 export const MATCH_WEIGHTS = {
@@ -94,6 +94,11 @@ export type MatchBreakdown = {
   /** Deterministic penalties (v3+). */
   penalty_points?: number;
   penalty_codes?: string[];
+
+  /** v4: after penalties + caps, before soft minimum (explainability). */
+  score_before_soft_floor?: number;
+  /** v4: points added by soft floor so partial positives stay visible (0 if unused). */
+  soft_floor_applied?: number;
 };
 
 const EXP_RANK: Record<string, number> = {
@@ -392,6 +397,54 @@ function weakAreasFrom(args: {
   return w;
 }
 
+/**
+ * v4: When penalties/caps would crush a profile that still has real partial signals
+ * (experience + location and/or light professional overlap), keep a small visible minimum.
+ * Deterministic; capped so random/irrelevant rows stay near 0.
+ */
+function computeSoftFloorPercent(args: {
+  skRaw: number;
+  expRaw: number;
+  roleRaw: number;
+  locRaw: number;
+  wjtRaw: number;
+  cSkills: number;
+  cEx: number;
+  cLoc: number;
+  cRole: number;
+  cCert: number;
+}): number {
+  const { skRaw, expRaw, roleRaw, locRaw, wjtRaw, cSkills, cEx, cLoc, cRole, cCert } = args;
+
+  // Hard irrelevant: no professional hint and no contextual alignment.
+  if (skRaw < 0.12 && roleRaw < 0.12 && locRaw < 0.42 && expRaw < 0.38) return 0;
+
+  const anyProfessional = skRaw >= 0.16 || roleRaw >= 0.14;
+  const contextOk = locRaw >= 0.55 || expRaw >= 0.45;
+  const expLocStrong = expRaw >= 0.58 && locRaw >= 0.72;
+
+  let f = 0;
+
+  if (expLocStrong) f = Math.max(f, 15);
+  if (expRaw >= 0.45 && locRaw >= 0.8) f = Math.max(f, 13);
+  if ((skRaw >= 0.22 || roleRaw >= 0.18) && (expRaw >= 0.45 || locRaw >= 0.55)) {
+    f = Math.max(f, 14);
+  }
+  if (skRaw >= 0.28 && roleRaw >= 0.18) f = Math.max(f, 17);
+  if (cSkills + cRole >= 9 && cEx + cLoc >= 7) f = Math.max(f, 16);
+  if (cCert >= 6 && (skRaw >= 0.2 || roleRaw >= 0.16)) f = Math.max(f, 12);
+
+  // Weak-but-related: tiny visible band when context + slight professional hint exists.
+  if (f === 0 && anyProfessional && contextOk) f = Math.max(f, 10);
+  if (f === 0 && skRaw >= 0.16 && locRaw >= 0.68) f = Math.max(f, 9);
+  if (f === 0 && wjtRaw >= 0.55 && anyProfessional && (cEx + cLoc) >= 5) f = Math.max(f, 8);
+
+  // Do not over-lift clearly mismatched professional signals.
+  if (skRaw < 0.14 && roleRaw < 0.14 && !expLocStrong) return Math.min(f, 6);
+
+  return Math.min(Math.round(f), 32);
+}
+
 export function calculateJobMatch(
   seeker: SeekerMatchInput,
   certs: SeekerCertificateInput[],
@@ -426,51 +479,45 @@ export function calculateJobMatch(
 
   const reqRatio = sk.requirementsTotal > 0 ? sk.requirementsMatched / sk.requirementsTotal : 0;
 
-  // No meaningful professional overlap (skills+requirements).
+  // v4: penalties stay meaningful but must not routinely erase partial real-world fit.
   if (sk.raw < 0.18) {
     penaltyCodes.push("no_skill_requirements_overlap");
-    penaltyPoints += 8;
+    penaltyPoints += 3;
   } else if (sk.raw < 0.3) {
     penaltyCodes.push("weak_skill_requirements_overlap");
-    penaltyPoints += 4;
+    penaltyPoints += 2;
   }
 
-  // Role/title mismatch should matter.
   if (role < 0.14) {
     penaltyCodes.push("role_title_mismatch");
-    penaltyPoints += 8;
+    penaltyPoints += 4;
   } else if (role < 0.28) {
     penaltyCodes.push("weak_role_title_alignment");
-    penaltyPoints += 3;
+    penaltyPoints += 2;
   }
 
-  // Certificates: if job specifies certs, missing overlap is a strong negative.
   if (cert.slots > 0) {
     if (cert.raw < 0.34) {
       penaltyCodes.push("missing_required_certificates");
-      penaltyPoints += 10;
+      penaltyPoints += 5;
     } else if (cert.raw < 0.6) {
       penaltyCodes.push("partial_certificates");
-      penaltyPoints += 4;
+      penaltyPoints += 2;
     }
   }
 
-  // Requirements: if job has multiple lines but match is near-zero, penalize.
   if (sk.requirementsTotal >= 3 && reqRatio < 0.2) {
     penaltyCodes.push("requirements_mismatch");
-    penaltyPoints += 5;
+    penaltyPoints += 2;
   }
 
-  // If both core professional signals are weak, apply an extra damping.
   if (sk.raw < 0.22 && role < 0.22) {
     penaltyCodes.push("professional_alignment_missing");
-    penaltyPoints += 6;
+    penaltyPoints += 3;
   }
 
-  // First apply additive penalties.
   score = score - penaltyPoints;
 
-  // Apply strict, explainable caps for clear mismatches (converted into extra penalty points).
   function applyCap(code: string, cap: number) {
     if (score > cap) {
       const delta = score - cap;
@@ -480,20 +527,30 @@ export function calculateJobMatch(
     }
   }
 
-  // If there's essentially no skills/requirements overlap, don't let other signals inflate the score.
-  if (sk.raw < 0.18) applyCap("cap_no_skill_overlap", 25);
+  // Softer caps: block “false strong” fits without zeroing partial candidates by default.
+  if (sk.raw < 0.18) applyCap("cap_no_skill_overlap", 44);
+  if (role < 0.14) applyCap("cap_role_title_mismatch", 52);
+  if (cert.slots > 0 && cert.raw < 0.34) applyCap("cap_missing_required_certificates", 55);
+  if (sk.raw < 0.22 && role < 0.22) applyCap("cap_professional_alignment_missing", 36);
 
-  // If role/title is a clear mismatch, cap the score.
-  if (role < 0.14) applyCap("cap_role_title_mismatch", 30);
+  let scoreBeforeSoftFloor = clampScore(score);
 
-  // If job explicitly requires certificates and there's no meaningful evidence, cap the score.
-  if (cert.slots > 0 && cert.raw < 0.34) applyCap("cap_missing_required_certificates", 35);
+  const softFloor = computeSoftFloorPercent({
+    skRaw: sk.raw,
+    expRaw: ex,
+    roleRaw: role,
+    locRaw: loc,
+    wjtRaw: wjt,
+    cSkills,
+    cEx,
+    cLoc,
+    cRole,
+    cCert,
+  });
 
-  // If both core professional signals are weak at the same time, apply a stricter cap.
-  if (sk.raw < 0.22 && role < 0.22) applyCap("cap_professional_alignment_missing", 20);
-
-  // Final clamp (0–100).
-  score = clampScore(score);
+  const finalScore = clampScore(Math.max(scoreBeforeSoftFloor, softFloor));
+  const softFloorApplied = finalScore - scoreBeforeSoftFloor;
+  score = finalScore;
 
   const weak = weakAreasFrom({
     skillsKw: sk.raw,
@@ -507,11 +564,11 @@ export function calculateJobMatch(
 
   const highlights: string[] = [];
   if (sk.raw >= 0.72) highlights.push("skillsStrong");
-  else if (sk.raw >= 0.42) highlights.push("skillsPartial");
+  else if (sk.raw >= 0.38) highlights.push("skillsPartial");
   if (sk.requirementsTotal && sk.requirementsMatched / sk.requirementsTotal >= 0.62) highlights.push("requirementsStrong");
   else if (sk.requirementsTotal && sk.requirementsMatched > 0) highlights.push("requirementsPartial");
-  if (ex >= 0.9) highlights.push("experienceFit");
-  if (loc >= 0.85) highlights.push("locationFit");
+  if (ex >= 0.75) highlights.push("experienceFit");
+  if (loc >= 0.72) highlights.push("locationFit");
   if (cert.raw >= 0.72 && cert.slots > 0) highlights.push("certificatesStrong");
   else if (cert.raw >= 0.55) highlights.push("certificatesSignal");
   if (cert.slots > 0 && cert.raw < 0.35) highlights.push("certificateGap");
@@ -543,6 +600,8 @@ export function calculateJobMatch(
     highlights,
     penalty_points: penaltyPoints,
     penalty_codes: penaltyCodes,
+    score_before_soft_floor: scoreBeforeSoftFloor,
+    soft_floor_applied: softFloorApplied,
   };
 
   return { score, breakdown };

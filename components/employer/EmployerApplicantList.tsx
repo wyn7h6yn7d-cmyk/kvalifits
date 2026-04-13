@@ -159,11 +159,11 @@ export async function EmployerApplicantList({
                   <div className="absolute -bottom-12 -left-10 h-32 w-32 rounded-full bg-fuchsia-500/8 blur-3xl" />
                 </div>
 
-                <div className="relative flex flex-col gap-5 sm:flex-row sm:items-stretch sm:justify-between sm:gap-8">
+                <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-7">
                   {/* Mobile: score first for quick scan */}
                   <div
                     className={cn(
-                      "order-1 flex flex-row items-center gap-4 sm:order-2 sm:flex-col sm:items-end sm:justify-between",
+                      "order-1 flex flex-row items-center gap-4 sm:order-2 sm:flex-col sm:items-end sm:justify-start sm:gap-3 sm:pt-1",
                       isTop ? "justify-between" : "justify-end"
                     )}
                   >
@@ -175,7 +175,7 @@ export async function EmployerApplicantList({
                     <ScoreBadge score={score} label={t("applicantsSuitability")} />
                   </div>
 
-                  <div className="order-2 min-w-0 flex-1 space-y-3 sm:order-1">
+                  <div className="order-2 min-w-0 flex-1 space-y-3.5 sm:order-1">
                     <div className="flex flex-wrap items-start gap-3">
                       {showRank ? (
                         <span
@@ -211,7 +211,7 @@ export async function EmployerApplicantList({
                           </div>
 
                           <div className="min-w-0 flex-1">
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-0.5">
                               <span className="text-[17px] font-semibold leading-snug tracking-tight text-white/95 sm:text-lg">
                                 {name}
                               </span>
@@ -229,7 +229,7 @@ export async function EmployerApplicantList({
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 text-[13px] text-white/52 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
+                    <div className="flex flex-col gap-2 text-[13px] leading-snug text-white/52 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
                         <span className="min-w-0 text-white/65">{location === "—" ? t("applicantsNoLocation") : location}</span>
@@ -237,8 +237,9 @@ export async function EmployerApplicantList({
                       <span className="hidden h-1 w-1 shrink-0 rounded-full bg-white/20 sm:inline-block" aria-hidden />
                       <span className="inline-flex items-center gap-1.5">
                         <CalendarDays className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
-                        <span>
-                          {t("applicantsApplied")} {dateLabel}
+                        <span className="text-white/60">
+                          {t("applicantsApplied")}{" "}
+                          <span className="text-white/70">{dateLabel}</span>
                         </span>
                       </span>
                     </div>
@@ -255,7 +256,7 @@ export async function EmployerApplicantList({
                       <p className="border-l-2 border-violet-400/35 pl-3 text-[13px] leading-relaxed text-white/62">{clue}</p>
                     ) : null}
 
-                    <div className="flex items-center gap-1.5 pt-1 text-[12px] font-medium text-white/40 transition-colors group-hover:text-white/55">
+                    <div className="flex items-center gap-1.5 pt-2 text-[12px] font-medium text-white/40 transition-colors group-hover:text-white/55">
                       <span>{t("applicantsViewDetail")}</span>
                       <ChevronRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden />
                     </div>
