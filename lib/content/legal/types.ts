@@ -23,6 +23,10 @@ export type LegalDocument = {
 export type ContactBlock = {
   title: string;
   lines: string[];
+  /** Optional header icon in the contact page cards */
+  icon?: "building2" | "mail" | "clock" | "phone" | "share2";
+  /** Column span on sm+ grid (default 1) */
+  span?: 1 | 2;
 };
 
 export type ContactPageContent = {
@@ -41,6 +45,11 @@ export type ContactPageContent = {
     submitLabel: string;
     privacyHint: string;
     successNote: string;
+  };
+  /** Short heading above the mailto form (right column) */
+  formAside?: {
+    title: string;
+    lead: string;
   };
   footnote?: string;
 };

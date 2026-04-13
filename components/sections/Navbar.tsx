@@ -21,18 +21,21 @@ const GUEST_NAV_PATHS = [
   { href: "/tooandjatele", key: "employers" as const },
   { href: "/toootsijatele", key: "seekers" as const },
   { href: "/tood", key: "jobs" as const },
+  { href: "/kontakt", key: "contact" as const },
 ];
 
 const SEEKER_NAV_PATHS = [
   { href: "/", key: "home" as const },
   { href: "/tood", key: "jobs" as const },
   { href: "/account/seeker/applications", key: "seekerApplications" as const },
+  { href: "/kontakt", key: "contact" as const },
 ];
 
 const EMPLOYER_NAV_PATHS = [
   { href: "/", key: "home" as const },
   { href: "/hinnakiri", key: "pricing" as const },
   { href: "/account/employer/jobs", key: "myJobs" as const },
+  { href: "/kontakt", key: "contact" as const },
 ];
 
 // Admins should still be able to navigate the public site easily.
@@ -41,6 +44,7 @@ const ADMIN_NAV_PATHS = [
   { href: "/tooandjatele", key: "employers" as const },
   { href: "/toootsijatele", key: "seekers" as const },
   { href: "/tood", key: "jobs" as const },
+  { href: "/kontakt", key: "contact" as const },
   { href: "/admin", key: "admin" as const },
 ];
 

@@ -2,6 +2,7 @@ import { companyEN } from "./company.en";
 import { companyET } from "./company.et";
 import { contactEN } from "./contact.en";
 import { contactET } from "./contact.et";
+import { contactRU } from "./contact.ru";
 import { cookiesEN } from "./cookies.en";
 import { cookiesET } from "./cookies.et";
 import { dataRightsEN } from "./data-rights.en";
@@ -57,7 +58,7 @@ const companyByLocale: Record<LegalLocale, CompanyPageContent> = {
 const contactByLocale: Record<LegalLocale, ContactPageContent> = {
   et: contactET,
   en: contactEN,
-  ru: contactEN,
+  ru: contactRU,
 };
 
 export const LEGAL_LOCALES: readonly LegalLocale[] = ["et", "en", "ru"];
