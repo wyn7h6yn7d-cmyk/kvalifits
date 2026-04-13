@@ -175,9 +175,10 @@ export function RegisterForm({ locale }: { locale: string }) {
         variant="primary"
         size="lg"
         className="w-full"
-        disabled={loading}
+        loading={loading}
+        loadingText={t("loading")}
       >
-        {loading ? t("loading") : t("registerCta")}
+        {t("registerCta")}
       </Button>
 
       <div className="text-center text-xs text-white/55">

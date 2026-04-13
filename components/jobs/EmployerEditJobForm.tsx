@@ -384,8 +384,15 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
         </div>
       ) : null}
 
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
-        {loading ? t("saving") : t("save")}
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        className="w-full"
+        loading={loading}
+        loadingText={t("saving")}
+      >
+        {t("save")}
       </Button>
     </form>
   );

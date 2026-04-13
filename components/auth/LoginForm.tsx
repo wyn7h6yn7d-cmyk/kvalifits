@@ -78,9 +78,10 @@ export function LoginForm({ locale }: { locale: string }) {
         variant="primary"
         size="lg"
         className="w-full"
-        disabled={loading}
+        loading={loading}
+        loadingText={t("loading")}
       >
-        {loading ? t("loading") : t("login")}
+        {t("login")}
       </Button>
 
       <div className="flex items-center justify-between text-xs text-white/55">

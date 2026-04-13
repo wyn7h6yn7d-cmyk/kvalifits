@@ -566,8 +566,16 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         </div>
       ) : null}
 
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading || avatarUploading}>
-        {loading ? t("saving") : t("saveAndContinue")}
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        className="w-full"
+        disabled={avatarUploading}
+        loading={loading}
+        loadingText={t("saving")}
+      >
+        {t("saveAndContinue")}
       </Button>
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">

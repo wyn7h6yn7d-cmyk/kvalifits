@@ -155,8 +155,15 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         </div>
       ) : null}
 
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
-        {loading ? t("saving") : t("saveAndContinue")}
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        className="w-full"
+        loading={loading}
+        loadingText={t("saving")}
+      >
+        {t("saveAndContinue")}
       </Button>
     </form>
   );

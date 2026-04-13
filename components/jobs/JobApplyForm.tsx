@@ -160,8 +160,15 @@ export function JobApplyForm({ locale, jobPostId }: Props) {
       ) : null}
 
       <div className="mt-4">
-        <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
-          {loading ? t("applySending") : t("applyCta")}
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full"
+          loading={loading}
+          loadingText={t("applySending")}
+        >
+          {t("applyCta")}
         </Button>
       </div>
     </form>

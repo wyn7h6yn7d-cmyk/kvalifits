@@ -8,6 +8,7 @@ import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn, errorMessageFromUnknown } from "@/lib/utils";
 import { Link } from "@/i18n/routing";
+import { Button } from "@/components/ui/button";
 
 type Row = {
   id: string;
@@ -182,18 +183,19 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                       ) : null}
 
                       {!withdrawn ? (
-                        <button
+                        <Button
                           type="button"
                           onClick={() => void withdraw(r.id)}
-                          disabled={busyId === r.id}
                           className={cn(
-                            "inline-flex h-9 items-center rounded-xl border px-3 text-[13px] font-medium transition-colors",
+                            "h-9 rounded-xl px-3 text-[13px] font-medium transition-colors",
                             "border-white/[0.10] bg-white/[0.03] text-rose-100/75 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-100/90",
                             busyId === r.id && "opacity-60"
                           )}
+                          loading={busyId === r.id}
+                          loadingText={t("saving")}
                         >
-                          {busyId === r.id ? t("saving") : t("seekerWithdraw")}
-                        </button>
+                          {t("seekerWithdraw")}
+                        </Button>
                       ) : null}
                     </div>
                   </div>

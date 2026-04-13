@@ -278,10 +278,11 @@ export function EmployerNewJobForm({ locale }: Props) {
             variant="primary"
             size="lg"
             className="w-full"
-            disabled={loading}
+            loading={loading}
+            loadingText={t("saving")}
             onClick={() => void saveDraft("payment")}
           >
-            {loading ? t("saving") : t("publishNow")}
+            {t("publishNow")}
           </Button>
           <div className="mt-2 text-xs text-white/50">{t("publishHint")}</div>
         </div>
@@ -493,8 +494,15 @@ export function EmployerNewJobForm({ locale }: Props) {
         </div>
       ) : null}
 
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={loading}>
-        {loading ? t("saving") : t("publishNow")}
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        className="w-full"
+        loading={loading}
+        loadingText={t("saving")}
+      >
+        {t("publishNow")}
       </Button>
     </form>
   );
