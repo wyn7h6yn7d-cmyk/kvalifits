@@ -1,4 +1,10 @@
 import { EXPERIENCE_LEVEL_VALUES, isExperienceLevel } from "@/lib/matching/profileRules";
+import {
+  tokenizeToCanonSet,
+  overlapJaccard,
+  jaccardToStrength,
+  strengthToScore,
+} from "@/lib/matching/normalization";
 
 /** MVP weighted suitability (deterministic). Version bumps when the model changes. */
 export const MATCH_MODEL_VERSION = 3 as const;
@@ -98,23 +104,6 @@ const EXP_RANK: Record<string, number> = {
   executive: 5,
 };
 
-const STOP = new Set([
-  "and",
-  "or",
-  "the",
-  "for",
-  "a",
-  "an",
-  "of",
-  "in",
-  "to",
-  "with",
-  "on",
-  "at",
-  "as",
-  "by",
-]);
-
 function normBlob(parts: (string | null | undefined)[]) {
   return parts
     .filter(Boolean)
@@ -135,79 +124,8 @@ function words(s: string) {
 }
 
 function significantWords(s: string) {
-  return words(normBlob([s])).filter((w) => w.length > 2 && !STOP.has(w));
-}
-
-/**
- * Small deterministic generalization layer.
- * We avoid black-box semantics but allow controlled related-word matching.
- *
- * Approach:
- * - normalize -> tokens
- * - conservative stemming (mainly plural/case endings)
- * - canonicalize via compact synonym families
- */
-const SYN_FAMILIES: Record<string, string[]> = {
-  // Trades / roles (ET)
-  elektrik: ["elektrik", "elektritood", "elektritoo", "elektripaigaldaja", "elektripaigaldus", "elektrialane"],
-  plekksepp: ["plekksepp", "plekitood", "plekitoo", "plekidetail", "plekist", "metallitooline", "metallitood", "metallitööline"],
-  ventilatsioon: ["ventilatsioon", "ventilatsiooni", "hvac", "kliima", "kliimaseade", "kliimaseadmed"],
-  ehitus: ["ehitus", "ehitaja", "ehitustood", "ehitustoo"],
-  paigaldus: ["paigaldus", "paigaldaja", "montaaž", "montaa", "install", "installer"],
-
-  // Tools / tech
-  cad: ["cad", "autocad", "auto-cad"],
-  autocad: ["autocad", "auto-cad"],
-
-  // Certificates / qualifications (ET)
-  "a-padev": ["a-padev", "a-pädevus", "apadev", "apädevus"],
-  "b-padev": ["b-padev", "b-pädevus", "bpadev", "bpädevus"],
-  kutse: ["kutse", "kutsetunnistus", "kutsetase", "kutse4", "tase4", "kutse tase 4"],
-  toohutus: ["toohutus", "tööohutus", "ohutus", "ohutuskoolitus"],
-};
-
-const SYN_CANON: Map<string, string> = (() => {
-  const m = new Map<string, string>();
-  for (const [canon, variants] of Object.entries(SYN_FAMILIES)) {
-    for (const v of variants) {
-      const k = normBlob([v]);
-      if (k) m.set(k, canon);
-    }
-  }
-  return m;
-})();
-
-function stemToken(tok: string) {
-  const t = tok.trim();
-  if (t.length < 4) return t;
-  // Very conservative suffix stripping: handles common plural/declension endings without being language-specific.
-  const SUF = ["idega", "idele", "idelt", "idest", "idel", "idega", "idega", "id", "de", "te", "ga", "le", "lt", "st", "s", "d"];
-  for (const suf of SUF) {
-    if (t.length > suf.length + 2 && t.endsWith(suf)) {
-      return t.slice(0, -suf.length);
-    }
-  }
-  return t;
-}
-
-function tokenizeToCanonSet(textParts: Array<string | null | undefined>) {
-  const blob = normBlob(textParts);
-  const base = words(blob).filter((w) => w.length > 2 && !STOP.has(w));
-  const out = new Set<string>();
-  for (const raw of base) {
-    const stem = stemToken(raw);
-    const canon = SYN_CANON.get(stem) ?? SYN_CANON.get(raw) ?? stem;
-    if (canon.length > 1) out.add(canon);
-  }
-  return out;
-}
-
-function overlapScore(a: Set<string>, b: Set<string>) {
-  if (!a.size || !b.size) return 0;
-  let inter = 0;
-  for (const x of a) if (b.has(x)) inter++;
-  const union = a.size + b.size - inter;
-  return union ? inter / union : 0;
+  // Only used in a few heuristics; primary matching uses normalization token sets.
+  return words(normBlob([s])).filter((w) => w.length > 2);
 }
 
 function clamp01(x: number) {
@@ -247,11 +165,8 @@ function tagMatchStrength(
   const tagSet = tokenizeToCanonSet([tag]);
   if (!tagSet.size) return 0;
   const seekerSet = tokenizeToCanonSet([titleBlob, skillsBlob, ...Array.from(seekerSkillNorms)]);
-  const j = overlapScore(tagSet, seekerSet);
-  if (j >= 0.66) return 1;
-  if (j >= 0.38) return 0.6; // strong partial
-  if (j >= 0.2) return 0.35; // weak partial
-  return 0;
+  const j = overlapJaccard(tagSet, seekerSet);
+  return strengthToScore(jaccardToStrength(j));
 }
 
 /**
@@ -304,7 +219,7 @@ function skillsKeywordsRaw(
   for (const line of lines) {
     const lineSet = tokenizeToCanonSet([line]);
     if (!lineSet.size) continue;
-    const j = overlapScore(lineSet, seekerTokenSet);
+    const j = overlapJaccard(lineSet, seekerTokenSet);
     // Evidence thresholds:
     // - >=0.34: meaningful evidence
     // - >=0.55: strong evidence
@@ -361,7 +276,7 @@ function certificateRaw(
     let h = 0;
     for (const k of kwNeedle) {
       const kwSet = tokenizeToCanonSet([k]);
-      const j = overlapScore(kwSet, seekerCertSet);
+      const j = overlapJaccard(kwSet, seekerCertSet);
       if (j >= 0.34 || seekerBlob.includes(k)) h++;
     }
     // If we can only infer from keywords, keep the ceiling modest.
@@ -379,7 +294,7 @@ function certificateRaw(
       continue;
     }
     const slotSet = tokenizeToCanonSet([slot]);
-    const j = overlapScore(slotSet, seekerCertSet);
+    const j = overlapJaccard(slotSet, seekerCertSet);
     if (j >= 0.34) matched++;
   }
   return { raw: clamp01(matched / slots.length), slots: slots.length, matched };
@@ -406,7 +321,7 @@ function roleTitleRaw(seekerTitle: string | null, jobTitle: string | null): numb
   // Stricter: missing/empty titles shouldn't produce neutral score.
   if (!a.size && !b.size) return 0.18;
   if (!a.size || !b.size) return 0.08;
-  const j = overlapScore(a, b);
+  const j = overlapJaccard(a, b);
   const sub =
     normBlob([seekerTitle]).length > 4 &&
     normBlob([jobTitle]).length > 4 &&
