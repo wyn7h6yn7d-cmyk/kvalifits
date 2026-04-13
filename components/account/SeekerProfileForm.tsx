@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -54,6 +54,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const statusRef = useRef<HTMLDivElement | null>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
 
@@ -366,6 +367,9 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         }
         setError(shown);
       }
+      queueMicrotask(() => {
+        statusRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } finally {
       setLoading(false);
     }
@@ -373,6 +377,14 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
   return (
     <form noValidate onSubmit={onSubmit} className="space-y-6">
+      <div ref={statusRef} className="scroll-mt-24 space-y-3" aria-live="polite">
+        {error ? (
+          <div className="whitespace-pre-line rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+            {error}
+          </div>
+        ) : null}
+      </div>
+
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -650,12 +662,6 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           ))}
         </div>
       </div>
-
-      {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
-          {error}
-        </div>
-      ) : null}
 
       <Button
         type="submit"

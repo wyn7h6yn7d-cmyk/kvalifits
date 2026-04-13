@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -9,10 +9,13 @@ import {
   EMPLOYER_COMPANY_SIZE_DB_ENABLED,
   employerCompanySizeField,
 } from "@/lib/employer/employerCompanySizeSync";
+import { formatEmployerProfileSaveError } from "@/lib/employer/employerProfileSaveError";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessageFromUnknown } from "@/lib/utils";
+
+const SIMPLE_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export type EmployerProfile = {
   id: string;
@@ -40,6 +43,9 @@ export function EmployerProfileForm({ locale, initial }: Props) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const statusRef = useRef<HTMLDivElement | null>(null);
+  const successHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [companyName, setCompanyName] = useState(initial?.company_name ?? "");
   const [registryCode, setRegistryCode] = useState(initial?.registry_code ?? "");
@@ -57,6 +63,13 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   useEffect(() => {
     setLogoUrl(initial?.logo_url ?? "");
   }, [initial?.logo_url]);
+
+  useEffect(
+    () => () => {
+      if (successHideTimeoutRef.current) clearTimeout(successHideTimeoutRef.current);
+    },
+    []
+  );
 
   async function onLogoFileChange(file: File | null) {
     if (!file) return;
@@ -92,12 +105,17 @@ export function EmployerProfileForm({ locale, initial }: Props) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSaveSuccess(false);
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) throw new Error(t("notAuthed"));
 
+      if (!companyName.trim()) throw new Error(t("errCompanyNameRequired"));
+      if (!contactEmail.trim()) throw new Error(t("errContactEmailRequired"));
+      if (!SIMPLE_EMAIL_RE.test(contactEmail.trim())) throw new Error(t("errContactEmailFormat"));
+      if (!locationValue.trim()) throw new Error(t("errLocationRequired"));
       if (industry.trim().length < 2) throw new Error(t("errIndustryRequired"));
       if (companyDescription.trim().length < 40) throw new Error(t("errCompanyDescriptionTooShort"));
       if (logoUrl.trim() && !isEmployerLogoFromStorageUpload(logoUrl)) {
@@ -123,17 +141,40 @@ export function EmployerProfileForm({ locale, initial }: Props) {
       );
       if (error) throw error;
 
-      router.push(`/${locale}/account/employer`);
+      setSaveSuccess(true);
+      if (successHideTimeoutRef.current) clearTimeout(successHideTimeoutRef.current);
+      successHideTimeoutRef.current = setTimeout(() => {
+        setSaveSuccess(false);
+        successHideTimeoutRef.current = null;
+      }, 10_000);
       router.refresh();
+      queueMicrotask(() => {
+        statusRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } catch (err) {
-      setError(errorMessageFromUnknown(err, t("unknownError")));
+      setError(formatEmployerProfileSaveError(err, t));
+      queueMicrotask(() => {
+        statusRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form noValidate onSubmit={onSubmit} className="space-y-6">
+      <div ref={statusRef} className="scroll-mt-24 space-y-3" aria-live="polite">
+        {saveSuccess ? (
+          <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/[0.08] px-4 py-3 text-sm text-emerald-100/95">
+            {t("profileSavedSuccess")}
+          </div>
+        ) : null}
+        {error ? (
+          <div className="whitespace-pre-line rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+            {error}
+          </div>
+        ) : null}
+      </div>
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("logoUrl")}</label>
         <div className="mt-2 text-xs leading-relaxed text-white/45">{t("logoVisibleOnJobsHint")}</div>
@@ -212,12 +253,6 @@ export function EmployerProfileForm({ locale, initial }: Props) {
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
       </div>
-
-      {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
-          {error}
-        </div>
-      ) : null}
 
       <Button
         type="submit"
