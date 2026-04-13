@@ -70,6 +70,14 @@ function penaltyLabel(code: string, t: (key: string) => string) {
       return t("applicantMatchPenalty_requirements_mismatch");
     case "professional_alignment_missing":
       return t("applicantMatchPenalty_professional_alignment_missing");
+    case "cap_no_skill_overlap":
+      return t("applicantMatchPenalty_cap_no_skill_overlap");
+    case "cap_role_title_mismatch":
+      return t("applicantMatchPenalty_cap_role_title_mismatch");
+    case "cap_missing_required_certificates":
+      return t("applicantMatchPenalty_cap_missing_required_certificates");
+    case "cap_professional_alignment_missing":
+      return t("applicantMatchPenalty_cap_professional_alignment_missing");
     default:
       return code;
   }

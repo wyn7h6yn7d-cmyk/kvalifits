@@ -432,8 +432,11 @@ export function calculateJobMatch(
 
   let score = cSkills + cCert + cEx + cRole + cLoc + cWjt;
 
-  // Stricter deterministic penalties: prevent weak/random candidates drifting into ~20–30%.
-  // These are additive point deductions, stored in breakdown for explainability.
+  // Deterministic penalties + explainable caps (v3+).
+  // Goal: strict & professional, but not absurdly punitive for candidates who have some strengths.
+  // - Penalties reduce the score additively.
+  // - Caps (knockout-style) limit the maximum possible score for clear mismatches.
+  //   Caps are implemented by converting the reduction into extra "penalty points" so the breakdown stays consistent.
   const penaltyCodes: string[] = [];
   let penaltyPoints = 0;
 
@@ -442,45 +445,71 @@ export function calculateJobMatch(
   // No meaningful professional overlap (skills+requirements).
   if (sk.raw < 0.18) {
     penaltyCodes.push("no_skill_requirements_overlap");
-    penaltyPoints += 12;
+    penaltyPoints += 8;
   } else if (sk.raw < 0.3) {
     penaltyCodes.push("weak_skill_requirements_overlap");
-    penaltyPoints += 6;
+    penaltyPoints += 4;
   }
 
   // Role/title mismatch should matter.
   if (role < 0.14) {
     penaltyCodes.push("role_title_mismatch");
-    penaltyPoints += 10;
+    penaltyPoints += 8;
   } else if (role < 0.28) {
     penaltyCodes.push("weak_role_title_alignment");
-    penaltyPoints += 4;
+    penaltyPoints += 3;
   }
 
   // Certificates: if job specifies certs, missing overlap is a strong negative.
   if (cert.slots > 0) {
     if (cert.raw < 0.34) {
       penaltyCodes.push("missing_required_certificates");
-      penaltyPoints += 14;
+      penaltyPoints += 10;
     } else if (cert.raw < 0.6) {
       penaltyCodes.push("partial_certificates");
-      penaltyPoints += 6;
+      penaltyPoints += 4;
     }
   }
 
   // Requirements: if job has multiple lines but match is near-zero, penalize.
   if (sk.requirementsTotal >= 3 && reqRatio < 0.2) {
     penaltyCodes.push("requirements_mismatch");
-    penaltyPoints += 8;
+    penaltyPoints += 5;
   }
 
   // If both core professional signals are weak, apply an extra damping.
   if (sk.raw < 0.22 && role < 0.22) {
     penaltyCodes.push("professional_alignment_missing");
-    penaltyPoints += 10;
+    penaltyPoints += 6;
   }
 
-  score = clampScore(score - penaltyPoints);
+  // First apply additive penalties.
+  score = score - penaltyPoints;
+
+  // Apply strict, explainable caps for clear mismatches (converted into extra penalty points).
+  function applyCap(code: string, cap: number) {
+    if (score > cap) {
+      const delta = score - cap;
+      penaltyCodes.push(code);
+      penaltyPoints += delta;
+      score = cap;
+    }
+  }
+
+  // If there's essentially no skills/requirements overlap, don't let other signals inflate the score.
+  if (sk.raw < 0.18) applyCap("cap_no_skill_overlap", 25);
+
+  // If role/title is a clear mismatch, cap the score.
+  if (role < 0.14) applyCap("cap_role_title_mismatch", 30);
+
+  // If job explicitly requires certificates and there's no meaningful evidence, cap the score.
+  if (cert.slots > 0 && cert.raw < 0.34) applyCap("cap_missing_required_certificates", 35);
+
+  // If both core professional signals are weak at the same time, apply a stricter cap.
+  if (sk.raw < 0.22 && role < 0.22) applyCap("cap_professional_alignment_missing", 20);
+
+  // Final clamp (0–100).
+  score = clampScore(score);
 
   const weak = weakAreasFrom({
     skillsKw: sk.raw,
