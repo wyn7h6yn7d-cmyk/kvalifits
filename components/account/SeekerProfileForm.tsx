@@ -41,6 +41,7 @@ type Props = {
       salary_expectation?: string | null;
       work_authorization_notes?: string | null;
       cv_url?: string | null;
+      has_b_category_drivers_license?: boolean | null;
     } | null;
     certificates: Certificate[];
   };
@@ -75,6 +76,9 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     (initial.seeker?.preferred_locations ?? []).join(", ")
   );
   const [profileVisible, setProfileVisible] = useState(Boolean(initial.seeker?.profile_visible));
+  const [hasBCategoryDriversLicense, setHasBCategoryDriversLicense] = useState(
+    Boolean(initial.seeker?.has_b_category_drivers_license)
+  );
   const [linkedinUrl, setLinkedinUrl] = useState(initial.linkedin_url ?? "");
   const [avatarUrl, setAvatarUrl] = useState(initial.avatar_url ?? "");
   const [salaryExpectation, setSalaryExpectation] = useState(initial.seeker?.salary_expectation ?? "");
@@ -132,6 +136,10 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     const pt = (initial.seeker?.profile_title ?? "").trim();
     if (pt) setProfileTitle(pt);
   }, [initial.seeker?.profile_title]);
+
+  useEffect(() => {
+    setHasBCategoryDriversLicense(Boolean(initial.seeker?.has_b_category_drivers_license));
+  }, [initial.seeker?.has_b_category_drivers_license]);
 
   async function onCertificateFileChange(idx: number, file: File | null) {
     if (!file) return;
@@ -303,6 +311,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         cv_url: cvUrl.trim() || null,
         is_complete: isComplete,
         profile_visible: profileVisible,
+        has_b_category_drivers_license: hasBCategoryDriversLicense,
       });
       if (seekerErr) throw seekerErr;
 
@@ -343,7 +352,8 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           (l.includes("seeker_profiles") &&
             (l.includes("schema cache") || l.includes("could not find"))) ||
           l.includes("salary_expectation") ||
-          l.includes("work_authorization_notes")
+          l.includes("work_authorization_notes") ||
+          l.includes("has_b_category_drivers_license")
         ) {
           shown = `${shown}\n\n${t("seekerProfileStructuredColumnsFixHint")}`;
         }
@@ -563,6 +573,21 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         </div>
         <div className="mt-2 text-xs leading-relaxed text-white/55">{t("certificateSectionHelp")}</div>
 
+        <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+          <label className="flex cursor-pointer select-none items-start gap-3">
+            <input
+              type="checkbox"
+              checked={hasBCategoryDriversLicense}
+              onChange={(e) => setHasBCategoryDriversLicense(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/[0.20] bg-white/[0.03]"
+            />
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-white/80">{t("bCategoryDriversLicense")}</span>
+              <span className="mt-1 block text-xs leading-relaxed text-white/50">{t("bCategoryDriversLicenseHint")}</span>
+            </span>
+          </label>
+        </div>
+
         <div className="mt-4 space-y-6">
           {certificates.map((c, idx) => (
             <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
@@ -589,6 +614,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateNumber")}</label>
                   <Input value={c.certificate_number} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_number: e.target.value } : x)))} />
+                  <div className="text-xs text-white/45">{t("certificateNumberOptionalHint")}</div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateIssuer")}</label>

@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const { data: seeker, error: seekerErr } = await admin
       .from("seeker_profiles")
       .select(
-        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,cv_url"
+        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,cv_url,has_b_category_drivers_license"
       )
       .eq("user_id", user.id)
       .maybeSingle();
@@ -102,6 +102,7 @@ export async function POST(req: Request) {
         experience_level: seeker.experience_level ?? null,
         preferred_job_types: (seeker.preferred_job_types as string[] | null) ?? null,
         preferred_locations: (seeker.preferred_locations as string[] | null) ?? null,
+        has_b_category_drivers_license: Boolean(seeker.has_b_category_drivers_license),
       },
       (certs ?? []).map((c) => ({
         certificate_name: (c as { certificate_name?: string | null }).certificate_name ?? null,

@@ -45,14 +45,27 @@ export default async function EmployerCandidatesPage({ params }: Props) {
 
   // Privacy-by-default MVP:
   // - only "discoverable" profiles (profile_visible = true)
-  // - only profiles with at least 1 certificate
+  // - only profiles with at least one complete-enough certificate row OR explicit B-category license flag
   // - select only minimal summary fields (no email/phone/uploads)
-  const { data: certRows, error: certErr } = await supabase
-    .from("seeker_certificates")
-    // select required certificate fields for completeness checks; not rendered to employers
-    .select("user_id, certificate_name, certificate_number, certificate_issuer, certificate_valid_from, certificate_valid_until")
-    .order("created_at", { ascending: false })
-    .limit(500);
+  const [certRes, bLicRes] = await Promise.all([
+    supabase
+      .from("seeker_certificates")
+      // select required certificate fields for completeness checks; not rendered to employers
+      .select("user_id, certificate_name, certificate_issuer, certificate_valid_from, certificate_valid_until")
+      .order("created_at", { ascending: false })
+      .limit(500),
+    supabase
+      .from("seeker_profiles")
+      .select("user_id")
+      .eq("profile_visible", true)
+      .eq("has_b_category_drivers_license", true)
+      .limit(300),
+  ]);
+
+  const certRows = certRes.data;
+  const certErr = certRes.error;
+  const bLicenseRows = bLicRes.data;
+  const bLicErr = bLicRes.error;
 
   function nonEmpty(v: unknown) {
     return typeof v === "string" && v.trim().length > 0;
@@ -65,16 +78,14 @@ export default async function EmployerCandidatesPage({ params }: Props) {
 
     const r = row as {
       certificate_name?: string | null;
-      certificate_number?: string | null;
       certificate_issuer?: string | null;
       certificate_valid_from?: string | null;
       certificate_valid_until?: string | null;
     };
 
-    // Discovery rule: only count "complete enough" certificates.
+    // Discovery rule: only count "complete enough" certificates (number is optional in DB/UI).
     if (
       !nonEmpty(r.certificate_name) ||
-      !nonEmpty(r.certificate_number) ||
       !nonEmpty(r.certificate_issuer) ||
       !nonEmpty(r.certificate_valid_from) ||
       !nonEmpty(r.certificate_valid_until)
@@ -95,7 +106,12 @@ export default async function EmployerCandidatesPage({ params }: Props) {
     certByUser.set(userId, { count: prev.count + 1, latestValidUntil: latest });
   }
 
-  const candidateUserIds = Array.from(certByUser.keys()).slice(0, 200);
+  const candidateUserIdSet = new Set<string>(certByUser.keys());
+  for (const row of bLicenseRows ?? []) {
+    const uid = (row as { user_id?: string }).user_id;
+    if (uid) candidateUserIdSet.add(uid);
+  }
+  const candidateUserIds = Array.from(candidateUserIdSet).slice(0, 200);
 
   const { data: seekers, error } = candidateUserIds.length
     ? await supabase
@@ -123,7 +139,7 @@ export default async function EmployerCandidatesPage({ params }: Props) {
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
         <AuthShell title={t("candidates")} subtitle={t("candidatesSubtitle")} maxWidthClassName="max-w-3xl">
-          {certErr || error ? (
+          {certErr || bLicErr || error ? (
             <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
               {tOnboarding("unknownError")}
             </div>

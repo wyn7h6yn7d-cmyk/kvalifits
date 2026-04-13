@@ -43,6 +43,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [hasBCategoryDriversLicense, setHasBCategoryDriversLicense] = useState(false);
 
   function getErrorMessage(err: unknown) {
     if (err instanceof Error) return err.message;
@@ -302,6 +303,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
         is_complete: isComplete,
         // Privacy-by-default: keep profile hidden until seeker explicitly enables visibility in their account.
         profile_visible: false,
+        has_b_category_drivers_license: hasBCategoryDriversLicense,
       });
       if (seekerErr) throw seekerErr;
 
@@ -346,7 +348,8 @@ export function SeekerOnboardingForm({ locale }: Props) {
           (l.includes("seeker_profiles") &&
             (l.includes("schema cache") || l.includes("could not find"))) ||
           l.includes("salary_expectation") ||
-          l.includes("work_authorization_notes")
+          l.includes("work_authorization_notes") ||
+          l.includes("has_b_category_drivers_license")
         ) {
           shown = `${shown}\n\n${t("seekerProfileStructuredColumnsFixHint")}`;
         }
@@ -582,6 +585,21 @@ export function SeekerOnboardingForm({ locale }: Props) {
           </Button>
         </div>
 
+        <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+          <label className="flex cursor-pointer select-none items-start gap-3">
+            <input
+              type="checkbox"
+              checked={hasBCategoryDriversLicense}
+              onChange={(e) => setHasBCategoryDriversLicense(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/[0.20] bg-white/[0.03]"
+            />
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-white/80">{t("bCategoryDriversLicense")}</span>
+              <span className="mt-1 block text-xs leading-relaxed text-white/50">{t("bCategoryDriversLicenseHint")}</span>
+            </span>
+          </label>
+        </div>
+
         <div className="mt-4 space-y-6">
           {certificates.map((c, idx) => (
             <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
@@ -633,6 +651,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
                       )
                     }
                   />
+                  <div className="text-xs text-white/45">{t("certificateNumberOptionalHint")}</div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">

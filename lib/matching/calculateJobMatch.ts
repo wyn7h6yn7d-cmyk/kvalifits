@@ -7,7 +7,7 @@ import {
 } from "@/lib/matching/normalization";
 
 /** MVP weighted suitability (deterministic). Version bumps when the model changes. */
-export const MATCH_MODEL_VERSION = 4 as const;
+export const MATCH_MODEL_VERSION = 5 as const;
 
 /** Fixed employer-facing weights (sum = 100). */
 export const MATCH_WEIGHTS = {
@@ -28,6 +28,8 @@ export type SeekerMatchInput = {
   experience_level: string | null;
   preferred_job_types: string[] | null;
   preferred_locations: string[] | null;
+  /** Synthetic certificate evidence for job posts that ask for B-category driving license. */
+  has_b_category_drivers_license?: boolean | null;
 };
 
 export type SeekerCertificateInput = {
@@ -453,7 +455,14 @@ export function calculateJobMatch(
   const seekerSkills = (seeker.skills ?? []).map((s) => String(s).trim()).filter(Boolean);
 
   const sk = skillsKeywordsRaw(job, seekerSkills, seeker.profile_title);
-  const cert = certificateRaw(certs, job.certificate_requirements, job.keywords ?? []);
+  const certInputs: SeekerCertificateInput[] = [...certs];
+  if (seeker.has_b_category_drivers_license) {
+    certInputs.push({
+      certificate_name: "B-kategooria juhiluba",
+      certificate_issuer: "juhiluba",
+    });
+  }
+  const cert = certificateRaw(certInputs, job.certificate_requirements, job.keywords ?? []);
   const ex = experienceRaw(seeker.experience_level, job.experience_level_required);
   const role = roleTitleRaw(seeker.profile_title, job.title);
   const loc = locationRaw(job.location, job.work_type, seeker.location, seeker.preferred_locations);

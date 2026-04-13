@@ -29,7 +29,7 @@ export default async function SeekerAccountPage({ params }: Props) {
   const { data: seeker } = await supabase
     .from("seeker_profiles")
     .select(
-      "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,profile_visible,salary_expectation,work_authorization_notes,cv_url"
+      "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,profile_visible,salary_expectation,work_authorization_notes,cv_url,has_b_category_drivers_license"
     )
     .eq("user_id", user.id)
     .maybeSingle();

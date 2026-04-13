@@ -43,6 +43,23 @@ export const SYNONYM_FAMILIES: Record<string, string[]> = {
   // Driving / transport (ET)
   juht: ["juht", "autojuht", "veokijuht", "kuller", "transport", "vedu"],
 
+  // B-category driver's license (ET + EN) — distinct from electrical "b-padev"
+  "b-juhiluba": [
+    "b-kategooria juhiluba",
+    "b kategooria juhiluba",
+    "bkategooria juhiluba",
+    "b-kategooria",
+    "b kategooria",
+    "juhiluba",
+    "autojuhiluba",
+    "b-kat",
+    "b kat",
+    "drivers license b",
+    "driver license b",
+    "category b license",
+    "category b",
+  ],
+
   // Installation / assembly (ET + common loanwords)
   paigaldus: ["paigaldus", "paigaldaja", "monteerija", "koostaja", "montaaž", "montaa", "installer", "install"],
 
