@@ -80,6 +80,8 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   const [salaryExpectation, setSalaryExpectation] = useState(initial.seeker?.salary_expectation ?? "");
   const [workAuthNotes, setWorkAuthNotes] = useState(initial.seeker?.work_authorization_notes ?? "");
   const [cvUrl, setCvUrl] = useState(initial.seeker?.cv_url ?? "");
+  const [cvUploading, setCvUploading] = useState(false);
+  const [cvFileName, setCvFileName] = useState<string | null>(null);
 
   function getErrorMessage(err: unknown) {
     if (err instanceof Error) return err.message;
@@ -188,6 +190,46 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     }
   }
 
+  async function onCvFileChange(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setCvUploading(true);
+    setCvFileName(file.name);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      const ext = (file.name.split(".").pop() || "pdf").toLowerCase();
+      if (ext !== "pdf" && file.type !== "application/pdf") {
+        throw new Error(t("unknownError"));
+      }
+
+      const safeBase = file.name
+        .replace(/\.[^.]+$/, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9-_]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 48);
+      const path = `${user.id}/cv/${Date.now()}-${safeBase || "cv"}.pdf`;
+
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true,
+        contentType: "application/pdf",
+      });
+      if (uploadErr) throw uploadErr;
+
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      setCvUrl(data.publicUrl);
+    } catch (err) {
+      setError(errorMessageFromUnknown(err, t("unknownError")));
+    } finally {
+      setCvUploading(false);
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -200,6 +242,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       if (!user) throw new Error(t("notAuthed"));
 
       if (avatarUploading) throw new Error(t("avatarUploadInProgress"));
+      if (cvUploading) throw new Error(t("cvUploadInProgress"));
       if (!isSeekerAvatarFromStorageUpload(avatarUrl)) throw new Error(t("avatarRequired"));
 
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
@@ -464,7 +507,22 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("cvUrl")}</label>
-          <Input value={cvUrl} onChange={(e) => setCvUrl(e.target.value)} placeholder={t("cvUrlHint")} inputMode="url" />
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => void onCvFileChange(e.target.files?.[0] ?? null)}
+            className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+          />
+          <div className="text-xs text-white/45">{t("cvUrlHint")}</div>
+          {cvUploading ? <div className="text-xs text-white/55">{t("cvUploading")}</div> : null}
+          {!cvUploading && cvUrl ? (
+            <div className="text-xs text-white/55">
+              {cvFileName ? `${cvFileName} — ` : null}
+              <a href={cvUrl} target="_blank" rel="noreferrer" className="underline hover:text-white/80">
+                {t("cvOpen")}
+              </a>
+            </div>
+          ) : null}
         </div>
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("workAuthorization")}</label>
