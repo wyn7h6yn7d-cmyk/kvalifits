@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 export type EmployerApplicantMatchPanelProps = {
   score: number | null;
   breakdown: Partial<MatchBreakdown> | null;
+  /** Render full interactive panel (default) or a breakdown-only card for detail sections. */
+  variant?: "full" | "breakdownOnly";
   seeker: {
     displayName: string;
     profileTitle: string;
@@ -53,6 +55,7 @@ function weakAreaLabel(code: string, t: (key: string) => string) {
 export function EmployerApplicantMatchPanel({
   score,
   breakdown,
+  variant = "full",
   seeker,
   job,
 }: EmployerApplicantMatchPanelProps) {
@@ -104,6 +107,89 @@ export function EmployerApplicantMatchPanel({
   const roleBar = bar(bd.role_title_contribution ?? 0, W.roleTitle);
   const locBar = bar(bd.location_contribution ?? 0, W.location);
   const wjtBar = bar(bd.work_job_type_contribution ?? 0, W.workJobType);
+
+  if (variant === "breakdownOnly") {
+    const scoreLabelSimple = score == null ? "—" : `${score}%`;
+    const penaltyPoints = bd.penalty_points ?? 0;
+    const penaltyCodes = (bd.penalty_codes ?? []) as string[];
+    return (
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+              {t("applicantMatchScoreBreakdown")}
+            </div>
+            <div className="mt-2 text-sm leading-relaxed text-white/60">{t("applicantMatchExplainBreakdownText")}</div>
+          </div>
+          <div className="shrink-0 rounded-2xl border border-white/[0.10] bg-black/25 px-4 py-3 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              {t("applicantMatchFit")}
+            </div>
+            <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-white">{scoreLabelSimple}</div>
+            {penaltyPoints > 0 ? (
+              <div className="mt-1 text-[11px] text-amber-200/70">
+                −{penaltyPoints}p
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <BreakRow label={t("applicantMatchAxisSkillsKeywords")} {...skillsBar} />
+          <BreakRow label={t("applicantMatchAxisCertificates")} {...certBar} />
+          <BreakRow label={t("applicantMatchAxisExperience")} {...expBar} />
+          <BreakRow label={t("applicantMatchAxisRoleTitle")} {...roleBar} />
+          <BreakRow label={t("applicantMatchAxisLocation")} {...locBar} />
+          <BreakRow label={t("applicantMatchAxisWorkJobType")} {...wjtBar} />
+        </div>
+
+        <div className="mt-5 space-y-2 border-t border-white/[0.08] pt-4 text-[12px] text-white/60">
+          <div>
+            {t("applicantMatchRequirementsCount", {
+              matched: bd.requirementsMatched ?? 0,
+              total: bd.requirementsTotal ?? 0,
+            })}
+          </div>
+          {(bd.tag_total ?? 0) > 0 ? (
+            <div>
+              {t("applicantMatchTagSummary", {
+                full: bd.tag_matched_full ?? 0,
+                partial: bd.tag_matched_partial ?? 0,
+                total: bd.tag_total ?? 0,
+              })}
+            </div>
+          ) : null}
+          {(bd.certificate_slots_required ?? 0) > 0 ? (
+            <div>
+              {t("applicantMatchCertSlotSummary", {
+                matched: bd.certificate_slots_matched ?? 0,
+                total: bd.certificate_slots_required ?? 0,
+              })}
+            </div>
+          ) : null}
+
+          {Array.isArray(penaltyCodes) && penaltyCodes.length ? (
+            <div className="mt-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-100/90">
+              {t("applicantMatchPenaltyHint")}
+            </div>
+          ) : null}
+
+          {Array.isArray(bd.weak_areas) && bd.weak_areas.length ? (
+            <div className="mt-2">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                {t("applicantMatchWeakAreas")}
+              </div>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-white/60">
+                {bd.weak_areas.map((code) => (
+                  <li key={code}>{weakAreaLabel(code, t)}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative mx-auto w-full max-w-[min(100%,820px)]">

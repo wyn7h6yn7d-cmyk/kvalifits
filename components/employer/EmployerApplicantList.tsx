@@ -26,6 +26,13 @@ function displayName(fullName: string | null | undefined) {
   return initial ? `${first} ${initial}` : first;
 }
 
+function initialsFromName(fullName: string) {
+  const parts = fullName.trim().split(/\s+/g).filter(Boolean);
+  const first = parts[0]?.[0]?.toUpperCase() ?? "";
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0]?.toUpperCase() ?? "") : "";
+  return `${first}${last}` || "—";
+}
+
 function highlightLabel(highlights: string[] | undefined, t: (key: string) => string): string | null {
   const h = highlights?.[0];
   if (!h) return null;
@@ -114,6 +121,7 @@ export async function EmployerApplicantList({
         {sorted.map((a, index) => {
           const seeker = (a.shared_profile as { seeker?: Record<string, unknown> } | null)?.seeker ?? {};
           const name = displayName((seeker.full_name as string | undefined) ?? null);
+          const avatarUrl = ((seeker.avatar_url as string | undefined) ?? "").toString().trim();
           const profileTitle = ((seeker.profile_title as string | undefined) ?? "").trim() || "—";
           const location = ((seeker.location as string | undefined) ?? "").trim() || "—";
           const createdAt = (a.created_at ?? "").toString();
@@ -190,18 +198,33 @@ export async function EmployerApplicantList({
                             </span>
                           </div>
                         ) : null}
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[17px] font-semibold leading-snug tracking-tight text-white/95 sm:text-lg">
-                            {name}
-                          </span>
-                          <span
-                            className={cn(
-                              "text-sm leading-snug text-white/68",
-                              profileTitle === "—" && "text-white/40 italic"
+                        <div className="flex items-start gap-3">
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]">
+                            {avatarUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-[11px] font-semibold tracking-wide text-white/55">
+                                {initialsFromName(name)}
+                              </div>
                             )}
-                          >
-                            {profileTitle === "—" ? t("applicantsNoTitle") : profileTitle}
-                          </span>
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[17px] font-semibold leading-snug tracking-tight text-white/95 sm:text-lg">
+                                {name}
+                              </span>
+                              <span
+                                className={cn(
+                                  "text-sm leading-snug text-white/68",
+                                  profileTitle === "—" && "text-white/40 italic"
+                                )}
+                              >
+                                {profileTitle === "—" ? t("applicantsNoTitle") : profileTitle}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -125,6 +125,7 @@ export async function POST(req: Request) {
 
     const shared = {
       seeker: {
+        avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
         email: (profile?.email ?? user.email ?? "").toString(),
         full_name: seeker.full_name ?? null,
         profile_title: seeker.profile_title ?? null,
@@ -136,6 +137,10 @@ export async function POST(req: Request) {
         preferred_job_types: seeker.preferred_job_types ?? null,
         preferred_locations: seeker.preferred_locations ?? null,
         cv_url: seeker.cv_url ?? null,
+        certificates: (certs ?? []).map((c) => ({
+          certificate_name: (c as { certificate_name?: string | null }).certificate_name ?? null,
+          certificate_issuer: (c as { certificate_issuer?: string | null }).certificate_issuer ?? null,
+        })),
       },
       job: {
         id: job.id,
