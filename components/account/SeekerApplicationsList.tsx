@@ -77,7 +77,8 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
         .eq("id", id);
       if (error) throw error;
 
-      setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: "withdrawn" } : r)));
+      // Remove immediately from the list (premium UX + matches server-side filter).
+      setRows((prev) => prev.filter((r) => r.id !== id));
       router.refresh();
     } catch (e) {
       setError(errorMessageFromUnknown(e, t("unknownError")));
