@@ -1,10 +1,11 @@
 "use client";
 
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
 
 import type { Job } from "@/components/jobs/types";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/routing";
+import { Button } from "@/components/ui/button";
 
 function formatDate(iso?: string) {
   if (!iso) return null;
@@ -86,6 +87,14 @@ export function JobCard({ job }: { job: Job }) {
             ))}
           </div>
         ) : null}
+
+        <div className="flex justify-end pt-1">
+          <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
+            <Link href={`/tood/${job.id}`}>
+              Ava kuulutus <ChevronRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
