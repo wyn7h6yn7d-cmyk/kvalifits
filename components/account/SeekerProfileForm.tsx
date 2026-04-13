@@ -410,8 +410,10 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           onChange={(e) => setAbout(e.target.value)}
           required
           rows={4}
+          placeholder={t("aboutHint")}
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
+        <div className="text-xs text-white/45">{t("aboutHelp")}</div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -432,18 +434,22 @@ export function SeekerProfileForm({ locale, initial }: Props) {
               </option>
             ))}
           </select>
+          <div className="text-xs text-white/45">{t("experienceLevelHint")}</div>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
           <Input value={skillsCsv} onChange={(e) => setSkillsCsv(e.target.value)} required placeholder={t("csvHint")} />
+          <div className="text-xs text-white/45">{t("skillsHelp")}</div>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredJobTypes")}</label>
           <Input value={preferredJobTypesCsv} onChange={(e) => setPreferredJobTypesCsv(e.target.value)} required placeholder={t("csvHint")} />
+          <div className="text-xs text-white/45">{t("preferredJobTypesHelp")}</div>
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredLocations")}</label>
           <Input value={preferredLocationsCsv} onChange={(e) => setPreferredLocationsCsv(e.target.value)} required placeholder={t("csvHint")} />
+          <div className="text-xs text-white/45">{t("preferredLocationsHelp")}</div>
         </div>
       </div>
 
@@ -497,6 +503,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
             {t("addCertificate")}
           </Button>
         </div>
+        <div className="mt-2 text-xs leading-relaxed text-white/55">{t("certificateSectionHelp")}</div>
 
         <div className="mt-4 space-y-6">
           {certificates.map((c, idx) => (
