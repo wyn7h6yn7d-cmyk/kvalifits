@@ -259,10 +259,16 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       const preferredJobTypes = parseCommaList(preferredJobTypesCsv);
       const preferredLocations = parseCommaList(preferredLocationsCsv);
 
+      if (!firstName.trim()) throw new Error(t("errFirstNameRequired"));
+      if (!lastName.trim()) throw new Error(t("errLastNameRequired"));
+      if (!phone.trim()) throw new Error(t("errPhoneRequired"));
+      if (!location.trim()) throw new Error(t("errLocationRequired"));
       if (!experienceLevel) throw new Error(t("errExperienceLevelRequired"));
       if (title.length < 3) throw new Error(t("errProfileTitleTooShort"));
       if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
       if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
+      if (preferredJobTypes.length < 1) throw new Error(t("errPreferredJobTypesRequired"));
+      if (preferredLocations.length < 1) throw new Error(t("errPreferredLocationsRequired"));
 
       // Certificates are optional. If provided, only persist reasonably complete rows.
       const validCerts = certificates
@@ -334,6 +340,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         if (insErr) throw insErr;
       }
 
+      router.push(`/${locale}/tood`);
       router.refresh();
     } catch (err) {
       const message = getErrorMessage(err);
@@ -365,7 +372,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form noValidate onSubmit={onSubmit} className="space-y-6">
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -655,7 +662,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         variant="primary"
         size="lg"
         className="w-full"
-        disabled={avatarUploading}
+        disabled={avatarUploading || cvUploading}
         loading={loading}
         loadingText={t("saving")}
       >

@@ -255,10 +255,16 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
       const title = profileTitle.trim();
 
+      if (!firstName.trim()) throw new Error(t("errFirstNameRequired"));
+      if (!lastName.trim()) throw new Error(t("errLastNameRequired"));
+      if (!phone.trim()) throw new Error(t("errPhoneRequired"));
+      if (!location.trim()) throw new Error(t("errLocationRequired"));
       if (!experienceLevel) throw new Error(t("errExperienceLevelRequired"));
       if (title.length < 3) throw new Error(t("errProfileTitleTooShort"));
       if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
       if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
+      if (preferredJobTypes.length < 1) throw new Error(t("errPreferredJobTypesRequired"));
+      if (preferredLocations.length < 1) throw new Error(t("errPreferredLocationsRequired"));
 
       // Certificates are optional. If provided, only persist reasonably complete rows.
       const validCerts = certificates
@@ -329,7 +335,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
         if (certErr) throw certErr;
       }
 
-      router.push(`/${locale}/onboarding`);
+      router.push(`/${locale}/tood`);
       router.refresh();
     } catch (err) {
       const message = getErrorMessage(err);
@@ -361,7 +367,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form noValidate onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
         <div className="text-xs leading-relaxed text-white/45">{t("avatarFileOnlyHint")}</div>
