@@ -154,7 +154,25 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
   return (
     <section className="py-14 sm:py-16">
       <Container>
-        <div className="grid gap-8 lg:grid-cols-[340px_1fr]">
+        <div className="mb-8 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md lg:mb-10">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-sm font-medium text-white/85">{t("searchTitle")}</div>
+              <div className="mt-1 text-xs text-white/50">{t("searchSubtitle")}</div>
+            </div>
+            <div className="relative w-full sm:max-w-md sm:min-w-[min(100%,20rem)] lg:max-w-xl">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t("searchPlaceholder")}
+                className="pl-11"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[340px_1fr] lg:items-start">
           {/* Sidebar filters */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md">
@@ -271,27 +289,9 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
             </div>
           </div>
 
-          {/* Results */}
+          {/* Results — same row start as filter column */}
           <div>
-            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="text-sm font-medium text-white/85">{t("searchTitle")}</div>
-                  <div className="mt-1 text-xs text-white/50">{t("searchSubtitle")}</div>
-                </div>
-                <div className="relative w-full sm:max-w-md">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-                  <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={t("searchPlaceholder")}
-                    className="pl-11"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-between text-xs text-white/50">
+            <div className="flex items-center justify-between text-xs text-white/50">
               <div className="text-white/55">
                 <span className="text-white/70">{foundLabel}</span>
               </div>
