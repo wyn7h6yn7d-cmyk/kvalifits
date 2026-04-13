@@ -15,3 +15,16 @@ export function errorMessageFromUnknown(err: unknown, fallback: string): string 
   return fallback;
 }
 
+/** Allow only http(s) URLs (e.g. shared profile snapshots, public file URLs). */
+export function safeHttpUrl(raw: unknown): string | null {
+  const s = typeof raw === "string" ? raw.trim() : "";
+  if (!s) return null;
+  try {
+    const u = new URL(s);
+    if (u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return u.href;
+  } catch {
+    return null;
+  }
+}
+

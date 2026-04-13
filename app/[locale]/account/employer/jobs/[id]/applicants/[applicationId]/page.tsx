@@ -10,6 +10,7 @@ import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
 import { parseMatchBreakdown } from "@/lib/employer/parseMatchBreakdown";
 import { EmployerApplicantMatchPanel } from "@/components/employer/EmployerApplicantMatchPanel";
 import { Link } from "@/i18n/routing";
+import { safeHttpUrl } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string; id: string; applicationId: string }> };
 
@@ -107,7 +108,9 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
   const { data: app, error: appErr } = await supabase
     .from("job_applications")
-    .select("id,job_post_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile")
+    .select(
+      "id,job_post_id,seeker_user_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile"
+    )
     .eq("id", applicationId)
     .eq("job_post_id", id)
     .neq("status", "withdrawn")
@@ -143,6 +146,16 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
   const score = typeof app.match_score === "number" ? app.match_score : null;
   const employerName = ((employerSnap.company_name as string | undefined) ?? "").toString().trim() || "—";
   const about = ((seeker.about as string | undefined) ?? "").toString().trim();
+  let cvUrl = safeHttpUrl(seeker.cv_url);
+  const seekerUserId = (app as { seeker_user_id?: string }).seeker_user_id;
+  if (!cvUrl && seekerUserId) {
+    const { data: liveSeeker } = await supabase
+      .from("seeker_profiles")
+      .select("cv_url")
+      .eq("user_id", seekerUserId)
+      .maybeSingle();
+    cvUrl = safeHttpUrl(liveSeeker?.cv_url);
+  }
   const highlightCodes = Array.isArray((breakdown as any)?.highlights)
     ? (((breakdown as any).highlights as unknown[]).filter((x): x is string => typeof x === "string") as string[])
     : [];
@@ -154,7 +167,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={name} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-3xl">
+        <AuthShell title={name} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-5xl">
           <div className="space-y-6">
             <Link
               href={`/account/employer/jobs/${id}/applicants`}
@@ -204,6 +217,25 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                 </div>
               </div>
 
+              <div className="mt-5 border-t border-white/[0.10] pt-5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantDetailCv")}</div>
+                {cvUrl ? (
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+                    <a
+                      href={cvUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex w-full items-center justify-center rounded-2xl border border-violet-400/35 bg-gradient-to-r from-violet-500/25 to-fuchsia-500/20 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset] transition-colors hover:border-violet-400/50 hover:from-violet-500/35 hover:to-fuchsia-500/28 sm:w-auto"
+                    >
+                      {t("applicantDetailDownloadCv")}
+                    </a>
+                    <p className="text-[12px] leading-relaxed text-white/45 sm:ml-1">{t("applicantDetailCvHint")}</p>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm leading-relaxed text-white/50">{t("applicantDetailNoCv")}</p>
+                )}
+              </div>
+
               {(highlightCodes.length || weakCodes.length) ? (
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {highlightCodes.length ? (
@@ -247,8 +279,8 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
               ) : null}
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-5">
-              <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 lg:col-span-2">
+            <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
+              <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailSeeker")}</div>
 
                 {skills.length ? (
@@ -291,9 +323,9 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                     </ul>
                   </div>
                 ) : null}
-              </div>
+              </section>
 
-              <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 lg:col-span-3">
+              <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailJob")}</div>
                 <div className="mt-2 text-base font-semibold leading-snug tracking-tight text-white/90">{job.title}</div>
                 <div className="mt-2 text-sm text-white/60">
@@ -336,7 +368,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                     </div>
                   </div>
                 ) : null}
-              </div>
+              </section>
             </div>
 
             <div>

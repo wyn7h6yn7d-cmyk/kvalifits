@@ -1,11 +1,11 @@
 import { getTranslations } from "next-intl/server";
-import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
+import { CalendarDays, ChevronRight, FileText, MapPin } from "lucide-react";
 
 import { Link } from "@/i18n/routing";
 import { parseMatchBreakdown } from "@/lib/employer/parseMatchBreakdown";
 import type { MatchBreakdown } from "@/lib/matching/calculateJobMatch";
 
-import { cn } from "@/lib/utils";
+import { cn, safeHttpUrl } from "@/lib/utils";
 
 type ApplicationRow = {
   id: string;
@@ -13,6 +13,8 @@ type ApplicationRow = {
   match_score: number | null;
   match_breakdown: unknown;
   shared_profile: unknown;
+  /** Snapshot cv_url or current profile cv_url (employer RLS). */
+  resolved_cv_url?: string | null;
 };
 
 function displayName(fullName: string | null | undefined) {
@@ -124,6 +126,7 @@ export async function EmployerApplicantList({
           const avatarUrl = ((seeker.avatar_url as string | undefined) ?? "").toString().trim();
           const profileTitle = ((seeker.profile_title as string | undefined) ?? "").trim() || "—";
           const location = ((seeker.location as string | undefined) ?? "").trim() || "—";
+          const cvUrl = a.resolved_cv_url ?? safeHttpUrl(seeker.cv_url);
           const createdAt = (a.created_at ?? "").toString();
           const score = typeof a.match_score === "number" ? a.match_score : null;
           const bd = parseMatchBreakdown(a.match_breakdown);
@@ -142,13 +145,10 @@ export async function EmployerApplicantList({
 
           return (
             <li key={a.id}>
-              <Link
-                href={`/account/employer/jobs/${jobPostId}/applicants/${a.id}`}
+              <div
                 className={cn(
-                  "group relative block overflow-hidden rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 shadow-none outline-none transition-[border-color,background-color,box-shadow,transform] duration-200 sm:p-6",
-                  "hover:border-white/[0.17] hover:bg-white/[0.055] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_50px_-38px_rgba(0,0,0,0.65)]",
-                  "focus-visible:border-white/[0.20] focus-visible:ring-2 focus-visible:ring-violet-400/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                  "active:scale-[0.995]"
+                  "group relative flex overflow-hidden rounded-3xl border border-white/[0.10] bg-white/[0.03] shadow-none outline-none transition-[border-color,background-color,box-shadow,transform] duration-200",
+                  "hover:border-white/[0.17] hover:bg-white/[0.055] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_50px_-38px_rgba(0,0,0,0.65)]"
                 )}
               >
                 <div
@@ -159,7 +159,14 @@ export async function EmployerApplicantList({
                   <div className="absolute -bottom-12 -left-10 h-32 w-32 rounded-full bg-fuchsia-500/8 blur-3xl" />
                 </div>
 
-                <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-7">
+                <Link
+                  href={`/account/employer/jobs/${jobPostId}/applicants/${a.id}`}
+                  className={cn(
+                    "relative flex min-w-0 flex-1 flex-col gap-5 p-5 outline-none transition-transform duration-200 sm:flex-row sm:items-start sm:justify-between sm:gap-7 sm:p-6",
+                    "focus-visible:z-[1] focus-visible:border-white/[0.20] focus-visible:ring-2 focus-visible:ring-violet-400/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    "active:scale-[0.995]"
+                  )}
+                >
                   {/* Mobile: score first for quick scan */}
                   <div
                     className={cn(
@@ -261,8 +268,21 @@ export async function EmployerApplicantList({
                       <ChevronRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden />
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+
+                {cvUrl ? (
+                  <a
+                    href={cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative z-[1] flex w-[3.5rem] shrink-0 flex-col items-center justify-center gap-1.5 border-t border-white/[0.10] bg-white/[0.02] px-2 py-4 text-center transition-colors hover:bg-violet-500/10 sm:w-14 sm:border-l sm:border-t-0"
+                    aria-label={t("applicantDetailViewCv")}
+                  >
+                    <FileText className="h-4 w-4 shrink-0 text-violet-200/90" aria-hidden />
+                    <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-violet-200/85">CV</span>
+                  </a>
+                ) : null}
+              </div>
             </li>
           );
         })}
