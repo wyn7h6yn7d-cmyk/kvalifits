@@ -52,6 +52,29 @@ function weakAreaLabel(code: string, t: (key: string) => string) {
   }
 }
 
+function penaltyLabel(code: string, t: (key: string) => string) {
+  switch (code) {
+    case "no_skill_requirements_overlap":
+      return t("applicantMatchPenalty_no_skill_requirements_overlap");
+    case "weak_skill_requirements_overlap":
+      return t("applicantMatchPenalty_weak_skill_requirements_overlap");
+    case "role_title_mismatch":
+      return t("applicantMatchPenalty_role_title_mismatch");
+    case "weak_role_title_alignment":
+      return t("applicantMatchPenalty_weak_role_title_alignment");
+    case "missing_required_certificates":
+      return t("applicantMatchPenalty_missing_required_certificates");
+    case "partial_certificates":
+      return t("applicantMatchPenalty_partial_certificates");
+    case "requirements_mismatch":
+      return t("applicantMatchPenalty_requirements_mismatch");
+    case "professional_alignment_missing":
+      return t("applicantMatchPenalty_professional_alignment_missing");
+    default:
+      return code;
+  }
+}
+
 export function EmployerApplicantMatchPanel({
   score,
   breakdown,
@@ -112,6 +135,15 @@ export function EmployerApplicantMatchPanel({
     const scoreLabelSimple = score == null ? "—" : `${score}%`;
     const penaltyPoints = bd.penalty_points ?? 0;
     const penaltyCodes = (bd.penalty_codes ?? []) as string[];
+    const basePoints =
+      (bd.skills_keywords_contribution ?? 0) +
+      (bd.certificate_contribution ?? 0) +
+      (bd.experience_contribution ?? 0) +
+      (bd.role_title_contribution ?? 0) +
+      (bd.location_contribution ?? 0) +
+      (bd.work_job_type_contribution ?? 0);
+    const unclamped = basePoints - penaltyPoints;
+    const clampedToZero = score === 0 && unclamped < 0;
     return (
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -126,21 +158,45 @@ export function EmployerApplicantMatchPanel({
               {t("applicantMatchFit")}
             </div>
             <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-white">{scoreLabelSimple}</div>
-            {penaltyPoints > 0 ? (
-              <div className="mt-1 text-[11px] text-amber-200/70">
-                −{penaltyPoints}p
-              </div>
-            ) : null}
           </div>
         </div>
 
+        <div className="mt-4 grid gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-[12px] text-white/65 sm:grid-cols-3">
+          <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-start sm:justify-start">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              {t("applicantMatchBaseScore")}
+            </div>
+            <div className="font-semibold tabular-nums text-white/80">{basePoints}p</div>
+          </div>
+          <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-start sm:justify-start">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              {t("applicantMatchPenalties")}
+            </div>
+            <div className={cn("font-semibold tabular-nums", penaltyPoints > 0 ? "text-amber-200/85" : "text-white/70")}>
+              {penaltyPoints > 0 ? `−${penaltyPoints}p` : "—"}
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-start sm:justify-start">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              {t("applicantMatchFinalScore")}
+            </div>
+            <div className="font-semibold tabular-nums text-white/90">{scoreLabelSimple}</div>
+          </div>
+        </div>
+
+        {clampedToZero ? (
+          <div className="mt-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-100/90">
+            {t("applicantMatchClampedToZero", { unclamped })}
+          </div>
+        ) : null}
+
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <BreakRow label={t("applicantMatchAxisSkillsKeywords")} {...skillsBar} />
-          <BreakRow label={t("applicantMatchAxisCertificates")} {...certBar} />
-          <BreakRow label={t("applicantMatchAxisExperience")} {...expBar} />
-          <BreakRow label={t("applicantMatchAxisRoleTitle")} {...roleBar} />
-          <BreakRow label={t("applicantMatchAxisLocation")} {...locBar} />
-          <BreakRow label={t("applicantMatchAxisWorkJobType")} {...wjtBar} />
+          <BreakRow label={`${t("applicantMatchAxisSkillsKeywords")} (${W.skillsKeywords})`} {...skillsBar} />
+          <BreakRow label={`${t("applicantMatchAxisCertificates")} (${W.certificates})`} {...certBar} />
+          <BreakRow label={`${t("applicantMatchAxisExperience")} (${W.experience})`} {...expBar} />
+          <BreakRow label={`${t("applicantMatchAxisRoleTitle")} (${W.roleTitle})`} {...roleBar} />
+          <BreakRow label={`${t("applicantMatchAxisLocation")} (${W.location})`} {...locBar} />
+          <BreakRow label={`${t("applicantMatchAxisWorkJobType")} (${W.workJobType})`} {...wjtBar} />
         </div>
 
         <div className="mt-5 space-y-2 border-t border-white/[0.08] pt-4 text-[12px] text-white/60">
@@ -169,8 +225,18 @@ export function EmployerApplicantMatchPanel({
           ) : null}
 
           {Array.isArray(penaltyCodes) && penaltyCodes.length ? (
-            <div className="mt-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-100/90">
-              {t("applicantMatchPenaltyHint")}
+            <div className="mt-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-100/85">
+                {t("applicantMatchPenaltyReasons")}
+              </div>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-amber-100/90">
+                {penaltyCodes.map((c) => (
+                  <li key={c}>{penaltyLabel(c, t)}</li>
+                ))}
+              </ul>
+              <div className="mt-2 text-[12px] leading-relaxed text-amber-100/80">
+                {t("applicantMatchPenaltyHint")}
+              </div>
             </div>
           ) : null}
 
