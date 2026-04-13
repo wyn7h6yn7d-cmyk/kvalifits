@@ -71,11 +71,23 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
     setBusyId(id);
     setError(null);
     try {
-      const { error } = await supabase
+      const {
+        data: { user },
+        error: userErr,
+      } = await supabase.auth.getUser();
+      if (userErr) throw userErr;
+      if (!user) throw new Error(t("notAuthed"));
+
+      const { data, error } = await supabase
         .from("job_applications")
         .update({ status: "withdrawn", updated_at: new Date().toISOString() })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("seeker_user_id", user.id)
+        .select("id");
       if (error) throw error;
+      if (!data?.length) {
+        throw new Error(t("unknownError"));
+      }
 
       // Remove immediately from the list (premium UX + matches server-side filter).
       setRows((prev) => prev.filter((r) => r.id !== id));
