@@ -66,7 +66,19 @@ export default async function TooandjatelePage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")}>
+        <PageHero
+          eyebrow={t("heroEyebrow")}
+          title={t("heroTitle")}
+          subtitle={
+            <>
+              {t("heroSubtitleLead")}
+              {t("heroSubtitleTail")}{" "}
+              <span className="ml-1 inline-flex translate-y-[-0.05em] items-center rounded-full border border-white/[0.14] bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55">
+                {t("heroDemoLabel")}
+              </span>
+            </>
+          }
+        >
           <>
             <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8 lg:p-10">
               <h2 className="text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl">

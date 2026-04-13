@@ -14,7 +14,7 @@ export function PageHero({
 }: {
   eyebrow: string;
   title: string;
-  subtitle: string;
+  subtitle: ReactNode;
   children?: ReactNode;
 }) {
   return (

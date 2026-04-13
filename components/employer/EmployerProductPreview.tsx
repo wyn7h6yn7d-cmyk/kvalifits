@@ -86,10 +86,7 @@ export function EmployerProductPreview() {
     <section className="border-t border-white/[0.06] py-14 sm:py-20">
       <Container>
         <div className="mx-auto max-w-3xl text-center">
-          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
-            {t("previewEyebrow")}
-          </div>
-          <h2 className="mt-3 text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+          <h2 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
             {t("previewSectionTitle")}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/58 sm:text-[15px]">
