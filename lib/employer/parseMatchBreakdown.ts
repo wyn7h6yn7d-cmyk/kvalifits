@@ -19,9 +19,10 @@ export function parseMatchBreakdown(raw: unknown): Partial<MatchBreakdown> | nul
     ? (o.weak_areas as unknown[]).filter((x): x is string => typeof x === "string")
     : [];
 
-  if (version === MATCH_MODEL_VERSION) {
+  // v2 and v3 share the same core field names; v3 adds penalty_* fields.
+  if (version >= 2) {
     return {
-      modelVersion: MATCH_MODEL_VERSION as number,
+      modelVersion: version,
       weights: (o.weights as MatchBreakdown["weights"]) ?? { ...MATCH_WEIGHTS },
       skills_keywords_raw: num(o.skills_keywords_raw),
       certificate_raw: num(o.certificate_raw),
@@ -44,6 +45,10 @@ export function parseMatchBreakdown(raw: unknown): Partial<MatchBreakdown> | nul
       certificate_slots_matched: num(o.certificate_slots_matched),
       weak_areas,
       highlights,
+      penalty_points: num(o.penalty_points),
+      penalty_codes: Array.isArray(o.penalty_codes)
+        ? (o.penalty_codes as unknown[]).filter((x): x is string => typeof x === "string")
+        : [],
     };
   }
 

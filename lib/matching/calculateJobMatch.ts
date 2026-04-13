@@ -1,16 +1,16 @@
 import { EXPERIENCE_LEVEL_VALUES, isExperienceLevel } from "@/lib/matching/profileRules";
 
 /** MVP weighted suitability (deterministic). Version bumps when the model changes. */
-export const MATCH_MODEL_VERSION = 2 as const;
+export const MATCH_MODEL_VERSION = 3 as const;
 
 /** Fixed employer-facing weights (sum = 100). */
 export const MATCH_WEIGHTS = {
-  skillsKeywords: 35,
-  certificates: 25,
-  experience: 15,
-  roleTitle: 10,
-  location: 10,
-  workJobType: 5,
+  skillsKeywords: 38,
+  certificates: 22,
+  experience: 18,
+  roleTitle: 15,
+  location: 5,
+  workJobType: 2,
 } as const;
 
 export type SeekerMatchInput = {
@@ -84,6 +84,10 @@ export type MatchBreakdown = {
   /** Machine codes; UI maps to copy. */
   weak_areas: string[];
   highlights: string[];
+
+  /** Deterministic penalties (v3+). */
+  penalty_points?: number;
+  penalty_codes?: string[];
 };
 
 const EXP_RANK: Record<string, number> = {
@@ -136,6 +140,10 @@ function significantWords(s: string) {
 
 function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
+}
+
+function clampScore(x: number) {
+  return Math.max(0, Math.min(100, x));
 }
 
 function dedupeNormTags(items: string[]): string[] {
@@ -233,10 +241,13 @@ function skillsKeywordsRaw(
   const lineRaw = total > 0 ? matched / total : NaN;
 
   let raw: number;
-  if (!Number.isFinite(tagRaw) && !Number.isFinite(lineRaw)) raw = 0.5;
+  // Stricter: missing structured signals should not award neutral 0.5.
+  // - If job provides neither tags nor requirement lines → low confidence baseline.
+  // - If one side is missing, use the available signal but keep it strict.
+  if (!Number.isFinite(tagRaw) && !Number.isFinite(lineRaw)) raw = 0.12;
   else if (!Number.isFinite(tagRaw)) raw = clamp01(lineRaw as number);
   else if (!Number.isFinite(lineRaw)) raw = clamp01(tagRaw);
-  else raw = clamp01(0.5 * (tagRaw as number) + 0.5 * (lineRaw as number));
+  else raw = clamp01(0.55 * (tagRaw as number) + 0.45 * (lineRaw as number));
 
   return {
     raw,
@@ -271,13 +282,15 @@ function certificateRaw(
   if (!slots.length) {
     const kw = dedupeNormTags((jobKeywords ?? []).map(String));
     const kwNeedle = kw.filter((k) => k.length > 3);
-    if (!kwNeedle.length) return { raw: 0.5, slots: 0, matched: 0 };
-    if (!certs.length) return { raw: 0.28, slots: kwNeedle.length, matched: 0 };
+    // Stricter: don't reward neutral if there's no certificate signal.
+    if (!kwNeedle.length) return { raw: 0.15, slots: 0, matched: 0 };
+    if (!certs.length) return { raw: 0.08, slots: kwNeedle.length, matched: 0 };
     let h = 0;
     for (const k of kwNeedle) {
       if (seekerBlob.includes(k)) h++;
     }
-    return { raw: clamp01(0.35 + (h / kwNeedle.length) * 0.55), slots: kwNeedle.length, matched: h };
+    // If we can only infer from keywords, keep the ceiling modest.
+    return { raw: clamp01(0.18 + (h / kwNeedle.length) * 0.62), slots: kwNeedle.length, matched: h };
   }
 
   if (!certs.length) return { raw: 0, slots: slots.length, matched: 0 };
@@ -302,11 +315,12 @@ function certificateRaw(
 }
 
 function experienceRaw(seekerExp: string | null, jobExp: string | null): number {
-  if (!jobExp || !isExperienceLevel(jobExp)) return 0.5;
-  if (!seekerExp || !isExperienceLevel(seekerExp)) return 0.22;
+  // Stricter: missing experience shouldn't award neutral points.
+  if (!jobExp || !isExperienceLevel(jobExp)) return 0.28;
+  if (!seekerExp || !isExperienceLevel(seekerExp)) return 0.08;
   const sj = EXP_RANK[seekerExp] ?? 0;
   const jj = EXP_RANK[jobExp] ?? 0;
-  if (sj <= 0 || jj <= 0) return 0.35;
+  if (sj <= 0 || jj <= 0) return 0.18;
   if (sj >= jj) return 1;
   const gap = jj - sj;
   if (gap === 1) return 0.62;
@@ -318,8 +332,9 @@ function experienceRaw(seekerExp: string | null, jobExp: string | null): number 
 function roleTitleRaw(seekerTitle: string | null, jobTitle: string | null): number {
   const a = new Set(significantWords(seekerTitle ?? ""));
   const b = new Set(significantWords(jobTitle ?? ""));
-  if (!a.size && !b.size) return 0.5;
-  if (!a.size || !b.size) return 0.32;
+  // Stricter: missing/empty titles shouldn't produce neutral score.
+  if (!a.size && !b.size) return 0.18;
+  if (!a.size || !b.size) return 0.08;
   let inter = 0;
   for (const x of a) if (b.has(x)) inter++;
   const union = a.size + b.size - inter;
@@ -339,15 +354,16 @@ function locationRaw(
   preferredLocs: string[] | null
 ): number {
   const jw = (jobWork ?? "").toLowerCase();
-  if (jw === "remote") return 0.92;
+  // With location weight reduced, keep remote sensible but not a free boost.
+  if (jw === "remote") return 0.72;
   const jl = (jobLoc ?? "").toLowerCase().trim();
-  if (!jl) return 0.5;
+  if (!jl) return 0.18;
   const sl = (seekerLoc ?? "").toLowerCase().trim();
   const prefs = (preferredLocs ?? []).map((s) => s.toLowerCase().trim()).filter(Boolean);
   if (sl && (sl.includes(jl) || jl.includes(sl))) return 1;
-  if (prefs.some((p) => p && (jl.includes(p) || p.includes(jl)))) return 0.92;
-  if (jw === "hybrid") return 0.58;
-  return 0.28;
+  if (prefs.some((p) => p && (jl.includes(p) || p.includes(jl)))) return 0.82;
+  if (jw === "hybrid") return 0.32;
+  return 0.08;
 }
 
 function workJobTypeRaw(
@@ -357,18 +373,18 @@ function workJobTypeRaw(
 ): number {
   const jt = (jobType ?? "").toLowerCase().trim();
   const pj = (preferredTypes ?? []).map((s) => s.toLowerCase().trim()).filter(Boolean);
-  let typePart = 0.5;
+  let typePart = 0.22;
   if (jt && pj.length) {
     const hit = pj.some((p) => p && (jt === p || jt.includes(p) || p.includes(jt)));
-    typePart = hit ? 1 : 0.22;
-  } else if (jt && !pj.length) typePart = 0.48;
-  else if (!jt) typePart = 0.5;
+    typePart = hit ? 1 : 0.08;
+  } else if (jt && !pj.length) typePart = 0.18;
+  else if (!jt) typePart = 0.18;
 
   const wt = (workType ?? "").toLowerCase();
-  let workPart = 0.55;
-  if (wt === "remote") workPart = 1;
-  else if (wt === "hybrid") workPart = 0.88;
-  else if (wt === "on_site") workPart = 0.52;
+  let workPart = 0.22;
+  if (wt === "remote") workPart = 0.9;
+  else if (wt === "hybrid") workPart = 0.55;
+  else if (wt === "on_site") workPart = 0.35;
 
   return clamp01(0.58 * typePart + 0.42 * workPart);
 }
@@ -415,7 +431,56 @@ export function calculateJobMatch(
   const cWjt = Math.round(wjt * w.workJobType);
 
   let score = cSkills + cCert + cEx + cRole + cLoc + cWjt;
-  score = Math.max(0, Math.min(100, score));
+
+  // Stricter deterministic penalties: prevent weak/random candidates drifting into ~20–30%.
+  // These are additive point deductions, stored in breakdown for explainability.
+  const penaltyCodes: string[] = [];
+  let penaltyPoints = 0;
+
+  const reqRatio = sk.requirementsTotal > 0 ? sk.requirementsMatched / sk.requirementsTotal : 0;
+
+  // No meaningful professional overlap (skills+requirements).
+  if (sk.raw < 0.18) {
+    penaltyCodes.push("no_skill_requirements_overlap");
+    penaltyPoints += 12;
+  } else if (sk.raw < 0.3) {
+    penaltyCodes.push("weak_skill_requirements_overlap");
+    penaltyPoints += 6;
+  }
+
+  // Role/title mismatch should matter.
+  if (role < 0.14) {
+    penaltyCodes.push("role_title_mismatch");
+    penaltyPoints += 10;
+  } else if (role < 0.28) {
+    penaltyCodes.push("weak_role_title_alignment");
+    penaltyPoints += 4;
+  }
+
+  // Certificates: if job specifies certs, missing overlap is a strong negative.
+  if (cert.slots > 0) {
+    if (cert.raw < 0.34) {
+      penaltyCodes.push("missing_required_certificates");
+      penaltyPoints += 14;
+    } else if (cert.raw < 0.6) {
+      penaltyCodes.push("partial_certificates");
+      penaltyPoints += 6;
+    }
+  }
+
+  // Requirements: if job has multiple lines but match is near-zero, penalize.
+  if (sk.requirementsTotal >= 3 && reqRatio < 0.2) {
+    penaltyCodes.push("requirements_mismatch");
+    penaltyPoints += 8;
+  }
+
+  // If both core professional signals are weak, apply an extra damping.
+  if (sk.raw < 0.22 && role < 0.22) {
+    penaltyCodes.push("professional_alignment_missing");
+    penaltyPoints += 10;
+  }
+
+  score = clampScore(score - penaltyPoints);
 
   const weak = weakAreasFrom({
     skillsKw: sk.raw,
@@ -463,6 +528,8 @@ export function calculateJobMatch(
     certificate_slots_matched: cert.matched,
     weak_areas: weak,
     highlights,
+    penalty_points: penaltyPoints,
+    penalty_codes: penaltyCodes,
   };
 
   return { score, breakdown };
