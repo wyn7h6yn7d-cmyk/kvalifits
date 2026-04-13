@@ -80,9 +80,10 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
   const { data: app, error: appErr } = await supabase
     .from("job_applications")
-    .select("id,job_post_id,created_at,cover_letter,match_score,match_breakdown,shared_profile")
+    .select("id,job_post_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile")
     .eq("id", applicationId)
     .eq("job_post_id", id)
+    .neq("status", "withdrawn")
     .maybeSingle();
 
   if (appErr) throw appErr;

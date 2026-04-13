@@ -26,6 +26,7 @@ const GUEST_NAV_PATHS = [
 const SEEKER_NAV_PATHS = [
   { href: "/", key: "home" as const },
   { href: "/tood", key: "jobs" as const },
+  { href: "/account/seeker/applications", key: "seekerApplications" as const },
   { href: "/account/seeker", key: "seekerArea" as const },
 ];
 

@@ -32,8 +32,9 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
 
   const { data: applications, error: appErr } = await supabase
     .from("job_applications")
-    .select("id,created_at,match_score,match_breakdown,shared_profile")
+    .select("id,created_at,status,match_score,match_breakdown,shared_profile")
     .eq("job_post_id", id)
+    .neq("status", "withdrawn")
     .limit(200);
   if (appErr) throw appErr;
 
