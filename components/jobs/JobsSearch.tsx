@@ -9,7 +9,6 @@ import { chipMatchesJob } from "@/components/jobs/job-filters-config";
 import { Chip } from "@/components/ui/chip";
 import { Container } from "@/components/ui/container";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { JobCard } from "./JobCard";
 
 const CERT_HIGHLIGHT = new Set([
@@ -157,9 +156,12 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
       <Container>
         <div className="mb-8 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md lg:mb-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+            <div className="min-w-0">
               <div className="text-sm font-medium text-white/85">{t("searchTitle")}</div>
               <div className="mt-1 text-xs text-white/50">{t("searchSubtitle")}</div>
+              <p className="mt-2 text-xs text-white/55" aria-live="polite">
+                <span className="text-white/70">{foundLabel}</span>
+              </p>
             </div>
             <div className="relative w-full sm:max-w-md sm:min-w-[min(100%,20rem)] lg:max-w-xl">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
@@ -290,16 +292,9 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
             </div>
           </div>
 
-          {/* Results — same row start as filter column */}
+          {/* Results — top aligns with filter card (count lives in search bar above) */}
           <div>
-            <div className="flex items-center justify-between text-xs text-white/50">
-              <div className="text-white/55">
-                <span className="text-white/70">{foundLabel}</span>
-              </div>
-              <div className={cn("hidden sm:block", results.length ? "" : "opacity-0")} />
-            </div>
-
-            <div className="mt-5 grid gap-5 lg:grid-cols-2">
+            <div className="grid gap-5 lg:grid-cols-2">
               {results.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}

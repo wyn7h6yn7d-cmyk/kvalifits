@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
+import { cn } from "@/lib/utils";
 
 export function PageHero({
   eyebrow,
@@ -12,6 +13,7 @@ export function PageHero({
   subtitle,
   children,
   prepend,
+  ambient = true,
 }: {
   eyebrow: string;
   title: string;
@@ -19,10 +21,14 @@ export function PageHero({
   children?: ReactNode;
   /** Rendered first (e.g. tutorial) — full width above eyebrow/title/subtitle */
   prepend?: ReactNode;
+  /** When false, no gradient glow (e.g. employer landing lead strip) */
+  ambient?: boolean;
 }) {
   return (
-    <section className="relative overflow-hidden">
-      <AmbientBackground intensity="soft" />
+    <section
+      className={cn("relative overflow-hidden", !ambient && "border-b border-white/[0.06] bg-background")}
+    >
+      {ambient ? <AmbientBackground intensity="soft" /> : null}
       <Container className="relative">
         <div className="pt-20 sm:pt-24 lg:pt-28 pb-16 sm:pb-20">
           <motion.div
