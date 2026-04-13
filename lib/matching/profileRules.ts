@@ -133,9 +133,5 @@ export function jobMatchingReady(j: JobMatchingFields): boolean {
   const kw = Array.isArray(j.keywords) ? j.keywords.filter(Boolean) : [];
   if (skills.length < MIN_SKILLS_JOB || kw.length < MIN_KEYWORDS_JOB) return false;
   if (!isExperienceLevel(j.experience_level_required)) return false;
-  if (j.application_type === "external_url") {
-    const url = (j.application_url ?? "").trim();
-    if (!url || !isLikelyHttpUrl(url)) return false;
-  }
   return true;
 }

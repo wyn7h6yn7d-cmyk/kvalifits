@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +9,7 @@ import {
   EMPLOYER_COMPANY_SIZE_DB_ENABLED,
   employerCompanySizeField,
 } from "@/lib/employer/employerCompanySizeSync";
+import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { errorMessageFromUnknown } from "@/lib/utils";
@@ -24,6 +25,7 @@ export type EmployerProfile = {
   location: string | null;
   industry: string | null;
   company_size?: string | null;
+  logo_url?: string | null;
 };
 
 type Props = {
@@ -48,6 +50,43 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [industry, setIndustry] = useState(initial?.industry ?? "");
   const [companySize, setCompanySize] = useState(initial?.company_size ?? "");
   const [companyDescription, setCompanyDescription] = useState(initial?.company_description ?? "");
+  const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLogoUrl(initial?.logo_url ?? "");
+  }, [initial?.logo_url]);
+
+  async function onLogoFileChange(file: File | null) {
+    if (!file) return;
+    setError(null);
+    setLogoUploading(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+      const ext = (file.name.split(".").pop() || "png").toLowerCase();
+      if (!["png", "jpg", "jpeg", "webp", "gif"].includes(ext)) {
+        throw new Error(t("logoUploadError"));
+      }
+      const path = `${user.id}/employer-logo/${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true,
+        contentType: file.type || undefined,
+      });
+      if (uploadErr) throw uploadErr;
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
+      setLogoPreviewUrl(URL.createObjectURL(file));
+      setLogoUrl(data.publicUrl);
+    } catch (err) {
+      setError(errorMessageFromUnknown(err, t("logoUploadError")));
+    } finally {
+      setLogoUploading(false);
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -61,6 +100,9 @@ export function EmployerProfileForm({ locale, initial }: Props) {
 
       if (industry.trim().length < 2) throw new Error(t("errIndustryRequired"));
       if (companyDescription.trim().length < 40) throw new Error(t("errCompanyDescriptionTooShort"));
+      if (logoUrl.trim() && !isEmployerLogoFromStorageUpload(logoUrl)) {
+        throw new Error(t("logoUploadError"));
+      }
 
       const payload = {
         company_name: companyName,
@@ -71,6 +113,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         company_description: companyDescription,
         location: locationValue,
         industry: industry || null,
+        logo_url: logoUrl.trim() || null,
         ...employerCompanySizeField(companySize.trim()),
       };
 
@@ -91,6 +134,27 @@ export function EmployerProfileForm({ locale, initial }: Props) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("logoUrl")}</label>
+        <div className="mt-2 text-xs leading-relaxed text-white/45">{t("logoVisibleOnJobsHint")}</div>
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          onChange={(e) => void onLogoFileChange(e.target.files?.[0] ?? null)}
+          className="mt-3 block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+        />
+        {logoUploading ? <div className="mt-2 text-xs text-white/55">{t("logoUploading")}</div> : null}
+        {!logoUploading && (logoPreviewUrl || logoUrl) ? (
+          <div className="mt-4 flex items-center gap-4">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.04]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logoPreviewUrl ?? logoUrl} alt="" className="h-full w-full object-contain" />
+            </div>
+            <div className="text-xs text-white/55">{t("logoReady")}</div>
+          </div>
+        ) : null}
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("companyName")}</label>
@@ -160,6 +224,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         variant="primary"
         size="lg"
         className="w-full"
+        disabled={logoUploading}
         loading={loading}
         loadingText={t("saving")}
       >

@@ -8,7 +8,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   EXPERIENCE_LEVEL_VALUES,
   employerCoreComplete,
-  isLikelyHttpUrl,
   jobMatchingReady,
   parseCommaList,
   parseRequirementLines,
@@ -46,8 +45,6 @@ export function EmployerNewJobForm({ locale }: Props) {
     (typeof EXPERIENCE_LEVEL_VALUES)[number] | ""
   >("");
   const [certificateRequirements, setCertificateRequirements] = useState("");
-  const [applicationType, setApplicationType] = useState<"in_app" | "external_url">("in_app");
-  const [applicationUrlExternal, setApplicationUrlExternal] = useState("");
   const [salaryMin, setSalaryMin] = useState("");
   const [salaryMax, setSalaryMax] = useState("");
   const [salaryCurrency, setSalaryCurrency] = useState("EUR");
@@ -102,15 +99,6 @@ export function EmployerNewJobForm({ locale }: Props) {
 
     if (!experienceLevelRequired) return t("errExperienceRequired");
 
-    if (applicationType === "external_url" && !isLikelyHttpUrl(applicationUrlExternal.trim())) {
-      return t("errApplicationUrlInvalid");
-    }
-
-    const appUrl =
-      applicationType === "external_url"
-        ? applicationUrlExternal.trim()
-        : "https://www.kvalifits.ee";
-
     const ready = jobMatchingReady({
       title: title.trim(),
       location: location.trim(),
@@ -123,8 +111,8 @@ export function EmployerNewJobForm({ locale }: Props) {
       keywords,
       experience_level_required: experienceLevelRequired,
       certificate_requirements: certificateRequirements.trim() || null,
-      application_type: applicationType,
-      application_url: appUrl,
+      application_type: "in_app",
+      application_url: null,
     });
     if (!ready) return t("jobMatchingIncomplete");
 
@@ -180,17 +168,6 @@ export function EmployerNewJobForm({ locale }: Props) {
       const keywords = parseCommaList(keywordsCsv);
       const requirementsJoined = lines.join("\n");
 
-      const fallbackUrl =
-        (employer.website ?? "").toString().trim() ||
-        ((employer.contact_email ?? "").toString().trim()
-          ? `mailto:${(employer.contact_email ?? "").toString().trim()}`
-          : "");
-
-      const applicationUrl =
-        applicationType === "external_url"
-          ? applicationUrlExternal.trim()
-          : fallbackUrl || "https://www.kvalifits.ee";
-
       const nowIso = new Date().toISOString();
       const { error: jobErr } = await supabase.from("job_posts").insert({
         employer_profile_id: employer.id,
@@ -211,8 +188,8 @@ export function EmployerNewJobForm({ locale }: Props) {
         salary_min: Number.isFinite(min as number) ? min : null,
         salary_max: Number.isFinite(max as number) ? max : null,
         salary_currency: salaryCurrency,
-        application_type: applicationType,
-        application_url: applicationUrl,
+        application_type: "in_app",
+        application_url: null,
         status: "published",
         published_at: nowIso,
       });
@@ -427,42 +404,8 @@ export function EmployerNewJobForm({ locale }: Props) {
       </div>
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applicationType")}</div>
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
-            <input
-              type="radio"
-              name="applicationType"
-              checked={applicationType === "in_app"}
-              onChange={() => setApplicationType("in_app")}
-              className="h-4 w-4 border-white/[0.20] bg-white/[0.03]"
-            />
-            {t("applicationTypeInApp")}
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
-            <input
-              type="radio"
-              name="applicationType"
-              checked={applicationType === "external_url"}
-              onChange={() => setApplicationType("external_url")}
-              className="h-4 w-4 border-white/[0.20] bg-white/[0.03]"
-            />
-            {t("applicationTypeExternalUrl")}
-          </label>
-        </div>
-        {applicationType === "external_url" ? (
-          <div className="mt-4 space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">{t("applicationUrl")}</label>
-            <Input
-              value={applicationUrlExternal}
-              onChange={(e) => setApplicationUrlExternal(e.target.value)}
-              required
-              placeholder="https://…"
-              inputMode="url"
-            />
-          </div>
-        ) : null}
-        <div className="mt-3 text-xs text-white/45">{t("jobFieldGuideApplication")}</div>
+        <div className="text-sm font-medium text-white/85">{t("applicationKvalifitsOnlyTitle")}</div>
+        <p className="mt-2 text-sm leading-relaxed text-white/60">{t("applicationKvalifitsOnlyBody")}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

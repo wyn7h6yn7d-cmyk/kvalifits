@@ -30,7 +30,7 @@ export default async function JobDetailPage({ params }: Props) {
 
   const { data: employer } = await supabase
     .from("employer_profiles")
-    .select("company_name,location,website")
+    .select("company_name,location,website,logo_url")
     .eq("id", job.employer_profile_id)
     .maybeSingle();
 
@@ -41,8 +41,18 @@ export default async function JobDetailPage({ params }: Props) {
         <div className="mx-auto w-full max-w-3xl px-4 pb-16 pt-10 sm:px-6">
           <div className="text-sm text-white/60">{t("heroEyebrow")}</div>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white/92">{job.title}</h1>
-          <div className="mt-2 text-sm text-white/70">
-            {(employer?.company_name ?? "—").toString()} · {(job.location ?? "—").toString()}
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-white/70">
+            {(employer?.logo_url ?? "").toString().trim() ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={(employer?.logo_url ?? "").toString().trim()}
+                alt=""
+                className="h-11 w-11 shrink-0 rounded-xl border border-white/[0.10] bg-white/[0.04] object-contain"
+              />
+            ) : null}
+            <span>
+              {(employer?.company_name ?? "—").toString()} · {(job.location ?? "—").toString()}
+            </span>
           </div>
 
           <div className="mt-8 grid gap-6">

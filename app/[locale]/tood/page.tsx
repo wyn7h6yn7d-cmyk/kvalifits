@@ -100,10 +100,15 @@ export default async function ToodPage({ params }: Props) {
   ) as string[];
 
   const { data: employers } = employerIds.length
-    ? await supabase.from("employer_profiles").select("id,company_name").in("id", employerIds)
+    ? await supabase.from("employer_profiles").select("id,company_name,logo_url").in("id", employerIds)
     : { data: [] as any[] };
 
-  const nameByEmployerId = new Map((employers ?? []).map((e: any) => [e.id, e.company_name ?? "—"]));
+  const employerById = new Map(
+    (employers ?? []).map((e: any) => [
+      e.id,
+      { name: (e.company_name ?? "—").toString(), logoUrl: (e.logo_url ?? "").toString().trim() || null },
+    ])
+  );
 
   const mapped: Job[] = (jobs ?? []).map((j: any) => {
     const min = typeof j.salary_min === "number" ? j.salary_min : null;
@@ -138,10 +143,12 @@ export default async function ToodPage({ params }: Props) {
           .slice(0, 8)
       : [];
 
+    const emp = employerById.get(j.employer_profile_id);
     return {
       id: j.id,
       title: j.title,
-      company: nameByEmployerId.get(j.employer_profile_id) ?? "—",
+      company: emp?.name ?? "—",
+      companyLogoUrl: emp?.logoUrl ?? null,
       location: j.location ?? "—",
       type,
       salary,

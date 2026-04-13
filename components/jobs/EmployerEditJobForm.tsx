@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
   EXPERIENCE_LEVEL_VALUES,
-  isLikelyHttpUrl,
   jobMatchingReady,
   parseCommaList,
   parseRequirementLines,
@@ -33,7 +32,7 @@ type Job = {
   salary_min: number | null;
   salary_max: number | null;
   salary_currency: string;
-  application_url: string;
+  application_url: string | null;
   application_type: string | null;
   status: string;
 };
@@ -90,12 +89,6 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
   const [certificateRequirements, setCertificateRequirements] = useState(
     initialJob.certificate_requirements ?? ""
   );
-  const [applicationType, setApplicationType] = useState<"in_app" | "external_url">(
-    initialJob.application_type === "external_url" ? "external_url" : "in_app"
-  );
-  const [applicationUrlExternal, setApplicationUrlExternal] = useState(
-    initialJob.application_type === "external_url" ? initialJob.application_url ?? "" : ""
-  );
   const [salaryMin, setSalaryMin] = useState(initialJob.salary_min?.toString() ?? "");
   const [salaryMax, setSalaryMax] = useState(initialJob.salary_max?.toString() ?? "");
   const [salaryCurrency, setSalaryCurrency] = useState(initialJob.salary_currency ?? "EUR");
@@ -114,11 +107,6 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
     const keywords = parseCommaList(keywordsCsv);
     if (keywords.length < 1) return t("errKeywords");
     if (!experienceLevelRequired) return t("errExperienceRequired");
-    if (applicationType === "external_url" && !isLikelyHttpUrl(applicationUrlExternal.trim())) {
-      return t("errApplicationUrlInvalid");
-    }
-    const appUrl =
-      applicationType === "external_url" ? applicationUrlExternal.trim() : "https://www.kvalifits.ee";
     const ok = jobMatchingReady({
       title: title.trim(),
       location: location.trim(),
@@ -131,8 +119,8 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       keywords,
       experience_level_required: experienceLevelRequired,
       certificate_requirements: certificateRequirements.trim() || null,
-      application_type: applicationType,
-      application_url: appUrl,
+      application_type: "in_app",
+      application_url: null,
     });
     if (!ok) return t("jobMatchingIncomplete");
     return null;
@@ -154,9 +142,6 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       const requiredSkills = parseCommaList(requiredSkillsCsv);
       const keywords = parseCommaList(keywordsCsv);
       const requirementsJoined = lines.join("\n");
-      const appUrl =
-        applicationType === "external_url" ? applicationUrlExternal.trim() : "https://www.kvalifits.ee";
-
       const { error } = await supabase
         .from("job_posts")
         .update({
@@ -175,8 +160,8 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           salary_min: Number.isFinite(min as number) ? min : null,
           salary_max: Number.isFinite(max as number) ? max : null,
           salary_currency: salaryCurrency,
-          application_type: applicationType,
-          application_url: appUrl,
+          application_type: "in_app",
+          application_url: null,
         })
         .eq("id", initialJob.id);
       if (error) throw error;
@@ -324,42 +309,8 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       </div>
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applicationType")}</div>
-        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
-            <input
-              type="radio"
-              name="applicationTypeEdit"
-              checked={applicationType === "in_app"}
-              onChange={() => setApplicationType("in_app")}
-              className="h-4 w-4 border-white/[0.20] bg-white/[0.03]"
-            />
-            {t("applicationTypeInApp")}
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/75">
-            <input
-              type="radio"
-              name="applicationTypeEdit"
-              checked={applicationType === "external_url"}
-              onChange={() => setApplicationType("external_url")}
-              className="h-4 w-4 border-white/[0.20] bg-white/[0.03]"
-            />
-            {t("applicationTypeExternalUrl")}
-          </label>
-        </div>
-        {applicationType === "external_url" ? (
-          <div className="mt-4 space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">{t("applicationUrl")}</label>
-            <Input
-              value={applicationUrlExternal}
-              onChange={(e) => setApplicationUrlExternal(e.target.value)}
-              required
-              placeholder="https://…"
-              inputMode="url"
-            />
-          </div>
-        ) : null}
-        <div className="mt-3 text-xs text-white/45">{t("jobFieldGuideApplication")}</div>
+        <div className="text-sm font-medium text-white/85">{t("applicationKvalifitsOnlyTitle")}</div>
+        <p className="mt-2 text-sm leading-relaxed text-white/60">{t("applicationKvalifitsOnlyBody")}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

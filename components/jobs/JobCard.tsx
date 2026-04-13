@@ -35,7 +35,17 @@ export function JobCard({ job }: { job: Job }) {
           >
             {job.title}
           </Link>
-          <div className="text-sm text-white/60">{job.company}</div>
+          <div className="flex items-center gap-2.5">
+            {job.companyLogoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={job.companyLogoUrl}
+                alt=""
+                className="h-8 w-8 shrink-0 rounded-lg border border-white/[0.10] bg-white/[0.04] object-contain"
+              />
+            ) : null}
+            <div className="text-sm text-white/60">{job.company}</div>
+          </div>
         </div>
 
         <div className="space-y-2 text-xs text-white/55">

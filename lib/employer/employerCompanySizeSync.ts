@@ -17,14 +17,14 @@ export function employerCompanySizeField(companySizeTrimmed: string): { company_
 /** Server + client: employer account page load */
 export function employerProfileSelectColumns(): string {
   const base =
-    "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry";
+    "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry, logo_url";
   return EMPLOYER_COMPANY_SIZE_DB_ENABLED ? `${base}, company_size` : base;
 }
 
 /** Client: onboarding prefill */
 export function employerOnboardingSelectColumns(): string {
   const base =
-    "company_name,registry_code,contact_email,contact_phone,website,location,industry,company_description";
+    "company_name,registry_code,contact_email,contact_phone,website,location,industry,company_description,logo_url";
   return EMPLOYER_COMPANY_SIZE_DB_ENABLED ? `${base},company_size` : base;
 }
 
@@ -39,4 +39,5 @@ export type EmployerOnboardingPrefill = {
   industry?: string | null;
   company_description?: string | null;
   company_size?: string | null;
+  logo_url?: string | null;
 };
