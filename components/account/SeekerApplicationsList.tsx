@@ -15,7 +15,6 @@ type Row = {
   job_post_id: string;
   created_at: string | null;
   status: string | null;
-  match_score: number | null;
   shared_profile: unknown;
 };
 
@@ -113,7 +112,6 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
         {rows.map((r) => {
           const meta = jobFromShared(r.shared_profile);
           const created = fmtDate(locale, r.created_at);
-          const score = typeof r.match_score === "number" ? r.match_score : null;
           const withdrawn = (r.status ?? "").toString().toLowerCase() === "withdrawn";
 
           return (
@@ -157,15 +155,6 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                         {t("seekerAppliedAt")} {created}
                       </span>
                     </span>
-                    {score != null ? (
-                      <>
-                        <span className="hidden h-1 w-1 shrink-0 rounded-full bg-white/20 sm:inline-block" aria-hidden />
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="text-white/45">{t("seekerSuitability")}</span>
-                          <span className="font-medium text-white/75 tabular-nums">{score}%</span>
-                        </span>
-                      </>
-                    ) : null}
                   </div>
 
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

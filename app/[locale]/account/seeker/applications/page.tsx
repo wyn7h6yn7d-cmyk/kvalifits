@@ -29,7 +29,7 @@ export default async function SeekerApplicationsPage({ params }: Props) {
 
   const { data: applications, error } = await supabase
     .from("job_applications")
-    .select("id,job_post_id,created_at,status,match_score,shared_profile")
+    .select("id,job_post_id,created_at,status,shared_profile")
     .eq("seeker_user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(200);
