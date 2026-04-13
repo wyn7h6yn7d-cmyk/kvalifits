@@ -454,6 +454,8 @@
     "seekerViewJob": "Открыть вакансию",
     "seekerWithdraw": "Отозвать отклик",
     "seekerWithdrawConfirm": "Отозвать этот отклик? Работодатель больше не увидит вас как активного кандидата.",
+    "seekerNextStepHint": "Дальше: ждите ответ или пересмотрите вакансию.",
+    "seekerWithdrawnHint": "Отклик отозван. При необходимости можно откликнуться снова.",
     "seekerApplicationStatus_submitted": "Отправлено",
     "seekerApplicationStatus_withdrawn": "Отозвано",
     "seekerApplicationsPrivacyNote": "Примечание: показанные данные — снимок на момент отклика (версия, отправленная работодателю).",

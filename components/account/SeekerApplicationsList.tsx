@@ -47,6 +47,14 @@ function statusLabelKey(status: string | null | undefined) {
   return "seekerApplicationStatus_submitted";
 }
 
+function statusTone(status: string | null | undefined) {
+  const v = (status ?? "").toString().trim().toLowerCase();
+  if (v === "withdrawn") {
+    return "border-white/[0.10] bg-white/[0.03] text-white/60";
+  }
+  return "border-emerald-500/20 bg-emerald-500/10 text-emerald-100/85";
+}
+
 export function SeekerApplicationsList({ locale, applications }: { locale: string; applications: Row[] }) {
   const t = useTranslations("jobs");
   const router = useRouter();
@@ -115,62 +123,79 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                   "hover:border-white/[0.17] hover:bg-white/[0.055] hover:shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_20px_50px_-38px_rgba(0,0,0,0.65)]"
                 )}
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="text-[15px] font-semibold leading-snug tracking-tight text-white/92">
-                      {meta.jobTitle}
-                    </div>
-                    <div className="mt-1 text-sm text-white/60">{meta.employerName}</div>
-                    <div className="mt-3 flex flex-col gap-2 text-[13px] text-white/52 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
-                      <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
-                        <span className="text-white/65">{meta.jobLocation}</span>
-                      </span>
-                      <span className="hidden h-1 w-1 shrink-0 rounded-full bg-white/20 sm:inline-block" aria-hidden />
-                      <span className="inline-flex items-center gap-1.5">
-                        <CalendarDays className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
-                        <span>
-                          {t("seekerAppliedAt")} {created}
-                        </span>
-                      </span>
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="min-w-0">
+                      <div className="text-[15px] font-semibold leading-snug tracking-tight text-white/92 sm:text-[16px]">
+                        {meta.jobTitle}
+                      </div>
+                      <div className="mt-1 text-sm text-white/60">{meta.employerName}</div>
                     </div>
 
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/70">
+                    <div className="flex shrink-0 items-center gap-2">
+                      <span
+                        className={cn(
+                          "inline-flex rounded-full border px-3 py-1 text-xs font-medium",
+                          statusTone(r.status)
+                        )}
+                      >
                         {t(statusLabelKey(r.status))}
                       </span>
-                      {score != null ? (
-                        <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs text-violet-100/85">
-                          {t("seekerSuitability")} {score}%
-                        </span>
-                      ) : null}
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 flex-wrap items-center gap-2">
-                    {meta.jobId ? (
-                      <Link
-                        href={`/tood/${meta.jobId}`}
-                        className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05]"
-                      >
-                        {t("seekerViewJob")} <ChevronRight className="h-4 w-4" aria-hidden />
-                      </Link>
+                  <div className="flex flex-col gap-2 text-[13px] text-white/55 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
+                      <span className="text-white/70">{meta.jobLocation}</span>
+                    </span>
+                    <span className="hidden h-1 w-1 shrink-0 rounded-full bg-white/20 sm:inline-block" aria-hidden />
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
+                      <span>
+                        {t("seekerAppliedAt")} {created}
+                      </span>
+                    </span>
+                    {score != null ? (
+                      <>
+                        <span className="hidden h-1 w-1 shrink-0 rounded-full bg-white/20 sm:inline-block" aria-hidden />
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="text-white/45">{t("seekerSuitability")}</span>
+                          <span className="font-medium text-white/75 tabular-nums">{score}%</span>
+                        </span>
+                      </>
                     ) : null}
+                  </div>
 
-                    {!withdrawn ? (
-                      <button
-                        type="button"
-                        onClick={() => void withdraw(r.id)}
-                        disabled={busyId === r.id}
-                        className={cn(
-                          "inline-flex h-9 items-center rounded-xl border px-3 text-[13px] font-medium transition-colors",
-                          "border-rose-500/25 bg-rose-500/10 text-rose-100/85 hover:border-rose-500/35 hover:bg-rose-500/15",
-                          busyId === r.id && "opacity-60"
-                        )}
-                      >
-                        {busyId === r.id ? t("saving") : t("seekerWithdraw")}
-                      </button>
-                    ) : null}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="text-[12px] text-white/40">
+                      {withdrawn ? t("seekerWithdrawnHint") : t("seekerNextStepHint")}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {meta.jobId ? (
+                        <Link
+                          href={`/tood/${meta.jobId}`}
+                          className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05]"
+                        >
+                          {t("seekerViewJob")} <ChevronRight className="h-4 w-4" aria-hidden />
+                        </Link>
+                      ) : null}
+
+                      {!withdrawn ? (
+                        <button
+                          type="button"
+                          onClick={() => void withdraw(r.id)}
+                          disabled={busyId === r.id}
+                          className={cn(
+                            "inline-flex h-9 items-center rounded-xl border px-3 text-[13px] font-medium transition-colors",
+                            "border-white/[0.10] bg-white/[0.03] text-rose-100/75 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-100/90",
+                            busyId === r.id && "opacity-60"
+                          )}
+                        >
+                          {busyId === r.id ? t("saving") : t("seekerWithdraw")}
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </div>
