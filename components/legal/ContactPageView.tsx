@@ -70,7 +70,13 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
         </div>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-start lg:gap-14">
-          <div className="min-w-0 space-y-4">
+          <div className="min-w-0">
+            {content.blocksAside ? (
+              <div className="mb-5">
+                <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
+              </div>
+            ) : null}
             <div className="grid gap-4 sm:grid-cols-2">
               {content.blocks.map((b) => {
                 const span = b.span ?? 1;

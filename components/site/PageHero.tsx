@@ -26,16 +26,17 @@ export function PageHero({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto max-w-3xl"
           >
-            <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
-              {eyebrow}
+            <div className="mx-auto max-w-3xl">
+              <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                {eyebrow}
+              </div>
+              <h1 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                {title}
+              </h1>
+              <p className="mt-4 text-base leading-7 text-white/65">{subtitle}</p>
             </div>
-            <h1 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              {title}
-            </h1>
-            <p className="mt-4 text-base leading-7 text-white/65">{subtitle}</p>
-            {children ? <div className="mt-8">{children}</div> : null}
+            {children ? <div className="mt-10 w-full">{children}</div> : null}
           </motion.div>
         </div>
       </Container>

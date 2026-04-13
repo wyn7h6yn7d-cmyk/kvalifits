@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, ClipboardCheck, LogIn, UserPlus } from "lucide-react";
+import { ArrowRight, Building2, ClipboardCheck, FilePlus2, LogIn, UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { Navbar } from "@/components/sections/Navbar";
@@ -46,70 +46,136 @@ export default async function TooandjatelePage({ params }: Props) {
     { title: t("p3Title"), desc: t("p3Desc") },
   ];
 
+  const tutorialSteps = [
+    { title: t("tutorialStep1Title"), body: t("tutorialStep1Body") },
+    { title: t("tutorialStep2Title"), body: t("tutorialStep2Body") },
+    { title: t("tutorialStep3Title"), body: t("tutorialStep3Body") },
+    { title: t("tutorialStep4Title"), body: t("tutorialStep4Body") },
+    { title: t("tutorialStep5Title"), body: t("tutorialStep5Body") },
+  ] as const;
+
+  const tutorialBenefits = [
+    t("tutorialBenefit1"),
+    t("tutorialBenefit2"),
+    t("tutorialBenefit3"),
+    t("tutorialBenefit4"),
+  ] as const;
+
+  const startJobHref =
+    role === "employer" ? "/account/employer/jobs/new" : "/auth/register?role=employer";
+
   return (
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <PageHero
-          eyebrow={t("heroEyebrow")}
-          title={t("heroTitle")}
-          subtitle={t("heroSubtitle")}
-        >
-          <div className="grid gap-6">
-            <div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                <Button
-                  asChild
-                  variant="primary"
-                  size="lg"
-                  className="h-12 rounded-2xl px-7"
-                >
-                  <Link href="/auth/register">
-                    <UserPlus className="h-4 w-4" />
-                    {t("ctaSignup")}
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-12 rounded-2xl px-7"
-                >
-                  <Link href="/auth/login">
-                    <LogIn className="h-4 w-4" />
-                    {t("ctaLogin")}
-                  </Link>
-                </Button>
-              </div>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">
-                {t("ctaHint")}
-              </p>
+        <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")}>
+          <>
+            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8 lg:p-10">
+              <h2 className="text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                {t("tutorialSectionTitle")}
+              </h2>
+              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/58">{t("tutorialSectionIntro")}</p>
+              <ol className="mt-8 grid list-none gap-4 sm:gap-5">
+                {tutorialSteps.map((step) => (
+                  <li
+                    key={step.title}
+                    className="rounded-2xl border border-white/[0.08] bg-black/25 p-5 sm:p-6"
+                  >
+                    <div className="text-sm font-medium text-white/90">{step.title}</div>
+                    <p className="mt-1.5 text-sm leading-relaxed text-white/58">{step.body}</p>
+                  </li>
+                ))}
+              </ol>
 
-              {showPricing ? (
-                <div className="mt-6 max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-                    {t("pricingTitle")}
-                  </div>
-
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                      <div className="text-sm font-medium text-white/85">
-                        {t("pricingDuration30")}
-                      </div>
-                      <div className="font-mono text-lg font-semibold text-white">99 €</div>
-                    </div>
-
-                    <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                      <div className="text-sm font-medium text-white/85">
-                        {t("pricingDuration90")}
-                      </div>
-                      <div className="font-mono text-lg font-semibold text-white">250 €</div>
-                    </div>
-                  </div>
+              <div className="mt-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
+                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                  {t("tutorialBenefitsTitle")}
                 </div>
-              ) : null}
+                <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-white/65">
+                  {tutorialBenefits.map((line) => (
+                    <li key={line} className="flex gap-2.5">
+                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden />
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-8 border-t border-white/[0.08] pt-8">
+                <div className="text-lg font-semibold tracking-tight text-white sm:text-xl">
+                  {t("tutorialCtaSectionTitle")}
+                </div>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/55">{t("tutorialCtaSectionText")}</p>
+                <div className="mt-5">
+                  <Button
+                    asChild
+                    variant="primary"
+                    size="lg"
+                    className="h-12 rounded-2xl px-7"
+                  >
+                    <Link href="/auth/register?role=employer">
+                      <UserPlus className="h-4 w-4" />
+                      {t("tutorialCtaRegister")}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <div className="mx-auto grid max-w-3xl gap-6 pt-4">
+              <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="h-12 rounded-2xl px-7"
+                  >
+                    <Link href={startJobHref}>
+                      <FilePlus2 className="h-4 w-4" />
+                      {t("tutorialCtaStartJob")}
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="h-12 rounded-2xl px-7"
+                  >
+                    <Link href="/auth/login">
+                      <LogIn className="h-4 w-4" />
+                      {t("ctaLogin")}
+                    </Link>
+                  </Button>
+                </div>
+                <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/45">{t("ctaHint")}</p>
+
+                {showPricing ? (
+                  <div className="mt-6 max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
+                    <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                      {t("pricingTitle")}
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                        <div className="text-sm font-medium text-white/85">
+                          {t("pricingDuration30")}
+                        </div>
+                        <div className="font-mono text-lg font-semibold text-white">99 €</div>
+                      </div>
+
+                      <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                        <div className="text-sm font-medium text-white/85">
+                          {t("pricingDuration90")}
+                        </div>
+                        <div className="font-mono text-lg font-semibold text-white">250 €</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </>
         </PageHero>
 
         <section className="border-t border-white/[0.06] py-14 sm:py-20">
@@ -123,6 +189,7 @@ export default async function TooandjatelePage({ params }: Props) {
                   {t("sectionLead")}
                 </p>
                 <p className="mt-4 text-sm leading-relaxed text-white/58">{t("sectionBody")}</p>
+                <p className="mt-4 text-sm leading-relaxed text-white/58">{t("sectionPractice")}</p>
               </div>
               <ul className="space-y-5">
                 {details.map((d) => (

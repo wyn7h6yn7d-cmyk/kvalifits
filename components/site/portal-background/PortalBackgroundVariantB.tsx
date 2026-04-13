@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -8,7 +9,7 @@ import type { PortalIntensity } from "./portal-tokens";
 import { portalDurationScale, portalLayerOpacity } from "./portal-tokens";
 
 /**
- * Variant B: abstraktsed kaardi-outline’id + õrn sobivus-signaal + “kontrollitud” marker.
+ * Variant B: abstraktsed kaardi-outline’id + “kontrollitud” markerid.
  */
 export function PortalBackgroundVariantB({
   intensity = "default",
@@ -17,10 +18,10 @@ export function PortalBackgroundVariantB({
   intensity?: PortalIntensity;
   className?: string;
 }) {
+  const t = useTranslations("portalDecor");
   const reduce = useReducedMotion();
   const opacity = portalLayerOpacity(intensity);
   const dur = portalDurationScale(intensity);
-  const matchDur = 18 * dur;
 
   const cards = [
     { className: "left-[6%] top-[14%] h-[22%] w-[18%] rounded-2xl", delay: 0 },
@@ -31,10 +32,7 @@ export function PortalBackgroundVariantB({
   return (
     <div
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
-      style={{
-        opacity,
-        ["--portal-match-duration" as string]: `${matchDur}s`,
-      }}
+      style={{ opacity }}
     >
       {cards.map((c, i) => (
         <motion.div
@@ -68,14 +66,6 @@ export function PortalBackgroundVariantB({
       <div className="pointer-events-none absolute right-[14%] top-[38%] h-[3px] w-[12%] rounded-full bg-white/[0.14]" />
       <div className="pointer-events-none absolute left-[12%] bottom-[30%] h-[3px] w-[9%] rounded-full bg-white/[0.1]" />
 
-      {/* Sobivus — väga sumbum tekst */}
-      <div
-        className="portal-bg-b__match pointer-events-none absolute left-[42%] top-[40%] font-mono text-[clamp(2.5rem,6vw,4rem)] font-semibold tabular-nums text-white/[0.12]"
-        aria-hidden="true"
-      >
-        87%
-      </div>
-
       {/* Väikesed “kontrollitud” markerid */}
       <motion.div
         className="pointer-events-none absolute right-[22%] top-[48%] flex items-center gap-1 rounded-full border border-white/[0.14] bg-black/35 px-2 py-0.5"
@@ -86,7 +76,7 @@ export function PortalBackgroundVariantB({
       >
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/75" />
         <span className="text-[9px] font-medium uppercase tracking-wider text-white/55">
-          sert.
+          {t("certPill")}
         </span>
       </motion.div>
 
@@ -98,7 +88,7 @@ export function PortalBackgroundVariantB({
         }
       >
         <span className="text-[9px] font-medium uppercase tracking-wider text-white/50">
-          match
+          {t("fitPill")}
         </span>
       </motion.div>
     </div>

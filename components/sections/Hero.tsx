@@ -321,7 +321,7 @@ export function Hero() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className={cn(heroSecondaryCta)}>
-                  <Link href="#tooandjatele">{t("ctaEmployer")}</Link>
+                  <Link href="/tooandjatele">{t("ctaEmployer")}</Link>
                 </Button>
               </div>
 

@@ -41,6 +41,10 @@ export const contactEN: ContactPageContent = {
       span: 2,
     },
   ],
+  blocksAside: {
+    title: "Contact details",
+    lead: "Company, privacy, and general contact — we update these as things change.",
+  },
   formAside: {
     title: "Write to us",
     lead: "Fill in the fields — your mail app opens so you can review before sending.",

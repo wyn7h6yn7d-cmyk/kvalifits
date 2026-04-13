@@ -1,21 +1,26 @@
 "use client";
 
 import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 import type { Job } from "@/components/jobs/types";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 
-function formatDate(iso?: string) {
+function formatDate(iso: string | undefined, locale: string) {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString("et-EE", { year: "numeric", month: "2-digit", day: "2-digit" });
+  const tag = locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "et-EE";
+  return d.toLocaleDateString(tag, { year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
 export function JobCard({ job }: { job: Job }) {
-  const posted = formatDate(job.createdAt);
+  const locale = useLocale();
+  const t = useTranslations("jobCard");
+  const posted = formatDate(job.createdAt, locale);
+  const arrangement = [job.workType, job.jobType].filter(Boolean).join(`${"\u00a0"}·${"\u00a0"}`);
 
   return (
     <div className="group relative overflow-hidden rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md transition-colors hover:bg-white/[0.04]">
@@ -48,30 +53,47 @@ export function JobCard({ job }: { job: Job }) {
           </div>
         </div>
 
-        <div className="space-y-2 text-xs text-white/55">
-          <div className="inline-flex items-center gap-2">
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" />
-              {job.location}
-            </span>
-            {posted ? (
-              <span className="inline-flex items-center gap-1 text-white/45">
-                <CalendarDays className="h-3.5 w-3.5" />
+        <div className="space-y-3 text-xs">
+          <div>
+            <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelLocation")}</div>
+            <div className="mt-1 flex items-center gap-1.5 text-white/70">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-white/45" aria-hidden />
+              <span>{job.location}</span>
+            </div>
+          </div>
+
+          {arrangement ? (
+            <div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+                {t("labelArrangement")}
+              </div>
+              <div className="mt-1 text-sm text-white/70">{arrangement}</div>
+            </div>
+          ) : job.type && job.type !== "—" ? (
+            <div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+                {t("labelArrangement")}
+              </div>
+              <div className="mt-1 text-sm text-white/70">{job.type}</div>
+            </div>
+          ) : null}
+
+          {job.salary ? (
+            <div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelSalary")}</div>
+              <div className="mt-1 text-sm font-medium tabular-nums text-white/80">{job.salary}</div>
+            </div>
+          ) : null}
+
+          {posted ? (
+            <div>
+              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelPosted")}</div>
+              <div className="mt-1 flex items-center gap-1.5 text-white/50">
+                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden />
                 {posted}
-              </span>
-            ) : null}
-          </div>
-          <div className="text-white/55">
-            {(job.workType || job.jobType) ? (
-              <span>
-                {[job.workType, job.jobType].filter(Boolean).join(" · ")}
-              </span>
-            ) : (
-              <span>{job.type}</span>
-            )}
-            {job.salary ? <span className="text-white/25"> {" · "}</span> : null}
-            {job.salary ? <span className="text-white/65">{job.salary}</span> : null}
-          </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {job.summary ? (
@@ -81,27 +103,30 @@ export function JobCard({ job }: { job: Job }) {
         ) : null}
 
         {job.tags.length ? (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {job.tags.slice(0, 6).map((t, idx) => (
-              <span
-                key={t}
-                className={cn(
-                  "rounded-full border px-3 py-1 text-xs",
-                  idx === 1
-                    ? "border-white/[0.12] bg-[rgba(227,31,141,0.10)] text-white/85"
-                    : "border-white/[0.10] bg-white/[0.03] text-white/70"
-                )}
-              >
-                {t}
-              </span>
-            ))}
+          <div className="space-y-2 pt-1">
+            <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelSignals")}</div>
+            <div className="flex flex-wrap gap-2">
+              {job.tags.slice(0, 6).map((tag, idx) => (
+                <span
+                  key={tag}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs",
+                    idx === 1
+                      ? "border-white/[0.12] bg-[rgba(227,31,141,0.10)] text-white/85"
+                      : "border-white/[0.10] bg-white/[0.03] text-white/70",
+                  )}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
         ) : null}
 
         <div className="flex justify-end pt-1">
           <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
             <Link href={`/tood/${job.id}`}>
-              Ava kuulutus <ChevronRight className="h-4 w-4" aria-hidden />
+              {t("openJob")} <ChevronRight className="h-4 w-4" aria-hidden />
             </Link>
           </Button>
         </div>

@@ -1,17 +1,12 @@
 /**
- * Controlled synonym / concept families for matching.
+ * Controlled synonym / concept families for matching (ET + EN + RU where useful).
  *
- * How to extend:
- * - Add a new key (canonical concept id) and a short list of variants.
- * - Keep variants short; prefer token-like strings and common phrase forms.
- * - Avoid overly broad concepts (prevents false positives).
- *
- * Notes:
- * - Canonical ids are stable and used in scoring/debug/explanations.
- * - Variants are normalized by the normalization pipeline before lookup.
+ * - Normalization keeps Unicode letters (incl. Cyrillic); Latin combining marks are stripped.
+ * - Lookup is per token — prefer one word per variant (multi-word lines only help if that whole string is stored as a single tag).
+ * - Canonical keys are stable IDs for scoring / explanations.
  */
 export const SYNONYM_FAMILIES: Record<string, string[]> = {
-  // Electrical / electrician related (ET)
+  // Electrical / electrician
   elektrik: [
     "elektrik",
     "elektritoo",
@@ -20,9 +15,15 @@ export const SYNONYM_FAMILIES: Record<string, string[]> = {
     "elektripaigaldus",
     "elektrialane",
     "elektrialane paigaldus",
+    "electrician",
+    "sparky",
+    "электрик",
+    "электромонтер",
+    "электромонтажник",
+    "электромонтаж",
   ],
 
-  // Sheet metal / metalwork related (ET)
+  // Sheet metal / metalwork
   plekksepp: [
     "plekksepp",
     "plekitood",
@@ -35,15 +36,48 @@ export const SYNONYM_FAMILIES: Record<string, string[]> = {
     "metallitood",
     "metallitoo",
     "metallitöö",
+    "tinsmith",
+    "sheetmetal",
+    "жестянщик",
+    "кузнец",
   ],
 
-  // Warehouse / logistics (ET)
-  ladu: ["ladu", "laotööline", "laotöötaja", "laotoo", "laotöö", "komplekteerija", "logistika", "laotöö"],
+  // Warehouse / logistics
+  ladu: [
+    "ladu",
+    "laotööline",
+    "laotöötaja",
+    "laotoo",
+    "laotöö",
+    "komplekteerija",
+    "logistika",
+    "warehouse",
+    "picker",
+    "logistics",
+    "склад",
+    "комплектовщик",
+    "логистика",
+    "кладовщик",
+  ],
 
-  // Driving / transport (ET)
-  juht: ["juht", "autojuht", "veokijuht", "kuller", "transport", "vedu"],
+  // Driving / transport
+  juht: [
+    "juht",
+    "autojuht",
+    "veokijuht",
+    "kuller",
+    "transport",
+    "vedu",
+    "driver",
+    "courier",
+    "trucking",
+    "водитель",
+    "шофер",
+    "курьер",
+    "дальнобойщик",
+  ],
 
-  // B-category driver's license (ET + EN) — distinct from electrical "b-padev"
+  // B-category driver's license — distinct from electrical "b-padev"
   "b-juhiluba": [
     "b-kategooria juhiluba",
     "b kategooria juhiluba",
@@ -58,31 +92,101 @@ export const SYNONYM_FAMILIES: Record<string, string[]> = {
     "driver license b",
     "category b license",
     "category b",
+    "b licence",
+    "class b license",
   ],
 
-  // Installation / assembly (ET + common loanwords)
-  paigaldus: ["paigaldus", "paigaldaja", "monteerija", "koostaja", "montaaž", "montaa", "installer", "install"],
+  // Installation / assembly
+  paigaldus: [
+    "paigaldus",
+    "paigaldaja",
+    "monteerija",
+    "koostaja",
+    "montaaž",
+    "montaa",
+    "installer",
+    "install",
+    "assembler",
+    "fitter",
+    "монтаж",
+    "монтажник",
+    "установщик",
+    "сборщик",
+  ],
 
   // Ventilation / HVAC
-  ventilatsioon: ["ventilatsioon", "ventilatsiooni", "hvac", "kliima", "kliimaseade", "kliimaseadmed"],
+  ventilatsioon: [
+    "ventilatsioon",
+    "ventilatsiooni",
+    "hvac",
+    "kliima",
+    "kliimaseade",
+    "kliimaseadmed",
+    "ventilation",
+    "вентиляция",
+    "климат",
+  ],
 
   // Construction
-  ehitus: ["ehitus", "ehitaja", "ehitustoo", "ehitustood"],
+  ehitus: [
+    "ehitus",
+    "ehitaja",
+    "ehitustoo",
+    "ehitustood",
+    "construction",
+    "builder",
+    "строительство",
+    "строитель",
+    "прораб",
+  ],
 
-  // CAD / drawing / design
-  cad: ["cad", "autocad", "auto-cad", "joonestamine", "joonestaja", "joonised"],
+  // CAD / drawing
+  cad: [
+    "cad",
+    "autocad",
+    "auto-cad",
+    "joonestamine",
+    "joonestaja",
+    "joonised",
+    "drafting",
+    "чертежник",
+    "автокад",
+  ],
 
-  // Certificates / qualifications (ET)
+  // Certificates / qualifications
   "a-padev": ["a-pädevus", "a-padev", "apadev", "apädevus"],
-  "b-padev": ["b-pädevus", "b-padev", "bpadev", "bpädevus", "elektrialane pädevus", "padevustunnistus"],
-  kutse: ["kutse", "kutsetunnistus", "kutsetase", "kutse tase 4", "tase 4", "kutse4", "tase4"],
+  "b-padev": [
+    "b-pädevus",
+    "b-padev",
+    "bpadev",
+    "bpädevus",
+    "elektrialane pädevus",
+    "padevustunnistus",
+  ],
+  kutse: [
+    "kutse",
+    "kutsetunnistus",
+    "kutsetase",
+    "kutse tase 4",
+    "tase 4",
+    "kutse4",
+    "tase4",
+  ],
   toohutus: ["tööohutus", "toohutus", "ohutus", "ohutuskoolitus"],
 
-  // Work format / job type wording (ET + EN)
-  remote: ["kaugtöö", "kaugtoo", "remote", "distants", "wfh", "work from home"],
-  hybrid: ["hübriid", "hybriid", "hybrid"],
+  // Work format / job type
+  remote: [
+    "kaugtöö",
+    "kaugtoo",
+    "remote",
+    "distants",
+    "wfh",
+    "work from home",
+    "удаленка",
+    "удалёнка",
+  ],
+  hybrid: ["hübriid", "hybriid", "hybrid", "гибрид"],
   on_site: ["kohapeal", "kohapealne", "on-site", "onsite", "on site"],
   full_time: ["täistööaeg", "taistooaeg", "full-time", "full time"],
   part_time: ["osalise tööajaga", "osaline tööaeg", "part-time", "part time"],
 };
-

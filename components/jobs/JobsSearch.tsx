@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal } from "lucide-react";
 
 import type { Job } from "@/components/jobs/types";
-import { chipMatchesJob, DEFAULT_QUICK_CHIPS } from "@/components/jobs/job-filters-config";
+import { chipMatchesJob } from "@/components/jobs/job-filters-config";
 import { Chip } from "@/components/ui/chip";
 import { Container } from "@/components/ui/container";
 import { Input } from "@/components/ui/input";
@@ -32,15 +32,15 @@ function buildFacetGroups(jobs: Job[]) {
   const domains: string[] = [];
   const langs: string[] = [];
   const locs: string[] = [];
-  const types: string[] = [];
+  const workForms: string[] = [];
+  const employmentTypes: string[] = [];
 
   for (const j of jobs) {
     certs.push(...(j.requiredCerts ?? []));
     domains.push(...(j.domains ?? []));
     langs.push(...(j.languages ?? []));
-    if (j.jobType) types.push(j.jobType);
-    if (j.workType) types.push(j.workType);
-    if (!j.jobType && !j.workType && j.type) types.push(j.type);
+    if (j.workType) workForms.push(j.workType);
+    if (j.jobType) employmentTypes.push(j.jobType);
 
     const raw = (j.location ?? "").toString();
     const parts = raw
@@ -56,7 +56,8 @@ function buildFacetGroups(jobs: Job[]) {
     { id: "valdkond", values: uniq(domains).slice(0, 30) },
     { id: "keel", values: uniq(langs).slice(0, 30) },
     { id: "asukoht", values: uniq(locs).slice(0, 30) },
-    { id: "tyyp", values: uniq(types).slice(0, 30) },
+    { id: "tooVorm", values: uniq(workForms).slice(0, 12) },
+    { id: "tooLiik", values: uniq(employmentTypes).slice(0, 12) },
   ].filter((g) => g.values.length);
 }
 
@@ -93,11 +94,9 @@ function buildQuickFilters(jobs: Job[]) {
   const keywords = top(keywordCounts, 10);
   const locations = top(locationCounts, 8);
 
-  const hasReal = keywords.length + locations.length > 0;
   return {
     keywords,
     locations,
-    fallback: hasReal ? [] : Array.from(DEFAULT_QUICK_CHIPS),
   };
 }
 
@@ -150,8 +149,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
   }, [jobs, query, selected]);
 
   const selectedArr = Array.from(selected);
-  const foundLabel =
-    results.length === 1 ? `Leitud 1 kuulutus` : `Leitud ${results.length} kuulutust`;
+  const foundLabel = t("foundCount", { count: results.length });
 
   return (
     <section className="py-14 sm:py-16">
@@ -168,38 +166,45 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                 </div>
               </div>
 
-              <div className="mt-5">
-                <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
-                  {t("quick")}
+              <div className="mt-5 space-y-5">
+                <div>
+                  <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                    {t("quick")}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {quick.keywords.map((c) => (
+                      <Chip
+                        key={c}
+                        label={c}
+                        selected={selected.has(c)}
+                        onClick={() => toggleChip(setSelected, c)}
+                        tone={chipTone(c)}
+                      />
+                    ))}
+                  </div>
+                  {!quick.keywords.length && jobs.length > 0 ? (
+                    <p className="mt-2 text-xs text-white/40">{t("quickKeywordsEmpty")}</p>
+                  ) : null}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {quick.keywords.map((c) => (
-                    <Chip
-                      key={c}
-                      label={c}
-                      selected={selected.has(c)}
-                      onClick={() => toggleChip(setSelected, c)}
-                      tone={chipTone(c)}
-                    />
-                  ))}
-                  {quick.locations.map((c) => (
-                    <Chip
-                      key={c}
-                      label={c}
-                      selected={selected.has(c)}
-                      onClick={() => toggleChip(setSelected, c)}
-                      tone={chipTone(c)}
-                    />
-                  ))}
-                  {quick.fallback.map((c) => (
-                    <Chip
-                      key={c}
-                      label={c}
-                      selected={selected.has(c)}
-                      onClick={() => toggleChip(setSelected, c)}
-                      tone={chipTone(c)}
-                    />
-                  ))}
+
+                <div>
+                  <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                    {t("quickLocations")}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {quick.locations.map((c) => (
+                      <Chip
+                        key={c}
+                        label={c}
+                        selected={selected.has(c)}
+                        onClick={() => toggleChip(setSelected, c)}
+                        tone={chipTone(c)}
+                      />
+                    ))}
+                  </div>
+                  {!quick.locations.length && jobs.length > 0 ? (
+                    <p className="mt-2 text-xs text-white/40">{t("quickLocationsEmpty")}</p>
+                  ) : null}
                 </div>
               </div>
 
@@ -207,7 +212,15 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                 {facetGroups.map((f) => (
                   <div key={f.id}>
                     <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
-                      {tf(f.id as "sertifikaat" | "valdkond" | "keel" | "asukoht" | "tyyp")}
+                      {tf(
+                        f.id as
+                          | "sertifikaat"
+                          | "valdkond"
+                          | "keel"
+                          | "asukoht"
+                          | "tooVorm"
+                          | "tooLiik",
+                      )}
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {f.values.map((v) => (

@@ -11,11 +11,19 @@ import { Input } from "@/components/ui/input";
 
 type Role = "seeker" | "employer";
 
-export function RegisterForm({ locale }: { locale: string }) {
+export function RegisterForm({
+  locale,
+  defaultRole,
+}: {
+  locale: string;
+  /** When set (e.g. from /tooandjatele or /toootsijatele), radio is pre-selected. */
+  defaultRole?: Role;
+}) {
   const t = useTranslations("auth");
   const router = useRouter();
 
-  const [role, setRole] = useState<Role>("seeker");
+  const roleLocked = defaultRole != null;
+  const [role, setRole] = useState<Role>(defaultRole ?? "seeker");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -112,33 +120,35 @@ export function RegisterForm({ locale }: { locale: string }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <fieldset className="space-y-2">
-        <legend className="text-xs font-medium tracking-wide text-white/65">
-          {t("roleLabel")}
-        </legend>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/75">
-            <input
-              type="radio"
-              name="role"
-              value="seeker"
-              checked={role === "seeker"}
-              onChange={() => setRole("seeker")}
-            />
-            <span className="font-medium text-white/85">{t("roleSeeker")}</span>
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/75">
-            <input
-              type="radio"
-              name="role"
-              value="employer"
-              checked={role === "employer"}
-              onChange={() => setRole("employer")}
-            />
-            <span className="font-medium text-white/85">{t("roleEmployer")}</span>
-          </label>
-        </div>
-      </fieldset>
+      {roleLocked ? null : (
+        <fieldset className="space-y-2">
+          <legend className="text-xs font-medium tracking-wide text-white/65">
+            {t("roleLabel")}
+          </legend>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/75">
+              <input
+                type="radio"
+                name="role"
+                value="seeker"
+                checked={role === "seeker"}
+                onChange={() => setRole("seeker")}
+              />
+              <span className="font-medium text-white/85">{t("roleSeeker")}</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/75">
+              <input
+                type="radio"
+                name="role"
+                value="employer"
+                checked={role === "employer"}
+                onChange={() => setRole("employer")}
+              />
+              <span className="font-medium text-white/85">{t("roleEmployer")}</span>
+            </label>
+          </div>
+        </fieldset>
+      )}
 
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">

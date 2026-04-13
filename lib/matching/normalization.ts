@@ -24,18 +24,42 @@ const STOP = new Set([
   "at",
   "as",
   "by",
+  // RU (short function words)
+  "и",
+  "в",
+  "на",
+  "с",
+  "по",
+  "для",
+  "к",
+  "от",
+  "из",
+  "как",
+  "а",
+  "но",
+  "не",
+  "что",
+  "это",
+  "или",
 ]);
 
-function normBlob(parts: (string | null | undefined)[]) {
+/**
+ * Shared text collapse for matching: lowercase, strip Latin combining marks, keep all Unicode letters (incl. Cyrillic) + digits.
+ */
+export function normalizeMatchBlob(parts: Array<string | null | undefined>): string {
   return parts
     .filter(Boolean)
     .join(" ")
     .toLowerCase()
     .normalize("NFD")
     .replace(/\p{M}/gu, "")
-    .replace(/[^a-z0-9äöõüß\s]+/gi, " ")
+    .replace(/[^\p{L}\p{N}\s]+/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function normBlob(parts: (string | null | undefined)[]) {
+  return normalizeMatchBlob(parts);
 }
 
 function words(s: string) {

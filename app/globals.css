@@ -101,16 +101,6 @@ html {
   }
 }
 
-@keyframes portal-match-flicker {
-  0%,
-  100% {
-    opacity: 0.18;
-  }
-  50% {
-    opacity: 0.42;
-  }
-}
-
 .portal-bg-a--lines path.portal-bg-a__path {
   stroke-dasharray: 8 14;
   stroke-dashoffset: 0;
@@ -124,14 +114,9 @@ html {
   animation: portal-pulse-ring var(--portal-pulse-duration, 22s) ease-in-out infinite;
 }
 
-.portal-bg-b__match {
-  animation: portal-match-flicker var(--portal-match-duration, 18s) ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .portal-bg-a--lines path.portal-bg-a__path,
-  .portal-bg-a__hub-ring,
-  .portal-bg-b__match {
+  .portal-bg-a__hub-ring {
     animation: none !important;
   }
 }

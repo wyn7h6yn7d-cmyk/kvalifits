@@ -41,6 +41,10 @@ export const contactET: ContactPageContent = {
       span: 2,
     },
   ],
+  blocksAside: {
+    title: "Kontaktandmed",
+    lead: "Ettevõtte, privaatsuse ja üldkontakti info — vajadusel uuendame andmeid vastavalt olukorrale.",
+  },
   formAside: {
     title: "Kirjuta meile",
     lead: "Täida väljad — avaneb sinu e-post ja saad kiri enne saatmist ise üle vaadata.",

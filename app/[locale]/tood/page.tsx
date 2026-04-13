@@ -34,41 +34,74 @@ function extractSummary(description: string | null | undefined) {
   return cleaned || undefined;
 }
 
-function extractKeywordCandidates(text: string) {
-  const tokens: string[] = [];
-  const parts = text
-    .split(/\n|,|;|\u2022|•|·|\/|\|/g)
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  for (const p of parts) {
-    const v = normFacetValue(p);
-    if (!v) continue;
-    if (v.length < 2) continue;
-    // Avoid full sentences; keep "keyword-like" phrases.
-    if (v.length > 36) continue;
-    tokens.push(v);
-  }
-  return tokens;
+function foldAscii(s: string) {
+  return s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase();
 }
 
 function mapWorkType(raw: string, tJobs: (key: string) => string) {
   const v = raw.trim();
   if (!v) return undefined;
-  if (v === "on_site") return tJobs("workTypeOnSite");
-  if (v === "hybrid") return tJobs("workTypeHybrid");
-  if (v === "remote") return tJobs("workTypeRemote");
+  const key = v.toLowerCase().replace(/-/g, "_");
+  if (key === "on_site" || key === "onsite") return tJobs("workTypeOnSite");
+  if (key === "hybrid") return tJobs("workTypeHybrid");
+  if (key === "remote") return tJobs("workTypeRemote");
+
+  const c = foldAscii(v).replace(/\s+/g, "");
+  if (c === "kohapeal" || c === "kohapealne") return tJobs("workTypeOnSite");
+  if (c === "hubriid" || c === "hybrid") return tJobs("workTypeHybrid");
+  if (c === "kaugtoo" || c === "remote") return tJobs("workTypeRemote");
+
   return v;
 }
 
 function mapJobType(raw: string, tJobs: (key: string) => string) {
   const v = raw.trim();
   if (!v) return undefined;
-  if (v === "full_time") return tJobs("jobTypeFullTime");
-  if (v === "part_time") return tJobs("jobTypePartTime");
-  if (v === "contract") return tJobs("jobTypeContract");
-  if (v === "internship") return tJobs("jobTypeInternship");
+  const key = v.toLowerCase().replace(/-/g, "_");
+  if (key === "full_time") return tJobs("jobTypeFullTime");
+  if (key === "part_time") return tJobs("jobTypePartTime");
+  if (key === "contract") return tJobs("jobTypeContract");
+  if (key === "internship") return tJobs("jobTypeInternship");
+
+  const c = foldAscii(v).replace(/\s+/g, "");
+  if (c === "taistooaeg" || c === "fulltime") return tJobs("jobTypeFullTime");
+  if (c === "osaline" || c === "parttime") return tJobs("jobTypePartTime");
+  if (c === "lepinguline") return tJobs("jobTypeContract");
+  if (c === "praktika") return tJobs("jobTypeInternship");
+
   return v;
+}
+
+function formatJobSalary(
+  min: number | null,
+  max: number | null,
+  currency: string,
+  locale: string,
+): string | undefined {
+  if (min == null && max == null) return undefined;
+  const tag = locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "et-EE";
+  const fmt = new Intl.NumberFormat(tag, { maximumFractionDigits: 0 });
+  const cur = (currency || "EUR").toString().toUpperCase();
+  const sym = cur === "EUR" ? "€" : cur;
+  const nb = "\u00a0";
+
+  if (min != null && max != null) {
+    return `${fmt.format(min)}${nb}–${nb}${fmt.format(max)}${nb}${sym}`;
+  }
+  if (min != null) {
+    if (locale === "en") return `From${nb}${fmt.format(min)}${nb}${sym}`;
+    if (locale === "ru") return `От${nb}${fmt.format(min)}${nb}${sym}`;
+    return `Alates${nb}${fmt.format(min)}${nb}${sym}`;
+  }
+  if (max != null) {
+    if (locale === "en") return `Up to${nb}${fmt.format(max)}${nb}${sym}`;
+    if (locale === "ru") return `До${nb}${fmt.format(max)}${nb}${sym}`;
+    return `Kuni${nb}${fmt.format(max)}${nb}${sym}`;
+  }
+  return undefined;
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -114,10 +147,7 @@ export default async function ToodPage({ params }: Props) {
     const min = typeof j.salary_min === "number" ? j.salary_min : null;
     const max = typeof j.salary_max === "number" ? j.salary_max : null;
     const currency = (j.salary_currency ?? "EUR").toString();
-    const salary =
-      min || max
-        ? `${min ? `${min}` : ""}${min && max ? "–" : ""}${max ? `${max}` : ""} ${currency}`
-        : undefined;
+    const salary = formatJobSalary(min, max, currency, locale);
 
     const jobType = mapJobType((j.job_type ?? "").toString(), tJobs);
     const workType = mapWorkType((j.work_type ?? "").toString(), tJobs);
@@ -125,14 +155,11 @@ export default async function ToodPage({ params }: Props) {
 
     const summary =
       (j.short_summary ?? "").toString().trim() || extractSummary(j.description);
-    const keywordText = `${j.title ?? ""}\n${j.requirements ?? ""}\n${(j.keywords ?? []).join("\n")}`;
-    const fromDbTags = [
-      ...((j.keywords as string[] | null) ?? []).map((x) => normFacetValue(x)).filter(Boolean),
-      ...((j.required_skills as string[] | null) ?? []).map((x) => normFacetValue(x)).filter(Boolean),
-    ];
-    const tags = Array.from(
-      new Set([...fromDbTags, ...extractKeywordCandidates(keywordText)])
-    ).slice(0, 12);
+    const kw = ((j.keywords as string[] | null) ?? []).map((x) => normFacetValue(x)).filter(Boolean);
+    const skills = ((j.required_skills as string[] | null) ?? [])
+      .map((x) => normFacetValue(x))
+      .filter(Boolean);
+    const tags = Array.from(new Set([...kw, ...skills])).slice(0, 10);
 
     const certReq = (j.certificate_requirements ?? "").toString().trim();
     const requiredCerts = certReq
@@ -146,10 +173,10 @@ export default async function ToodPage({ params }: Props) {
     const emp = employerById.get(j.employer_profile_id);
     return {
       id: j.id,
-      title: j.title,
+      title: (j.title ?? "").toString().trim() || "—",
       company: emp?.name ?? "—",
       companyLogoUrl: emp?.logoUrl ?? null,
-      location: j.location ?? "—",
+      location: normFacetValue((j.location ?? "").toString()) || "—",
       type,
       salary,
       workType,

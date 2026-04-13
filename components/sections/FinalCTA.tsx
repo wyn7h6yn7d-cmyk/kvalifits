@@ -52,7 +52,7 @@ export function FinalCTA() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 justify-center">
-                  <Link href="#tooandjatele">{t("ctaEmployer")}</Link>
+                  <Link href="/tooandjatele">{t("ctaEmployer")}</Link>
                 </Button>
               </div>
             </div>

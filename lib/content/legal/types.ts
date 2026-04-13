@@ -37,6 +37,11 @@ export type ContactPageContent = {
   lead: string;
   lastUpdated: string;
   blocks: ContactBlock[];
+  /** Short heading above the info cards (left column); mirrors formAside for alignment */
+  blocksAside?: {
+    title: string;
+    lead: string;
+  };
   form: {
     nameLabel: string;
     emailLabel: string;

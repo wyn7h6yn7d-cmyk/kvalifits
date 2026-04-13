@@ -1,5 +1,6 @@
 import { EXPERIENCE_LEVEL_VALUES, isExperienceLevel } from "@/lib/matching/profileRules";
 import {
+  normalizeMatchBlob,
   tokenizeToCanonSet,
   overlapJaccard,
   jaccardToStrength,
@@ -111,18 +112,6 @@ const EXP_RANK: Record<string, number> = {
   executive: 5,
 };
 
-function normBlob(parts: (string | null | undefined)[]) {
-  return parts
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .replace(/[^a-z0-9äöõüß\s]+/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function words(s: string) {
   return s
     .split(/\s+/g)
@@ -132,7 +121,7 @@ function words(s: string) {
 
 function significantWords(s: string) {
   // Only used in a few heuristics; primary matching uses normalization token sets.
-  return words(normBlob([s])).filter((w) => w.length > 2);
+  return words(normalizeMatchBlob([s])).filter((w) => w.length > 2);
 }
 
 function clamp01(x: number) {
@@ -147,7 +136,7 @@ function dedupeNormTags(items: string[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const raw of items) {
-    const t = normBlob([raw]);
+    const t = normalizeMatchBlob([raw]);
     if (t.length < 2) continue;
     if (seen.has(t)) continue;
     seen.add(t);
@@ -192,9 +181,9 @@ function skillsKeywordsRaw(
   requirementsMatched: number;
   requirementsTotal: number;
 } {
-  const skillNorms = new Set(seekerSkills.map((s) => normBlob([s])).filter(Boolean));
-  const titleBlob = normBlob([profileTitle]);
-  const skillsBlob = normBlob([seekerSkills.join(" ")]);
+  const skillNorms = new Set(seekerSkills.map((s) => normalizeMatchBlob([s])).filter(Boolean));
+  const titleBlob = normalizeMatchBlob([profileTitle]);
+  const skillsBlob = normalizeMatchBlob([seekerSkills.join(" ")]);
   const seekerTokenSet = tokenizeToCanonSet([profileTitle, seekerSkills.join(" "), ...seekerSkills]);
 
   const tags = dedupeNormTags([
@@ -269,7 +258,7 @@ function certificateRaw(
   jobKeywords: string[] | null
 ): { raw: number; slots: number; matched: number } {
   const slots = parseCertificateSlots(jobCertText);
-  const seekerBlob = normBlob(certs.map((c) => `${c.certificate_name ?? ""} ${c.certificate_issuer ?? ""}`));
+  const seekerBlob = normalizeMatchBlob(certs.map((c) => `${c.certificate_name ?? ""} ${c.certificate_issuer ?? ""}`));
   const seekerCertSet = tokenizeToCanonSet(
     certs.map((c) => `${c.certificate_name ?? ""} ${c.certificate_issuer ?? ""}`)
   );
@@ -294,7 +283,7 @@ function certificateRaw(
 
   let matched = 0;
   for (const slot of slots) {
-    const slotNorm = normBlob([slot]);
+    const slotNorm = normalizeMatchBlob([slot]);
     if (!slotNorm) continue;
     if (seekerBlob.includes(slotNorm)) {
       matched++;
@@ -330,10 +319,10 @@ function roleTitleRaw(seekerTitle: string | null, jobTitle: string | null): numb
   if (!a.size || !b.size) return 0.08;
   const j = overlapJaccard(a, b);
   const sub =
-    normBlob([seekerTitle]).length > 4 &&
-    normBlob([jobTitle]).length > 4 &&
-    (normBlob([seekerTitle]).includes(normBlob([jobTitle])) ||
-      normBlob([jobTitle]).includes(normBlob([seekerTitle])));
+    normalizeMatchBlob([seekerTitle]).length > 4 &&
+    normalizeMatchBlob([jobTitle]).length > 4 &&
+    (normalizeMatchBlob([seekerTitle]).includes(normalizeMatchBlob([jobTitle])) ||
+      normalizeMatchBlob([jobTitle]).includes(normalizeMatchBlob([seekerTitle])));
   // Boost substring alignment modestly, but still deterministic.
   return clamp01(Math.max(j, sub ? 0.6 : j));
 }
