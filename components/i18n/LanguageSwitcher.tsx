@@ -7,11 +7,38 @@ import { routing } from "@/i18n/routing";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-const FLAGS: Record<string, string> = {
-  et: "🇪🇪",
-  en: "🇬🇧",
-  ru: "🇷🇺",
-};
+/** Simple flat flag chips (no emoji) for a calmer navbar */
+function LocaleFlag({ locale }: { locale: string }) {
+  const box = "block h-2.5 w-[18px] shrink-0 overflow-hidden rounded-[2px] border border-white/[0.18]";
+  if (locale === "et") {
+    return (
+      <svg viewBox="0 0 18 12" className={box} aria-hidden>
+        <rect width="18" height="4" fill="#1291FF" />
+        <rect y="4" width="18" height="4" fill="#000000" />
+        <rect y="8" width="18" height="4" fill="#FFFFFF" />
+      </svg>
+    );
+  }
+  if (locale === "en") {
+    return (
+      <svg viewBox="0 0 18 12" className={box} aria-hidden>
+        <rect width="18" height="12" fill="#FFFFFF" />
+        <rect x="7" width="4" height="12" fill="#C8102E" />
+        <rect y="4" width="18" height="4" fill="#C8102E" />
+      </svg>
+    );
+  }
+  if (locale === "ru") {
+    return (
+      <svg viewBox="0 0 18 12" className={box} aria-hidden>
+        <rect width="18" height="4" fill="#FFFFFF" />
+        <rect y="4" width="18" height="4" fill="#0039A6" />
+        <rect y="8" width="18" height="4" fill="#D52B1E" />
+      </svg>
+    );
+  }
+  return null;
+}
 
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
@@ -106,9 +133,7 @@ export function LanguageSwitcher({
           triggerClassName,
         )}
       >
-        <span className="text-[12px] leading-none" aria-hidden>
-          {FLAGS[locale]}
-        </span>
+        <LocaleFlag locale={locale} />
         <span>{t(locale as "et" | "en" | "ru")}</span>
       </button>
 
@@ -138,9 +163,7 @@ export function LanguageSwitcher({
                 "text-white/55 hover:bg-white/[0.08] hover:text-white/95",
               )}
             >
-              <span className="text-[12px] leading-none" aria-hidden>
-                {FLAGS[loc]}
-              </span>
+              <LocaleFlag locale={loc} />
               <span>{t(loc as "et" | "en" | "ru")}</span>
             </button>
           ))}

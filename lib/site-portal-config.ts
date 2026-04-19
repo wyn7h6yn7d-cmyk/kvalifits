@@ -2,7 +2,7 @@ import type { PortalBackgroundVariant, PortalIntensity } from "@/components/site
 
 /**
  * Hero taust: muuda siia, et valida variant ja tugevus.
- * - variant: "a" | "b" | "both" — A = jooned+sõlmed, B = kaardi-outline’id+match, both = mõlemad
+ * - variant: "a" | "b" | "both" — A = jooned+sõlmed, B = kaardi-outline’id+match, both = mõlemad (hero kasutab vaikimisi A)
  * - intensity: "soft" | "default" | "strong" — vähem / rohkem nähtavust ja liikumist
  */
 export const heroPortal: {
@@ -10,7 +10,8 @@ export const heroPortal: {
   intensity: PortalIntensity;
   ambientIntensity: "soft" | "default" | "strong";
 } = {
-  variant: "both",
+  /** A = subtle connection lines; B adds floating “card outline” panels — keep hero calmer */
+  variant: "a",
   intensity: "default",
   ambientIntensity: "default",
 };

@@ -22,10 +22,6 @@ export function AmbientBackground({
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
-      {/* subtle grid */}
-      <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(to_right,rgba(255,255,255,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.10)_1px,transparent_1px)] [background-size:72px_72px]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.10),transparent_55%)] opacity-30" />
-
       {/* ambient glows */}
       <motion.div
         className="absolute -top-44 left-1/2 h-[620px] w-[980px] -translate-x-1/2 rounded-full blur-3xl"
@@ -70,29 +66,6 @@ export function AmbientBackground({
           reduce
             ? undefined
             : { duration: 22, ease: "easeInOut", repeat: Infinity }
-        }
-      />
-
-      {/* Smallest layer: skip on narrow viewports to cut compositing cost */}
-      <motion.div
-        className="absolute top-20 left-[-220px] hidden h-[420px] w-[520px] rounded-full blur-3xl md:block"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(99,102,241,0.30), rgba(0,0,0,0) 68%)",
-          opacity: 0.16,
-        }}
-        animate={
-          reduce
-            ? undefined
-            : {
-                x: [0, 34, 10, 0],
-                y: [0, -14, 8, 0],
-              }
-        }
-        transition={
-          reduce
-            ? undefined
-            : { duration: 26, ease: "easeInOut", repeat: Infinity }
         }
       />
     </div>

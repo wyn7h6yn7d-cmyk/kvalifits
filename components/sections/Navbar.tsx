@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Menu, ArrowRight } from "lucide-react";
+import { Menu } from "lucide-react";
 
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { Logo } from "@/components/brand/Logo";
@@ -196,7 +196,7 @@ export function Navbar() {
                           href="/account/employer/jobs/new"
                           className="inline-flex h-full min-h-0 items-center justify-center gap-1.5"
                         >
-                          {t("addJob")} <ArrowRight className="h-3.5 w-3.5" />
+                          {t("addJob")}
                         </Link>
                       </Button>
                     </>
@@ -244,8 +244,7 @@ export function Navbar() {
                       href="/auth/register"
                       className="inline-flex h-full min-h-0 items-center justify-center gap-0"
                     >
-                      <span>{t("signup")}</span>
-                      <ArrowRight className="h-2.5 w-2.5" />
+                      {t("signup")}
                     </Link>
                   </Button>
                 </>
@@ -285,10 +284,9 @@ export function Navbar() {
                       >
                         <Link
                           href={item.href}
-                          className="flex items-center justify-between rounded-xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/85 hover:bg-white/[0.07]"
+                          className="flex items-center rounded-xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/85 hover:bg-white/[0.07]"
                         >
                           {t(item.key)}
-                          <span className="text-white/45">↗</span>
                         </Link>
                       </motion.div>
                     ))}

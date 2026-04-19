@@ -4,10 +4,7 @@ import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowRight,
-  ShieldCheck,
-} from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -42,18 +39,8 @@ function HeroMatchMockup() {
 
   return (
     <div className="relative mx-auto w-full max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
-      <div
-        aria-hidden="true"
-        className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-2xl md:blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -inset-px rounded-[34px] bg-gradient-to-br from-white/[0.18] via-white/[0.04] to-transparent opacity-80"
-      />
-
       <div className="relative overflow-hidden rounded-[32px] border border-white/[0.14] bg-gradient-to-b from-white/[0.09] via-black/40 to-black/70 p-px shadow-[0_32px_120px_-40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)_inset] backdrop-blur-2xl">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.2),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_100%_100%,rgba(227,31,141,0.1),transparent_50%)]" />
 
         <div className="relative flex flex-col gap-7 p-8 sm:p-9">
           <div className="flex items-center justify-between gap-3">
@@ -127,13 +114,6 @@ function HeroMatchMockup() {
                 <span className="font-mono text-lg font-semibold tabular-nums text-white">
                   87<span className="text-sm text-white/45">%</span>
                 </span>
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "absolute -right-1.5 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/30 shadow-[0_0_0_3px_rgba(255,255,255,0.06)] transition-opacity",
-                    "opacity-70 motion-safe:animate-pulse"
-                  )}
-                />
               </div>
               <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
                 {t("fit")}
@@ -279,8 +259,6 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 z-[1]"
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_130%_90%_at_50%_-15%,rgba(168,85,247,0.32),transparent_52%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_100%_30%,rgba(99,102,241,0.14),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_0%_70%,rgba(227,31,141,0.1),transparent_48%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/85" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.55)_100%)] opacity-70" />
       </div>
@@ -316,19 +294,11 @@ export function Hero() {
 
               <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
                 <Button asChild variant="primary" size="lg" className={cn(heroPrimaryCta)}>
-                  <Link href="#toootsijatele">
-                    {t("ctaSeeker")} <ArrowRight className="h-[1.05rem] w-[1.05rem]" />
-                  </Link>
+                  <Link href="#toootsijatele">{t("ctaSeeker")}</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className={cn(heroSecondaryCta)}>
                   <Link href="/tooandjatele">{t("ctaEmployer")}</Link>
                 </Button>
-              </div>
-
-              <div className="mt-14 flex flex-wrap items-center gap-x-10 gap-y-2 border-t border-white/[0.09] pt-10 text-[13px] tracking-wide text-white/38">
-                <span className="text-white/48">{t("footerAcross")}</span>
-                <span className="hidden h-3.5 w-px bg-white/12 sm:block" />
-                <span>{t("footerRoles")}</span>
               </div>
             </motion.div>
 
