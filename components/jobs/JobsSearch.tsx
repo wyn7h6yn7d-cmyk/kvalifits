@@ -175,21 +175,23 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[340px_1fr] lg:items-start">
-          {/* Sidebar filters */}
+        <div className="grid gap-9 lg:grid-cols-[340px_1fr] lg:items-start lg:gap-10">
+          {/* Sidebar filters — darker sink + inset accent so it reads as “tools”, not another content card */}
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <div className="text-[15px] font-medium text-white/88">{t("filters")}</div>
-                <div className="flex items-center gap-2 text-sm text-white/50">
-                  <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
+            <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-black/[0.44] to-black/[0.26] p-6 shadow-[inset_3px_0_0_0_rgba(139,92,246,0.14),inset_0_0_0_1px_rgba(255,255,255,0.04)] backdrop-blur-md">
+              <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-white/48">
+                  {t("filters")}
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/38">
+                  <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
                   {t("quality")}
                 </div>
               </div>
 
               <div className="mt-5 space-y-5">
                 <div>
-                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
                     {t("quick")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -209,7 +211,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                 </div>
 
                 <div>
-                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
                     {t("quickLocations")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -232,7 +234,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
               <div className="mt-7 space-y-6">
                 {facetGroups.map((f) => (
                   <div key={f.id}>
-                    <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
                       {tf(
                         f.id as
                           | "sertifikaat"
@@ -260,7 +262,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
 
               {selected.size ? (
                 <div className="mt-7 border-t border-white/[0.08] pt-5">
-                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
                     {t("active")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -301,7 +303,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
             </div>
 
             {results.length === 0 ? (
-              <div className="mt-10 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-10 text-center text-base leading-relaxed text-white/68">
+              <div className="mt-10 rounded-3xl border border-white/[0.12] bg-white/[0.04] p-10 text-center text-base leading-relaxed text-white/68 backdrop-blur-md">
                 {t("noResults")}
               </div>
             ) : null}

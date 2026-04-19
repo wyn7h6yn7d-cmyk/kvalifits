@@ -25,7 +25,7 @@ function JobCardComponent({ job }: { job: Job }) {
   const arrangement = [job.workType, job.jobType].filter(Boolean).join(`${"\u00a0"}·${"\u00a0"}`);
 
   return (
-    <div className="group relative overflow-hidden rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md transition-colors hover:bg-white/[0.04]">
+    <div className="group relative overflow-hidden rounded-3xl border border-white/[0.12] bg-white/[0.045] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.03)_inset] backdrop-blur-md transition-colors hover:border-white/[0.14] hover:bg-white/[0.055]">
       <div
         aria-hidden="true"
         className={cn(
