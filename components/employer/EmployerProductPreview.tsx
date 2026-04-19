@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Briefcase, Building2, CalendarDays, MapPin, UserRound } from "lucide-react";
+import { Briefcase, Building2, CalendarDays, MapPin } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -52,10 +52,10 @@ export function EmployerProductPreview() {
   const suitabilityShort = t("previewSuitabilityShort");
   const [selected, setSelected] = useState<ApplicantId>(0);
 
-  const applicants: { id: ApplicantId; score: number }[] = [
-    { id: 0, score: 82 },
-    { id: 1, score: 61 },
-    { id: 2, score: 18 },
+  const applicants: { id: ApplicantId; score: number; initial: string }[] = [
+    { id: 0, score: 82, initial: "M" },
+    { id: 1, score: 61, initial: "R" },
+    { id: 2, score: 18, initial: "E" },
   ];
 
   const detailKey = (id: ApplicantId, suffix: string) =>
@@ -99,6 +99,10 @@ export function EmployerProductPreview() {
 
         <div className="mx-auto mt-12 max-w-6xl sm:mt-14">
           <div className="overflow-hidden rounded-[28px] border border-white/[0.12] bg-gradient-to-b from-white/[0.06] via-black/35 to-black/65 shadow-[0_32px_100px_-48px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+            <div className="flex flex-col gap-0.5 border-b border-white/[0.07] bg-black/[0.28] px-5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-3">
+              <span className="text-[12px] leading-snug text-white/50">{t("previewWorkspaceContext")}</span>
+              <span className="text-[12px] leading-snug tabular-nums text-white/42">{t("previewWorkspaceMeta")}</span>
+            </div>
             <div className="flex flex-col gap-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
               <div className="min-w-0 space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -150,6 +154,7 @@ export function EmployerProductPreview() {
                           type="button"
                           role="option"
                           aria-selected={active}
+                          aria-label={t(`previewDemoApp${a.id}Name` as "previewDemoApp0Name")}
                           onClick={() => setSelected(a.id)}
                           className={cn(
                             "group relative flex w-full gap-3 rounded-2xl border p-3.5 text-left transition-[border-color,background-color,box-shadow] sm:p-4",
@@ -158,8 +163,11 @@ export function EmployerProductPreview() {
                               : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.045]",
                           )}
                         >
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.10] bg-white/[0.04] text-[11px] font-semibold text-white/60">
-                            <UserRound className="h-4 w-4 text-white/45" aria-hidden />
+                          <div
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.10] bg-white/[0.06] text-[13px] font-semibold tabular-nums text-white/80"
+                            aria-hidden
+                          >
+                            {a.initial}
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="font-semibold leading-snug text-white/95">
