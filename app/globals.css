@@ -13,8 +13,8 @@
   --site-header-offset: calc(
     var(--site-header-top) + var(--site-header-bar) + var(--site-header-tail)
   );
-  /* Extra air below fixed navbar before hero heading + mockup */
-  --site-hero-content-top: calc(var(--site-header-offset) + 2.65rem);
+  /* Hero: offset below fixed navbar + extra gap */
+  --site-hero-content-top: calc(var(--site-header-offset) + 3.25rem);
 
   /* Surfaces */
   --card: rgba(255, 255, 255, 0.04);
@@ -35,13 +35,13 @@
 @media (min-width: 640px) {
   :root {
     --site-header-top: 1.25rem;
-    --site-hero-content-top: calc(var(--site-header-offset) + 3.35rem);
+    --site-hero-content-top: calc(var(--site-header-offset) + 4rem);
   }
 }
 
 @media (min-width: 1024px) {
   :root {
-    --site-hero-content-top: calc(var(--site-header-offset) + 4.35rem);
+    --site-hero-content-top: calc(var(--site-header-offset) + 5rem);
   }
 }
 

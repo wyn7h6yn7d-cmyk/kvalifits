@@ -276,7 +276,7 @@ export function Hero() {
 
       <Container className="relative z-10">
         <div
-          className="flex flex-col justify-center pb-20 sm:pb-24 lg:pb-32"
+          className="flex flex-col justify-start pb-20 sm:pb-24 lg:pb-32"
           style={{ paddingTop: "var(--site-hero-content-top)" }}
         >
           <div className="grid min-w-0 items-center gap-12 sm:gap-14 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 xl:gap-20">
