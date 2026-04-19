@@ -123,7 +123,7 @@ function HeroMatchMockup() {
                   87<span className="text-sm text-white/45">%</span>
                 </span>
               </div>
-              <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">
+              <span className="text-[11px] font-medium tracking-wide text-white/50">
                 {t("fit")}
               </span>
             </button>
