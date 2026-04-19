@@ -20,7 +20,7 @@ export function Chip({
   className?: string;
 }) {
   const base =
-    "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs transition-colors";
+    "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] leading-tight transition-colors";
   const toneCls =
     tone === "pink"
       ? "border-white/[0.12] bg-[rgba(227,31,141,0.10)] text-white/85"

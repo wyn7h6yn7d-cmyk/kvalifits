@@ -81,24 +81,26 @@ export default async function TooandjatelePage({ params }: Props) {
               <h2 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                 {t("tutorialSectionTitle")}
               </h2>
-              <p className="mt-4 max-w-3xl text-sm leading-relaxed text-white/58">{t("tutorialSectionIntro")}</p>
+              <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/62 sm:text-base">
+                {t("tutorialSectionIntro")}
+              </p>
               <ol className="mt-8 grid list-none gap-4 sm:gap-5">
                 {tutorialSteps.map((step) => (
                   <li
                     key={step.title}
                     className="rounded-2xl border border-white/[0.08] bg-black/25 p-5 sm:p-6"
                   >
-                    <div className="text-sm font-medium text-white/90">{step.title}</div>
-                    <p className="mt-1.5 text-sm leading-relaxed text-white/58">{step.body}</p>
+                    <div className="text-[15px] font-medium text-white/90">{step.title}</div>
+                    <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{step.body}</p>
                   </li>
                 ))}
               </ol>
 
               <div className="mt-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/45">
+                <div className="text-[13px] font-medium uppercase tracking-wide text-white/52">
                   {t("tutorialBenefitsTitle")}
                 </div>
-                <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-white/65">
+                <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-white/68 sm:text-base">
                   {tutorialBenefits.map((line) => (
                     <li key={line} className="flex gap-2.5">
                       <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden />
@@ -112,7 +114,9 @@ export default async function TooandjatelePage({ params }: Props) {
                 <div className="text-lg font-semibold tracking-tight text-white sm:text-xl">
                   {t("tutorialCtaSectionTitle")}
                 </div>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/55">{t("tutorialCtaSectionText")}</p>
+                <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-white/62 sm:text-base">
+                  {t("tutorialCtaSectionText")}
+                </p>
                 <div className="mt-5">
                   <Button
                     asChild
@@ -132,7 +136,7 @@ export default async function TooandjatelePage({ params }: Props) {
             {showPricing ? (
               <div className="mx-auto mt-10 max-w-3xl">
                 <div className="max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
-                  <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
                     {t("pricingTitle")}
                   </div>
 
@@ -161,14 +165,14 @@ export default async function TooandjatelePage({ params }: Props) {
           <Container>
             <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-16">
               <div>
-                <h2 className="text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
+                <h2 className="text-[13px] font-medium uppercase tracking-wide text-white/52">
                   {t("sectionEyebrow")}
                 </h2>
                 <p className="mt-4 text-lg font-medium leading-snug text-white sm:text-xl">
                   {t("sectionLead")}
                 </p>
-                <p className="mt-4 text-sm leading-relaxed text-white/58">{t("sectionBody")}</p>
-                <p className="mt-4 text-sm leading-relaxed text-white/58">{t("sectionPractice")}</p>
+                <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionBody")}</p>
+                <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionPractice")}</p>
               </div>
               <ul className="space-y-5">
                 {details.map((d) => (
@@ -180,8 +184,8 @@ export default async function TooandjatelePage({ params }: Props) {
                       <d.icon className="h-4 w-4 text-white/70" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-white/90">{d.title}</div>
-                      <p className="mt-1.5 text-sm leading-relaxed text-white/58">{d.text}</p>
+                      <div className="text-[15px] font-medium text-white/90">{d.title}</div>
+                      <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{d.text}</p>
                     </div>
                   </li>
                 ))}
@@ -192,7 +196,7 @@ export default async function TooandjatelePage({ params }: Props) {
 
         <section className="py-16 sm:py-20">
           <Container>
-            <h2 className="text-center text-sm font-semibold uppercase tracking-[0.22em] text-white/45">
+            <h2 className="text-center text-[13px] font-medium uppercase tracking-wide text-white/52">
               {t("pillarsTitle")}
             </h2>
             <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -201,8 +205,8 @@ export default async function TooandjatelePage({ params }: Props) {
                   key={x.title}
                   className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-7"
                 >
-                  <div className="text-sm font-medium text-white/85">{x.title}</div>
-                  <div className="mt-3 text-sm leading-6 text-white/65">{x.desc}</div>
+                  <div className="text-[15px] font-medium text-white/88">{x.title}</div>
+                  <div className="mt-3 text-[15px] leading-7 text-white/68 sm:text-base">{x.desc}</div>
                 </div>
               ))}
             </div>

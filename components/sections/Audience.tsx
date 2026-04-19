@@ -36,14 +36,14 @@ export function Audience() {
 
       <Container>
         <div className="max-w-xl">
-          <div className="text-xs font-medium uppercase tracking-[0.26em] text-white/45">
+          <div className="text-[13px] font-medium uppercase tracking-wide text-white/52 sm:text-sm">
             {t("eyebrow")}
           </div>
           <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
             {t("title")}
             <span className="block text-white/48"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-white/52 sm:text-lg">{t("subtitle")}</p>
+          <p className="mt-5 text-base leading-relaxed text-white/58 sm:text-lg sm:leading-relaxed">{t("subtitle")}</p>
         </div>
 
         <div className="mt-16 grid gap-14 lg:mt-20 lg:grid-cols-12 lg:items-start lg:gap-8 xl:gap-12">
@@ -60,10 +60,10 @@ export function Audience() {
                 <UserRound className="h-5 w-5 text-white/90" />
               </div>
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-accent-pink/90">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-accent-pink/90">
                   {t("seekerLabel")}
                 </div>
-                <p className="text-sm font-medium text-white/45">{t("seekerSublabel")}</p>
+                <p className="text-[15px] font-medium leading-snug text-white/52">{t("seekerSublabel")}</p>
               </div>
             </div>
 
@@ -90,7 +90,7 @@ export function Audience() {
                   >
                     <span
                       className={cn(
-                        "absolute -left-7 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border text-[10px] font-mono font-semibold sm:-left-8 sm:h-8 sm:w-8 sm:text-[11px]",
+                        "absolute -left-7 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border text-[11px] font-mono font-medium sm:-left-8 sm:h-8 sm:w-8 sm:text-xs",
                         i === 0
                           ? "border-accent-pink/40 bg-black/50 text-accent-pink/95"
                           : "border-white/[0.12] bg-black/40 text-white/55",
@@ -98,10 +98,10 @@ export function Audience() {
                     >
                       {s.n}
                     </span>
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/38">
+                    <div className="text-[12px] font-medium uppercase tracking-wide text-white/45">
                       {s.title}
                     </div>
-                    <p className="mt-1.5 text-sm leading-relaxed text-white/65 sm:text-[15px]">
+                    <p className="mt-2 text-[15px] leading-relaxed text-white/68 sm:text-base">
                       {s.line}
                     </p>
                   </motion.li>
@@ -145,13 +145,13 @@ export function Audience() {
                         <Briefcase className="h-4 w-4 text-white/80" />
                       </div>
                       <div>
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.26em] text-violet-300/90">
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-violet-300/90">
                           {t("employerLabel")}
                         </div>
-                        <p className="text-xs text-white/45">{t("employerSublabel")}</p>
+                        <p className="text-[13px] leading-snug text-white/52">{t("employerSublabel")}</p>
                       </div>
                     </div>
-                    <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/40">
+                    <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white/48">
                       {t("preview")}
                     </span>
                   </div>
@@ -161,24 +161,24 @@ export function Audience() {
                   </h3>
 
                   <div className="mt-6 space-y-3 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
-                    <div className="flex items-center justify-between gap-3 text-[13px]">
-                      <span className="flex items-center gap-2 text-white/55">
-                        <ClipboardList className="h-4 w-4 text-white/40" />
+                    <div className="flex items-center justify-between gap-3 text-[14px]">
+                      <span className="flex items-center gap-2 text-white/60">
+                        <ClipboardList className="h-4 w-4 shrink-0 text-white/45" aria-hidden />
                         {t("activeReq")}
                       </span>
                       <span className="font-mono text-sm tabular-nums text-white/80">3</span>
                     </div>
                     <div className="h-px bg-white/[0.06]" />
-                    <div className="flex items-center justify-between gap-3 text-[13px]">
-                      <span className="flex items-center gap-2 text-white/55">
-                        <Users className="h-4 w-4 text-white/40" />
+                    <div className="flex items-center justify-between gap-3 text-[14px]">
+                      <span className="flex items-center gap-2 text-white/60">
+                        <Users className="h-4 w-4 shrink-0 text-white/45" aria-hidden />
                         {t("matchingCandidates")}
                       </span>
                       <div className="flex -space-x-2">
                         {[0, 1, 2].map((k) => (
                           <span
                             key={k}
-                            className="flex h-7 w-7 items-center justify-center rounded-full border border-black/60 bg-gradient-to-br from-white/15 to-white/5 text-[9px] font-medium text-white/70"
+                            className="flex h-7 w-7 items-center justify-center rounded-full border border-black/60 bg-gradient-to-br from-white/15 to-white/5 text-[10px] font-medium text-white/72"
                           >
                             {k + 1}
                           </span>
@@ -187,12 +187,12 @@ export function Audience() {
                     </div>
                     <div className="h-px bg-white/[0.06]" />
                     <div>
-                      <div className="flex items-center justify-between text-[11px] text-white/42">
+                      <div className="flex items-center justify-between text-[12.5px] text-white/48">
                         <span className="flex items-center gap-1.5">
-                          <Layers className="h-3.5 w-3.5 text-white/35" />
+                          <Layers className="h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden />
                           {t("bestOverlap")}
                         </span>
-                        <span className="font-mono tabular-nums text-white/65">8/10</span>
+                        <span className="font-mono tabular-nums text-white/68">8/10</span>
                       </div>
                       <div className="mt-2 flex gap-1">
                         {Array.from({ length: 10 }).map((_, i) => (
@@ -221,7 +221,7 @@ export function Audience() {
                     />
                     <div className="relative rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.09] via-black/45 to-black/70 p-[1px] shadow-[0_20px_60px_-28px_rgba(168,85,247,0.45)]">
                       <div className="rounded-[15px] bg-black/55 px-4 py-4 backdrop-blur-md sm:px-5 sm:py-5">
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.26em] text-violet-200/85">
+                        <div className="text-[11px] font-medium uppercase tracking-wide text-violet-200/88">
                           {t("employerPricingKicker")}
                         </div>
 
@@ -230,7 +230,7 @@ export function Audience() {
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
                               <Briefcase className="h-4 w-4 text-violet-200/80" />
                             </div>
-                            <span className="text-[13px] font-medium leading-snug text-white/88">
+                            <span className="text-[14px] font-medium leading-snug text-white/90">
                               {t("employerPricingPostings")}
                             </span>
                           </div>
@@ -238,14 +238,14 @@ export function Audience() {
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
                               <CalendarDays className="h-4 w-4 text-fuchsia-200/75" />
                             </div>
-                            <span className="text-[13px] font-medium leading-snug text-white/88">
+                            <span className="text-[14px] font-medium leading-snug text-white/90">
                               {t("employerPricingDuration")}
                             </span>
                           </div>
                         </div>
 
                         <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/[0.08] pt-4">
-                          <p className="max-w-[14rem] text-[11px] leading-relaxed text-white/42">
+                          <p className="max-w-[14rem] text-[12.5px] leading-relaxed text-white/52">
                             {t("employerPricingHint")}
                           </p>
                           <div className="shrink-0 bg-gradient-to-br from-white to-violet-100/90 bg-clip-text text-right text-3xl font-semibold tracking-tight text-transparent tabular-nums sm:text-[2rem]">
@@ -256,7 +256,7 @@ export function Audience() {
                     </div>
                   </div>
 
-                  <p className="mt-5 text-sm leading-relaxed text-white/52">{t("employerTagline")}</p>
+                  <p className="mt-5 text-[15px] leading-relaxed text-white/58 sm:text-base">{t("employerTagline")}</p>
 
                   <div className="mt-6">
                     <Button

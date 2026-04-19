@@ -10,7 +10,7 @@ export function RegistrationConsentText({ className }: { className?: string }) {
   const t = useTranslations("consent");
 
   return (
-    <p className={cn("max-w-lg text-xs leading-relaxed text-white/45", className)}>
+    <p className={cn("max-w-lg text-sm leading-relaxed text-white/52", className)}>
       {t("before")}
       <Link
         href="/tingimused"

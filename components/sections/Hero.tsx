@@ -45,14 +45,14 @@ function HeroMatchMockup() {
         <div className="relative flex flex-col gap-7 p-8 sm:p-9">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.33em] text-white/50">
+              <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-white/55">
                 {t("matching")}
               </span>
-              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-emerald-300/90">
+              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[12px] font-medium uppercase tracking-wide text-emerald-300/90">
                 {t("live")}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-white/50">
+            <div className="flex items-center gap-1.5 text-[12px] text-white/55">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-emerald-400/50" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -78,13 +78,13 @@ function HeroMatchMockup() {
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
+                <div className="whitespace-nowrap text-[11.5px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52">
                   {t("seeker")}
                 </div>
-                <div className="mt-0.5 max-w-full text-balance text-pretty text-[13.5px] font-semibold leading-snug text-white/92 sm:text-[14.5px] md:text-[16px] break-normal [hyphens:none]">
+                <div className="mt-1 max-w-full text-balance text-pretty text-[14px] font-semibold leading-snug text-white/92 sm:text-[15px] md:text-[16px] break-normal [hyphens:none]">
                   {t("roleSample")}
                 </div>
-                <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
+                <div className="mt-1.5 text-pretty text-[12.5px] leading-relaxed text-white/58 break-normal [hyphens:none]">
                   {t("seekerHint")}
                 </div>
               </div>
@@ -115,7 +115,7 @@ function HeroMatchMockup() {
                   87<span className="text-sm text-white/45">%</span>
                 </span>
               </div>
-              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/45">
+              <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">
                 {t("fit")}
               </span>
             </button>
@@ -136,13 +136,13 @@ function HeroMatchMockup() {
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
+                <div className="whitespace-nowrap text-[11.5px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52">
                   {t("employer")}
                 </div>
-                <div className="mt-0.5 max-w-full text-balance text-pretty text-[13.5px] font-semibold leading-snug text-white/90 sm:text-[14.5px] md:text-[16px] break-normal [hyphens:none]">
+                <div className="mt-1 max-w-full text-balance text-pretty text-[14px] font-semibold leading-snug text-white/90 sm:text-[15px] md:text-[16px] break-normal [hyphens:none]">
                   {t("positionSample")}
                 </div>
-                <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55 break-normal [hyphens:none]">
+                <div className="mt-1.5 text-pretty text-[12.5px] leading-relaxed text-white/58 break-normal [hyphens:none]">
                   {t("employerHint")}
                 </div>
               </div>
@@ -151,7 +151,7 @@ function HeroMatchMockup() {
 
           <div
             id={explainId}
-            className="rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl"
+            className="rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3.5 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl"
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -162,10 +162,10 @@ function HeroMatchMockup() {
                 transition={{ duration: 0.22 }}
                 className="min-h-[3.75rem]"
               >
-                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/60">
+                <div className="text-[12px] font-medium uppercase tracking-wide text-white/62">
                   {explain[active].title}
                 </div>
-                <div className="mt-1 text-pretty text-[12.5px] leading-relaxed text-white/72 break-normal [hyphens:none]">
+                <div className="mt-1.5 text-pretty text-[13.5px] leading-relaxed text-white/74 break-normal [hyphens:none]">
                   {explain[active].text}
                 </div>
               </motion.div>
@@ -175,11 +175,11 @@ function HeroMatchMockup() {
           <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
 
           <div className="space-y-4">
-            <p className="font-mono text-[12px] leading-relaxed tracking-[0.04em] text-white/62 sm:text-[13px]">
+            <p className="font-mono text-[13px] leading-relaxed tracking-[0.04em] text-white/65 sm:text-sm">
               {t("lineSample")}{" "}
-              <span className="text-white/80">87%</span>
+              <span className="text-white/82">87%</span>
             </p>
-            <p className="text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+            <p className="text-pretty text-[12.5px] leading-relaxed text-white/50 break-normal [hyphens:none]">
               {t("lineHint")}
             </p>
 
@@ -195,11 +195,11 @@ function HeroMatchMockup() {
                 active === "verified" ? "bg-white/[0.02]" : "hover:bg-white/[0.02]"
               )}
             >
-              <div className="flex items-center gap-2.5 text-sm text-white/65">
+              <div className="flex items-center gap-2.5 text-[15px] text-white/68">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
-                <span className={cn(active === "verified" ? "text-white/85" : "")}>{t("verified")}</span>
+                <span className={cn(active === "verified" ? "text-white/88" : "")}>{t("verified")}</span>
               </div>
-              <p className="mt-2 text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+              <p className="mt-2.5 text-pretty text-[12.5px] leading-relaxed text-white/52 break-normal [hyphens:none]">
                 {t("verifiedHint")}
               </p>
             </button>
@@ -217,9 +217,9 @@ function HeroMatchMockup() {
               )}
             >
               <div>
-                <div className="flex items-center justify-between text-[11px] text-white/45">
-                  <span className={cn(active === "requirements" ? "text-white/65" : "")}>{t("requirements")}</span>
-                  <span className="font-mono tabular-nums text-white/55">8/10</span>
+                <div className="flex items-center justify-between text-[12.5px] text-white/50">
+                  <span className={cn(active === "requirements" ? "text-white/70" : "")}>{t("requirements")}</span>
+                  <span className="font-mono tabular-nums text-white/58">8/10</span>
                 </div>
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                   <motion.div
@@ -230,7 +230,7 @@ function HeroMatchMockup() {
                   />
                 </div>
               </div>
-              <p className="mt-2 text-pretty text-[11px] leading-relaxed text-white/45 break-normal [hyphens:none]">
+              <p className="mt-2.5 text-pretty text-[12.5px] leading-relaxed text-white/52 break-normal [hyphens:none]">
                 {t("requirementsHint")}
               </p>
             </button>
@@ -288,7 +288,7 @@ export function Hero() {
                 <span className="text-white/[0.96]">{t("headlineAfter")}</span>
               </h1>
 
-              <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/55 sm:text-xl sm:leading-relaxed lg:text-[1.35rem] lg:leading-relaxed">
+              <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/62 sm:text-xl sm:leading-relaxed lg:text-[1.35rem] lg:leading-[1.65]">
                 {t("subheadline")}
               </p>
 

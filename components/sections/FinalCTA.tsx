@@ -30,7 +30,7 @@ export function FinalCTA() {
                   {t("titleBefore")}{" "}
                   <span className="text-gradient-brand">{t("titleAccent")}</span>.
                 </h3>
-                <p className="mt-5 max-w-xl text-base leading-relaxed text-white/58 sm:text-lg">
+                <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-white/62 sm:text-lg sm:leading-relaxed">
                   {t("subtitle")}
                 </p>
               </div>

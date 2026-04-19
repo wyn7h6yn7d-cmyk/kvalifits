@@ -63,47 +63,49 @@ function JobCardComponent({ job }: { job: Job }) {
                 />
               )
             ) : null}
-            <div className="text-sm text-white/60">{job.company}</div>
+            <div className="text-[15px] text-white/65">{job.company}</div>
           </div>
         </div>
 
-        <div className="space-y-3 text-xs">
+        <div className="space-y-3.5">
           <div>
-            <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelLocation")}</div>
-            <div className="mt-1 flex items-center gap-1.5 text-white/70">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-white/45" aria-hidden />
+            <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/48">
+              {t("labelLocation")}
+            </div>
+            <div className="mt-1.5 flex items-center gap-1.5 text-sm leading-snug text-white/72">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-white/50" aria-hidden />
               <span>{job.location}</span>
             </div>
           </div>
 
           {arrangement ? (
             <div>
-              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/48">
                 {t("labelArrangement")}
               </div>
-              <div className="mt-1 text-sm text-white/70">{arrangement}</div>
+              <div className="mt-1.5 text-sm leading-snug text-white/72">{arrangement}</div>
             </div>
           ) : job.type && job.type !== "—" ? (
             <div>
-              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/48">
                 {t("labelArrangement")}
               </div>
-              <div className="mt-1 text-sm text-white/70">{job.type}</div>
+              <div className="mt-1.5 text-sm leading-snug text-white/72">{job.type}</div>
             </div>
           ) : null}
 
           {job.salary ? (
             <div>
-              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelSalary")}</div>
-              <div className="mt-1 text-sm font-medium tabular-nums text-white/80">{job.salary}</div>
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/48">{t("labelSalary")}</div>
+              <div className="mt-1.5 text-sm font-medium tabular-nums leading-snug text-white/82">{job.salary}</div>
             </div>
           ) : null}
 
           {posted ? (
             <div>
-              <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelPosted")}</div>
-              <div className="mt-1 flex items-center gap-1.5 text-white/50">
-                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden />
+              <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/48">{t("labelPosted")}</div>
+              <div className="mt-1.5 flex items-center gap-1.5 text-sm leading-snug text-white/58">
+                <CalendarDays className="h-3.5 w-3.5 shrink-0 text-white/45" aria-hidden />
                 {posted}
               </div>
             </div>
@@ -111,20 +113,20 @@ function JobCardComponent({ job }: { job: Job }) {
         </div>
 
         {job.summary ? (
-          <p className="text-pretty text-sm leading-relaxed text-white/60">
+          <p className="text-pretty text-[15px] leading-relaxed text-white/62 sm:text-base">
             {job.summary}
           </p>
         ) : null}
 
         {job.tags.length ? (
-          <div className="space-y-2 pt-1">
-            <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">{t("labelSignals")}</div>
+          <div className="space-y-2.5 pt-0.5">
+            <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/48">{t("labelSignals")}</div>
             <div className="flex flex-wrap gap-2">
               {job.tags.slice(0, 6).map((tag, idx) => (
                 <span
                   key={tag}
                   className={cn(
-                    "rounded-full border px-3 py-1 text-xs",
+                    "rounded-full border px-3 py-1.5 text-[13px] leading-tight",
                     idx === 1
                       ? "border-white/[0.12] bg-[rgba(227,31,141,0.10)] text-white/85"
                       : "border-white/[0.10] bg-white/[0.03] text-white/70",
@@ -138,7 +140,7 @@ function JobCardComponent({ job }: { job: Job }) {
         ) : null}
 
         <div className="flex justify-end pt-1">
-          <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
+          <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3.5 text-sm">
             <Link href={`/tood/${job.id}`}>{t("openJob")}</Link>
           </Button>
         </div>

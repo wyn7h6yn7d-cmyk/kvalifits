@@ -71,8 +71,8 @@ function SignalCard({
           <Icon className="h-4 w-4 text-white/80" />
         </div>
         <div className="min-w-0">
-          <p className="text-[13px] font-medium leading-snug tracking-tight text-white/92">{text}</p>
-          <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-white/40">
+          <p className="text-[14px] font-medium leading-snug tracking-tight text-white/92 sm:text-[15px]">{text}</p>
+          <p className="mt-1.5 font-mono text-[11px] uppercase tracking-wide text-white/48">
             {sub}
           </p>
         </div>
@@ -151,14 +151,14 @@ export function SmartMatching() {
 
       <Container className="relative">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/50">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-white/55">
             {t("badge")}
           </div>
           <h2 className="mt-7 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
             {t("title")}
             <span className="mt-2 block text-gradient-brand font-semibold">{t("titleAccent")}</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/52 sm:text-lg">
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/58 sm:text-lg sm:leading-relaxed">
             {t("subtitle")}
           </p>
         </div>
@@ -203,8 +203,8 @@ export function SmartMatching() {
                 </div>
 
                 <div className="relative z-20 mx-auto flex max-w-lg flex-col items-center text-center lg:max-w-xl lg:px-4">
-                  <div className="flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-white/42">
-                    <Fingerprint className="h-3.5 w-3.5 text-violet-300/70" />
+                  <div className="flex items-center gap-2.5 text-[12px] font-medium uppercase tracking-wide text-white/48">
+                    <Fingerprint className="h-3.5 w-3.5 shrink-0 text-violet-300/75" aria-hidden />
                     {t("fitLabel")}
                   </div>
 
@@ -229,18 +229,18 @@ export function SmartMatching() {
                       </motion.div>
                     </motion.div>
                   </div>
-                  <p className="mt-3 text-sm text-white/48">{t("withPosition")}</p>
+                  <p className="mt-3 text-[15px] leading-snug text-white/55 sm:text-base">{t("withPosition")}</p>
 
                   <div className="mt-12 w-full text-left">
                     <div className="flex items-end justify-between gap-4">
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">
+                        <p className="text-[12px] font-medium uppercase tracking-wide text-white/50">
                           {t("reqSkill")}
                         </p>
                         <p className="mt-2 text-lg font-medium text-white/88">{t("filled")}</p>
                       </div>
-                      <div className="flex items-center gap-1.5 text-xs text-white/45">
-                        <BadgeCheck className="h-4 w-4 text-emerald-400/90" />
+                      <div className="flex items-center gap-1.5 text-sm text-white/52">
+                        <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-400/90" aria-hidden />
                         {t("overlap")}
                       </div>
                     </div>

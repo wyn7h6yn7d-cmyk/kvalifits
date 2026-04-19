@@ -29,14 +29,14 @@ export function WhyKvalifits() {
       />
       <Container>
         <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-xl lg:text-left">
-          <div className="text-xs font-medium uppercase tracking-[0.26em] text-white/45">
+          <div className="text-[13px] font-medium uppercase tracking-wide text-white/52 sm:text-sm">
             {t("eyebrow")}
           </div>
           <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
             {t("title")}
             <span className="block text-white/55"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-white/55 sm:text-lg">{t("subtitle")}</p>
+          <p className="mt-5 text-base leading-relaxed text-white/60 sm:text-lg sm:leading-relaxed">{t("subtitle")}</p>
         </div>
 
         <div className="mt-16 grid gap-6 sm:gap-8 lg:mt-20 lg:grid-cols-3 lg:gap-6">
@@ -65,7 +65,7 @@ export function WhyKvalifits() {
                 <b.icon className="h-5 w-5 text-white/75" />
               </div>
               <h3 className="mt-5 text-lg font-semibold tracking-tight text-white">{b.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/60 sm:text-[15px]">{b.desc}</p>
+              <p className="mt-3 text-[15px] leading-relaxed text-white/65 sm:text-base">{b.desc}</p>
             </motion.div>
           ))}
         </div>

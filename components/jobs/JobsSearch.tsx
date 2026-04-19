@@ -157,10 +157,10 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
         <div className="mb-8 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md lg:mb-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="text-sm font-medium text-white/85">{t("searchTitle")}</div>
-              <div className="mt-1 text-xs text-white/50">{t("searchSubtitle")}</div>
-              <p className="mt-2 text-xs text-white/55" aria-live="polite">
-                <span className="text-white/70">{foundLabel}</span>
+              <div className="text-[15px] font-medium text-white/88">{t("searchTitle")}</div>
+              <div className="mt-1.5 text-sm leading-snug text-white/55">{t("searchSubtitle")}</div>
+              <p className="mt-2.5 text-sm text-white/58" aria-live="polite">
+                <span className="text-white/75">{foundLabel}</span>
               </p>
             </div>
             <div className="relative w-full sm:max-w-md sm:min-w-[min(100%,20rem)] lg:max-w-xl">
@@ -180,16 +180,16 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 backdrop-blur-md">
               <div className="flex items-center justify-between">
-                <div className="text-sm font-medium text-white/85">{t("filters")}</div>
-                <div className="flex items-center gap-2 text-xs text-white/45">
-                  <SlidersHorizontal className="h-4 w-4" />
+                <div className="text-[15px] font-medium text-white/88">{t("filters")}</div>
+                <div className="flex items-center gap-2 text-sm text-white/50">
+                  <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
                   {t("quality")}
                 </div>
               </div>
 
               <div className="mt-5 space-y-5">
                 <div>
-                  <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
                     {t("quick")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -204,12 +204,12 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                     ))}
                   </div>
                   {!quick.keywords.length && jobs.length > 0 ? (
-                    <p className="mt-2 text-xs text-white/40">{t("quickKeywordsEmpty")}</p>
+                    <p className="mt-2 text-sm text-white/48">{t("quickKeywordsEmpty")}</p>
                   ) : null}
                 </div>
 
                 <div>
-                  <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
                     {t("quickLocations")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -224,7 +224,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                     ))}
                   </div>
                   {!quick.locations.length && jobs.length > 0 ? (
-                    <p className="mt-2 text-xs text-white/40">{t("quickLocationsEmpty")}</p>
+                    <p className="mt-2 text-sm text-white/48">{t("quickLocationsEmpty")}</p>
                   ) : null}
                 </div>
               </div>
@@ -232,7 +232,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
               <div className="mt-7 space-y-6">
                 {facetGroups.map((f) => (
                   <div key={f.id}>
-                    <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                    <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
                       {tf(
                         f.id as
                           | "sertifikaat"
@@ -260,7 +260,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
 
               {selected.size ? (
                 <div className="mt-7 border-t border-white/[0.08] pt-5">
-                  <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
                     {t("active")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -282,7 +282,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                   </div>
                   <button
                     type="button"
-                    className="mt-4 text-xs text-white/50 hover:text-white/75"
+                    className="mt-4 text-sm text-white/55 hover:text-white/80"
                     onClick={() => setSelected(new Set())}
                   >
                     {t("clearAll")}
@@ -301,7 +301,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
             </div>
 
             {results.length === 0 ? (
-              <div className="mt-10 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-10 text-center text-white/65">
+              <div className="mt-10 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-10 text-center text-base leading-relaxed text-white/68">
                 {t("noResults")}
               </div>
             ) : null}

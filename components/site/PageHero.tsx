@@ -38,13 +38,15 @@ export function PageHero({
           >
             {prepend ? <div className="mb-10 w-full sm:mb-12">{prepend}</div> : null}
             <div className="mx-auto max-w-3xl">
-              <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+              <div className="text-[13px] font-medium uppercase tracking-wide text-white/60 sm:text-sm">
                 {eyebrow}
               </div>
               <h1 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                 {title}
               </h1>
-              <p className="mt-4 text-base leading-7 text-white/65">{subtitle}</p>
+              <p className="mt-5 text-base leading-[1.65] text-white/68 sm:text-[1.0625rem] sm:leading-relaxed">
+                {subtitle}
+              </p>
             </div>
             {children ? <div className="mt-10 w-full">{children}</div> : null}
           </motion.div>

@@ -15,7 +15,7 @@ function PreviewScoreRing({ score, label }: { score: number; label: string }) {
   const w = Math.min(100, Math.max(0, score));
   return (
     <div className="relative flex flex-col items-center justify-center rounded-3xl border border-white/[0.14] bg-gradient-to-b from-white/[0.10] to-black/40 px-6 py-6 shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:px-8 sm:py-8">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">
         {label}
       </span>
       <span className="mt-2 tabular-nums text-[2.75rem] font-semibold leading-none tracking-tight text-white sm:text-[3.25rem]">
@@ -35,7 +35,7 @@ function PreviewScoreRing({ score, label }: { score: number; label: string }) {
 function ListScore({ score, shortLabel }: { score: number; shortLabel: string }) {
   return (
     <div className="flex shrink-0 flex-col items-end rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.08] to-black/35 px-3 py-2 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]">
-      <span className="text-[8px] font-semibold uppercase tracking-[0.18em] text-white/40">
+      <span className="text-[10px] font-medium uppercase tracking-wide text-white/48">
         {shortLabel}
       </span>
       <span className="mt-0.5 tabular-nums text-xl font-semibold text-white">
@@ -89,7 +89,7 @@ export function EmployerProductPreview() {
           <h2 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
             {t("previewSectionTitle")}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/58 sm:text-[15px]">
+          <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-white/62 sm:text-base">
             {t("previewSectionLead")}
           </p>
         </div>
@@ -99,11 +99,11 @@ export function EmployerProductPreview() {
             <div className="flex flex-col gap-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
               <div className="min-w-0 space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/30 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
-                    <Briefcase className="h-3 w-3 text-white/40" aria-hidden />
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/30 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-white/55">
+                    <Briefcase className="h-3 w-3 text-white/45" aria-hidden />
                     {t("previewJobLabel")}
                   </span>
-                  <span className="inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-200/90">
+                  <span className="inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-emerald-200/90">
                     {t("previewDemoJobStatus")}
                   </span>
                 </div>
@@ -111,7 +111,7 @@ export function EmployerProductPreview() {
                   <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
                     {t("previewDemoJobTitle")}
                   </h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-white/60">
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[15px] leading-snug text-white/65">
                     <span className="inline-flex items-center gap-1.5">
                       <Building2 className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
                       {t("previewDemoJobCompany")}
@@ -131,7 +131,7 @@ export function EmployerProductPreview() {
             <div className="grid min-h-0 lg:grid-cols-[minmax(0,300px)_1fr] lg:items-stretch">
               <div className="flex min-h-0 flex-col border-b border-white/[0.08] lg:h-full lg:border-b-0 lg:border-r lg:border-white/[0.08]">
                 <div className="sticky top-20 space-y-1 p-4 sm:p-5 lg:static lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
-                  <div className="px-1 pb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                  <div className="px-1 pb-3 text-[12px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewApplicantsTitle")}
                   </div>
                   <div
@@ -165,13 +165,13 @@ export function EmployerProductPreview() {
                             <div className="mt-0.5 text-sm text-white/65">
                               {t(`previewDemoApp${a.id}Role` as "previewDemoApp0Role")}
                             </div>
-                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-white/48">
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-white/52">
                               <span className="inline-flex items-center gap-1">
-                                <CalendarDays className="h-3 w-3" aria-hidden />
+                                <CalendarDays className="h-3.5 w-3.5 shrink-0 opacity-80" aria-hidden />
                                 {t(`previewDemoApp${a.id}Meta` as "previewDemoApp0Meta")}
                               </span>
                             </div>
-                            <p className="mt-2 border-l-2 border-violet-400/30 pl-2.5 text-[12px] leading-snug text-white/55">
+                            <p className="mt-2.5 border-l-2 border-violet-400/30 pl-3 text-[13px] leading-relaxed text-white/58">
                               {t(`previewDemoApp${a.id}Clue` as "previewDemoApp0Clue")}
                             </p>
                           </div>
@@ -185,19 +185,19 @@ export function EmployerProductPreview() {
 
               <div className="flex min-h-0 flex-col p-4 sm:p-6 lg:h-full lg:min-h-0 lg:p-7">
                 <div className="mb-5 flex items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                  <div className="text-[12px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewDetailTitle")}
                   </div>
-                  <span className="hidden text-[11px] text-white/35 sm:inline">{t("previewDemoHint")}</span>
+                  <span className="hidden text-[12px] text-white/42 sm:inline">{t("previewDemoHint")}</span>
                 </div>
 
                 <div className="mb-6 rounded-2xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewFitSummaryTitle")}
                   </div>
-                  <ul className="mt-3 space-y-2.5">
+                  <ul className="mt-3.5 space-y-2.5">
                     {fitBullets(selected).map((line, i) => (
-                      <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-white/70">
+                      <li key={i} className="flex gap-2.5 text-[15px] leading-relaxed text-white/72">
                         <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-violet-400/70" aria-hidden />
                         <span>{line}</span>
                       </li>
@@ -207,10 +207,10 @@ export function EmployerProductPreview() {
 
                 <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,11rem)_1fr] lg:items-stretch lg:gap-5 xl:gap-8">
                   <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                       {t("previewSeekerColumnTitle")}
                     </div>
-                    <div className="mt-3 flex-1 whitespace-pre-line text-sm leading-relaxed text-white/72">
+                    <div className="mt-3 flex-1 whitespace-pre-line text-[15px] leading-relaxed text-white/74">
                       {t(detailKey(selected, "SeekerBlock"))}
                     </div>
                   </div>
@@ -223,10 +223,10 @@ export function EmployerProductPreview() {
                   </div>
 
                   <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                       {t("previewJobColumnTitle")}
                     </div>
-                    <div className="mt-3 flex-1 whitespace-pre-line text-sm leading-relaxed text-white/72">
+                    <div className="mt-3 flex-1 whitespace-pre-line text-[15px] leading-relaxed text-white/74">
                       {t(detailKey(selected, "JobBlock"))}
                     </div>
                   </div>
