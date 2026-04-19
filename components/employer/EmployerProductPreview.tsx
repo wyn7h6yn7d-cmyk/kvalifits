@@ -83,18 +83,21 @@ export function EmployerProductPreview() {
     [1, 2, 3, 4].map((n) => t(detailKey(id, `FitBullet${n}`)));
 
   return (
-    <section className="border-t border-white/[0.06] py-14 sm:py-20">
+    <section className="border-t border-white/[0.06] pt-16 pb-14 sm:pt-20 sm:pb-20 lg:pt-24">
       <Container>
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/42 sm:text-xs sm:tracking-wide">
+            {t("previewSectionEyebrow")}
+          </p>
+          <h2 className="mt-2.5 text-balance text-xl font-semibold leading-snug tracking-tight text-white sm:mt-3 sm:text-2xl sm:leading-snug">
             {t("previewSectionTitle")}
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-white/62 sm:text-base">
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-white/52 sm:mt-4 sm:text-[15px] sm:leading-relaxed sm:text-white/55">
             {t("previewSectionLead")}
           </p>
         </div>
 
-        <div className="mx-auto mt-10 max-w-6xl">
+        <div className="mx-auto mt-12 max-w-6xl sm:mt-14">
           <div className="overflow-hidden rounded-[28px] border border-white/[0.12] bg-gradient-to-b from-white/[0.06] via-black/35 to-black/65 shadow-[0_32px_100px_-48px_rgba(0,0,0,0.85)] backdrop-blur-xl">
             <div className="flex flex-col gap-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
               <div className="min-w-0 space-y-3">

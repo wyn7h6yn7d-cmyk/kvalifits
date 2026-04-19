@@ -30,7 +30,12 @@ export function PageHero({
     >
       {ambient ? <AmbientBackground intensity="soft" /> : null}
       <Container className="relative">
-        <div className="pt-20 sm:pt-24 lg:pt-28 pb-16 sm:pb-20">
+        <div
+          className={cn(
+            "pt-20 sm:pt-24 lg:pt-28",
+            ambient ? "pb-16 sm:pb-20" : "pb-20 sm:pb-24 lg:pb-[6.5rem]",
+          )}
+        >
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
