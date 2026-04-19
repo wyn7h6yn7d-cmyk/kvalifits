@@ -9,11 +9,6 @@ import { Footer } from "@/components/sections/Footer";
 
 const sectionLoading = () => <BelowFoldSectionSkeleton />;
 
-const SmartMatching = dynamic(
-  () => import("@/components/sections/SmartMatching").then((m) => ({ default: m.SmartMatching })),
-  { loading: sectionLoading },
-);
-
 const WhyKvalifits = dynamic(
   () => import("@/components/sections/WhyKvalifits").then((m) => ({ default: m.WhyKvalifits })),
   { loading: sectionLoading },
@@ -39,8 +34,6 @@ export default async function HomePage({ params }: Props) {
       <Navbar />
       <main className="relative z-0">
         <Hero />
-        <SectionDivider />
-        <SmartMatching />
         <SectionDivider />
         <WhyKvalifits />
         <Audience />

@@ -172,17 +172,7 @@ function HeroMatchMockup() {
             </AnimatePresence>
           </div>
 
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent" />
-
-          <div className="space-y-4">
-            <p className="font-mono text-[13px] leading-relaxed tracking-[0.04em] text-white/65 sm:text-sm">
-              {t("lineSample")}{" "}
-              <span className="text-white/82">87%</span>
-            </p>
-            <p className="text-pretty text-[12.5px] leading-relaxed text-white/50 break-normal [hyphens:none]">
-              {t("lineHint")}
-            </p>
-
+          <div className="mt-6 space-y-4">
             <button
               type="button"
               aria-pressed={active === "verified"}
