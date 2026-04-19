@@ -9,6 +9,7 @@ import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { AmbientBackground } from "@/components/site/AmbientBackground";
+import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { PortalBackground } from "@/components/site/portal-background";
 import { heroPortal } from "@/lib/site-portal-config";
 import { cn } from "@/lib/utils";
@@ -273,9 +274,13 @@ export function Hero() {
             >
               <h1 className="mt-10 text-balance text-[2.85rem] font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.65rem] xl:text-[5.1rem]">
                 {t("headlineBefore")}{" "}
-                <span className="text-gradient-brand font-semibold">{t("headlineAccent")}</span>
-                <br className="hidden sm:block" />
-                <span className="text-white/[0.96]">{t("headlineAfter")}</span>
+                <GradientAccentText wrapClassName="font-semibold">{t("headlineAccent")}</GradientAccentText>
+                {t("headlineAfter").trim() ? (
+                  <>
+                    <br className="hidden sm:block" />
+                    <span className="text-white/[0.96]">{t("headlineAfter")}</span>
+                  </>
+                ) : null}
               </h1>
 
               <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/62 sm:text-xl sm:leading-relaxed lg:text-[1.35rem] lg:leading-[1.65]">

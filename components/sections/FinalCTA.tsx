@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { RegistrationConsentText } from "@/components/legal/RegistrationConsentText";
 import { Button } from "@/components/ui/button";
+import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { Container } from "@/components/ui/container";
 
 export function FinalCTA() {
@@ -28,7 +29,7 @@ export function FinalCTA() {
               <div>
                 <h3 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
                   {t("titleBefore")}{" "}
-                  <span className="text-gradient-brand">{t("titleAccent")}</span>.
+                  <GradientAccentText>{t("titleAccent")}</GradientAccentText>.
                 </h3>
                 <p className="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-white/62 sm:text-lg sm:leading-relaxed">
                   {t("subtitle")}

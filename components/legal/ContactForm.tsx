@@ -42,9 +42,12 @@ export function ContactForm({
   return (
     <form
       onSubmit={submit}
-      className={cn("rounded-2xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8", className)}
+      className={cn(
+        "flex min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8",
+        className,
+      )}
     >
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid min-h-0 flex-1 auto-rows-max grid-cols-1 content-start gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-1">
           <span className="text-xs font-medium text-white/50">{form.nameLabel}</span>
           <Input
@@ -84,11 +87,13 @@ export function ContactForm({
           />
         </label>
       </div>
-      <p className="mt-4 text-xs leading-relaxed text-white/40">{form.privacyHint}</p>
-      <Button type="submit" variant="primary" size="lg" className="mt-6 h-12 rounded-2xl px-8">
-        {form.submitLabel}
-      </Button>
-      {hint ? <p className="mt-3 text-xs text-white/50">{hint}</p> : null}
+      <div className="mt-auto shrink-0">
+        <p className="mt-4 text-xs leading-relaxed text-white/40">{form.privacyHint}</p>
+        <Button type="submit" variant="primary" size="lg" className="mt-6 h-12 rounded-2xl px-8">
+          {form.submitLabel}
+        </Button>
+        {hint ? <p className="mt-3 text-xs text-white/50">{hint}</p> : null}
+      </div>
     </form>
   );
 }

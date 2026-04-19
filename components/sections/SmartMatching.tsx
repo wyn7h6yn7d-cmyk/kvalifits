@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { Container } from "@/components/ui/container";
 import { PortalBackground } from "@/components/site/portal-background";
 import { subtleSectionPortal } from "@/lib/site-portal-config";
@@ -156,7 +157,9 @@ export function SmartMatching() {
           </div>
           <h2 className="mt-7 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
             {t("title")}
-            <span className="mt-2 block text-gradient-brand font-semibold">{t("titleAccent")}</span>
+            <span className="mt-2 block">
+              <GradientAccentText wrapClassName="font-semibold">{t("titleAccent")}</GradientAccentText>
+            </span>
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/58 sm:text-lg sm:leading-relaxed">
             {t("subtitle")}
@@ -223,9 +226,9 @@ export function SmartMatching() {
                           ease: "easeInOut",
                         }}
                       >
-                        <span className="inline-block px-1 font-mono text-[clamp(3.5rem,11vw,6.75rem)] font-semibold leading-none tracking-[-0.04em] text-gradient-brand">
+                        <GradientAccentText wrapClassName="inline-block px-1 font-mono text-[clamp(3.5rem,11vw,6.75rem)] font-semibold leading-none tracking-[-0.04em]">
                           87%
-                        </span>
+                        </GradientAccentText>
                       </motion.div>
                     </motion.div>
                   </div>

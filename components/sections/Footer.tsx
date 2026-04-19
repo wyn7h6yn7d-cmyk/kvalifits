@@ -20,14 +20,14 @@ export async function Footer() {
     <footer className="border-t border-white/[0.08] bg-black/30">
       <Container>
         <div className="py-12">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
-            <div className="lg:col-span-4">
+          <div className="grid auto-rows-auto grid-cols-1 items-start gap-x-6 gap-y-10 sm:grid-cols-6 sm:gap-x-8 lg:grid-cols-12 lg:gap-x-10 lg:gap-y-0">
+            <div className="min-w-0 sm:col-span-6 lg:col-span-4">
               <Logo className="opacity-95" />
               <p className="mt-4 max-w-md text-[15px] leading-7 text-white/70 sm:text-base">{t("tagline")}</p>
               <p className="mt-5 max-w-md text-sm leading-relaxed text-white/50">{t("legalNote")}</p>
             </div>
 
-            <div className="space-y-3 text-[15px] leading-6 lg:col-span-2">
+            <div className="min-w-0 space-y-3 text-[15px] leading-6 sm:col-span-2 lg:col-span-2">
               <div className="text-[13px] font-medium uppercase tracking-wide text-white/60">
                 {t("platform")}
               </div>
@@ -42,7 +42,7 @@ export async function Footer() {
               </Link>
             </div>
 
-            <div className="space-y-3 text-[15px] leading-6 lg:col-span-3">
+            <div className="min-w-0 space-y-3 text-[15px] leading-6 sm:col-span-2 lg:col-span-3">
               <div className="text-[13px] font-medium uppercase tracking-wide text-white/60">
                 {t("company")}
               </div>
@@ -54,7 +54,7 @@ export async function Footer() {
               </Link>
             </div>
 
-            <div className="space-y-3 text-[15px] leading-6 lg:col-span-3">
+            <div className="min-w-0 space-y-3 text-[15px] leading-6 sm:col-span-2 lg:col-span-3">
               <div className="text-[13px] font-medium uppercase tracking-wide text-white/60">
                 {t("legal")}
               </div>

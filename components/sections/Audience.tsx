@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
@@ -248,9 +249,12 @@ export function Audience() {
                           <p className="max-w-[14rem] text-[12.5px] leading-relaxed text-white/52">
                             {t("employerPricingHint")}
                           </p>
-                          <div className="shrink-0 bg-gradient-to-br from-white to-violet-100/90 bg-clip-text text-right text-3xl font-semibold tracking-tight text-transparent tabular-nums sm:text-[2rem]">
+                          <GradientAccentText
+                            variant="price"
+                            wrapClassName="shrink-0 text-right text-3xl font-semibold tracking-tight tabular-nums sm:text-[2rem]"
+                          >
                             {t("employerPricingPrice")}
-                          </div>
+                          </GradientAccentText>
                         </div>
                       </div>
                     </div>

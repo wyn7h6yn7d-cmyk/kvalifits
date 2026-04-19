@@ -23,18 +23,6 @@ export const contactET: ContactPageContent = {
       span: 2,
     },
     {
-      title: "Privaatsus",
-      lines: ["Konto või isikuandmed: [e-post]"],
-      icon: "mail",
-      span: 1,
-    },
-    {
-      title: "Telefon ja tööaeg",
-      lines: ["Vastame tööpäeviti: [kellaajad]"],
-      icon: "phone",
-      span: 1,
-    },
-    {
       title: "Veeb ja sotsiaalmeedia",
       lines: ["Veeb: kvalifits.ee", "Sotsiaalmeedia — täpsustame peagi"],
       icon: "share2",
@@ -43,11 +31,7 @@ export const contactET: ContactPageContent = {
   ],
   blocksAside: {
     title: "Kontaktandmed",
-    lead: "Ettevõtte, privaatsuse ja üldkontakti info — vajadusel uuendame andmeid vastavalt olukorrale.",
-  },
-  formAside: {
-    title: "Kirjuta meile",
-    lead: "Täida väljad — avaneb sinu e-post ja saad kiri enne saatmist ise üle vaadata.",
+    lead: "Ettevõtte ja veebi kontakt — vajadusel uuendame.",
   },
   form: {
     nameLabel: "Nimi",

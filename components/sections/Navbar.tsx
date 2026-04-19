@@ -62,7 +62,9 @@ function NavLink({
   );
 }
 
-const langTriggerNavbar = "!h-7 !min-h-0 !w-auto shrink-0 px-2 py-0 leading-none";
+/* Navbar only: strip LanguageSwitcher trigger border/background; flag + EE/EN/RU unchanged */
+const langTriggerNavbar =
+  "!h-7 !min-h-0 !w-auto shrink-0 rounded-none border-0 !border-0 bg-transparent !bg-transparent px-2 py-0 leading-none shadow-none ring-0 hover:!bg-white/[0.05]";
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -229,11 +231,11 @@ export function Navbar() {
                   <Button
                     asChild
                     variant="primary"
-                    className="h-7 shrink-0 rounded-md !px-2 text-[12px] leading-none"
+                    className="h-6 min-h-0 shrink-0 self-center rounded-md !px-2 py-0 text-[12px] leading-none"
                   >
                     <Link
                       href="/auth/register"
-                      className="inline-flex h-full min-h-0 items-center justify-center gap-0"
+                      className="inline-flex min-h-0 items-center justify-center gap-0 py-0"
                     >
                       {t("signup")}
                     </Link>

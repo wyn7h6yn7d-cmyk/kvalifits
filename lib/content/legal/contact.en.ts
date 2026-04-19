@@ -23,18 +23,6 @@ export const contactEN: ContactPageContent = {
       span: 2,
     },
     {
-      title: "Privacy",
-      lines: ["Account or personal data: [email]"],
-      icon: "mail",
-      span: 1,
-    },
-    {
-      title: "Phone & hours",
-      lines: ["We reply on business days: [hours]"],
-      icon: "phone",
-      span: 1,
-    },
-    {
       title: "Web & social",
       lines: ["Website: kvalifits.ee", "Social — we’ll add links soon"],
       icon: "share2",
@@ -43,11 +31,7 @@ export const contactEN: ContactPageContent = {
   ],
   blocksAside: {
     title: "Contact details",
-    lead: "Company, privacy, and general contact — we update these as things change.",
-  },
-  formAside: {
-    title: "Write to us",
-    lead: "Fill in the fields — your mail app opens so you can review before sending.",
+    lead: "Company and web — we update these as needed.",
   },
   form: {
     nameLabel: "Name",

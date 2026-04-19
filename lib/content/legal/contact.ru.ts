@@ -23,18 +23,6 @@ export const contactRU: ContactPageContent = {
       span: 2,
     },
     {
-      title: "Конфиденциальность",
-      lines: ["Аккаунт или персональные данные: [email]"],
-      icon: "mail",
-      span: 1,
-    },
-    {
-      title: "Телефон и режим",
-      lines: ["Отвечаем в рабочие дни: [часы]"],
-      icon: "phone",
-      span: 1,
-    },
-    {
       title: "Сайт и соцсети",
       lines: ["Сайт: kvalifits.ee", "Соцсети — скоро добавим"],
       icon: "share2",
@@ -43,11 +31,7 @@ export const contactRU: ContactPageContent = {
   ],
   blocksAside: {
     title: "Контактные данные",
-    lead: "Компания, конфиденциальность и общий контакт — при необходимости обновим сведения.",
-  },
-  formAside: {
-    title: "Написать нам",
-    lead: "Заполните поля — откроется почта, письмо можно проверить перед отправкой.",
+    lead: "Компания и сайт — при необходимости обновим сведения.",
   },
   form: {
     nameLabel: "Имя",

@@ -116,11 +116,11 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-start lg:gap-14">
-          <div className="min-w-0">
+        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-stretch lg:gap-14">
+          <div className="flex min-h-0 h-full min-w-0 flex-col">
             <div
               className={cn(
-                "relative overflow-hidden rounded-[1.75rem] border border-white/[0.10]",
+                "relative flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem] border border-white/[0.10]",
                 "bg-gradient-to-br from-white/[0.06] via-white/[0.025] to-transparent",
                 "p-6 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_20px_60px_-40px_rgba(0,0,0,0.55)] sm:p-8"
               )}
@@ -130,18 +130,23 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
                 aria-hidden
               />
               {content.blocksAside ? (
-                <header className="relative border-b border-white/[0.08] pb-6">
+                <header className="relative shrink-0 border-b border-white/[0.08] pb-5">
                   <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
                 </header>
               ) : null}
-              <div className={cn("relative", content.blocksAside && "pt-6")}>
+              <div
+                className={cn(
+                  "relative flex min-h-0 flex-1 flex-col",
+                  content.blocksAside && "pt-5",
+                )}
+              >
                 {contactInfoRows(content.blocks).map((row, idx) => (
                   <div
                     key={Array.isArray(row) ? `pair-${row.map((b) => b.title).join("-")}` : row.title}
                     className={cn(
-                      idx > 0 && "mt-6 border-t border-white/[0.07] pt-6",
-                      Array.isArray(row) && "grid gap-8 sm:grid-cols-2 sm:gap-10"
+                      idx > 0 && "mt-5 border-t border-white/[0.07] pt-5",
+                      Array.isArray(row) && "grid gap-8 sm:grid-cols-2 sm:gap-10",
                     )}
                   >
                     {Array.isArray(row) ? (
@@ -155,14 +160,12 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
             </div>
           </div>
 
-          <aside className="min-w-0 lg:sticky lg:top-[calc(var(--site-header-offset)+1.25rem)] lg:self-start">
-            {content.formAside ? (
-              <div className="mb-5">
-                <h2 className="text-lg font-semibold text-white/90">{content.formAside.title}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{content.formAside.lead}</p>
-              </div>
-            ) : null}
-            <ContactForm form={content.form} mailTo={content.formMailTo ?? PL.emailGeneral} />
+          <aside className="flex min-h-0 h-full min-w-0 flex-col">
+            <ContactForm
+              form={content.form}
+              mailTo={content.formMailTo ?? PL.emailGeneral}
+              className="min-h-0 flex-1 flex-col"
+            />
           </aside>
         </div>
 

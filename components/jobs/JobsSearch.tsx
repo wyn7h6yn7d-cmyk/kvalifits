@@ -176,22 +176,22 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
         </div>
 
         <div className="grid gap-9 lg:grid-cols-[340px_1fr] lg:items-start lg:gap-10">
-          {/* Sidebar filters — darker sink + inset accent so it reads as “tools”, not another content card */}
+          {/* Sidebar filters — violet-tinted tool panel vs neutral job cards */}
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-black/[0.44] to-black/[0.26] p-6 shadow-[inset_3px_0_0_0_rgba(139,92,246,0.14),inset_0_0_0_1px_rgba(255,255,255,0.04)] backdrop-blur-md">
-              <div className="flex items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
-                <div className="text-[12px] font-semibold uppercase tracking-[0.12em] text-white/48">
+            <div className="rounded-2xl border border-white/[0.11] bg-gradient-to-b from-violet-950/[0.38] via-black/[0.46] to-black/[0.30] p-6 shadow-[inset_5px_0_0_0_rgba(167,139,250,0.42),inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-violet-400/20 backdrop-blur-md">
+              <div className="flex items-center justify-between gap-3 border-b border-white/[0.10] pb-4">
+                <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/44">
                   {t("filters")}
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-white/38">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/36">
                   <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
                   {t("quality")}
                 </div>
               </div>
 
-              <div className="mt-5 space-y-5">
+              <div className="mt-5 space-y-6">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/36">
                     {t("quick")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -211,7 +211,7 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                 </div>
 
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/36">
                     {t("quickLocations")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -231,10 +231,10 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
                 </div>
               </div>
 
-              <div className="mt-7 space-y-6">
+              <div className="mt-8 space-y-7 border-t border-white/[0.10] pt-8">
                 {facetGroups.map((f) => (
-                  <div key={f.id}>
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
+                  <div key={f.id} className="rounded-xl border border-white/[0.06] bg-black/[0.22] p-4">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/36">
                       {tf(
                         f.id as
                           | "sertifikaat"
@@ -261,8 +261,8 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
               </div>
 
               {selected.size ? (
-                <div className="mt-7 border-t border-white/[0.08] pt-5">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/42">
+                <div className="mt-8 border-t border-white/[0.10] pt-6">
+                  <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/36">
                     {t("active")}
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">

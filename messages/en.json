@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Kvalifits — competence-based recruitment",
-    "description": "Employers and specialists in one skills-first system. Verifiable competence, clear fit."
+    "description": "Trusted employers. Qualified workers. Verifiable competence and clear fit."
   },
   "nav": {
     "home": "Home",
@@ -83,10 +83,10 @@
   "hero": {
     "badgeBrand": "Kvalifits",
     "badgeMarket": "On the Estonian labour market",
-    "headlineBefore": "Work where",
-    "headlineAccent": "competence",
-    "headlineAfter": "isn’t hidden behind opinion.",
-    "subheadline": "Skills visible. Fit visible. Without the noise.",
+    "headlineBefore": "Trusted employers.",
+    "headlineAccent": "Qualified workers",
+    "headlineAfter": "",
+    "subheadline": "We bring skilled workers and trusted employers together.",
     "ctaSeeker": "I’m looking for work",
     "ctaEmployer": "I’m hiring",
     "footerAcross": "Across Estonia",
