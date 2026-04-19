@@ -14,7 +14,7 @@
     var(--site-header-top) + var(--site-header-bar) + var(--site-header-tail)
   );
   /* Extra air below fixed navbar before hero heading + mockup */
-  --site-hero-content-top: calc(var(--site-header-offset) + 1.35rem);
+  --site-hero-content-top: calc(var(--site-header-offset) + 2rem);
 
   /* Surfaces */
   --card: rgba(255, 255, 255, 0.04);
@@ -35,6 +35,13 @@
 @media (min-width: 640px) {
   :root {
     --site-header-top: 1.25rem;
+    --site-hero-content-top: calc(var(--site-header-offset) + 2.35rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --site-hero-content-top: calc(var(--site-header-offset) + 2.85rem);
   }
 }
 
