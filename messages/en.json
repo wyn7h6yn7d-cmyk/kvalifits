@@ -119,7 +119,7 @@
     "explainSeekerTitle": "Candidate profile",
     "explainSeekerText": "This shows the candidate role, qualifications, and the key profile markers derived from their data.",
     "explainFitTitle": "Overall score",
-    "explainFitText": "One headline number: how well your profile lines up with this posting. Below, the same idea is shown row by row.",
+    "explainFitText": "One headline number: how well your profile lines up with this posting.",
     "explainEmployerTitle": "Role requirements",
     "explainEmployerText": "This shows the role and expectations defined by the employer.",
     "explainVerifiedTitle": "Qualification verified",
