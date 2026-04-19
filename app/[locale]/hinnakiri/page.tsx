@@ -45,12 +45,12 @@ export default async function HinnakiriPage({ params }: Props) {
             <div className="mt-4 space-y-3">
               <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                 <div className="text-sm font-medium text-white/85">{t("pricingDuration30")}</div>
-                <div className="font-mono text-lg font-semibold text-white">99 €</div>
+                <div className="text-lg font-semibold tabular-nums text-white">99 €</div>
               </div>
 
               <div className="flex items-baseline justify-between gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                 <div className="text-sm font-medium text-white/85">{t("pricingDuration90")}</div>
-                <div className="font-mono text-lg font-semibold text-white">250 €</div>
+                <div className="text-lg font-semibold tabular-nums text-white">250 €</div>
               </div>
             </div>
           </div>

@@ -4,24 +4,15 @@ import { cn } from "@/lib/utils";
 
 type Variant = "brand" | "price";
 
-const STACK: Record<Variant, string> = {
-  brand: "text-gradient-brand-stack",
-  price: "text-gradient-price-stack",
-};
-
-const DECOR: Record<Variant, string> = {
-  brand: "text-gradient-brand-decorative",
-  price: "text-gradient-price-decorative",
-};
-
-const PLAIN: Record<Variant, string> = {
-  brand: "text-gradient-brand-plain",
-  price: "text-gradient-price-plain",
+/** Solid premium tints — no background-clip / transparent text (Word-safe DOM). */
+const DISPLAY: Record<Variant, string> = {
+  brand: "text-accent-brand-display",
+  price: "text-accent-price-display",
 };
 
 /**
- * Gradient on screen; clipboard gets plain text (avoids Word pasting dark
- * rectangles from background-clip + transparent color on a single span).
+ * Accent emphasis without gradient text tricks (background-clip + transparent
+ * color serializes into Word as dark “highlight” blocks). Solid premium tints only.
  */
 export function GradientAccentText({
   children,
@@ -35,11 +26,8 @@ export function GradientAccentText({
   wrapClassName?: string;
 }) {
   return (
-    <span className={cn(STACK[variant], wrapClassName, className)}>
-      <span aria-hidden className={DECOR[variant]}>
-        {children}
-      </span>
-      <span className={PLAIN[variant]}>{children}</span>
+    <span className={cn("relative inline-block align-baseline", DISPLAY[variant], wrapClassName, className)}>
+      {children}
     </span>
   );
 }

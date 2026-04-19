@@ -62,7 +62,7 @@ export default async function ToootsijatelePage({ params }: Props) {
                     key={step.title}
                     className="flex gap-4 rounded-2xl border border-white/[0.08] bg-black/25 p-5 sm:p-6"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.12] bg-white/[0.05] font-mono text-[13px] font-medium tabular-nums text-white/72">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.12] bg-white/[0.05] text-[13px] font-medium tabular-nums text-white/72">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <div className="min-w-0">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
@@ -21,6 +21,7 @@ const heroSecondaryCta =
   "h-14 min-w-[180px] rounded-2xl border-white/[0.22] bg-white/[0.04] px-8 text-[15px] font-medium tracking-tight text-white backdrop-blur-md transition-all duration-300 hover:border-white/[0.32] hover:bg-white/[0.09] hover:shadow-[0_0_40px_-12px_rgba(255,255,255,0.12)]";
 
 function HeroMatchMockup() {
+  const locale = useLocale();
   const t = useTranslations("heroMockup");
   const explainId = useId();
   const [active, setActive] = useState<"seeker" | "fit" | "employer" | "verified" | "requirements">("fit");
@@ -39,11 +40,17 @@ function HeroMatchMockup() {
     "border-white/[0.10] bg-white/[0.05] hover:border-white/[0.14] hover:bg-white/[0.06]";
 
   return (
-    <div className="relative mx-auto w-full max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
-      <div className="relative overflow-hidden rounded-[32px] border border-white/[0.14] bg-gradient-to-b from-white/[0.09] via-black/40 to-black/70 p-px shadow-[0_32px_120px_-40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)_inset] backdrop-blur-2xl">
+    <div className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
+      <div className="relative min-w-0 overflow-hidden rounded-[28px] border border-white/[0.14] bg-gradient-to-b from-white/[0.09] via-black/40 to-black/70 p-px shadow-[0_32px_120px_-40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)_inset] backdrop-blur-2xl sm:rounded-[32px]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.2),transparent_55%)]" />
 
-        <div className="relative flex flex-col gap-7 p-8 sm:p-9">
+        <div
+          {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
+          className={cn(
+            "relative flex min-w-0 flex-col gap-5 p-5 sm:gap-6 sm:p-7 md:p-8",
+            locale === "ru" && "gap-4 sm:gap-5 sm:p-6",
+          )}
+        >
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-white/55">
@@ -62,7 +69,7 @@ function HeroMatchMockup() {
             </div>
           </div>
 
-          <div className="flex flex-col items-stretch gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_3.75rem_minmax(0,1fr)] sm:items-center sm:gap-4 md:gap-6">
+          <div className="flex min-w-0 flex-col items-stretch gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(2.75rem,3.25rem)_minmax(0,1fr)] sm:items-center sm:gap-3 md:gap-5">
             <motion.button
               type="button"
               initial={{ opacity: 0, x: -8 }}
@@ -74,18 +81,18 @@ function HeroMatchMockup() {
               onFocus={() => setActive("seeker")}
               onClick={() => setActive("seeker")}
               className={cn(
-                "flex min-h-[104px] min-w-0 items-center rounded-2xl border px-4 py-4 text-left transition-colors sm:min-h-[110px] sm:px-4",
+                "flex min-h-[96px] min-w-0 items-center rounded-2xl border px-3 py-3 text-left transition-colors sm:min-h-[104px] sm:px-3.5 sm:py-3.5 md:min-h-[108px]",
                 active === "seeker" ? activeTopBlock : inactiveTopBlock
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="whitespace-nowrap text-[11.5px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52">
+                <div className="truncate text-[11px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52 sm:text-[11.5px] sm:whitespace-nowrap">
                   {t("seeker")}
                 </div>
-                <div className="mt-1 max-w-full text-balance text-pretty text-[14px] font-semibold leading-snug text-white/92 sm:text-[15px] md:text-[16px] break-normal [hyphens:none]">
+                <div className="mt-1 min-w-0 max-w-full text-pretty text-[13px] font-semibold leading-snug text-white/92 break-words sm:text-[14px] md:text-[15px]">
                   {t("roleSample")}
                 </div>
-                <div className="mt-1.5 text-pretty text-[12.5px] leading-relaxed text-white/58 break-normal [hyphens:none]">
+                <div className="mt-1.5 min-w-0 text-pretty text-[12px] leading-relaxed text-white/58 break-words sm:text-[12.5px]">
                   {t("seekerHint")}
                 </div>
               </div>
@@ -99,7 +106,7 @@ function HeroMatchMockup() {
               onFocus={() => setActive("fit")}
               onClick={() => setActive("fit")}
               className={cn(
-                "group flex flex-col items-center gap-1 rounded-2xl px-1 text-center outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2",
+                "group flex shrink-0 flex-col items-center gap-1 rounded-2xl px-0.5 text-center outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2 sm:px-1",
                 active === "fit" ? "text-white" : "text-white"
               )}
             >
@@ -112,7 +119,7 @@ function HeroMatchMockup() {
                     : "border-white/[0.14] from-violet-500/25 to-black/60"
                 )}
               >
-                <span className="font-mono text-lg font-semibold tabular-nums text-white">
+                <span className="text-lg font-semibold tabular-nums text-white">
                   87<span className="text-sm text-white/45">%</span>
                 </span>
               </div>
@@ -132,18 +139,18 @@ function HeroMatchMockup() {
               onFocus={() => setActive("employer")}
               onClick={() => setActive("employer")}
               className={cn(
-                "flex min-h-[104px] min-w-0 items-center rounded-2xl border px-4 py-4 text-left transition-colors sm:min-h-[110px] sm:px-4",
+                "flex min-h-[96px] min-w-0 items-center rounded-2xl border px-3 py-3 text-left transition-colors sm:min-h-[104px] sm:px-3.5 sm:py-3.5 md:min-h-[108px]",
                 active === "employer" ? activeTopBlock : inactiveTopBlock
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="whitespace-nowrap text-[11.5px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52">
+                <div className="truncate text-[11px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52 sm:text-[11.5px] sm:whitespace-nowrap">
                   {t("employer")}
                 </div>
-                <div className="mt-1 max-w-full text-balance text-pretty text-[14px] font-semibold leading-snug text-white/90 sm:text-[15px] md:text-[16px] break-normal [hyphens:none]">
+                <div className="mt-1 min-w-0 max-w-full text-pretty text-[13px] font-semibold leading-snug text-white/90 break-words sm:text-[14px] md:text-[15px]">
                   {t("positionSample")}
                 </div>
-                <div className="mt-1.5 text-pretty text-[12.5px] leading-relaxed text-white/58 break-normal [hyphens:none]">
+                <div className="mt-1.5 min-w-0 text-pretty text-[12px] leading-relaxed text-white/58 break-words sm:text-[12.5px]">
                   {t("employerHint")}
                 </div>
               </div>
@@ -152,7 +159,7 @@ function HeroMatchMockup() {
 
           <div
             id={explainId}
-            className="rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3.5 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl"
+            className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3.5 py-3 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl sm:px-4 sm:py-3.5"
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -166,7 +173,7 @@ function HeroMatchMockup() {
                 <div className="text-[12px] font-medium uppercase tracking-wide text-white/62">
                   {explain[active].title}
                 </div>
-                <div className="mt-1.5 text-pretty text-[13.5px] leading-relaxed text-white/74 break-normal [hyphens:none]">
+                <div className="mt-1.5 min-w-0 text-pretty text-[13px] leading-relaxed text-white/74 break-words sm:text-[13.5px]">
                   {explain[active].text}
                 </div>
               </motion.div>
@@ -186,11 +193,13 @@ function HeroMatchMockup() {
                 active === "verified" ? "bg-white/[0.02]" : "hover:bg-white/[0.02]"
               )}
             >
-              <div className="flex items-center gap-2.5 text-[15px] text-white/68">
+              <div className="flex min-w-0 items-center gap-2.5 text-[15px] text-white/68">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
-                <span className={cn(active === "verified" ? "text-white/88" : "")}>{t("verified")}</span>
+                <span className={cn("min-w-0 break-words", active === "verified" ? "text-white/88" : "")}>
+                  {t("verified")}
+                </span>
               </div>
-              <p className="mt-2.5 text-pretty text-[12.5px] leading-relaxed text-white/52 break-normal [hyphens:none]">
+              <p className="mt-2.5 min-w-0 text-pretty text-[12.5px] leading-relaxed text-white/52 break-words">
                 {t("verifiedHint")}
               </p>
             </button>
@@ -210,7 +219,7 @@ function HeroMatchMockup() {
               <div>
                 <div className="flex items-center justify-between text-[12.5px] text-white/50">
                   <span className={cn(active === "requirements" ? "text-white/70" : "")}>{t("requirements")}</span>
-                  <span className="font-mono tabular-nums text-white/58">8/10</span>
+                  <span className="tabular-nums text-white/58">8/10</span>
                 </div>
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                   <motion.div
@@ -221,7 +230,7 @@ function HeroMatchMockup() {
                   />
                 </div>
               </div>
-              <p className="mt-2.5 text-pretty text-[12.5px] leading-relaxed text-white/52 break-normal [hyphens:none]">
+              <p className="mt-2.5 min-w-0 text-pretty text-[12.5px] leading-relaxed text-white/52 break-words">
                 {t("requirementsHint")}
               </p>
             </button>
@@ -234,6 +243,11 @@ function HeroMatchMockup() {
 
 export function Hero() {
   const t = useTranslations("hero");
+  const locale = useLocale();
+  const headlineClamp =
+    locale === "ru"
+      ? "text-[clamp(1.62rem,4.2vw+0.55rem,3.55rem)] sm:leading-[1.05] md:text-[clamp(1.9rem,3.45vw+0.85rem,3.35rem)] lg:text-[clamp(2.25rem,2.75vw+0.95rem,3.55rem)]"
+      : "text-[clamp(1.85rem,5.2vw+0.65rem,4.35rem)] sm:leading-[1.03] md:text-[clamp(2.25rem,4vw+1rem,4rem)] lg:text-[clamp(2.65rem,3.4vw+1.1rem,4.35rem)]";
 
   return (
     <section
@@ -265,14 +279,19 @@ export function Hero() {
           className="flex flex-col justify-center pb-20 sm:pb-24 lg:pb-32"
           style={{ paddingTop: "var(--site-hero-content-top)" }}
         >
-          <div className="grid items-center gap-16 lg:grid-cols-[1.08fr_0.92fr] lg:gap-20 xl:gap-24">
+          <div className="grid min-w-0 items-center gap-12 sm:gap-14 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 xl:gap-20">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="max-w-[40rem] xl:max-w-[44rem]"
+              className="min-w-0 max-w-[40rem] xl:max-w-[44rem]"
             >
-              <h1 className="mt-10 text-balance text-[2.85rem] font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.65rem] xl:text-[5.1rem]">
+              <h1
+                className={cn(
+                  "mt-6 text-balance font-semibold leading-[1.04] tracking-[-0.035em] text-white sm:mt-8",
+                  headlineClamp,
+                )}
+              >
                 {t("headlineBefore")}{" "}
                 <GradientAccentText wrapClassName="font-semibold">{t("headlineAccent")}</GradientAccentText>
                 {t("headlineAfter").trim() ? (
@@ -283,7 +302,7 @@ export function Hero() {
                 ) : null}
               </h1>
 
-              <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-white/62 sm:text-xl sm:leading-relaxed lg:text-[1.35rem] lg:leading-[1.65]">
+              <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-white/62 sm:mt-8 sm:text-lg sm:leading-relaxed lg:mt-9 lg:text-[1.3rem] lg:leading-[1.62]">
                 {t("subheadline")}
               </p>
 

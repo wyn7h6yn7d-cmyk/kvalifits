@@ -13,7 +13,8 @@
   --site-header-offset: calc(
     var(--site-header-top) + var(--site-header-bar) + var(--site-header-tail)
   );
-  --site-hero-content-top: calc(var(--site-header-offset) + 0.5rem);
+  /* Extra air below fixed navbar before hero heading + mockup */
+  --site-hero-content-top: calc(var(--site-header-offset) + 1.35rem);
 
   /* Surfaces */
   --card: rgba(255, 255, 255, 0.04);
@@ -50,8 +51,13 @@
   --color-violet-1: var(--violet-1);
   --color-violet-2: var(--violet-2);
   --color-violet-3: var(--violet-3);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* One loaded family (Geist); fallbacks keep text stable if the variable is slow. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+  /* System stack only — no second webfont; use `font-mono` for identifiers / env keys. */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
 }
 
 body {
@@ -59,13 +65,13 @@ body {
   padding: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji",
-    "Segoe UI Emoji";
+  font-family: var(--font-sans);
 }
 
+/* Lighter selection: dark pink can surface in Word as odd shading when pasting from HTML */
 ::selection {
-  background: rgba(227, 31, 141, 0.22);
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
 }
 
 /* Slightly smoother text rendering on dark; match body so no seam at viewport top */
@@ -121,60 +127,17 @@ html {
   }
 }
 
-/* Gradient accent: decoration is not selectable; plain span supplies clipboard text (Word-friendly). */
-.text-gradient-brand-stack {
-  position: relative;
-  display: inline-block;
-  vertical-align: baseline;
+/* Accent display: solid text only (no background-clip / transparent fill → Word-safe) */
+.text-accent-brand-display {
+  color: #ece8ff;
 }
-.text-gradient-brand-stack > .text-gradient-brand-decorative {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  pointer-events: none;
-  user-select: none;
-  background: linear-gradient(
-    120deg,
-    #ffffff 0%,
-    #e8e4ff 35%,
-    #f472b6 55%,
-    #e31f8d 85%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.text-gradient-brand-stack > .text-gradient-brand-plain {
-  position: relative;
-  z-index: 0;
-  color: #ebe7ff;
-  background-color: transparent;
+.text-accent-price-display {
+  color: #f6f4ff;
 }
 
-/* Softer price display (Audience card) — same copy pattern as brand stack */
-.text-gradient-price-stack {
-  position: relative;
-  display: inline-block;
-  vertical-align: baseline;
-}
-.text-gradient-price-stack > .text-gradient-price-decorative {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  pointer-events: none;
-  user-select: none;
-  background: linear-gradient(to bottom right, #ffffff, rgb(237 233 255 / 0.9));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.text-gradient-price-stack > .text-gradient-price-plain {
-  position: relative;
-  z-index: 0;
-  color: #f4f2ff;
-  background-color: transparent;
+/* RU hero mockup: slightly smaller base type so long words fit like EN */
+[data-hero-mock-locale="ru"] {
+  font-size: 0.925rem;
 }
 
 /* Reduce motion support */

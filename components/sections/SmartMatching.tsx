@@ -73,7 +73,7 @@ function SignalCard({
         </div>
         <div className="min-w-0">
           <p className="text-[14px] font-medium leading-snug tracking-tight text-white/92 sm:text-[15px]">{text}</p>
-          <p className="mt-1.5 font-mono text-[11px] uppercase tracking-wide text-white/48">
+          <p className="mt-1.5 text-[11px] font-medium uppercase tracking-wide text-white/48">
             {sub}
           </p>
         </div>
@@ -226,7 +226,7 @@ export function SmartMatching() {
                           ease: "easeInOut",
                         }}
                       >
-                        <GradientAccentText wrapClassName="inline-block px-1 font-mono text-[clamp(3.5rem,11vw,6.75rem)] font-semibold leading-none tracking-[-0.04em]">
+                        <GradientAccentText wrapClassName="inline-block px-1 text-[clamp(3.5rem,11vw,6.75rem)] font-semibold tabular-nums leading-none tracking-[-0.04em]">
                           87%
                         </GradientAccentText>
                       </motion.div>

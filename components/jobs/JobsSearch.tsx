@@ -176,9 +176,9 @@ export function JobsSearch({ jobs }: { jobs: Job[] }) {
         </div>
 
         <div className="grid gap-9 lg:grid-cols-[340px_1fr] lg:items-start lg:gap-10">
-          {/* Sidebar filters — violet-tinted tool panel vs neutral job cards */}
+          {/* Sidebar filters — violet-tinted tool panel (even border; ring keeps distinction from results) */}
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border border-white/[0.11] bg-gradient-to-b from-violet-950/[0.38] via-black/[0.46] to-black/[0.30] p-6 shadow-[inset_5px_0_0_0_rgba(167,139,250,0.42),inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-violet-400/20 backdrop-blur-md">
+            <div className="rounded-2xl border border-white/[0.11] bg-gradient-to-b from-violet-950/[0.38] via-black/[0.46] to-black/[0.30] p-6 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-violet-400/20 backdrop-blur-md">
               <div className="flex items-center justify-between gap-3 border-b border-white/[0.10] pb-4">
                 <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/44">
                   {t("filters")}

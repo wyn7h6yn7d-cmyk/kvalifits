@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 
 import { LocaleHtml } from "@/components/i18n/LocaleHtml";
+import { ClipboardPlainCopy } from "@/components/site/ClipboardPlainCopy";
 import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import { routing, type AppLocale } from "@/i18n/routing";
 
@@ -57,6 +58,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <NextIntlClientProvider messages={messages}>
       <LocaleHtml />
+      <ClipboardPlainCopy />
       {children}
       <ScrollToTopButton />
     </NextIntlClientProvider>

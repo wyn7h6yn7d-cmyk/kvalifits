@@ -20,7 +20,7 @@ function Spinner({ className }: { className?: string }) {
 }
 
 const buttonVariants = cva(
-  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-sans text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {

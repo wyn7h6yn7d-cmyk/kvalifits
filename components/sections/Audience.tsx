@@ -91,7 +91,7 @@ export function Audience() {
                   >
                     <span
                       className={cn(
-                        "absolute -left-7 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border text-[11px] font-mono font-medium sm:-left-8 sm:h-8 sm:w-8 sm:text-xs",
+                        "absolute -left-7 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums sm:-left-8 sm:h-8 sm:w-8 sm:text-xs",
                         i === 0
                           ? "border-accent-pink/40 bg-black/50 text-accent-pink/95"
                           : "border-white/[0.12] bg-black/40 text-white/55",
@@ -167,7 +167,7 @@ export function Audience() {
                         <ClipboardList className="h-4 w-4 shrink-0 text-white/45" aria-hidden />
                         {t("activeReq")}
                       </span>
-                      <span className="font-mono text-sm tabular-nums text-white/80">3</span>
+                      <span className="text-sm font-medium tabular-nums text-white/80">3</span>
                     </div>
                     <div className="h-px bg-white/[0.06]" />
                     <div className="flex items-center justify-between gap-3 text-[14px]">
@@ -193,7 +193,7 @@ export function Audience() {
                           <Layers className="h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden />
                           {t("bestOverlap")}
                         </span>
-                        <span className="font-mono tabular-nums text-white/68">8/10</span>
+                        <span className="tabular-nums text-white/68">8/10</span>
                       </div>
                       <div className="mt-2 flex gap-1">
                         {Array.from({ length: 10 }).map((_, i) => (
