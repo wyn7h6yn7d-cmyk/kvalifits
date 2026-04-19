@@ -29,9 +29,9 @@ export default async function AdminUsersPage({ params }: Props) {
   const isUsingAdmin = Boolean(admin);
 
   let ids: string[] = [];
-  let emailById = new Map<string, string>();
-  let createdById = new Map<string, string>();
-  let metaRoleById = new Map<string, string>();
+  const emailById = new Map<string, string>();
+  const createdById = new Map<string, string>();
+  const metaRoleById = new Map<string, string>();
 
   if (admin) {
     const { data, error } = await admin.auth.admin.listUsers({ perPage: 300 });

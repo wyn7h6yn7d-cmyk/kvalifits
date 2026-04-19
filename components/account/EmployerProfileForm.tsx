@@ -61,6 +61,13 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+
   useEffect(() => {
     setLogoUrl(initial?.logo_url ?? "");
   }, [initial?.logo_url]);
@@ -100,6 +107,50 @@ export function EmployerProfileForm({ locale, initial }: Props) {
       setError(errorMessageFromUnknown(err, t("logoUploadError")));
     } finally {
       setLogoUploading(false);
+    }
+  }
+
+  async function onPasswordChange() {
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      setPasswordError(t("passwordChangeFillAll"));
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError(t("passwordChangeMismatch"));
+      return;
+    }
+    if (newPassword.length < 8) {
+      setPasswordError(t("passwordChangeTooShort"));
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user?.email) throw new Error(t("notAuthed"));
+
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      });
+      if (signInErr) throw new Error(t("passwordChangeCurrentWrong"));
+
+      const { error: updateErr } = await supabase.auth.updateUser({ password: newPassword });
+      if (updateErr) throw updateErr;
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setPasswordSuccess(true);
+    } catch (err) {
+      setPasswordError(errorMessageFromUnknown(err, t("unknownError")));
+    } finally {
+      setPasswordLoading(false);
     }
   }
 
@@ -267,6 +318,55 @@ export function EmployerProfileForm({ locale, initial }: Props) {
       >
         {t("saveAndContinue")}
       </Button>
+
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-sm font-medium text-white/85">{t("passwordChangeTitle")}</div>
+        <div className="mt-1 text-xs leading-relaxed text-white/55">{t("passwordChangeHint")}</div>
+
+        {passwordSuccess ? (
+          <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] px-3 py-2 text-xs text-emerald-100/95">
+            {t("passwordChangedSuccess")}
+          </div>
+        ) : null}
+        {passwordError ? (
+          <div className="mt-3 rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2 text-xs text-white/75">
+            {passwordError}
+          </div>
+        ) : null}
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Input
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder={t("currentPassword")}
+          />
+          <Input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder={t("newPassword")}
+          />
+          <Input
+            type="password"
+            value={confirmNewPassword}
+            onChange={(e) => setConfirmNewPassword(e.target.value)}
+            placeholder={t("confirmNewPassword")}
+          />
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mt-3 h-9 rounded-xl px-3 text-[13px]"
+          onClick={() => void onPasswordChange()}
+          loading={passwordLoading}
+          loadingText={t("changingPassword")}
+        >
+          {t("changePasswordCta")}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type SendEmailArgs = {
   from: string;
   to: string;

@@ -531,7 +531,7 @@ export function calculateJobMatch(
   if (cert.slots > 0 && cert.raw < 0.34) applyCap("cap_missing_required_certificates", 55);
   if (sk.raw < 0.22 && role < 0.22) applyCap("cap_professional_alignment_missing", 36);
 
-  let scoreBeforeSoftFloor = clampScore(score);
+  const scoreBeforeSoftFloor = clampScore(score);
 
   const softFloor = computeSoftFloorPercent({
     skRaw: sk.raw,

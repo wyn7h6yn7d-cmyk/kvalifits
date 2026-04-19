@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { employerCoreComplete, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
