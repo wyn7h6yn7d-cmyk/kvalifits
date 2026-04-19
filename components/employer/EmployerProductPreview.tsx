@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Briefcase, Building2, CalendarDays, ChevronRight, MapPin, UserRound } from "lucide-react";
+import { Briefcase, Building2, CalendarDays, MapPin, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -237,10 +237,7 @@ export function EmployerProductPreview() {
 
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Button asChild variant="primary" size="lg" className="h-12 rounded-2xl px-8">
-              <Link href="/auth/register?role=employer">
-                {t("previewCtaRegister")}
-                <ChevronRight className="h-4 w-4" />
-              </Link>
+              <Link href="/auth/register?role=employer">{t("previewCtaRegister")}</Link>
             </Button>
           </div>
         </div>

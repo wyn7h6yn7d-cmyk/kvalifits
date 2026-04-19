@@ -70,8 +70,7 @@ function NavLink({
   );
 }
 
-const langTriggerNavbar =
-  "!h-7 !min-h-0 !w-auto shrink-0 gap-1.5 px-1.5 py-0 leading-none shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]";
+const langTriggerNavbar = "!h-7 !min-h-0 !w-auto shrink-0 px-2 py-0 leading-none";
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -131,9 +130,9 @@ export function Navbar() {
   /** Üks kiht: taust + blur + border samal elemendil kui rida → üks pidev klaasriba */
   const glassBar = cn(
     "isolate flex h-[var(--site-header-bar)] min-h-0 w-full items-center justify-between gap-2 rounded-2xl border px-2.5 py-0 backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-4 lg:justify-start lg:gap-0 lg:px-5",
-    "border-white/[0.11] bg-[rgba(5,5,8,0.78)] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_12px_40px_-14px_rgba(0,0,0,0.5),0_0_50px_-18px_rgba(124,58,237,0.07)]",
+    "border-white/[0.10] bg-[rgba(5,5,8,0.78)] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_12px_36px_-16px_rgba(0,0,0,0.55)]",
     scrolled &&
-      "border-white/[0.15] bg-[rgba(5,5,8,0.85)] shadow-[0_0_0_1px_rgba(255,255,255,0.07)_inset,0_14px_44px_-12px_rgba(0,0,0,0.55),0_0_56px_-16px_rgba(124,58,237,0.09)]",
+      "border-white/[0.12] bg-[rgba(5,5,8,0.84)] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_14px_40px_-14px_rgba(0,0,0,0.6)]",
   );
 
   const navPaths =

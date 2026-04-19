@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import Image from "next/image";
-import { CalendarDays, ChevronRight, MapPin } from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
 import type { Job } from "@/components/jobs/types";
@@ -139,9 +139,7 @@ function JobCardComponent({ job }: { job: Job }) {
 
         <div className="flex justify-end pt-1">
           <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
-            <Link href={`/tood/${job.id}`}>
-              {t("openJob")} <ChevronRight className="h-4 w-4" aria-hidden />
-            </Link>
+            <Link href={`/tood/${job.id}`}>{t("openJob")}</Link>
           </Button>
         </div>
       </div>

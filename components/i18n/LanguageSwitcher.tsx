@@ -7,9 +7,9 @@ import { routing } from "@/i18n/routing";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-/** Simple flat flag chips (no emoji) for a calmer navbar */
+/** Simple flat flag chips (no emoji) */
 function LocaleFlag({ locale }: { locale: string }) {
-  const box = "block h-2.5 w-[18px] shrink-0 overflow-hidden rounded-[2px] border border-white/[0.18]";
+  const box = "block h-2.5 w-[18px] shrink-0 overflow-hidden rounded-[2px] border border-white/[0.12]";
   if (locale === "et") {
     return (
       <svg viewBox="0 0 18 12" className={box} aria-hidden>
@@ -54,10 +54,10 @@ function persistLocalePreference(next: string) {
 }
 
 const triggerClass =
-  "flex w-full items-center justify-center gap-1 rounded-lg border border-white/[0.12] bg-white/[0.04] px-1.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-colors";
+  "flex w-full items-center justify-center gap-1.5 rounded-md border border-white/[0.10] bg-white/[0.05] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white/90 transition-colors";
 
 const itemClass =
-  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors";
+  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wide transition-colors";
 
 function useLgHover() {
   const [lg, setLg] = useState(false);
@@ -125,13 +125,7 @@ export function LanguageSwitcher({
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         aria-label={t(locale as "et" | "en" | "ru")}
-        className={cn(
-          triggerClass,
-          "text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]",
-          "bg-gradient-to-r from-violet-500/20 via-fuchsia-500/12 to-transparent",
-          menuOpen && "border-white/[0.16]",
-          triggerClassName,
-        )}
+        className={cn(triggerClass, menuOpen && "border-white/[0.14] bg-white/[0.07]", triggerClassName)}
       >
         <LocaleFlag locale={locale} />
         <span>{t(locale as "et" | "en" | "ru")}</span>
@@ -149,7 +143,7 @@ export function LanguageSwitcher({
         <div
           role="menu"
           aria-label={t("switchTo")}
-          className="flex flex-col gap-0.5 rounded-lg border border-white/[0.14] bg-black/92 p-0.5 shadow-[0_16px_48px_-12px_rgba(0,0,0,0.85)] backdrop-blur-md"
+          className="flex flex-col gap-0.5 rounded-md border border-white/[0.10] bg-black/90 p-0.5 shadow-lg backdrop-blur-md"
         >
           {others.map((loc) => (
             <button
