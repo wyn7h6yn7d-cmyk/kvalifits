@@ -26,6 +26,53 @@ const BLOCK_ICONS: Record<NonNullable<ContactBlock["icon"]>, LucideIcon> = {
   share2: Share2,
 };
 
+/** Groups consecutive single-column blocks so they can share one row without separate card chrome. */
+function contactInfoRows(blocks: ContactBlock[]): Array<ContactBlock | ContactBlock[]> {
+  const rows: Array<ContactBlock | ContactBlock[]> = [];
+  let buf: ContactBlock[] = [];
+  const flush = () => {
+    if (buf.length === 0) return;
+    rows.push(buf.length === 1 ? buf[0]! : [...buf]);
+    buf = [];
+  };
+  for (const b of blocks) {
+    if (b.span === 2) {
+      flush();
+      rows.push(b);
+    } else {
+      buf.push(b);
+    }
+  }
+  flush();
+  return rows;
+}
+
+function ContactInfoSection({ block }: { block: ContactBlock }) {
+  const Icon = block.icon ? BLOCK_ICONS[block.icon] : null;
+  return (
+    <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+      {Icon ? (
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/12 text-violet-200/90 ring-1 ring-white/[0.06]"
+          aria-hidden
+        >
+          <Icon className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.75} />
+        </div>
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <h3 className="text-sm font-semibold tracking-wide text-white/90">{block.title}</h3>
+        <ul className="mt-2.5 space-y-1.5 text-sm leading-relaxed text-white/60">
+          {block.lines.map((line, i) => (
+            <li key={i} className="break-words">
+              {line}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 export function ContactPageView({ content }: { content: ContactPageContent }) {
   const locale = useLocale();
   const t = useTranslations("legalChrome");
@@ -71,48 +118,40 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-start lg:gap-14">
           <div className="min-w-0">
-            {content.blocksAside ? (
-              <div className="mb-5">
-                <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
-              </div>
-            ) : null}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {content.blocks.map((b) => {
-                const span = b.span ?? 1;
-                const Icon = b.icon ? BLOCK_ICONS[b.icon] : null;
-                return (
+            <div
+              className={cn(
+                "relative overflow-hidden rounded-[1.75rem] border border-white/[0.10]",
+                "bg-gradient-to-br from-white/[0.06] via-white/[0.025] to-transparent",
+                "p-6 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_20px_60px_-40px_rgba(0,0,0,0.55)] sm:p-8"
+              )}
+            >
+              <div
+                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl"
+                aria-hidden
+              />
+              {content.blocksAside ? (
+                <header className="relative border-b border-white/[0.08] pb-6">
+                  <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
+                </header>
+              ) : null}
+              <div className={cn("relative", content.blocksAside && "pt-6")}>
+                {contactInfoRows(content.blocks).map((row, idx) => (
                   <div
-                    key={b.title}
+                    key={Array.isArray(row) ? `pair-${row.map((b) => b.title).join("-")}` : row.title}
                     className={cn(
-                      "flex flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6",
-                      "shadow-[0_1px_0_rgba(255,255,255,0.05)_inset]",
-                      span === 2 && "sm:col-span-2"
+                      idx > 0 && "mt-6 border-t border-white/[0.07] pt-6",
+                      Array.isArray(row) && "grid gap-8 sm:grid-cols-2 sm:gap-10"
                     )}
                   >
-                    <div className="flex items-start gap-3">
-                      {Icon ? (
-                        <div
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200/95 ring-1 ring-white/[0.08]"
-                          aria-hidden
-                        >
-                          <Icon className="h-5 w-5" strokeWidth={1.75} />
-                        </div>
-                      ) : null}
-                      <div className="min-w-0 flex-1">
-                        <h2 className="text-sm font-semibold tracking-wide text-white/90">{b.title}</h2>
-                        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/60">
-                          {b.lines.map((line, i) => (
-                            <li key={i} className="break-words">
-                              {line}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                    {Array.isArray(row) ? (
+                      row.map((b) => <ContactInfoSection key={b.title} block={b} />)
+                    ) : (
+                      <ContactInfoSection block={row} />
+                    )}
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
 
