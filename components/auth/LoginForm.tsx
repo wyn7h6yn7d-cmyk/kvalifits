@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,12 +21,32 @@ export function LoginForm({ locale }: { locale: string }) {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-      if (error) throw error;
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        message?: string;
+        code?: string | null;
+      };
+      if (!res.ok) {
+        if (json.error === "rate_limited" || res.status === 429) {
+          setError(t("errorRateLimited"));
+          return;
+        }
+        if (json.error === "missing_rate_limit_table") {
+          setError(t("errorRateLimitTable"));
+          return;
+        }
+        if (json.error === "email_not_confirmed") {
+          setError(t("errorEmailNotConfirmed"));
+          return;
+        }
+        setError(mapAuthError({ message: json.message, code: json.code }, t));
+        return;
+      }
       router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
@@ -98,4 +117,3 @@ export function LoginForm({ locale }: { locale: string }) {
     </form>
   );
 }
-

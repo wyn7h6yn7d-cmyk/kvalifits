@@ -55,8 +55,10 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
     setError(null);
     try {
       const updates: Record<string, unknown> = { status };
-      if (status === "published") updates.published_at = new Date().toISOString();
-      if (status !== "published") updates.published_at = null;
+      if (status === "published") {
+        updates.published_at = new Date().toISOString();
+      }
+      // Keep published_at when archiving (inactive) so history remains.
 
       const { error } = await supabase.from("job_posts").update(updates).eq("id", jobId);
       if (error) throw error;

@@ -4,6 +4,7 @@ import { Logo } from "@/components/brand/Logo";
 import { Container } from "@/components/ui/container";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "@/i18n/routing";
+import { CookieSettingsButton } from "@/components/cookies/CookieSettingsButton";
 
 const LEGAL_PATHS = [
   { href: "/privaatsus", key: "privacyPolicy" as const },
@@ -12,14 +13,14 @@ const LEGAL_PATHS = [
   { href: "/andmekaitse", key: "dataRights" as const },
 ];
 
-const footerNavLinkClass = "block text-[15px] leading-6 text-white/72 hover:text-white";
+const footerNavLinkClass = "block text-[15px] leading-6 text-body hover:text-foreground";
 
 export async function Footer() {
   const t = await getTranslations("footer");
   const tn = await getTranslations("nav");
 
   return (
-    <footer className="border-t border-white/[0.08] bg-black/30">
+    <footer className="border-t border-white/[0.06] bg-surface-deep">
       <Container>
         <div className="py-12">
           <div className="grid grid-cols-1 items-start gap-x-0 gap-y-10 sm:grid-cols-6 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0 xl:gap-x-10">
@@ -28,13 +29,13 @@ export async function Footer() {
                 <Logo className="flex flex-col items-start gap-0 opacity-95" />
               </div>
               <div className="flex max-w-md flex-col gap-3">
-                <p className="text-[15px] leading-7 text-white/70 sm:text-base">{t("tagline")}</p>
-                <p className="text-sm leading-relaxed text-white/50">{t("legalNote")}</p>
+                <p className="text-[15px] leading-7 text-body sm:text-base">{t("tagline")}</p>
+                <p className="text-sm leading-relaxed text-muted-2">{t("legalNote")}</p>
               </div>
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 sm:col-span-3 lg:col-span-2">
-              <div className="text-[13px] font-medium uppercase tracking-wide text-white/60">
+              <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2">
                 {t("platform")}
               </div>
               <div className="flex flex-col gap-3">
@@ -51,7 +52,7 @@ export async function Footer() {
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 sm:col-span-3 lg:col-span-2">
-              <div className="text-[13px] font-medium uppercase tracking-wide text-white/60">
+              <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2">
                 {t("company")}
               </div>
               <div className="flex flex-col gap-3">
@@ -65,7 +66,7 @@ export async function Footer() {
             </div>
 
             <div className="flex min-w-0 flex-col gap-3 sm:col-span-6 lg:col-span-3">
-              <div className="text-[13px] font-medium uppercase tracking-wide text-white/60">
+              <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2">
                 {t("legal")}
               </div>
               <div className="flex flex-col gap-3">
@@ -74,6 +75,7 @@ export async function Footer() {
                     {t(item.key)}
                   </Link>
                 ))}
+                <CookieSettingsButton className={`${footerNavLinkClass} text-left`} />
               </div>
             </div>
           </div>

@@ -11,37 +11,24 @@ import { cn } from "@/lib/utils";
 
 type ApplicantId = 0 | 1 | 2;
 
-function PreviewScoreRing({ score, label }: { score: number; label: string }) {
-  const w = Math.min(100, Math.max(0, score));
+function PreviewScoreRing({ label, sampleLabel }: { label: string; sampleLabel: string }) {
   return (
     <div className="relative flex flex-col items-center justify-center rounded-3xl border border-white/[0.14] bg-gradient-to-b from-white/[0.10] to-black/40 px-6 py-6 shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:px-8 sm:py-8">
       <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">
         {label}
       </span>
-      <span className="mt-2 tabular-nums text-[2.75rem] font-semibold leading-none tracking-tight text-white sm:text-[3.25rem]">
-        {score}
-        <span className="ml-0.5 text-2xl font-semibold text-white/75">%</span>
-      </span>
-      <div className="mt-4 h-1.5 w-full max-w-[10rem] overflow-hidden rounded-full bg-white/[0.08]">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-violet-400/90 to-fuchsia-400/80"
-          style={{ width: `${w}%` }}
-        />
+      <span className="mt-3 text-sm font-medium uppercase tracking-wide text-white/55">{sampleLabel}</span>
+      <div className="mt-4 h-1.5 w-full max-w-[10rem] overflow-hidden rounded-full bg-white/[0.08]" aria-hidden>
+        <div className="h-full w-3/5 rounded-full bg-gradient-to-r from-violet-400/45 to-fuchsia-400/35" />
       </div>
     </div>
   );
 }
 
-function ListScore({ score, shortLabel }: { score: number; shortLabel: string }) {
+function ListScore({ sampleLabel }: { sampleLabel: string }) {
   return (
     <div className="flex shrink-0 flex-col items-end rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.08] to-black/35 px-3 py-2 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-white/48">
-        {shortLabel}
-      </span>
-      <span className="mt-0.5 tabular-nums text-xl font-semibold text-white">
-        {score}
-        <span className="text-sm font-semibold text-white/70">%</span>
-      </span>
+      <span className="text-[10px] font-medium uppercase tracking-wide text-white/48">{sampleLabel}</span>
     </div>
   );
 }
@@ -49,13 +36,13 @@ function ListScore({ score, shortLabel }: { score: number; shortLabel: string })
 export function EmployerProductPreview() {
   const t = useTranslations("pages.employers");
   const suitabilityLabel = t("previewSuitabilityLabel");
-  const suitabilityShort = t("previewSuitabilityShort");
+  const sampleLabel = t("previewSampleBadge");
   const [selected, setSelected] = useState<ApplicantId>(0);
 
-  const applicants: { id: ApplicantId; score: number; initial: string }[] = [
-    { id: 0, score: 82, initial: "M" },
-    { id: 1, score: 61, initial: "R" },
-    { id: 2, score: 18, initial: "E" },
+  const applicants: { id: ApplicantId; initial: string }[] = [
+    { id: 0, initial: "M" },
+    { id: 1, initial: "R" },
+    { id: 2, initial: "E" },
   ];
 
   const detailKey = (id: ApplicantId, suffix: string) =>
@@ -101,7 +88,7 @@ export function EmployerProductPreview() {
           <div className="overflow-hidden rounded-[28px] border border-white/[0.12] bg-gradient-to-b from-white/[0.06] via-black/35 to-black/65 shadow-[0_32px_100px_-48px_rgba(0,0,0,0.85)] backdrop-blur-xl">
             <div className="flex flex-col gap-0.5 border-b border-white/[0.07] bg-black/[0.28] px-5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-3">
               <span className="text-[12px] leading-snug text-white/50">{t("previewWorkspaceContext")}</span>
-              <span className="text-[12px] leading-snug tabular-nums text-white/42">{t("previewWorkspaceMeta")}</span>
+              <span className="text-[12px] leading-snug text-white/42">{t("previewWorkspaceMeta")}</span>
             </div>
             <div className="flex flex-col gap-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
               <div className="min-w-0 space-y-3">
@@ -186,7 +173,7 @@ export function EmployerProductPreview() {
                               {t(`previewDemoApp${a.id}Clue` as "previewDemoApp0Clue")}
                             </p>
                           </div>
-                          <ListScore score={a.score} shortLabel={suitabilityShort} />
+                          <ListScore sampleLabel={sampleLabel} />
                         </button>
                       );
                     })}
@@ -227,10 +214,7 @@ export function EmployerProductPreview() {
                   </div>
 
                   <div className="flex h-full min-h-0 justify-center lg:items-center">
-                    <PreviewScoreRing
-                      score={applicants.find((x) => x.id === selected)!.score}
-                      label={suitabilityLabel}
-                    />
+                    <PreviewScoreRing label={suitabilityLabel} sampleLabel={sampleLabel} />
                   </div>
 
                   <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">

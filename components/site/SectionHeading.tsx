@@ -22,15 +22,15 @@ export function SectionHeading({
       )}
     >
       {eyebrow ? (
-        <div className="text-xs font-medium tracking-[0.22em] uppercase text-white/55">
+        <div className="text-xs font-medium tracking-[0.22em] uppercase text-muted-2">
           {eyebrow}
         </div>
       ) : null}
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-base leading-7 text-white/70">{subtitle}</p>
+        <p className="mt-3 text-base leading-7 text-body">{subtitle}</p>
       ) : null}
     </div>
   );

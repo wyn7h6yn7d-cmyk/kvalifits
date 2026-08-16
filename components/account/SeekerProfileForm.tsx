@@ -8,10 +8,62 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
+import {
+  buildCertificateObjectPath,
+  CERTIFICATES_BUCKET,
+  persistCertificateImageRef,
+} from "@/lib/seeker/certificateStorage";
+import {
+  calculateAgeYears,
+  isLearningObligationStatus,
+  isLegalRepresentativeConsentStatus,
+  normalizeSeekerEditableConsentStatus,
+  needsLearningObligationStatus,
+  type LearningObligationStatus,
+  type LegalRepresentativeConsentStatus,
+} from "@/lib/seeker/age";
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SeekerExperienceBackgroundFields } from "@/components/seeker/SeekerExperienceBackgroundFields";
+import {
+  emptyExperienceBackgroundFormValue,
+  experienceBackgroundFromDb,
+  experienceBackgroundToDbPayload,
+  type ExperienceBackgroundFormValue,
+} from "@/lib/seeker/experienceBackground";
+import { SeekerBirthDateFields } from "@/components/seeker/SeekerBirthDateFields";
+import {
+  SeekerWorkPreferencesFields,
+  sanitizeWorkPreferencesForSave,
+  workPreferencesFromDb,
+  workPreferencesToDbPayload,
+  type WorkPreferencesFormValue,
+} from "@/components/seeker/SeekerWorkPreferencesFields";
+import { SeekerWorkplaceNeedsFields } from "@/components/seeker/SeekerWorkplaceNeedsFields";
+import { SeekerWorkCapacityFields } from "@/components/seeker/SeekerWorkCapacityFields";
+import {
+  workplaceNeedsFromDb,
+  workplaceNeedsToDbPayload,
+  type WorkplaceNeedsFormValue,
+} from "@/lib/seeker/workplaceNeeds";
+import {
+  workCapacityFromDb,
+  workCapacityToDbPayload,
+  type WorkCapacityStatus,
+} from "@/lib/seeker/workCapacity";
 import { errorMessageFromUnknown } from "@/lib/utils";
+import {
+  certificateIdentityKey,
+  formatCertificateExpiryWarning,
+  formatCertificateStatusLine,
+  formatCertificateVerifiedMeta,
+  parseCertificateVerificationStatus,
+  resolveCertificateEffectiveStatus,
+  type CertificateVerificationStatus,
+} from "@/lib/seeker/certificateVerification";
+import { CertificateVerificationBadge } from "@/components/seeker/CertificateVerificationBadge";
+import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
 
 type Certificate = {
   id?: string;
@@ -21,6 +73,10 @@ type Certificate = {
   certificate_valid_from: string;
   certificate_valid_until: string;
   certificate_image_url?: string | null;
+  verification_status?: CertificateVerificationStatus;
+  verified_at?: string | null;
+  verification_source?: string | null;
+  verified_by?: string | null;
 };
 
 type Props = {
@@ -44,8 +100,35 @@ type Props = {
       work_authorization_notes?: string | null;
       cv_url?: string | null;
       has_b_category_drivers_license?: boolean | null;
+      date_of_birth?: string | null;
+      learning_obligation_status?: string | null;
+      legal_representative_consent_status?: string | null;
+      is_minor?: boolean | null;
+      pref_full_time?: boolean | null;
+      pref_part_time?: boolean | null;
+      pref_desired_weekly_hours?: number | null;
+      pref_min_weekly_hours?: number | null;
+      pref_max_weekly_hours?: number | null;
+      pref_day_work?: boolean | null;
+      pref_evening_work?: boolean | null;
+      pref_night_work?: boolean | null;
+      pref_shift_work?: boolean | null;
+      pref_weekend_work?: boolean | null;
+      pref_flexible_hours?: boolean | null;
+      pref_remote_work?: boolean | null;
+      pref_hybrid_work?: boolean | null;
+      pref_on_site_work?: boolean | null;
+      exp_seeking_first_job?: boolean | null;
+      exp_is_student?: boolean | null;
+      exp_has_internship?: boolean | null;
+      exp_has_volunteer?: boolean | null;
+      exp_has_project?: boolean | null;
+      exp_has_prior_work?: boolean | null;
+      experience_duration_years?: number | null;
     } | null;
     certificates: Certificate[];
+    workplaceNeeds: WorkplaceNeedsFormValue | null;
+    workCapacity: WorkCapacityStatus | null;
   };
 };
 
@@ -89,6 +172,31 @@ export function SeekerProfileForm({ locale, initial }: Props) {
   const [cvUrl, setCvUrl] = useState(initial.seeker?.cv_url ?? "");
   const [cvUploading, setCvUploading] = useState(false);
   const [cvFileName, setCvFileName] = useState<string | null>(null);
+  const [dateOfBirth, setDateOfBirth] = useState(initial.seeker?.date_of_birth ?? "");
+  const [learningObligationStatus, setLearningObligationStatus] = useState<LearningObligationStatus | "">(
+    () => {
+      const v = initial.seeker?.learning_obligation_status ?? "";
+      return isLearningObligationStatus(v) ? v : "";
+    }
+  );
+  const [legalRepresentativeConsentStatus, setLegalRepresentativeConsentStatus] = useState<
+    LegalRepresentativeConsentStatus | ""
+  >(() => {
+    const v = initial.seeker?.legal_representative_consent_status ?? "";
+    return isLegalRepresentativeConsentStatus(v) ? v : "";
+  });
+  const [workPreferences, setWorkPreferences] = useState<WorkPreferencesFormValue>(() =>
+    workPreferencesFromDb(initial.seeker)
+  );
+  const [workplaceNeeds, setWorkplaceNeeds] = useState<WorkplaceNeedsFormValue>(() =>
+    workplaceNeedsFromDb(initial.workplaceNeeds)
+  );
+  const [workCapacity, setWorkCapacity] = useState<WorkCapacityStatus>(() =>
+    workCapacityFromDb(initial.workCapacity ? { status: initial.workCapacity } : null)
+  );
+  const [experienceBackground, setExperienceBackground] = useState<ExperienceBackgroundFormValue>(() =>
+    experienceBackgroundFromDb(initial.seeker)
+  );
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -125,7 +233,13 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     initial.certificates.length
       ? initial.certificates.map((c) => ({
           ...c,
-          certificate_image_url: (c as any).certificate_image_url ?? "",
+          certificate_image_url: (c as Certificate).certificate_image_url ?? "",
+          verification_status: parseCertificateVerificationStatus(
+            (c as Certificate).verification_status
+          ),
+          verified_at: (c as Certificate).verified_at ?? null,
+          verification_source: (c as Certificate).verification_source ?? null,
+          verified_by: (c as Certificate).verified_by ?? null,
         }))
       : []
   );
@@ -151,6 +265,25 @@ export function SeekerProfileForm({ locale, initial }: Props) {
     setHasBCategoryDriversLicense(Boolean(initial.seeker?.has_b_category_drivers_license));
   }, [initial.seeker?.has_b_category_drivers_license]);
 
+  useEffect(() => {
+    setDateOfBirth(initial.seeker?.date_of_birth ?? "");
+    const v = initial.seeker?.learning_obligation_status ?? "";
+    setLearningObligationStatus(isLearningObligationStatus(v) ? v : "");
+    const c = initial.seeker?.legal_representative_consent_status ?? "";
+    setLegalRepresentativeConsentStatus(isLegalRepresentativeConsentStatus(c) ? c : "");
+    setWorkPreferences(workPreferencesFromDb(initial.seeker));
+    setWorkplaceNeeds(workplaceNeedsFromDb(initial.workplaceNeeds));
+    setWorkCapacity(workCapacityFromDb(initial.workCapacity ? { status: initial.workCapacity } : null));
+    setExperienceBackground(experienceBackgroundFromDb(initial.seeker));
+  }, [
+    initial.seeker?.date_of_birth,
+    initial.seeker?.learning_obligation_status,
+    initial.seeker?.legal_representative_consent_status,
+    initial.seeker,
+    initial.workplaceNeeds,
+    initial.workCapacity,
+  ]);
+
   async function onCertificateFileChange(idx: number, file: File | null) {
     if (!file) return;
     setError(null);
@@ -167,15 +300,17 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         ? await prepareRasterImageForUpload(file, "certificate")
         : file;
       const ext = (uploadFile.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `${user.id}/certificates/${idx}-${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, uploadFile, {
-        upsert: true,
-        contentType: uploadFile.type || undefined,
-      });
+      // Private bucket — store object path only (never a permanent public URL).
+      const path = buildCertificateObjectPath(user.id, idx, ext);
+      const { error: uploadErr } = await supabase.storage
+        .from(CERTIFICATES_BUCKET)
+        .upload(path, uploadFile, {
+          upsert: true,
+          contentType: uploadFile.type || undefined,
+        });
       if (uploadErr) throw uploadErr;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       setCertificates((prev) =>
-        prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: data.publicUrl } : x))
+        prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: path } : x))
       );
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));
@@ -336,6 +471,36 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       if (preferredJobTypes.length < 1) throw new Error(t("errPreferredJobTypesRequired"));
       if (preferredLocations.length < 1) throw new Error(t("errPreferredLocationsRequired"));
 
+      const ageYears = calculateAgeYears(dateOfBirth);
+      if (ageYears === null) throw new Error(t("errDateOfBirthRequired"));
+      const learningStatus = needsLearningObligationStatus(ageYears)
+        ? learningObligationStatus
+        : "";
+      if (needsLearningObligationStatus(ageYears) && !isLearningObligationStatus(learningStatus)) {
+        throw new Error(t("errLearningObligationRequired"));
+      }
+      const isMinor = ageYears < 18;
+      const consentStatus = normalizeSeekerEditableConsentStatus(
+        legalRepresentativeConsentStatus || "required",
+        isMinor
+      );
+      // Never send confirmed from the client unless already confirmed (workflow); coerce self-serve to pending/required.
+      const consentToSave =
+        consentStatus === "confirmed" &&
+        initial.seeker?.legal_representative_consent_status === "confirmed"
+          ? "confirmed"
+          : isMinor
+            ? consentStatus === "pending"
+              ? "pending"
+              : "required"
+            : null;
+
+      const sanitizedPrefs = sanitizeWorkPreferencesForSave(
+        workPreferences,
+        dateOfBirth,
+        learningObligationStatus
+      );
+
       // Certificates are optional. If provided, only persist reasonably complete rows.
       const validCerts = certificates
         .map((c) => ({
@@ -343,7 +508,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           certificate_name: c.certificate_name.trim(),
           certificate_number: c.certificate_number.trim(),
           certificate_issuer: c.certificate_issuer.trim(),
-          certificate_image_url: (c.certificate_image_url ?? "").trim(),
+          certificate_image_url: persistCertificateImageRef(c.certificate_image_url) ?? "",
         }))
         .filter((c) => c.certificate_name && c.certificate_issuer);
       const isComplete = seekerCoreComplete({
@@ -358,6 +523,8 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           experience_level: experienceLevel,
           preferred_job_types: preferredJobTypes,
           preferred_locations: preferredLocations,
+          date_of_birth: dateOfBirth,
+          learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
         },
         certRowsWithImage: 0,
       });
@@ -381,29 +548,112 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         salary_expectation: salaryExpectation.trim() || null,
         work_authorization_notes: workAuthNotes.trim() || null,
         cv_url: cvUrl.trim() || null,
+        date_of_birth: dateOfBirth,
+        learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
+        legal_representative_consent_status: consentToSave,
+        ...workPreferencesToDbPayload(sanitizedPrefs),
+        ...experienceBackgroundToDbPayload(experienceBackground),
         is_complete: isComplete,
         profile_visible: profileVisible,
         has_b_category_drivers_license: hasBCategoryDriversLicense,
       });
       if (seekerErr) throw seekerErr;
 
-      // MVP sync: replace user's certificate set
+      const { error: needsErr } = await supabase.from("seeker_workplace_needs").upsert({
+        user_id: user.id,
+        ...workplaceNeedsToDbPayload(workplaceNeeds),
+      });
+      if (needsErr) throw needsErr;
+
+      const { error: capacityErr } = await supabase.from("seeker_work_capacity").upsert({
+        user_id: user.id,
+        ...workCapacityToDbPayload(workCapacity),
+      });
+      if (capacityErr) throw capacityErr;
+
+      // MVP sync: replace user's certificate set, preserving verification for same name+issuer.
+      let existingCerts: unknown[] | null = null;
+      {
+        const existingRes = await supabase
+          .from("seeker_certificates")
+          .select(
+            "certificate_name,certificate_issuer,verification_status,verified_at,verification_source,verified_by"
+          )
+          .eq("user_id", user.id);
+        if (existingRes.error && /verification_|column/i.test(existingRes.error.message ?? "")) {
+          const fallback = await supabase
+            .from("seeker_certificates")
+            .select("certificate_name,certificate_issuer")
+            .eq("user_id", user.id);
+          existingCerts = fallback.data;
+        } else if (existingRes.error) {
+          throw existingRes.error;
+        } else {
+          existingCerts = existingRes.data;
+        }
+      }
+
+      const verificationByKey = new Map<
+        string,
+        {
+          verification_status: CertificateVerificationStatus;
+          verified_at: string | null;
+          verification_source: string | null;
+          verified_by: string | null;
+        }
+      >();
+      for (const row of existingCerts ?? []) {
+        const name = (row as { certificate_name?: string | null }).certificate_name ?? "";
+        const issuer = (row as { certificate_issuer?: string | null }).certificate_issuer ?? "";
+        if (!name.trim() || !issuer.trim()) continue;
+        verificationByKey.set(certificateIdentityKey(name, issuer), {
+          verification_status: parseCertificateVerificationStatus(
+            (row as { verification_status?: unknown }).verification_status
+          ),
+          verified_at: ((row as { verified_at?: string | null }).verified_at ?? null) as string | null,
+          verification_source: ((row as { verification_source?: string | null }).verification_source ??
+            null) as string | null,
+          verified_by: ((row as { verified_by?: string | null }).verified_by ?? null) as string | null,
+        });
+      }
+
       const { error: delErr } = await supabase.from("seeker_certificates").delete().eq("user_id", user.id);
       if (delErr) throw delErr;
 
       if (validCerts.length) {
-        const rows = validCerts.map((c) => ({
-          user_id: user.id,
-          certificate_name: c.certificate_name,
-          certificate_number: c.certificate_number || null,
-          certificate_issuer: c.certificate_issuer,
-          certificate_valid_from: c.certificate_valid_from || null,
-          certificate_valid_until: c.certificate_valid_until || null,
-          // Kept for storage uploads (user never enters URL manually).
-          certificate_image_url: c.certificate_image_url || null,
-        }));
-        const { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
-        if (insErr) throw insErr;
+        const rows = validCerts.map((c) => {
+          const prev = verificationByKey.get(
+            certificateIdentityKey(c.certificate_name, c.certificate_issuer)
+          );
+          const status = prev?.verification_status ?? "submitted";
+          return {
+            user_id: user.id,
+            certificate_name: c.certificate_name,
+            certificate_number: c.certificate_number || null,
+            certificate_issuer: c.certificate_issuer,
+            certificate_valid_from: c.certificate_valid_from || null,
+            certificate_valid_until: c.certificate_valid_until || null,
+            certificate_image_url: persistCertificateImageRef(c.certificate_image_url),
+            verification_status: status,
+            verified_at: status === "verified" ? prev?.verified_at ?? null : null,
+            verification_source: status === "verified" ? prev?.verification_source ?? null : null,
+            verified_by: status === "verified" ? prev?.verified_by ?? null : null,
+          };
+        });
+        let { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
+        if (insErr && /verification_|column/i.test(insErr.message ?? "")) {
+          const legacyRows = rows.map(
+            ({ verification_status: _s, verified_at: _a, verification_source: _src, verified_by: _by, ...rest }) =>
+              rest
+          );
+          const retry = await supabase.from("seeker_certificates").insert(legacyRows);
+          insErr = retry.error;
+          if (insErr) {
+            throw new Error(`${insErr.message}\n\n${t("certificateVerificationFixHint")}`);
+          }
+        } else if (insErr) {
+          throw insErr;
+        }
       }
 
       router.push(`/${locale}/tood`);
@@ -426,9 +676,24 @@ export function SeekerProfileForm({ locale, initial }: Props) {
             (l.includes("schema cache") || l.includes("could not find"))) ||
           l.includes("salary_expectation") ||
           l.includes("work_authorization_notes") ||
-          l.includes("has_b_category_drivers_license")
+          l.includes("has_b_category_drivers_license") ||
+          l.includes("date_of_birth") ||
+          l.includes("learning_obligation_status") ||
+          l.includes("legal_representative_consent_status") ||
+          l.includes("pref_full_time") ||
+          l.includes("pref_desired_weekly_hours") ||
+          l.includes("seeker_workplace_needs") ||
+          l.includes("seeker_work_capacity") ||
+          l.includes("exp_seeking_first_job") ||
+          l.includes("experience_duration_years") ||
+          l.includes("shared_with_employer") ||
+          l.includes("is_minor") ||
+          l.includes("verification_status") ||
+          l.includes("verified_at") ||
+          l.includes("verification_source") ||
+          l.includes("verified_by")
         ) {
-          shown = `${shown}\n\n${t("seekerProfileStructuredColumnsFixHint")}`;
+          shown = `${shown}\n\n${t("seekerProfileStructuredColumnsFixHint")}\n\n${t("certificateVerificationFixHint")}`;
         }
         setError(shown);
       }
@@ -540,6 +805,15 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         </div>
       </div>
 
+      <SeekerBirthDateFields
+        dateOfBirth={dateOfBirth}
+        learningObligationStatus={learningObligationStatus}
+        legalRepresentativeConsentStatus={legalRepresentativeConsentStatus}
+        onDateOfBirthChange={setDateOfBirth}
+        onLearningObligationChange={setLearningObligationStatus}
+        onLegalRepresentativeConsentChange={setLegalRepresentativeConsentStatus}
+      />
+
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("about")}</label>
         <textarea
@@ -578,6 +852,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           <Input value={skillsCsv} onChange={(e) => setSkillsCsv(e.target.value)} required placeholder={t("csvHint")} />
           <div className="text-xs text-white/45">{t("skillsHelp")}</div>
         </div>
+        <SeekerExperienceBackgroundFields value={experienceBackground} onChange={setExperienceBackground} />
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredJobTypes")}</label>
           <Input value={preferredJobTypesCsv} onChange={(e) => setPreferredJobTypesCsv(e.target.value)} required placeholder={t("csvHint")} />
@@ -589,6 +864,17 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           <div className="text-xs text-white/45">{t("preferredLocationsHelp")}</div>
         </div>
       </div>
+
+      <SeekerWorkPreferencesFields
+        value={workPreferences}
+        onChange={setWorkPreferences}
+        dateOfBirth={dateOfBirth}
+        learningObligationStatus={learningObligationStatus}
+      />
+
+      <SeekerWorkCapacityFields value={workCapacity} onChange={setWorkCapacity} />
+
+      <SeekerWorkplaceNeedsFields value={workplaceNeeds} onChange={setWorkplaceNeeds} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -648,6 +934,10 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                   certificate_valid_from: "",
                   certificate_valid_until: "",
                   certificate_image_url: "",
+                  verification_status: "submitted",
+                  verified_at: null,
+                  verification_source: null,
+                  verified_by: null,
                 },
               ])
             }
@@ -673,11 +963,60 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         </div>
 
         <div className="mt-4 space-y-6">
-          {certificates.map((c, idx) => (
+          {certificates.map((c, idx) => {
+            const status = resolveCertificateEffectiveStatus({
+              verification_status: parseCertificateVerificationStatus(c.verification_status),
+              certificate_valid_until: c.certificate_valid_until || null,
+            });
+            const statusLabels = {
+              submitted: t("certificateStatus.submitted"),
+              under_review: t("certificateStatus.under_review"),
+              verified: t("certificateStatus.verified"),
+              rejected: t("certificateStatus.rejected"),
+              expired: t("certificateStatus.expired"),
+            };
+            const statusLine = formatCertificateStatusLine(
+              {
+                verification_status: parseCertificateVerificationStatus(c.verification_status),
+                verified_at: c.verified_at ?? null,
+                verification_source: c.verification_source ?? null,
+                certificate_valid_until: c.certificate_valid_until || null,
+              },
+              statusLabels,
+              locale
+            );
+            const metaLine = formatCertificateVerifiedMeta(
+              {
+                certificate_valid_until: c.certificate_valid_until || null,
+                verified_by: c.verified_by ?? null,
+                verification_status: parseCertificateVerificationStatus(c.verification_status),
+                verified_at: c.verified_at ?? null,
+                verification_source: c.verification_source ?? null,
+              },
+              {
+                validUntil: t("certificateVerifiedValidUntil"),
+                verifiedBy: t("certificateVerifiedBy"),
+                previouslyVerified: t("certificatePreviouslyVerified"),
+              },
+              locale
+            );
+            const warningLine = formatCertificateExpiryWarning(c.certificate_valid_until || null, {
+              expiresToday: t("certificateExpiresToday"),
+              expiresInDays: (days) => t("certificateExpiresInDays", { days }),
+            });
+            return (
             <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="text-xs font-medium tracking-wide text-white/55">
-                  {t("certificate")} #{idx + 1}
+              <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1.5">
+                  <div className="text-xs font-medium tracking-wide text-white/55">
+                    {t("certificate")} #{idx + 1}
+                  </div>
+                  <CertificateVerificationBadge
+                    status={status}
+                    statusLine={statusLine}
+                    metaLine={metaLine}
+                    warningLine={warningLine}
+                  />
                 </div>
                 {certificates.length > 1 ? (
                   <button
@@ -721,10 +1060,14 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                     className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
                   />
                   <div className="text-xs text-white/45">{t("certificateImageUploadHint")}</div>
+                  {(c.certificate_image_url ?? "").toString().trim() ? (
+                    <div className="text-xs text-emerald-200/80">{t("certificateImageReady")}</div>
+                  ) : null}
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -793,16 +1136,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           </Button>
         </div>
 
-        <div className="mt-4">
-          <a
-            href={`mailto:support@kvalifits.ee?subject=${encodeURIComponent(
-              t("deleteAccountEmailSubject")
-            )}&body=${encodeURIComponent(t("deleteAccountEmailBody"))}`}
-            className="text-sm font-medium text-white/75 underline hover:text-white"
-          >
-            {t("deleteAccountCta")}
-          </a>
-        </div>
+        <AccountPrivacySettings locale={locale} className="mt-4" />
       </div>
     </form>
   );

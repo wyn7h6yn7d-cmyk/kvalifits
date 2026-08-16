@@ -90,7 +90,7 @@ export const privacyEN: LegalDocument = {
       id: "kupsised",
       title: "Cookies and analytics",
       paragraphs: [
-        "We use cookies for operation, preferences and — with consent — statistics. Details: /en/kupsised.",
+        "We use strictly necessary cookies (authentication, session, language). Analytics load only with consent when enabled in the product. The detailed list and consent UI share the same technical configuration — see the Cookie policy (/en/kupsised).",
       ],
     },
     {

@@ -12,22 +12,23 @@ export function AmbientBackground({
   intensity?: "soft" | "default" | "strong";
 }) {
   const reduce = useReducedMotion();
+  // Softer caps — premium glow without eye strain
   const a =
-    intensity === "soft" ? 0.22 : intensity === "strong" ? 0.38 : 0.30;
+    intensity === "soft" ? 0.10 : intensity === "strong" ? 0.32 : 0.18;
   const b =
-    intensity === "soft" ? 0.14 : intensity === "strong" ? 0.26 : 0.20;
+    intensity === "soft" ? 0.06 : intensity === "strong" ? 0.18 : 0.10;
 
   return (
     <div
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
-      {/* ambient glows */}
+      {/* ambient glows — violet kept controlled */}
       <motion.div
         className="absolute -top-44 left-1/2 h-[620px] w-[980px] -translate-x-1/2 rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(circle at 50% 50%, rgba(168,85,247,0.55), rgba(99,102,241,0.18), rgba(0,0,0,0) 70%)",
+            "radial-gradient(circle at 50% 50%, rgba(168,85,247,0.38), rgba(99,102,241,0.12), rgba(9,9,13,0) 72%)",
           opacity: a,
         }}
         animate={
@@ -50,7 +51,7 @@ export function AmbientBackground({
         className="absolute -bottom-48 right-[-140px] h-[520px] w-[620px] rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(circle at 40% 40%, rgba(227,31,141,0.22), rgba(168,85,247,0.16), rgba(0,0,0,0) 70%)",
+            "radial-gradient(circle at 40% 40%, rgba(227,31,141,0.12), rgba(168,85,247,0.08), rgba(9,9,13,0) 72%)",
           opacity: b,
         }}
         animate={
@@ -71,4 +72,3 @@ export function AmbientBackground({
     </div>
   );
 }
-

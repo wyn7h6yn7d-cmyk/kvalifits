@@ -36,8 +36,19 @@ export function AdminUsersTable({ users }: { locale: string; users: Row[] }) {
     setBusyId(userId);
     setError(null);
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const { error } = await supabase.from("profiles").update({ is_blocked: blocked }).eq("id", userId);
       if (error) throw error;
+      const { tryWriteAdminAuditLog, ADMIN_AUDIT_ACTIONS } = await import("@/lib/admin/auditLog");
+      await tryWriteAdminAuditLog(supabase, {
+        actorId: user?.id,
+        action: blocked ? ADMIN_AUDIT_ACTIONS.userBlock : ADMIN_AUDIT_ACTIONS.userUnblock,
+        targetType: "user",
+        targetId: userId,
+        details: { is_blocked: blocked },
+      });
       router.refresh();
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));

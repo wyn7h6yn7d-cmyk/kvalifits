@@ -41,8 +41,8 @@ function HeroMatchMockup() {
 
   return (
     <div className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
-      <div className="relative min-w-0 overflow-hidden rounded-[28px] border border-white/[0.14] bg-gradient-to-b from-white/[0.09] via-black/40 to-black/70 p-px shadow-[0_32px_120px_-40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)_inset] backdrop-blur-2xl sm:rounded-[32px]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.2),transparent_55%)]" />
+      <div className="relative min-w-0 overflow-hidden rounded-[28px] border border-white/[0.11] bg-gradient-to-b from-white/[0.07] via-[#0F0F16]/70 to-[#09090D]/90 p-px shadow-[0_28px_100px_-40px_rgba(9,9,13,0.8),0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-2xl sm:rounded-[32px]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.14),transparent_55%)]" />
 
         <div
           {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
@@ -56,16 +56,9 @@ function HeroMatchMockup() {
               <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-white/55">
                 {t("matching")}
               </span>
-              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[12px] font-medium uppercase tracking-wide text-emerald-300/90">
-                {t("live")}
+              <span className="rounded-full border border-white/[0.12] bg-white/[0.05] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white/55">
+                {t("sampleBadge")}
               </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[12px] text-white/55">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full motion-safe:animate-ping rounded-full bg-emerald-400/50" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              </span>
-              {t("fresh")}
             </div>
           </div>
 
@@ -119,8 +112,8 @@ function HeroMatchMockup() {
                     : "border-white/[0.14] from-violet-500/25 to-black/60"
                 )}
               >
-                <span className="text-lg font-semibold tabular-nums text-white">
-                  87<span className="text-sm text-white/45">%</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                  {t("fitScoreSample")}
                 </span>
               </div>
               <span className="text-[11px] font-medium tracking-wide text-white/50">
@@ -219,7 +212,9 @@ function HeroMatchMockup() {
               <div>
                 <div className="flex items-center justify-between text-[12.5px] text-white/50">
                   <span className={cn(active === "requirements" ? "text-white/70" : "")}>{t("requirements")}</span>
-                  <span className="tabular-nums text-white/58">8/10</span>
+                  <span className="tabular-nums text-white/58" title={t("sampleBadge")}>
+                    {t("requirementsFilledSample")}
+                  </span>
                 </div>
                 <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                   <motion.div
@@ -252,7 +247,7 @@ export function Hero() {
   return (
     <section
       id="avaleht"
-      className="relative min-h-[min(96vh,940px)] overflow-hidden scroll-mt-[var(--site-header-offset)]"
+      className="relative min-h-[min(96vh,940px)] overflow-hidden scroll-mt-[var(--site-header-offset)] bg-surface-deep"
     >
       <AmbientBackground intensity={heroPortal.ambientIntensity} />
       <div className="absolute inset-0 z-0">
@@ -263,20 +258,26 @@ export function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[1]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_130%_90%_at_50%_-15%,rgba(168,85,247,0.32),transparent_52%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/85" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.55)_100%)] opacity-70" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_130%_90%_at_50%_-15%,rgba(168,85,247,0.28),transparent_55%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#09090D]/40 via-transparent to-[#09090D]/95" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(9,9,13,0.4)_100%)] opacity-75" />
       </div>
+
+      {/* Soft handoff into the next (calmer) section */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-28 bg-gradient-to-b from-transparent to-[#0F0F16] sm:h-36"
+      />
 
       {/* Tumedam ülariba: loetav navbar + vähem hero “bleed” läbi klaasi */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-36 bg-gradient-to-b from-[#050508]/92 via-[#050508]/45 to-transparent sm:h-40"
+        className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-36 bg-gradient-to-b from-[#09090D]/95 via-[#09090D]/50 to-transparent sm:h-40"
       />
 
       <Container className="relative z-10">
         <div
-          className="flex flex-col justify-start pb-20 sm:pb-24 lg:pb-32"
+          className="flex flex-col justify-start pb-24 sm:pb-28 lg:pb-36"
           style={{ paddingTop: "var(--site-hero-content-top)" }}
         >
           <div className="grid min-w-0 items-center gap-12 sm:gap-14 lg:grid-cols-[1.08fr_0.92fr] lg:gap-16 xl:gap-20">
@@ -302,7 +303,7 @@ export function Hero() {
                 ) : null}
               </h1>
 
-              <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-white/62 sm:mt-8 sm:text-lg sm:leading-relaxed lg:mt-9 lg:text-[1.3rem] lg:leading-[1.62]">
+              <p className="mt-6 max-w-xl text-pretty text-base leading-relaxed text-body sm:mt-8 sm:text-lg sm:leading-relaxed lg:mt-9 lg:text-[1.3rem] lg:leading-[1.62]">
                 {t("subheadline")}
               </p>
 

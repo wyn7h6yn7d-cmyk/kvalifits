@@ -20,6 +20,13 @@ export default async function AdminIndex({ params }: Props) {
         <AuthShell title={t("title")} subtitle={t("subtitle")} maxWidthClassName="max-w-3xl">
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
+              href="/admin/moderation"
+              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/80 hover:bg-white/[0.04] sm:col-span-2"
+            >
+              <div className="font-medium text-white/85">{t("moderationTitle")}</div>
+              <div className="mt-1 text-sm text-white/60">{t("moderationSubtitle")}</div>
+            </Link>
+            <Link
               href="/admin/jobs"
               className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/80 hover:bg-white/[0.04]"
             >
@@ -32,6 +39,27 @@ export default async function AdminIndex({ params }: Props) {
             >
               <div className="font-medium text-white/85">{t("usersTitle")}</div>
               <div className="mt-1 text-sm text-white/60">{t("usersSubtitle")}</div>
+            </Link>
+            <Link
+              href="/admin/reports"
+              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/80 hover:bg-white/[0.04]"
+            >
+              <div className="font-medium text-white/85">{t("reportsTitle")}</div>
+              <div className="mt-1 text-sm text-white/60">{t("reportsSubtitle")}</div>
+            </Link>
+            <Link
+              href="/admin/employers"
+              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/80 hover:bg-white/[0.04]"
+            >
+              <div className="font-medium text-white/85">{t("employersTitle")}</div>
+              <div className="mt-1 text-sm text-white/60">{t("employersSubtitle")}</div>
+            </Link>
+            <Link
+              href="/admin/security"
+              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/80 hover:bg-white/[0.04]"
+            >
+              <div className="font-medium text-white/85">{t("securityTitle")}</div>
+              <div className="mt-1 text-sm text-white/60">{t("securitySubtitle")}</div>
             </Link>
           </div>
         </AuthShell>

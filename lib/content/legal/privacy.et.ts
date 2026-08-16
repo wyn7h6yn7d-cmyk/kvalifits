@@ -96,7 +96,7 @@ export const privacyET: LegalDocument = {
       id: "kupsised",
       title: "Küpsised ja analüütika",
       paragraphs: [
-        "Kasutame küpsiseid platvormi toimimiseks, eelistuste meeldejätmiseks ja — sinu nõusolekul — statistika jaoks. Üksikasjalik kirjeldus on dokumendis „Küpsiste poliitika“ (/kupsised).",
+        "Kasutame hädavajalikke küpsiseid (autentimine, seanss, keel). Analüütika laaditakse ainult nõusolekul, kui see on tootes aktiivne. Täpne nimekiri ja nõusolekuliides põhinevad samal tehnilisel konfiguratsioonil — vt „Küpsiste poliitika“ (/kupsised).",
       ],
     },
     {

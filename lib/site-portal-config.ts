@@ -1,33 +1,47 @@
 import type { PortalBackgroundVariant, PortalIntensity } from "@/components/site/portal-background";
 
 /**
- * Hero taust: muuda siia, et valida variant ja tugevus.
- * - variant: "a" | "b" | "both" — A = jooned+sõlmed, B = kaardi-outline’id+match, both = mõlemad (hero kasutab vaikimisi A)
- * - intensity: "soft" | "default" | "strong" — vähem / rohkem nähtavust ja liikumist
+ * Landing visual rhythm — hero carries the “wow”; other sections support it.
  */
 export const heroPortal: {
   variant: PortalBackgroundVariant;
   intensity: PortalIntensity;
   ambientIntensity: "soft" | "default" | "strong";
 } = {
-  /** A = subtle connection lines; B adds floating “card outline” panels — keep hero calmer */
   variant: "a",
   intensity: "default",
-  ambientIntensity: "default",
+  ambientIntensity: "strong",
 };
 
-/**
- * Teised tumedad sektsioonid (õhuke kiht).
- */
-export const subtleSectionPortal: {
+/** Audience / matching — light connection lines + soft glow (never competes with hero). */
+export const matchingSectionPortal: {
   enabled: boolean;
-  variant: "b";
+  variant: PortalBackgroundVariant;
   intensity: PortalIntensity;
-  /** 0–1: üldine summutaja */
+  ambientIntensity: "soft" | "default" | "strong";
   opacity: number;
 } = {
   enabled: true,
-  variant: "b",
+  variant: "a",
   intensity: "soft",
-  opacity: 0.2,
+  ambientIntensity: "soft",
+  opacity: 0.22,
 };
+
+/** Final CTA — controlled glow only; faint still-feeling lines. */
+export const ctaSectionPortal: {
+  enabled: boolean;
+  variant: PortalBackgroundVariant;
+  intensity: PortalIntensity;
+  ambientIntensity: "soft" | "default" | "strong";
+  opacity: number;
+} = {
+  enabled: true,
+  variant: "a",
+  intensity: "soft",
+  ambientIntensity: "soft",
+  opacity: 0.14,
+};
+
+/** @deprecated Prefer matchingSectionPortal / ctaSectionPortal */
+export const subtleSectionPortal = matchingSectionPortal;

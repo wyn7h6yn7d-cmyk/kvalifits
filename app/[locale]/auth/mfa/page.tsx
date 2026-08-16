@@ -1,0 +1,39 @@
+import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+
+import { Navbar } from "@/components/sections/Navbar";
+import { Footer } from "@/components/sections/Footer";
+import { AuthShell } from "@/components/auth/AuthShell";
+import { MfaChallengeForm } from "@/components/auth/MfaChallengeForm";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+type Props = {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ next?: string }>;
+};
+
+export default async function MfaChallengePage({ params, searchParams }: Props) {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const t = await getTranslations({ locale, namespace: "auth" });
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/auth/login`);
+
+  const nextRaw = (sp.next ?? `/${locale}/admin`).toString();
+  const nextPath = nextRaw.startsWith(`/${locale}/`) ? nextRaw : `/${locale}/admin`;
+
+  return (
+    <div className="flex-1 bg-background">
+      <Navbar />
+      <main className="pt-[var(--site-header-offset)]">
+        <AuthShell title={t("mfaTitle")} subtitle={t("mfaSubtitle")}>
+          <MfaChallengeForm locale={locale} nextPath={nextPath} />
+        </AuthShell>
+      </main>
+      <Footer />
+    </div>
+  );
+}

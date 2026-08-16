@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { Container } from "@/components/ui/container";
 
 export default function ToodLoading() {
@@ -50,7 +49,6 @@ export default function ToodLoading() {
           </Container>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

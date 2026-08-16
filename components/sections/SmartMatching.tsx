@@ -14,11 +14,11 @@ import {
 import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { Container } from "@/components/ui/container";
 import { PortalBackground } from "@/components/site/portal-background";
-import { subtleSectionPortal } from "@/lib/site-portal-config";
+import { matchingSectionPortal } from "@/lib/site-portal-config";
 import { cn } from "@/lib/utils";
 
 const SEGMENTS = 10;
-const FILLED = 8;
+const FILLED = 6; // decorative only — not a real metric
 
 function FloatingSignal({
   className,
@@ -123,45 +123,45 @@ export function SmartMatching() {
   ] as const;
 
   return (
-    <section id="tood" className="relative scroll-mt-24 overflow-hidden py-24 sm:py-32">
-      {subtleSectionPortal.enabled ? (
+    <section id="tood" className="relative scroll-mt-24 overflow-hidden bg-surface-elevated py-24 sm:py-32">
+      {matchingSectionPortal.enabled ? (
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden"
-          style={{ opacity: subtleSectionPortal.opacity }}
+          style={{ opacity: matchingSectionPortal.opacity }}
           aria-hidden="true"
         >
           <PortalBackground
-            variant={subtleSectionPortal.variant}
-            intensity={subtleSectionPortal.intensity}
+            variant={matchingSectionPortal.variant}
+            intensity={matchingSectionPortal.intensity}
           />
         </div>
       ) : null}
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_70%_at_50%_0%,rgba(168,85,247,0.2),transparent_58%),radial-gradient(ellipse_80%_55%_at_100%_55%,rgba(227,31,141,0.08),transparent_52%),radial-gradient(ellipse_60%_50%_at_0%_40%,rgba(99,102,241,0.08),transparent_50%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(168,85,247,0.14),transparent_60%)]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.2] to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.14] to-transparent"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/55"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#09090D]/25 via-transparent to-[#09090D]/55"
       />
 
       <Container className="relative">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-white/55">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-2">
             {t("badge")}
           </div>
-          <h2 className="mt-7 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-[3.5rem]">
+          <h2 className="mt-7 text-balance text-4xl font-semibold leading-[1.06] tracking-tight text-foreground sm:text-5xl lg:text-[3.5rem]">
             {t("title")}
             <span className="mt-2 block">
               <GradientAccentText wrapClassName="font-semibold">{t("titleAccent")}</GradientAccentText>
             </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-white/58 sm:text-lg sm:leading-relaxed">
+          <p className="mx-auto mt-5 max-w-xl text-pretty text-base leading-relaxed text-body sm:text-lg sm:leading-relaxed">
             {t("subtitle")}
           </p>
         </div>
@@ -169,18 +169,10 @@ export function SmartMatching() {
         <div className="relative mx-auto mt-20 max-w-6xl">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[120%] w-[95%] max-w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-[48px] bg-[radial-gradient(ellipse_at_50%_40%,rgba(168,85,247,0.22),transparent_65%)] blur-3xl"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-[12%] top-[30%] h-72 w-72 rounded-full bg-violet-500/10 blur-3xl"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute bottom-[18%] right-[8%] h-64 w-64 rounded-full bg-accent-pink/10 blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[110%] w-[90%] max-w-[860px] -translate-x-1/2 -translate-y-1/2 rounded-[48px] bg-[radial-gradient(ellipse_at_50%_40%,rgba(168,85,247,0.14),transparent_68%)] blur-3xl"
           />
 
-          <div className="relative rounded-[40px] border border-white/[0.12] bg-gradient-to-b from-white/[0.08] via-black/50 to-black/80 p-px shadow-[0_40px_120px_-40px_rgba(0,0,0,0.95)]">
+          <div className="relative rounded-[40px] border border-white/[0.12] bg-gradient-to-b from-white/[0.07] via-[#0F0F16]/75 to-[#09090D]/90 p-px shadow-[0_40px_120px_-40px_rgba(9,9,13,0.85)]">
             <div className="absolute inset-0 rounded-[40px] bg-[linear-gradient(135deg,rgba(255,255,255,0.07)_0%,transparent_45%,transparent_100%)]" />
             <div className="relative overflow-hidden rounded-[39px]">
               <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:48px_48px]" />
@@ -226,8 +218,8 @@ export function SmartMatching() {
                           ease: "easeInOut",
                         }}
                       >
-                        <GradientAccentText wrapClassName="inline-block px-1 text-[clamp(3.5rem,11vw,6.75rem)] font-semibold tabular-nums leading-none tracking-[-0.04em]">
-                          87%
+                        <GradientAccentText wrapClassName="inline-block px-1 text-[clamp(1.75rem,5vw,2.5rem)] font-semibold leading-none tracking-tight">
+                          {t("sampleScore")}
                         </GradientAccentText>
                       </motion.div>
                     </motion.div>

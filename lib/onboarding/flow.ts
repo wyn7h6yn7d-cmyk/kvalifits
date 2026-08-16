@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { emailVerificationBlockReason } from "@/lib/auth/emailVerification";
 import { employerCoreComplete, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 
@@ -13,6 +14,15 @@ export async function getRoleAndNextPath(locale: string) {
 
   if (!user) {
     return { user: null, role: null, nextPath: `/${locale}/auth/login` };
+  }
+
+  if (emailVerificationBlockReason(user) === "unverified") {
+    await supabase.auth.signOut({ scope: "local" });
+    return {
+      user: null,
+      role: null,
+      nextPath: `/${locale}/auth/login?error=email_not_confirmed`,
+    };
   }
 
   const { data: profile } = await supabase
@@ -41,7 +51,7 @@ export async function getRoleAndNextPath(locale: string) {
     const { data: seeker } = await supabase
       .from("seeker_profiles")
       .select(
-        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations"
+        "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,date_of_birth,learning_obligation_status"
       )
       .eq("user_id", user.id)
       .maybeSingle();

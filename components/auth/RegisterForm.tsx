@@ -4,10 +4,11 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { mapAuthError } from "@/lib/auth/mapAuthError";
+import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 type Role = "seeker" | "employer";
 
@@ -27,6 +28,7 @@ export function RegisterForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,79 +38,72 @@ export function RegisterForm({
     setError(null);
 
     try {
+      if (!termsAccepted) {
+        throw new Error(t("registerTermsRequired"));
+      }
       if (password !== passwordConfirm) {
         throw new Error(t("errorPasswordMismatch"));
       }
 
-      const supabase = createSupabaseBrowserClient();
-      const redirectTo = `${window.location.origin}/${locale}/auth/callback`;
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectTo,
-          data: {
-            role,
-          },
-        },
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          role,
+          locale,
+          termsAccepted: true,
+        }),
       });
-      if (error) throw error;
-
-      const userId = data.user?.id;
-      if (!userId) {
-        throw new Error(t("signupNoUser"));
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        message?: string;
+        code?: string | null;
+        needsEmailVerification?: boolean;
+      };
+      if (!res.ok) {
+        if (json.error === "rate_limited" || res.status === 429) {
+          setError(t("errorRateLimited"));
+          return;
+        }
+        if (json.error === "missing_rate_limit_table") {
+          setError(t("errorRateLimitTable"));
+          return;
+        }
+        if (json.error === "terms_required") {
+          setError(t("registerTermsRequired"));
+          return;
+        }
+        if (json.error === "weak_password") {
+          setError(t("errorWeakPassword"));
+          return;
+        }
+        if (json.error === "signup_no_user") {
+          setError(t("signupNoUser"));
+          return;
+        }
+        if (json.error === "profile_failed") {
+          const msg = (json.message ?? "").toLowerCase();
+          if (
+            msg.includes("terms_accepted_at") ||
+            msg.includes("terms_version") ||
+            msg.includes("privacy_version") ||
+            msg.includes("schema cache")
+          ) {
+            setError(`${mapAuthError({ message: json.message }, t)}\n\n${t("registerTermsFixHint")}`);
+            return;
+          }
+        }
+        setError(mapAuthError({ message: json.message, code: json.code }, t));
+        return;
       }
 
-      // If email confirmations are enabled, there might not be a session yet.
-      // In MVP we recommend disabling confirmations, so this becomes a single-step flow.
-      const hasSession = Boolean(data.session);
-      if (!hasSession) {
+      if (json.needsEmailVerification) {
         router.push(`/${locale}/auth/login?signup=check-email`);
         return;
       }
 
-      // 1) Create primary role row
-      const { error: profileErr } = await supabase.from("profiles").upsert({
-        id: userId,
-        role,
-        email,
-      });
-      if (profileErr) throw profileErr;
-
-      // 2) Create role-specific profile placeholder row
-      if (role === "seeker") {
-        const { error: seekerErr } = await supabase.from("seeker_profiles").insert({
-          user_id: userId,
-          full_name: "",
-          phone: "",
-          location: "",
-          profile_title: "",
-          about: "",
-          skills: [],
-          experience_level: "",
-          preferred_job_types: [],
-          preferred_locations: [],
-          profile_visible: false,
-          completion_percent: 0,
-          is_complete: false,
-        });
-        // If row already exists, ignore
-        if (seekerErr && seekerErr.code !== "23505") throw seekerErr;
-        router.push(`/${locale}/onboarding`);
-        router.refresh();
-        return;
-      }
-
-      // employer
-      const { error: employerErr } = await supabase.from("employer_profiles").insert({
-        owner_user_id: userId,
-        company_name: "",
-        contact_email: email,
-        company_description: "",
-        location: "",
-      });
-      if (employerErr && employerErr.code !== "23505") throw employerErr;
       router.push(`/${locale}/onboarding`);
       router.refresh();
     } catch (err) {
@@ -194,8 +189,45 @@ export function RegisterForm({
         />
       </div>
 
+      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-sm leading-relaxed text-white/70">
+        <input
+          type="checkbox"
+          checked={termsAccepted}
+          onChange={(e) => setTermsAccepted(e.target.checked)}
+          required
+          className="mt-0.5"
+          aria-required="true"
+        />
+        <span>
+          {t.rich("registerTermsConsent", {
+            terms: (chunks) => (
+              <Link
+                href="/tingimused"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-white/85 underline decoration-white/30 underline-offset-2 hover:decoration-white/55"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link
+                href="/privaatsus"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-white/85 underline decoration-white/30 underline-offset-2 hover:decoration-white/55"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
+        </span>
+      </label>
+
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
           {error}
         </div>
       ) : null}
@@ -204,9 +236,10 @@ export function RegisterForm({
         type="submit"
         variant="primary"
         size="lg"
-        className="w-full"
+        className={cn("w-full", !termsAccepted && "opacity-60")}
         loading={loading}
         loadingText={t("loading")}
+        disabled={!termsAccepted || loading}
       >
         {t("registerCta")}
       </Button>
@@ -219,4 +252,3 @@ export function RegisterForm({
     </form>
   );
 }
-

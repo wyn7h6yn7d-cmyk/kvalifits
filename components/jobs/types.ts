@@ -15,5 +15,14 @@ export type Job = {
   requiredCerts: string[];
   domains?: string[];
   languages?: string[];
+  /** When employer set experience to not_required. */
+  openToFirstJob?: boolean;
+  /**
+   * Automatic employment-rules pre-check: work conditions may suit a young (minor) seeker.
+   * Never a manual employer toggle.
+   */
+  suitableForYoungSeeker?: boolean;
+  /** True only when admin-verified (never from company name alone). */
+  companyVerified?: boolean;
 };
 

@@ -33,30 +33,60 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
 
   const { data: applications, error: appErr } = await supabase
     .from("job_applications")
-    .select("id,seeker_user_id,created_at,status,match_score,match_breakdown,shared_profile")
+    .select("id,seeker_user_id,created_at,status,match_score,match_breakdown,shared_profile,application_answers")
     .eq("job_post_id", id)
-    .neq("status", "withdrawn")
     .limit(200);
   if (appErr) throw appErr;
 
   const apps = applications ?? [];
   const seekerIds = [...new Set(apps.map((a) => a.seeker_user_id).filter(Boolean))] as string[];
-  const liveCvBySeeker = new Map<string, string>();
+  const liveBySeeker = new Map<
+    string,
+    { cvUrl: string | null; languages: string[]; experienceDurationYears: number | null; seekingFirstJob: boolean }
+  >();
   if (seekerIds.length) {
-    const { data: profiles } = await supabase.from("seeker_profiles").select("user_id,cv_url").in("user_id", seekerIds);
+    const { data: profiles } = await supabase
+      .from("seeker_profiles")
+      .select("user_id,cv_url,languages,experience_duration_years,exp_seeking_first_job")
+      .in("user_id", seekerIds);
     for (const p of profiles ?? []) {
-      const u = safeHttpUrl((p as { cv_url?: string | null }).cv_url);
-      if (u) liveCvBySeeker.set((p as { user_id: string }).user_id, u);
+      const row = p as {
+        user_id: string;
+        cv_url?: string | null;
+        languages?: string[] | null;
+        experience_duration_years?: number | null;
+        exp_seeking_first_job?: boolean | null;
+      };
+      const langs = Array.isArray(row.languages)
+        ? row.languages.map((x) => String(x).trim()).filter(Boolean)
+        : [];
+      const years =
+        row.experience_duration_years === null || row.experience_duration_years === undefined
+          ? null
+          : Number(row.experience_duration_years);
+      liveBySeeker.set(row.user_id, {
+        cvUrl: safeHttpUrl(row.cv_url),
+        languages: langs,
+        experienceDurationYears: years !== null && Number.isFinite(years) ? years : null,
+        seekingFirstJob: Boolean(row.exp_seeking_first_job),
+      });
     }
   }
 
   const enriched = apps.map((a) => {
     const seeker = (a.shared_profile as { seeker?: Record<string, unknown> } | null)?.seeker ?? {};
     const fromSnap = safeHttpUrl(seeker.cv_url);
-    const fromLive = a.seeker_user_id ? liveCvBySeeker.get(a.seeker_user_id) : undefined;
+    const live = a.seeker_user_id ? liveBySeeker.get(a.seeker_user_id) : undefined;
     return {
       ...a,
-      resolved_cv_url: fromSnap ?? fromLive ?? null,
+      resolved_cv_url: fromSnap ?? live?.cvUrl ?? null,
+      live: live
+        ? {
+            languages: live.languages,
+            experienceDurationYears: live.experienceDurationYears,
+            seekingFirstJob: live.seekingFirstJob,
+          }
+        : null,
     };
   });
 
@@ -64,7 +94,7 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("applicantsTitle")} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-3xl">
+        <AuthShell title={t("applicantsTitle")} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-4xl">
           <div className="space-y-6">
             <div className="rounded-3xl border border-white/[0.10] bg-gradient-to-b from-white/[0.05] to-white/[0.02] p-5 sm:p-6">
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantsForJob")}</div>

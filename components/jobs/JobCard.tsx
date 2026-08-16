@@ -9,6 +9,7 @@ import type { Job } from "@/components/jobs/types";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
+import { YoungSeekerJobBadge } from "@/components/jobs/YoungSeekerJobBadge";
 
 function formatDate(iso: string | undefined, locale: string) {
   if (!iso) return null;
@@ -42,6 +43,18 @@ function JobCardComponent({ job }: { job: Job }) {
           >
             {job.title}
           </Link>
+          {job.openToFirstJob ? (
+            <div className="pt-1">
+              <span className="inline-flex rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-emerald-100/90">
+                {t("openToFirstJobBadge")}
+              </span>
+            </div>
+          ) : null}
+          {job.suitableForYoungSeeker ? (
+            <div className={job.openToFirstJob ? "pt-1.5" : "pt-1"}>
+              <YoungSeekerJobBadge compact />
+            </div>
+          ) : null}
           <div className="flex items-center gap-2.5">
             {job.companyLogoUrl ? (
               job.companyLogoUrl.startsWith("data:") || job.companyLogoUrl.startsWith("blob:") ? (
@@ -63,7 +76,14 @@ function JobCardComponent({ job }: { job: Job }) {
                 />
               )
             ) : null}
-            <div className="text-[14px] text-white/68">{job.company}</div>
+            <div className="text-[14px] text-white/68">
+              {job.company}
+              {job.companyVerified ? (
+                <span className="ml-2 inline-flex align-middle rounded-full border border-emerald-400/30 bg-emerald-500/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-emerald-100/90">
+                  {t("companyVerifiedBadge")}
+                </span>
+              ) : null}
+            </div>
           </div>
         </div>
 

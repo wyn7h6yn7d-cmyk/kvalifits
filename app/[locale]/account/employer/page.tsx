@@ -9,7 +9,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { EmployerProfileForm, type EmployerProfile } from "@/components/account/EmployerProfileForm";
 import { EmployerJobsList } from "@/components/account/EmployerJobsList";
-import { employerProfileSelectColumns } from "@/lib/employer/employerCompanySizeSync";
+import { employerProfileSelectColumns, EMPLOYER_COMPANY_SIZE_DB_ENABLED } from "@/lib/employer/employerCompanySizeSync";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -31,11 +31,24 @@ export default async function EmployerAccountPage({ params }: Props) {
   if (role !== "employer") redirect(`/${locale}/account`);
   if (nextPath.includes("/onboarding/")) redirect(nextPath);
 
-  const { data: employer } = await supabase
+  const { data: employerRaw, error: employerSelectErr } = await supabase
     .from("employer_profiles")
     .select(employerProfileSelectColumns())
     .eq("owner_user_id", user.id)
     .maybeSingle();
+
+  let employer = employerRaw as EmployerProfile | null;
+  if (employerSelectErr) {
+    const fallbackCols = EMPLOYER_COMPANY_SIZE_DB_ENABLED
+      ? "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry, logo_url, company_size"
+      : "id, company_name, registry_code, contact_email, contact_phone, website, company_description, location, industry, logo_url";
+    const fallback = await supabase
+      .from("employer_profiles")
+      .select(fallbackCols)
+      .eq("owner_user_id", user.id)
+      .maybeSingle();
+    employer = (fallback.data as EmployerProfile | null) ?? null;
+  }
 
   const { data: jobs } = await supabase
     .from("job_posts")

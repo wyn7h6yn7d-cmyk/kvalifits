@@ -7,6 +7,15 @@ import { PageHero } from "@/components/site/PageHero";
 import { JobsSearch } from "@/components/jobs/JobsSearch";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Job } from "@/components/jobs/types";
+import { formatJobSalaryDisplay, isJobSalaryPeriod, isJobSalaryTax } from "@/lib/jobs/jobSalary";
+import {
+  jobPassesYoungSeekerAutoEligibility,
+  jobWorkConditionsFromJobRow,
+} from "@/lib/employmentRules";
+import { isEmployerCompanyVerified } from "@/lib/employer/companyVerification";
+import { publicPageMetadata } from "@/lib/seo/site";
+import { deactivateExpiredJobPosts } from "@/lib/jobs/deactivateExpiredJobs";
+import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -81,66 +90,131 @@ function formatJobSalary(
   max: number | null,
   currency: string,
   locale: string,
+  tax: string | null,
+  period: string | null,
+  tJobs: (key: string) => string,
 ): string | undefined {
-  if (min == null && max == null) return undefined;
-  const tag = locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "et-EE";
-  const fmt = new Intl.NumberFormat(tag, { maximumFractionDigits: 0 });
-  const cur = (currency || "EUR").toString().toUpperCase();
-  const sym = cur === "EUR" ? "€" : cur;
-  const nb = "\u00a0";
-
-  if (min != null && max != null) {
-    return `${fmt.format(min)}${nb}–${nb}${fmt.format(max)}${nb}${sym}`;
-  }
-  if (min != null) {
-    if (locale === "en") return `From${nb}${fmt.format(min)}${nb}${sym}`;
-    if (locale === "ru") return `От${nb}${fmt.format(min)}${nb}${sym}`;
-    return `Alates${nb}${fmt.format(min)}${nb}${sym}`;
-  }
-  if (max != null) {
-    if (locale === "en") return `Up to${nb}${fmt.format(max)}${nb}${sym}`;
-    if (locale === "ru") return `До${nb}${fmt.format(max)}${nb}${sym}`;
-    return `Kuni${nb}${fmt.format(max)}${nb}${sym}`;
-  }
-  return undefined;
+  const taxKey = isJobSalaryTax(tax) ? tax : null;
+  const periodKey = isJobSalaryPeriod(period) ? period : null;
+  return formatJobSalaryDisplay({
+    min,
+    max,
+    currency,
+    tax: taxKey,
+    period: periodKey,
+    locale,
+    taxLabel: taxKey ? tJobs(`jobSalaryTaxShort.${taxKey}`) : "",
+    periodLabel: periodKey ? tJobs(`jobSalaryPeriodOption.${periodKey}`) : "",
+  });
 }
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.jobs" });
-  return {
+  return publicPageMetadata({
+    locale,
+    path: "/tood",
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default async function ToodPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations("pages.jobs");
   const tJobs = await getTranslations({ locale, namespace: "jobs" });
+  await deactivateExpiredJobPosts();
   const supabase = await createSupabaseServerClient();
 
-  const { data: jobs } = await supabase
+  const selectFull =
+    "id,title,location,job_type,work_type,short_summary,description,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,salary_tax,salary_period,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work";
+  const selectLegacy =
+    "id,title,location,job_type,work_type,short_summary,description,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at,experience_level_required";
+  const selectMid =
+    "id,title,location,job_type,work_type,short_summary,description,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,salary_tax,salary_period,employer_profile_id,status,created_at,experience_level_required";
+
+  let { data: jobs, error: jobsErr } = await supabase
     .from("job_posts")
-    .select(
-      "id,title,location,job_type,work_type,short_summary,description,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at"
-    )
+    .select(selectFull)
     .eq("status", "published")
     .order("created_at", { ascending: false })
     .limit(200);
+
+  if (jobsErr && /published_at|application_deadline|expires_at|column/i.test(jobsErr.message ?? "")) {
+    const mid = await supabase
+      .from("job_posts")
+      .select(selectMid)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    jobs = mid.data;
+    jobsErr = mid.error;
+  }
+  if (jobsErr && /weekly_hours|daily_hours|shift_|includes_night|is_hazardous|column/i.test(jobsErr.message ?? "")) {
+    const mid = await supabase
+      .from("job_posts")
+      .select(selectMid)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    jobs = mid.data;
+    jobsErr = mid.error;
+  }
+  if (jobsErr && /salary_tax|salary_period|column/i.test(jobsErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_posts")
+      .select(selectLegacy)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    jobs = fallback.data;
+    jobsErr = fallback.error;
+  }
+  if (jobsErr) throw jobsErr;
+
+  jobs = (jobs ?? []).filter((j: any) =>
+    jobAcceptsApplications({
+      status: j.status,
+      published_at: j.published_at ?? null,
+      application_deadline: j.application_deadline ?? null,
+      expires_at: j.expires_at ?? null,
+    })
+  );
 
   const employerIds = Array.from(
     new Set((jobs ?? []).map((j: any) => j.employer_profile_id).filter(Boolean))
   ) as string[];
 
-  const { data: employers } = employerIds.length
-    ? await supabase.from("employer_profiles").select("id,company_name,logo_url").in("id", employerIds)
-    : { data: [] as any[] };
+  let employerRows: any[] = [];
+  if (employerIds.length) {
+    const withVerif = await supabase
+      .from("employer_profiles")
+      .select("id,company_name,logo_url,company_verified,verification_status")
+      .in("id", employerIds);
+    if (withVerif.error) {
+      const fallback = await supabase
+        .from("employer_profiles")
+        .select("id,company_name,logo_url")
+        .in("id", employerIds);
+      employerRows = (fallback.data ?? []) as any[];
+    } else {
+      employerRows = (withVerif.data ?? []) as any[];
+    }
+  }
 
   const employerById = new Map(
-    (employers ?? []).map((e: any) => [
+    employerRows.map((e: any) => [
       e.id,
-      { name: (e.company_name ?? "—").toString(), logoUrl: (e.logo_url ?? "").toString().trim() || null },
+      {
+        name: (e.company_name ?? "—").toString(),
+        logoUrl: (e.logo_url ?? "").toString().trim() || null,
+        verified: isEmployerCompanyVerified({
+          company_verified: e.company_verified,
+          verification_status: e.verification_status,
+          verification_source: null,
+          verified_at: null,
+        }),
+      },
     ])
   );
 
@@ -148,7 +222,15 @@ export default async function ToodPage({ params }: Props) {
     const min = typeof j.salary_min === "number" ? j.salary_min : null;
     const max = typeof j.salary_max === "number" ? j.salary_max : null;
     const currency = (j.salary_currency ?? "EUR").toString();
-    const salary = formatJobSalary(min, max, currency, locale);
+    const salary = formatJobSalary(
+      min,
+      max,
+      currency,
+      locale,
+      (j.salary_tax ?? null) as string | null,
+      (j.salary_period ?? null) as string | null,
+      tJobs
+    );
 
     const jobType = mapJobType((j.job_type ?? "").toString(), tJobs);
     const workType = mapWorkType((j.work_type ?? "").toString(), tJobs);
@@ -179,6 +261,7 @@ export default async function ToodPage({ params }: Props) {
       title: (j.title ?? "").toString().trim() || "—",
       company: emp?.name ?? "—",
       companyLogoUrl: emp?.logoUrl ?? null,
+      companyVerified: emp?.verified === true,
       location: normFacetValue((j.location ?? "").toString()) || "—",
       type,
       salary,
@@ -190,6 +273,24 @@ export default async function ToodPage({ params }: Props) {
       requiredCerts,
       domains: [],
       languages: [],
+      openToFirstJob: (j.experience_level_required ?? "").toString().trim() === "not_required",
+      suitableForYoungSeeker: jobPassesYoungSeekerAutoEligibility(
+        jobWorkConditionsFromJobRow({
+          job_type: j.job_type ?? null,
+          weekly_hours: toNumOrNull(j.weekly_hours),
+          daily_hours: toNumOrNull(j.daily_hours),
+          shift_start: j.shift_start ?? null,
+          shift_end: j.shift_end ?? null,
+          includes_night_work:
+            j.includes_night_work === null || j.includes_night_work === undefined
+              ? null
+              : Boolean(j.includes_night_work),
+          is_hazardous_work:
+            j.is_hazardous_work === null || j.is_hazardous_work === undefined
+              ? null
+              : Boolean(j.is_hazardous_work),
+        })
+      ),
     };
   });
 
@@ -207,4 +308,10 @@ export default async function ToodPage({ params }: Props) {
       <Footer />
     </div>
   );
+}
+
+function toNumOrNull(v: unknown): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : null;
 }

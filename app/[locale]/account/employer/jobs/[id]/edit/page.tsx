@@ -29,7 +29,7 @@ export default async function EmployerEditJobPage({ params }: Props) {
   const { data: job, error } = await supabase
     .from("job_posts")
     .select(
-      "id,title,location,work_type,job_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements,salary_min,salary_max,salary_currency,application_url,application_type,status,created_by"
+      "id,title,location,work_type,job_type,short_summary,description,requirements,requirement_lines,job_requirements,required_skills,keywords,experience_level_required,certificate_requirements,salary_min,salary_max,salary_currency,application_url,application_type,status,created_by,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work,published_at,application_deadline,expires_at"
     )
     .eq("id", id)
     .maybeSingle();

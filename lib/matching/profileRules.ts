@@ -1,10 +1,31 @@
 /** Shared rules for structured profile/job data used by matching later. */
 
+import {
+  calculateAgeYears,
+  isLearningObligationStatus,
+  needsLearningObligationStatus,
+} from "@/lib/seeker/age";
+
 export const EXPERIENCE_LEVEL_VALUES = ["entry", "mid", "senior", "lead", "executive"] as const;
 export type ExperienceLevel = (typeof EXPERIENCE_LEVEL_VALUES)[number];
 
+/** Job-side levels include “experience not required” for beginner-friendly matching. */
+export const JOB_EXPERIENCE_LEVEL_VALUES = ["not_required", ...EXPERIENCE_LEVEL_VALUES] as const;
+export type JobExperienceLevel = (typeof JOB_EXPERIENCE_LEVEL_VALUES)[number];
+
 export function isExperienceLevel(v: unknown): v is ExperienceLevel {
   return typeof v === "string" && (EXPERIENCE_LEVEL_VALUES as readonly string[]).includes(v);
+}
+
+export function isJobExperienceLevel(v: unknown): v is JobExperienceLevel {
+  return typeof v === "string" && (JOB_EXPERIENCE_LEVEL_VALUES as readonly string[]).includes(v);
+}
+
+/** Roles open to first-job / 0-year seekers. */
+export function jobExperienceOpenToBeginners(jobExp: string | null | undefined): boolean {
+  if (!jobExp || !String(jobExp).trim()) return true;
+  const v = String(jobExp).trim();
+  return v === "not_required" || v === "entry";
 }
 
 export function parseCommaList(v: string): string[] {
@@ -59,6 +80,8 @@ export type SeekerCoreFields = {
   experience_level: string | null;
   preferred_job_types: string[] | null;
   preferred_locations: string[] | null;
+  date_of_birth?: string | null;
+  learning_obligation_status?: string | null;
 };
 
 export function seekerCoreComplete(args: {
@@ -82,6 +105,13 @@ export function seekerCoreComplete(args: {
   const jt = Array.isArray(s.preferred_job_types) ? s.preferred_job_types.filter(Boolean) : [];
   const loc = Array.isArray(s.preferred_locations) ? s.preferred_locations.filter(Boolean) : [];
   if (jt.length < 1 || loc.length < 1) return false;
+
+  const dob = (s.date_of_birth ?? "").trim();
+  const ageYears = calculateAgeYears(dob);
+  if (ageYears === null) return false;
+  if (needsLearningObligationStatus(ageYears) && !isLearningObligationStatus(s.learning_obligation_status)) {
+    return false;
+  }
   return true;
 }
 
@@ -132,6 +162,6 @@ export function jobMatchingReady(j: JobMatchingFields): boolean {
   const skills = Array.isArray(j.required_skills) ? j.required_skills.filter(Boolean) : [];
   const kw = Array.isArray(j.keywords) ? j.keywords.filter(Boolean) : [];
   if (skills.length < MIN_SKILLS_JOB || kw.length < MIN_KEYWORDS_JOB) return false;
-  if (!isExperienceLevel(j.experience_level_required)) return false;
+  if (!isJobExperienceLevel(j.experience_level_required)) return false;
   return true;
 }

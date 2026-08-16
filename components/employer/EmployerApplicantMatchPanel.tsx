@@ -47,8 +47,20 @@ function weakAreaLabel(code: string, t: (key: string) => string) {
       return t("applicantMatchWeak_location");
     case "work_job_type":
       return t("applicantMatchWeak_work_job_type");
+    case "requirements_mandatory":
+      return t("applicantMatchWeak_requirements_mandatory");
+    case "languages":
+      return t("applicantMatchWeak_languages");
+    case "work_mode":
+      return t("applicantMatchWeak_work_mode");
+    case "arrangement":
+      return t("applicantMatchWeak_arrangement");
+    case "workload":
+      return t("applicantMatchWeak_workload");
+    case "availability":
+      return t("applicantMatchWeak_availability");
     default:
-      return code;
+      return "";
   }
 }
 
@@ -66,6 +78,14 @@ function penaltyLabel(code: string, t: (key: string) => string) {
       return t("applicantMatchPenalty_missing_required_certificates");
     case "partial_certificates":
       return t("applicantMatchPenalty_partial_certificates");
+    case "missing_mandatory_requirements":
+      return t("applicantMatchPenalty_missing_mandatory_requirements");
+    case "partial_mandatory_requirements":
+      return t("applicantMatchPenalty_partial_mandatory_requirements");
+    case "missing_recommended_requirements":
+      return t("applicantMatchPenalty_missing_recommended_requirements");
+    case "cap_missing_mandatory_requirements":
+      return t("applicantMatchPenalty_cap_missing_mandatory_requirements");
     case "requirements_mismatch":
       return t("applicantMatchPenalty_requirements_mismatch");
     case "professional_alignment_missing":
@@ -94,6 +114,11 @@ const PENALTY_IMPLIES_WEAK_CERTS = new Set([
   "partial_certificates",
   "cap_missing_required_certificates",
 ]);
+const PENALTY_IMPLIES_WEAK_MANDATORY = new Set([
+  "missing_mandatory_requirements",
+  "partial_mandatory_requirements",
+  "cap_missing_mandatory_requirements",
+]);
 const PENALTY_IMPLIES_WEAK_ROLE = new Set([
   "role_title_mismatch",
   "weak_role_title_alignment",
@@ -106,6 +131,7 @@ function filterWeakAreasAgainstPenalties(weakAreas: string[], penaltyCodes: stri
   for (const c of penaltyCodes) {
     if (PENALTY_IMPLIES_WEAK_SKILLS.has(c) || PENALTY_IMPLIES_WEAK_BOTH.has(c)) hide.add("skills_keywords");
     if (PENALTY_IMPLIES_WEAK_CERTS.has(c)) hide.add("certificates");
+    if (PENALTY_IMPLIES_WEAK_MANDATORY.has(c)) hide.add("requirements_mandatory");
     if (PENALTY_IMPLIES_WEAK_ROLE.has(c) || PENALTY_IMPLIES_WEAK_BOTH.has(c)) hide.add("role_title");
   }
   return weakAreas.filter((w) => !hide.has(w));
@@ -197,10 +223,16 @@ export function EmployerApplicantMatchPanel({
   const W = bd.weights ?? MATCH_WEIGHTS;
   const skillsBar = bar(bd.skills_keywords_contribution ?? 0, W.skillsKeywords);
   const certBar = bar(bd.certificate_contribution ?? 0, W.certificates);
+  const mandBar = bar(bd.requirements_mandatory_contribution ?? 0, W.requirementsMandatory);
+  const recBar = bar(bd.requirements_recommended_contribution ?? 0, W.requirementsRecommended);
   const expBar = bar(bd.experience_contribution ?? 0, W.experience);
-  const roleBar = bar(bd.role_title_contribution ?? 0, W.roleTitle);
   const locBar = bar(bd.location_contribution ?? 0, W.location);
-  const wjtBar = bar(bd.work_job_type_contribution ?? 0, W.workJobType);
+  const langBar = bar(bd.languages_contribution ?? 0, W.languages);
+  const modeBar = bar(bd.work_mode_contribution ?? 0, W.workMode);
+  const arrBar = bar(bd.arrangement_contribution ?? 0, W.arrangement);
+  const loadBar = bar(bd.workload_contribution ?? 0, W.workload);
+  const hoursBar = bar(bd.work_hours_contribution ?? 0, W.workHours);
+  const availBar = bar(bd.availability_contribution ?? 0, W.availability);
 
   if (variant === "breakdownOnly") {
     const scoreLabelSimple = score == null ? "—" : `${score}%`;
@@ -214,10 +246,16 @@ export function EmployerApplicantMatchPanel({
     const basePoints =
       (bd.skills_keywords_contribution ?? 0) +
       (bd.certificate_contribution ?? 0) +
+      (bd.requirements_mandatory_contribution ?? 0) +
+      (bd.requirements_recommended_contribution ?? 0) +
       (bd.experience_contribution ?? 0) +
-      (bd.role_title_contribution ?? 0) +
       (bd.location_contribution ?? 0) +
-      (bd.work_job_type_contribution ?? 0);
+      (bd.languages_contribution ?? 0) +
+      (bd.work_mode_contribution ?? 0) +
+      (bd.arrangement_contribution ?? 0) +
+      (bd.workload_contribution ?? 0) +
+      (bd.work_hours_contribution ?? 0) +
+      (bd.availability_contribution ?? 0);
     const unclamped = basePoints - penaltyPoints;
     const clampedToZero = score === 0 && unclamped < 0;
     const bandLabel = scoreBandLabel(score, t);
@@ -306,10 +344,16 @@ export function EmployerApplicantMatchPanel({
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <BreakRow label={`${t("applicantMatchAxisSkillsKeywords")} (${W.skillsKeywords})`} {...skillsBar} />
             <BreakRow label={`${t("applicantMatchAxisCertificates")} (${W.certificates})`} {...certBar} />
+            <BreakRow label={`${t("applicantMatchAxisReqMandatory")} (${W.requirementsMandatory})`} {...mandBar} />
+            <BreakRow label={`${t("applicantMatchAxisReqRecommended")} (${W.requirementsRecommended})`} {...recBar} />
             <BreakRow label={`${t("applicantMatchAxisExperience")} (${W.experience})`} {...expBar} />
-            <BreakRow label={`${t("applicantMatchAxisRoleTitle")} (${W.roleTitle})`} {...roleBar} />
             <BreakRow label={`${t("applicantMatchAxisLocation")} (${W.location})`} {...locBar} />
-            <BreakRow label={`${t("applicantMatchAxisWorkJobType")} (${W.workJobType})`} {...wjtBar} />
+            <BreakRow label={`${t("applicantMatchAxisLanguages")} (${W.languages})`} {...langBar} />
+            <BreakRow label={`${t("applicantMatchAxisWorkMode")} (${W.workMode})`} {...modeBar} />
+            <BreakRow label={`${t("applicantMatchAxisArrangement")} (${W.arrangement})`} {...arrBar} />
+            <BreakRow label={`${t("applicantMatchAxisWorkload")} (${W.workload})`} {...loadBar} />
+            <BreakRow label={`${t("applicantMatchAxisWorkHours")} (${W.workHours})`} {...hoursBar} />
+            <BreakRow label={`${t("applicantMatchAxisAvailability")} (${W.availability})`} {...availBar} />
           </div>
         </div>
 
@@ -505,10 +549,16 @@ export function EmployerApplicantMatchPanel({
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <BreakRow label={`${t("applicantMatchAxisSkillsKeywords")} (${W.skillsKeywords})`} {...skillsBar} />
               <BreakRow label={`${t("applicantMatchAxisCertificates")} (${W.certificates})`} {...certBar} />
+              <BreakRow label={`${t("applicantMatchAxisReqMandatory")} (${W.requirementsMandatory})`} {...mandBar} />
+              <BreakRow label={`${t("applicantMatchAxisReqRecommended")} (${W.requirementsRecommended})`} {...recBar} />
               <BreakRow label={`${t("applicantMatchAxisExperience")} (${W.experience})`} {...expBar} />
-              <BreakRow label={`${t("applicantMatchAxisRoleTitle")} (${W.roleTitle})`} {...roleBar} />
               <BreakRow label={`${t("applicantMatchAxisLocation")} (${W.location})`} {...locBar} />
-              <BreakRow label={`${t("applicantMatchAxisWorkJobType")} (${W.workJobType})`} {...wjtBar} />
+              <BreakRow label={`${t("applicantMatchAxisLanguages")} (${W.languages})`} {...langBar} />
+              <BreakRow label={`${t("applicantMatchAxisWorkMode")} (${W.workMode})`} {...modeBar} />
+              <BreakRow label={`${t("applicantMatchAxisArrangement")} (${W.arrangement})`} {...arrBar} />
+              <BreakRow label={`${t("applicantMatchAxisWorkload")} (${W.workload})`} {...loadBar} />
+              <BreakRow label={`${t("applicantMatchAxisWorkHours")} (${W.workHours})`} {...hoursBar} />
+              <BreakRow label={`${t("applicantMatchAxisAvailability")} (${W.availability})`} {...availBar} />
             </div>
             <div className="mt-4 space-y-2 border-t border-white/[0.08] pt-4 text-[12px] text-white/60">
               <div>

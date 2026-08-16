@@ -1,10 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand + base */
-  --background: #07070a;
-  --foreground: #f4f5f7;
+  /* Brand + soft dark base (avoid pure black) */
+  --background: #0f0f16;
+  --foreground: #f0eef6;
   --accent-pink: #e31f8d;
+
+  /* Landing section rhythm */
+  --surface-deep: #09090d;
+  --surface: #0f0f16;
+  --surface-elevated: #15151f;
 
   /* Fixed navbar — keep Navbar.tsx bar height + shell padding in sync */
   --site-header-top: 0.875rem;
@@ -17,19 +22,20 @@
   --site-hero-content-top: calc(var(--site-header-offset) + 3.25rem);
 
   /* Surfaces */
-  --card: rgba(255, 255, 255, 0.04);
-  --card-2: rgba(255, 255, 255, 0.06);
-  --border: rgba(255, 255, 255, 0.08);
+  --card: rgba(255, 255, 255, 0.045);
+  --card-2: rgba(255, 255, 255, 0.065);
+  --border: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.14);
 
-  /* Text */
-  --muted: rgba(255, 255, 255, 0.72);
-  --muted-2: rgba(255, 255, 255, 0.62);
+  /* Text — headings near white; body muted lavender-gray */
+  --muted: rgba(214, 210, 228, 0.78);
+  --muted-2: rgba(188, 184, 208, 0.68);
+  --body: rgba(198, 194, 218, 0.72);
 
-  /* Violet glow */
-  --violet-1: rgba(168, 85, 247, 0.65);
-  --violet-2: rgba(99, 102, 241, 0.45);
-  --violet-3: rgba(236, 72, 153, 0.20);
+  /* Violet glow — softer defaults; strong only where intentional */
+  --violet-1: rgba(168, 85, 247, 0.42);
+  --violet-2: rgba(99, 102, 241, 0.28);
+  --violet-3: rgba(236, 72, 153, 0.12);
 }
 
 @media (min-width: 640px) {
@@ -48,12 +54,16 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface-deep: var(--surface-deep);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
   --color-card: var(--card);
   --color-card-2: var(--card-2);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-muted: var(--muted);
   --color-muted-2: var(--muted-2);
+  --color-body: var(--body);
   --color-accent-pink: var(--accent-pink);
   --color-violet-1: var(--violet-1);
   --color-violet-2: var(--violet-2);
@@ -136,10 +146,10 @@ html {
 
 /* Accent display: solid text only (no background-clip / transparent fill → Word-safe) */
 .text-accent-brand-display {
-  color: #ece8ff;
+  color: #e4e0f4;
 }
 .text-accent-price-display {
-  color: #f6f4ff;
+  color: #ece8f8;
 }
 
 /* RU hero mockup: slightly smaller base type so long words fit like EN */

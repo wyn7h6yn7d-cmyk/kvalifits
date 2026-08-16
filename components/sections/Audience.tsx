@@ -8,15 +8,17 @@ import {
   CalendarDays,
   ClipboardList,
   Layers,
-  Sparkles,
   UserRound,
   Users,
 } from "lucide-react";
 
 import { GradientAccentText } from "@/components/site/GradientAccentText";
+import { AmbientBackground } from "@/components/site/AmbientBackground";
+import { PortalBackground } from "@/components/site/portal-background";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
+import { matchingSectionPortal } from "@/lib/site-portal-config";
 import { cn } from "@/lib/utils";
 
 export function Audience() {
@@ -29,88 +31,109 @@ export function Audience() {
   ] as const;
 
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative overflow-hidden bg-surface-elevated py-28 sm:py-36 lg:py-40">
+      {/* Matching beat — soft connection lines + glow (lighter than hero) */}
+      {matchingSectionPortal.enabled ? (
+        <>
+          <AmbientBackground
+            intensity={matchingSectionPortal.ambientIntensity}
+            className="opacity-80"
+          />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ opacity: matchingSectionPortal.opacity }}
+            aria-hidden="true"
+          >
+            <PortalBackground
+              variant={matchingSectionPortal.variant}
+              intensity={matchingSectionPortal.intensity}
+            />
+          </div>
+        </>
+      ) : null}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_85%_20%,rgba(168,85,247,0.10),transparent_55%)]"
+      />
+      {/* Readability veil */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[#15151F]/55"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0F0F16]/70 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#09090D]/75 sm:h-32"
       />
 
-      <Container>
+      <Container className="relative z-10">
         <div className="max-w-xl">
-          <div className="text-[13px] font-medium uppercase tracking-wide text-white/52 sm:text-sm">
+          <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2 sm:text-sm">
             {t("eyebrow")}
           </div>
-          <h2 className="mt-4 text-balance text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
+          <h2 className="mt-5 text-balance text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem]">
             {t("title")}
-            <span className="block text-white/48"> {t("titleMuted")}</span>
+            <span className="block text-muted-2"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-white/58 sm:text-lg sm:leading-relaxed">{t("subtitle")}</p>
+          <p className="mt-6 text-base leading-relaxed text-body sm:text-lg sm:leading-relaxed">
+            {t("subtitle")}
+          </p>
         </div>
 
-        <div className="mt-16 grid gap-14 lg:mt-20 lg:grid-cols-12 lg:items-start lg:gap-8 xl:gap-12">
+        <div className="mt-20 grid gap-20 lg:mt-28 lg:grid-cols-12 lg:items-start lg:gap-16 xl:gap-20">
+          {/* Open editorial side — seeker */}
           <motion.div
             id="toootsijatele"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="scroll-mt-28 lg:col-span-7 lg:pr-4"
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="scroll-mt-28 lg:col-span-6"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-accent-pink/25 bg-accent-pink/10">
-                <UserRound className="h-5 w-5 text-white/90" />
-              </div>
-              <div>
-                <div className="text-[11px] font-medium uppercase tracking-wide text-accent-pink/90">
-                  {t("seekerLabel")}
-                </div>
-                <p className="text-[15px] font-medium leading-snug text-white/52">{t("seekerSublabel")}</p>
+              <UserRound className="h-5 w-5 text-accent-pink/85" strokeWidth={1.6} />
+              <div className="text-[11px] font-medium uppercase tracking-wide text-accent-pink/90">
+                {t("seekerLabel")}
               </div>
             </div>
+            <p className="mt-2 text-[15px] font-medium leading-snug text-muted-2">
+              {t("seekerSublabel")}
+            </p>
 
-            <h3 className="mt-6 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            <h3 className="mt-8 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
               {t("seekerTitle")}
-              <span className="block text-white/55"> {t("seekerTitleMuted")}</span>
+              <span className="block text-muted-2"> {t("seekerTitleMuted")}</span>
             </h3>
 
-            <div className="relative mt-10 border-l border-white/[0.1] pl-7 sm:pl-8">
-              <div
-                aria-hidden="true"
-                className="absolute left-0 top-2 h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-accent-pink/50 via-violet-400/30 to-transparent"
-              />
-
-              <ol className="space-y-10">
-                {seekerSteps.map((s, i) => (
-                  <motion.li
-                    key={s.n}
-                    initial={{ opacity: 0, x: -8 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.45, delay: 0.06 * i }}
-                    className="relative"
-                  >
-                    <span
-                      className={cn(
-                        "absolute -left-7 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums sm:-left-8 sm:h-8 sm:w-8 sm:text-xs",
-                        i === 0
-                          ? "border-accent-pink/40 bg-black/50 text-accent-pink/95"
-                          : "border-white/[0.12] bg-black/40 text-white/55",
-                      )}
-                    >
-                      {s.n}
-                    </span>
-                    <div className="text-[12px] font-medium uppercase tracking-wide text-white/45">
+            <ol className="mt-12 space-y-11">
+              {seekerSteps.map((s, i) => (
+                <motion.li
+                  key={s.n}
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.4, delay: 0.05 * i }}
+                  className="flex gap-5 sm:gap-6"
+                >
+                  <span className="mt-0.5 shrink-0 text-[13px] font-medium tabular-nums text-muted-2">
+                    {s.n}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[12px] font-medium uppercase tracking-wide text-muted-2">
                       {s.title}
                     </div>
-                    <p className="mt-2 text-[15px] leading-relaxed text-white/68 sm:text-base">
+                    <p className="mt-2 text-[15px] leading-relaxed text-body sm:text-base">
                       {s.line}
                     </p>
-                  </motion.li>
-                ))}
-              </ol>
-            </div>
+                  </div>
+                </motion.li>
+              ))}
+            </ol>
 
-            <div className="mt-12">
+            <div className="mt-14">
               <Button
                 asChild
                 variant="primary"
@@ -124,164 +147,126 @@ export function Audience() {
             </div>
           </motion.div>
 
+          {/* Single meaningful card — employer */}
           <motion.div
             id="tooandjatele"
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="scroll-mt-28 lg:col-span-5 lg:mt-16 xl:mt-20"
+            transition={{ duration: 0.6, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+            className="scroll-mt-28 lg:col-span-6 lg:mt-4"
           >
-            <div className="relative">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0F0F16]/55 px-6 py-7 sm:px-8 sm:py-9">
               <div
                 aria-hidden="true"
-                className="absolute -inset-4 rounded-[36px] bg-[radial-gradient(ellipse_at_70%_0%,rgba(168,85,247,0.2),transparent_55%)] blur-2xl"
+                className="pointer-events-none absolute -right-8 top-0 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.12),transparent_70%)] blur-2xl"
               />
 
-              <div className="relative overflow-hidden rounded-[28px] border border-white/[0.11] bg-gradient-to-b from-white/[0.07] to-black/55 p-1 shadow-[0_32px_100px_-40px_rgba(0,0,0,0.9)]">
-                <div className="rounded-[26px] border border-white/[0.06] bg-black/35 px-5 py-5 sm:px-6 sm:py-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.05]">
-                        <Briefcase className="h-4 w-4 text-white/80" />
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-medium uppercase tracking-wide text-violet-300/90">
-                          {t("employerLabel")}
-                        </div>
-                        <p className="text-[13px] leading-snug text-white/52">{t("employerSublabel")}</p>
-                      </div>
+              <div className="relative">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Briefcase className="h-4 w-4 text-muted" strokeWidth={1.6} />
+                    <div className="text-[11px] font-medium uppercase tracking-wide text-violet-300/85">
+                      {t("employerLabel")}
                     </div>
-                    <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white/48">
+                  </div>
+                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
+                    {t("preview")}
+                  </span>
+                </div>
+                <p className="mt-1 text-[13px] leading-snug text-muted-2">{t("employerSublabel")}</p>
+
+                <h3 className="mt-6 text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
+                  {t("employerTitle")}
+                </h3>
+
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-center justify-between gap-3 text-[14px]">
+                    <span className="flex items-center gap-2 text-body">
+                      <ClipboardList className="h-4 w-4 shrink-0 text-muted-2" aria-hidden />
+                      {t("activeReq")}
+                    </span>
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
                       {t("preview")}
                     </span>
                   </div>
-
-                  <h3 className="mt-5 text-lg font-semibold leading-snug tracking-tight text-white sm:text-xl">
-                    {t("employerTitle")}
-                  </h3>
-
-                  <div className="mt-6 space-y-3 rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4">
-                    <div className="flex items-center justify-between gap-3 text-[14px]">
-                      <span className="flex items-center gap-2 text-white/60">
-                        <ClipboardList className="h-4 w-4 shrink-0 text-white/45" aria-hidden />
-                        {t("activeReq")}
-                      </span>
-                      <span className="text-sm font-medium tabular-nums text-white/80">3</span>
-                    </div>
-                    <div className="h-px bg-white/[0.06]" />
-                    <div className="flex items-center justify-between gap-3 text-[14px]">
-                      <span className="flex items-center gap-2 text-white/60">
-                        <Users className="h-4 w-4 shrink-0 text-white/45" aria-hidden />
-                        {t("matchingCandidates")}
-                      </span>
-                      <div className="flex -space-x-2">
-                        {[0, 1, 2].map((k) => (
-                          <span
-                            key={k}
-                            className="flex h-7 w-7 items-center justify-center rounded-full border border-black/60 bg-gradient-to-br from-white/15 to-white/5 text-[10px] font-medium text-white/72"
-                          >
-                            {k + 1}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="h-px bg-white/[0.06]" />
-                    <div>
-                      <div className="flex items-center justify-between text-[12.5px] text-white/48">
-                        <span className="flex items-center gap-1.5">
-                          <Layers className="h-3.5 w-3.5 shrink-0 text-white/40" aria-hidden />
-                          {t("bestOverlap")}
-                        </span>
-                        <span className="tabular-nums text-white/68">8/10</span>
-                      </div>
-                      <div className="mt-2 flex gap-1">
-                        {Array.from({ length: 10 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className={cn(
-                              "h-1 flex-1 rounded-full",
-                              i < 8
-                                ? "bg-gradient-to-r from-violet-500/70 to-fuchsia-500/50"
-                                : "bg-white/[0.08]",
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between gap-3 text-[14px]">
+                    <span className="flex items-center gap-2 text-body">
+                      <Users className="h-4 w-4 shrink-0 text-muted-2" aria-hidden />
+                      {t("matchingCandidates")}
+                    </span>
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
+                      {t("preview")}
+                    </span>
                   </div>
-
-                  <div
-                    className="relative mt-6 overflow-hidden rounded-2xl"
-                    role="region"
-                    aria-label={t("employerPricingKicker")}
-                  >
-                    <div
-                      aria-hidden="true"
-                      className="absolute inset-0 bg-[conic-gradient(from_125deg_at_50%_0%,rgba(168,85,247,0.35),transparent_42%,rgba(227,31,141,0.18),transparent_72%)] opacity-80"
-                    />
-                    <div className="relative rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.09] via-black/45 to-black/70 p-[1px] shadow-[0_20px_60px_-28px_rgba(168,85,247,0.45)]">
-                      <div className="rounded-[15px] bg-black/55 px-4 py-4 backdrop-blur-md sm:px-5 sm:py-5">
-                        <div className="text-[11px] font-medium uppercase tracking-wide text-violet-200/88">
-                          {t("employerPricingKicker")}
-                        </div>
-
-                        <div className="mt-4 flex flex-col gap-3">
-                          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
-                              <Briefcase className="h-4 w-4 text-violet-200/80" />
-                            </div>
-                            <span className="text-[14px] font-medium leading-snug text-white/90">
-                              {t("employerPricingPostings")}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.04]">
-                              <CalendarDays className="h-4 w-4 text-fuchsia-200/75" />
-                            </div>
-                            <span className="text-[14px] font-medium leading-snug text-white/90">
-                              {t("employerPricingDuration")}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/[0.08] pt-4">
-                          <p className="max-w-[14rem] text-[12.5px] leading-relaxed text-white/52">
-                            {t("employerPricingHint")}
-                          </p>
-                          <GradientAccentText
-                            variant="price"
-                            wrapClassName="shrink-0 text-right text-3xl font-semibold tracking-tight tabular-nums sm:text-[2rem]"
-                          >
-                            {t("employerPricingPrice")}
-                          </GradientAccentText>
-                        </div>
-                      </div>
+                  <div>
+                    <div className="flex items-center justify-between text-[12.5px] text-muted-2">
+                      <span className="flex items-center gap-1.5">
+                        <Layers className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                        {t("bestOverlap")}
+                      </span>
+                      <span className="text-[11px] font-medium uppercase tracking-wide">
+                        {t("preview")}
+                      </span>
                     </div>
-                  </div>
-
-                  <p className="mt-5 text-[15px] leading-relaxed text-white/58 sm:text-base">{t("employerTagline")}</p>
-
-                  <div className="mt-6">
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="h-12 w-full rounded-2xl border-white/[0.18] bg-white/[0.03] hover:bg-white/[0.08]"
-                    >
-                      <Link href="/tooandjatele">
-                        {t("employerCta")}
-                        <ArrowUpRight className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="mt-2.5 flex gap-1" aria-hidden>
+                      {Array.from({ length: 10 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "h-1 flex-1 rounded-full",
+                            i < 6
+                              ? "bg-gradient-to-r from-violet-500/45 to-fuchsia-500/30"
+                              : "bg-white/[0.07]",
+                          )}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="pointer-events-none absolute -right-3 top-1/4 hidden h-24 w-24 rounded-full border border-white/[0.05] xl:block" />
-              <Sparkles
-                className="pointer-events-none absolute -left-2 top-8 h-5 w-5 text-violet-400/30"
-                aria-hidden
-              />
+                <div className="mt-8 border-t border-white/[0.07] pt-6">
+                  <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
+                    {t("employerPricingKicker")}
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center gap-3 text-[14px] font-medium text-foreground/90">
+                      <Briefcase className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.6} />
+                      {t("employerPricingPostings")}
+                    </div>
+                    <div className="flex items-center gap-3 text-[14px] font-medium text-foreground/90">
+                      <CalendarDays className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.6} />
+                      {t("employerPricingDuration")}
+                    </div>
+                  </div>
+                  <div className="mt-5 flex items-end justify-between gap-4">
+                    <p className="max-w-[14rem] text-[12.5px] leading-relaxed text-body">
+                      {t("employerPricingHint")}
+                    </p>
+                    <GradientAccentText
+                      variant="price"
+                      wrapClassName="shrink-0 text-right text-3xl font-semibold tracking-tight tabular-nums sm:text-[2rem]"
+                    >
+                      {t("employerPricingPrice")}
+                    </GradientAccentText>
+                  </div>
+                </div>
+
+                <p className="mt-6 text-[15px] leading-relaxed text-body">{t("employerTagline")}</p>
+
+                <div className="mt-7">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-12 w-full rounded-2xl border-white/[0.14] bg-transparent hover:bg-white/[0.05]"
+                  >
+                    <Link href="/tooandjatele">
+                      {t("employerCta")}
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>

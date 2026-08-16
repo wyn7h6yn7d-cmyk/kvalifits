@@ -10,6 +10,12 @@ import {
   employerCompanySizeField,
 } from "@/lib/employer/employerCompanySizeSync";
 import { formatEmployerProfileSaveError } from "@/lib/employer/employerProfileSaveError";
+import {
+  parseEmployerCompanyVerificationFields,
+  type EmployerCompanyVerificationFields,
+} from "@/lib/employer/companyVerification";
+import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
+import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
@@ -30,6 +36,10 @@ export type EmployerProfile = {
   industry: string | null;
   company_size?: string | null;
   logo_url?: string | null;
+  company_verified?: boolean | null;
+  verification_status?: string | null;
+  verification_source?: string | null;
+  verified_at?: string | null;
 };
 
 type Props = {
@@ -60,6 +70,13 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+
+  const verification: EmployerCompanyVerificationFields = parseEmployerCompanyVerificationFields({
+    company_verified: initial?.company_verified ?? false,
+    verification_status: initial?.verification_status,
+    verification_source: initial?.verification_source ?? null,
+    verified_at: initial?.verified_at ?? null,
+  });
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -186,6 +203,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         industry: industry || null,
         logo_url: logoUrl.trim() || null,
         ...employerCompanySizeField(companySize.trim()),
+        // Never send verification fields — name/registry alone must not mark company verified.
       };
 
       const { error } = await supabase.from("employer_profiles").upsert(
@@ -247,6 +265,24 @@ export function EmployerProfileForm({ locale, initial }: Props) {
             <div className="text-xs text-white/55">{t("logoReady")}</div>
           </div>
         ) : null}
+      </div>
+
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-xs font-medium tracking-wide text-white/65">{t("companyVerificationTitle")}</div>
+        <div className="mt-3">
+          <CompanyVerificationBadge
+            status={verification.verification_status}
+            statusLine={t(`companyVerificationStatus.${verification.verification_status}`)}
+            hintLine={t("companyVerificationHint")}
+            metaLine={
+              verification.verification_status === "verified" && verification.verified_at
+                ? t("companyVerifiedAt", {
+                    date: new Date(verification.verified_at).toLocaleDateString(locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "et-EE"),
+                  })
+                : null
+            }
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -367,6 +403,8 @@ export function EmployerProfileForm({ locale, initial }: Props) {
           {t("changePasswordCta")}
         </Button>
       </div>
+
+      <AccountPrivacySettings locale={locale} />
     </form>
   );
 }

@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from "@/lib/legal/acceptanceVersions";
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
+
+function metaString(meta: Record<string, unknown> | undefined, key: string): string | null {
+  const v = meta?.[key];
+  return typeof v === "string" && v.trim() ? v.trim() : null;
+}
 
 export async function GET(request: Request, { params }: Props) {
   const { locale } = await params;
@@ -23,12 +29,19 @@ export async function GET(request: Request, { params }: Props) {
     if (user) {
       const role = user.user_metadata?.role;
       const email = user.email ?? "";
+      const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+      const termsAcceptedAt = metaString(meta, "terms_accepted_at") ?? new Date().toISOString();
+      const termsVersion = metaString(meta, "terms_version") ?? CURRENT_TERMS_VERSION;
+      const privacyVersion = metaString(meta, "privacy_version") ?? CURRENT_PRIVACY_VERSION;
 
       if (role === "seeker" || role === "employer") {
         await supabase.from("profiles").upsert({
           id: user.id,
           role,
           email,
+          terms_accepted_at: termsAcceptedAt,
+          terms_version: termsVersion,
+          privacy_version: privacyVersion,
         });
 
         if (role === "seeker") {
@@ -78,4 +91,3 @@ export async function GET(request: Request, { params }: Props) {
 
   return NextResponse.redirect(new URL(next, url.origin));
 }
-

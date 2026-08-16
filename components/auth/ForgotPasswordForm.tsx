@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,14 +19,24 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
     setLoading(true);
     setError(null);
     try {
-      const supabase = createSupabaseBrowserClient();
-      // Use callback to exchange code → session, then land on reset form.
-      const redirectTo = `${window.location.origin}/${locale}/auth/callback?next=/${locale}/auth/reset-password`;
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo,
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, locale }),
       });
-      if (error) throw error;
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        if (json.error === "rate_limited" || res.status === 429) {
+          setError(t("errorRateLimited"));
+          return;
+        }
+        if (json.error === "missing_rate_limit_table") {
+          setError(t("errorRateLimitTable"));
+          return;
+        }
+        setError(t("errorRateLimited"));
+        return;
+      }
       setSent(true);
     } catch (err) {
       setError(mapAuthError(err, t));
@@ -78,4 +87,3 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
     </form>
   );
 }
-

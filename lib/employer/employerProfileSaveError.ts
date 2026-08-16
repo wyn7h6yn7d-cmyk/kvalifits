@@ -18,5 +18,13 @@ export function formatEmployerProfileSaveError(err: unknown, t: (key: string) =>
   ) {
     return `${raw}\n\n${t("employerProfileLogoColumnFixHint")}`;
   }
+  if (
+    lower.includes("company_verified") ||
+    lower.includes("verification_status") ||
+    lower.includes("verification_source") ||
+    (lower.includes("verified_at") && lower.includes("employer"))
+  ) {
+    return `${raw}\n\n${t("companyVerificationFixHint")}`;
+  }
   return raw;
 }

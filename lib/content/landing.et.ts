@@ -100,7 +100,6 @@ export const landingET = {
     notifications: [
       "Oled sobilik sellele positsioonile vastavalt oma sertifikaadile.",
       "See töö sobib sinu varasema kogemuse põhjal.",
-      "Sinu profiil vastab 87% tööandja nõuetele.",
       "Selle kandidaadi oskused vastavad teie tööpakkumisele.",
     ],
   },
@@ -125,12 +124,8 @@ export const landingET = {
   },
   trustSignals: {
     title: "Usaldus signaalides, mitte loosungites",
-    subtitle: "Varajase etapi, kuid usaldusväärne: mõõdikud, kontrollitud profiilid ja kvaliteet.",
-    stats: [
-      { label: "kontrollitud profiilid", value: "1,200+" },
-      { label: "aktiivsed tööandjad", value: "140+" },
-      { label: "sobitatud kandidaadid", value: "3,800+" },
-    ],
+    subtitle: "Varajase etapi fookus: kontrollitav pädevus ja selge sobivus — ilma fiktiivsete mõõdikuteta.",
+    stats: [],
   },
   cta: {
     title: "Leia töö või töötaja, kelle oskused on päriselt kontrollitud.",

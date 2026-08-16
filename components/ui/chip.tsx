@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ export function Chip({
   tone?: "default" | "violet" | "pink";
   className?: string;
 }) {
+  const t = useTranslations("jobsSearch");
   const base =
     "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] leading-tight transition-colors";
   const toneCls =
@@ -54,7 +56,7 @@ export function Chip({
             e.stopPropagation();
             onRemove();
           }}
-          aria-label={`${label} eemalda`}
+          aria-label={t("removeFilter", { label })}
         >
           <X className="h-3 w-3" />
         </button>
@@ -62,4 +64,3 @@ export function Chip({
     </div>
   );
 }
-

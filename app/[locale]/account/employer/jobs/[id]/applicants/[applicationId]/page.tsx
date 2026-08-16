@@ -10,8 +10,26 @@ import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
 import { parseMatchBreakdown } from "@/lib/employer/parseMatchBreakdown";
 import { EmployerApplicantMatchPanel } from "@/components/employer/EmployerApplicantMatchPanel";
+import { EmployerLegalRepresentativeConsentNotice } from "@/components/employer/EmployerLegalRepresentativeConsentNotice";
+import { EmployerApplicationStatusSelect } from "@/components/employer/EmployerApplicationStatusSelect";
+import { EmployerApplicationInternalNotes } from "@/components/employer/EmployerApplicationInternalNotes";
 import { Link } from "@/i18n/routing";
 import { safeHttpUrl } from "@/lib/utils";
+import {
+  calculateAgeYears,
+  isLegalRepresentativeConsentStatus,
+  requiresLegalRepresentativeConsentNotice,
+} from "@/lib/seeker/age";
+import { isWorkplaceNeedKey, type SharedWorkplaceNeed, type WorkplaceNeedKey } from "@/lib/seeker/workplaceNeeds";
+import { applicationAnswersFromUnknown, formatAvailabilityStartDisplay, formatInterviewPreferencesDisplay, formatSalaryExpectationScan } from "@/lib/jobs/applicationAnswers";
+import {
+  formatCertificateExpiryWarning,
+  formatCertificateStatusLine,
+  formatCertificateVerifiedMeta,
+  parseCertificateVerificationStatus,
+  resolveCertificateEffectiveStatus,
+} from "@/lib/seeker/certificateVerification";
+import { CertificateVerificationBadge } from "@/components/seeker/CertificateVerificationBadge";
 
 type Props = { params: Promise<{ locale: string; id: string; applicationId: string }> };
 
@@ -48,7 +66,7 @@ function mapJobType(raw: string, tJobs: (key: string) => string) {
 function mapExperience(raw: string | null | undefined, tOnb: (key: string) => string) {
   const v = (raw ?? "").trim();
   if (!v) return "—";
-  const allowed = new Set(["entry", "mid", "senior", "lead", "executive"]);
+  const allowed = new Set(["not_required", "entry", "mid", "senior", "lead", "executive"]);
   if (!allowed.has(v)) return v;
   return tOnb(`experienceLevelOption.${v}` as "experienceLevelOption.entry");
 }
@@ -58,6 +76,10 @@ function initialsFromName(fullName: string) {
   const first = parts[0]?.[0]?.toUpperCase() ?? "";
   const last = parts.length > 1 ? (parts[parts.length - 1]?.[0]?.toUpperCase() ?? "") : "";
   return `${first}${last}` || "—";
+}
+
+function workplaceNeedLabel(key: WorkplaceNeedKey, t: (key: string) => string) {
+  return t(`workplaceNeedEmployer.${key}`);
 }
 
 function highlightLabel(code: string, t: (key: string) => string) {
@@ -107,25 +129,85 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
   const job = await getEmployerJobIfOwned(supabase, user.id, id);
   if (!job) redirect(`/${locale}/account/employer`);
 
-  const { data: app, error: appErr } = await supabase
+  const { data: appRaw, error: appErr } = await supabase
     .from("job_applications")
     .select(
-      "id,job_post_id,seeker_user_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile"
+      "id,job_post_id,seeker_user_id,created_at,status,cover_letter,application_answers,match_score,match_breakdown,shared_profile"
     )
     .eq("id", applicationId)
     .eq("job_post_id", id)
     .neq("status", "withdrawn")
     .maybeSingle();
 
-  if (appErr) throw appErr;
+  let app = appRaw;
+  if (appErr && /application_answers|column/i.test(appErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select(
+        "id,job_post_id,seeker_user_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile"
+      )
+      .eq("id", applicationId)
+      .eq("job_post_id", id)
+      .neq("status", "withdrawn")
+      .maybeSingle();
+    if (fallback.error) throw fallback.error;
+    app = fallback.data as typeof appRaw;
+  } else if (appErr) {
+    throw appErr;
+  }
   if (!app) redirect(`/${locale}/account/employer/jobs/${id}/applicants`);
+
+  const { data: internalNoteRow, error: internalNoteErr } = await supabase
+    .from("job_application_internal_notes")
+    .select("note_text")
+    .eq("application_id", applicationId)
+    .maybeSingle();
+  // Table may be missing until fix script is run — page still works without notes.
+  if (
+    internalNoteErr &&
+    !/does not exist|schema cache|relation|could not find/i.test(internalNoteErr.message ?? "")
+  ) {
+    throw internalNoteErr;
+  }
+  const internalNoteText =
+    typeof internalNoteRow?.note_text === "string" ? internalNoteRow.note_text : "";
 
   const seeker = (app.shared_profile as { seeker?: Record<string, unknown> } | null)?.seeker ?? {};
   const employerSnap = (app.shared_profile as { employer?: Record<string, unknown> } | null)?.employer ?? {};
+  const sharedAnswers =
+    (app.shared_profile as { answers?: unknown } | null)?.answers ??
+    (app as { application_answers?: unknown }).application_answers ??
+    null;
+  const answers = applicationAnswersFromUnknown(sharedAnswers);
+  const salaryScan = answers
+    ? formatSalaryExpectationScan(answers, {
+        negotiable: t("applySalaryModeOption.negotiable"),
+        brutoMonthly: t("applySalaryBasisOption.bruto_monthly"),
+        brutoHourly: t("applySalaryBasisOption.bruto_hourly"),
+      })
+    : null;
+  const interviewScan = answers
+    ? formatInterviewPreferencesDisplay(
+        answers,
+        (code) => t(`applyInterviewOption.${code}`),
+        t("applyPreferFirstInterviewOnline")
+      )
+    : null;
   const avatarUrl = ((seeker.avatar_url as string | undefined) ?? "").toString().trim();
   const certRows = (seeker.certificates as unknown) ?? [];
   const certs = Array.isArray(certRows)
-    ? (certRows as unknown[]).map((c) => c as { certificate_name?: string | null; certificate_issuer?: string | null })
+    ? (certRows as unknown[]).map(
+        (c) =>
+          c as {
+            certificate_name?: string | null;
+            certificate_issuer?: string | null;
+            certificate_valid_until?: string | null;
+            verification_status?: string | null;
+            verified_at?: string | null;
+            verification_source?: string | null;
+            verified_by?: string | null;
+          }
+      )
     : [];
 
   const name = displayName((seeker.full_name as string | undefined) ?? null);
@@ -147,15 +229,41 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
   const score = typeof app.match_score === "number" ? app.match_score : null;
   const employerName = ((employerSnap.company_name as string | undefined) ?? "").toString().trim() || "—";
   const about = ((seeker.about as string | undefined) ?? "").toString().trim();
+  const workplaceNeedsShared: SharedWorkplaceNeed[] = (() => {
+    const raw = seeker.workplace_needs;
+    if (!Array.isArray(raw)) return [];
+    const out: SharedWorkplaceNeed[] = [];
+    for (const item of raw) {
+      if (!item || typeof item !== "object") continue;
+      const key = (item as { key?: unknown }).key;
+      if (!isWorkplaceNeedKey(key)) continue;
+      const note = (item as { note?: unknown }).note;
+      out.push({
+        key,
+        note: typeof note === "string" && note.trim() ? note.trim() : null,
+      });
+    }
+    return out;
+  })();
   let cvUrl = safeHttpUrl(seeker.cv_url);
   const seekerUserId = (app as { seeker_user_id?: string }).seeker_user_id;
-  if (!cvUrl && seekerUserId) {
+  let showLegalRepConsentNotice = Boolean(seeker.requires_legal_representative_consent);
+  if (seekerUserId) {
     const { data: liveSeeker } = await supabase
       .from("seeker_profiles")
-      .select("cv_url")
+      .select("cv_url,is_minor,date_of_birth,legal_representative_consent_status")
       .eq("user_id", seekerUserId)
       .maybeSingle();
-    cvUrl = safeHttpUrl(liveSeeker?.cv_url);
+    if (!cvUrl) cvUrl = safeHttpUrl(liveSeeker?.cv_url);
+    if (liveSeeker) {
+      const dob = (liveSeeker.date_of_birth ?? "").toString();
+      const age = dob ? calculateAgeYears(dob) : null;
+      const consentRaw = liveSeeker.legal_representative_consent_status;
+      showLegalRepConsentNotice = requiresLegalRepresentativeConsentNotice({
+        isMinor: Boolean(liveSeeker.is_minor) || (age !== null && age < 18),
+        consentStatus: isLegalRepresentativeConsentStatus(consentRaw) ? consentRaw : "required",
+      });
+    }
   }
   const highlightCodes = Array.isArray((breakdown as any)?.highlights)
     ? (((breakdown as any).highlights as unknown[]).filter((x): x is string => typeof x === "string") as string[])
@@ -176,6 +284,10 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
             >
               ← {t("applicantMatchBack")}
             </Link>
+
+            {showLegalRepConsentNotice ? (
+              <EmployerLegalRepresentativeConsentNotice locale={locale} />
+            ) : null}
 
             <div className="rounded-3xl border border-white/[0.10] bg-gradient-to-b from-white/[0.05] to-white/[0.02] p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -202,10 +314,45 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                       {t("applicantsApplied")}:{" "}
                       {app.created_at ? new Date(app.created_at as string).toLocaleString() : "—"}
                     </div>
+                    {interviewScan ? (
+                      <div className="mt-4 rounded-2xl border border-white/[0.12] bg-white/[0.05] px-3.5 py-3">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                          {t("applyInterviewPreference")}
+                        </div>
+                        <div className="mt-1.5 text-sm font-medium leading-snug text-white/90">
+                          {interviewScan.formats}
+                        </div>
+                        {interviewScan.preferOnline ? (
+                          <div className="mt-2 inline-flex rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-100/90">
+                            {interviewScan.preferOnlineLabel}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    <div className="mt-4 max-w-xs">
+                      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                        {t("applicationPipelineStatusLabel")}
+                      </div>
+                      <EmployerApplicationStatusSelect
+                        applicationId={String(app.id)}
+                        status={(app as { status?: string | null }).status}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="shrink-0">
+                <div className="flex shrink-0 flex-col gap-3 sm:items-end">
+                  {salaryScan ? (
+                    <div className="rounded-3xl border border-white/[0.12] bg-white/[0.05] px-5 py-4 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                        {t("applySalary")}
+                      </div>
+                      <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-white/95">
+                        {salaryScan.primary}
+                      </div>
+                      <div className="mt-1 text-[12px] text-white/50">{salaryScan.basis}</div>
+                    </div>
+                  ) : null}
                   <div className="rounded-3xl border border-white/[0.10] bg-black/25 px-5 py-4 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
                       {t("applicantDetailSuitability")}
@@ -280,6 +427,11 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
               ) : null}
             </div>
 
+            <EmployerApplicationInternalNotes
+              applicationId={String(app.id)}
+              initialNote={internalNoteText}
+            />
+
             <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
               <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailSeeker")}</div>
@@ -306,21 +458,99 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                   </div>
                 ) : null}
 
+                {workplaceNeedsShared.length ? (
+                  <div className="mt-5">
+                    <div className="text-xs font-medium tracking-wide text-white/55">
+                      {t("applicantWorkplaceNeedsTitle")}
+                    </div>
+                    <div className="mt-1 text-[12px] leading-relaxed text-white/45">
+                      {t("applicantWorkplaceNeedsHint")}
+                    </div>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-white/72">
+                      {workplaceNeedsShared.map((item) => (
+                        <li key={item.key}>
+                          {workplaceNeedLabel(item.key, t)}
+                          {item.key === "other_need" && item.note ? (
+                            <span className="text-white/55"> — {item.note}</span>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
                 {certs.filter((c) => (c.certificate_name ?? "").toString().trim()).length ? (
                   <div className="mt-5">
                     <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailCertificates")}</div>
-                    <ul className="mt-2 space-y-1 text-sm text-white/65">
+                    <ul className="mt-2 space-y-3 text-sm text-white/65">
                       {certs
                         .filter((c) => (c.certificate_name ?? "").toString().trim())
                         .slice(0, 8)
-                        .map((c, i) => (
-                          <li key={`${i}-${(c.certificate_name ?? "").toString().slice(0, 24)}`}>
-                            {(c.certificate_name ?? "—").toString()}
-                            {(c.certificate_issuer ?? "").toString().trim()
-                              ? <span className="text-white/45"> · {(c.certificate_issuer ?? "").toString()}</span>
-                              : null}
-                          </li>
-                        ))}
+                        .map((c, i) => {
+                          const stored = parseCertificateVerificationStatus(c.verification_status);
+                          const status = resolveCertificateEffectiveStatus({
+                            verification_status: stored,
+                            certificate_valid_until: c.certificate_valid_until ?? null,
+                          });
+                          const statusLine = formatCertificateStatusLine(
+                            {
+                              verification_status: stored,
+                              verified_at: c.verified_at ?? null,
+                              verification_source: c.verification_source ?? null,
+                              certificate_valid_until: c.certificate_valid_until ?? null,
+                            },
+                            {
+                              submitted: tOnb("certificateStatus.submitted"),
+                              under_review: tOnb("certificateStatus.under_review"),
+                              verified: tOnb("certificateStatus.verified"),
+                              rejected: tOnb("certificateStatus.rejected"),
+                              expired: tOnb("certificateStatus.expired"),
+                            },
+                            locale
+                          );
+                          const metaLine = formatCertificateVerifiedMeta(
+                            {
+                              certificate_valid_until: c.certificate_valid_until ?? null,
+                              verified_by: c.verified_by ?? null,
+                              verification_status: stored,
+                              verified_at: c.verified_at ?? null,
+                              verification_source: c.verification_source ?? null,
+                            },
+                            {
+                              validUntil: tOnb("certificateVerifiedValidUntil"),
+                              verifiedBy: tOnb("certificateVerifiedBy"),
+                              previouslyVerified: tOnb("certificatePreviouslyVerified"),
+                            },
+                            locale
+                          );
+                          const warningLine = formatCertificateExpiryWarning(
+                            c.certificate_valid_until ?? null,
+                            {
+                              expiresToday: tOnb("certificateExpiresToday"),
+                              expiresInDays: (days) => tOnb("certificateExpiresInDays", { days }),
+                            }
+                          );
+                          return (
+                            <li key={`${i}-${(c.certificate_name ?? "").toString().slice(0, 24)}`}>
+                              <div className="text-white/80">
+                                {(c.certificate_name ?? "—").toString()}
+                                {(c.certificate_issuer ?? "").toString().trim() ? (
+                                  <span className="text-white/45">
+                                    {" "}
+                                    · {(c.certificate_issuer ?? "").toString()}
+                                  </span>
+                                ) : null}
+                              </div>
+                              <CertificateVerificationBadge
+                                className="mt-1.5"
+                                status={status}
+                                statusLine={statusLine}
+                                metaLine={metaLine}
+                                warningLine={warningLine}
+                              />
+                            </li>
+                          );
+                        })}
                     </ul>
                   </div>
                 ) : null}
@@ -400,7 +630,52 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
               />
             </div>
 
-            {app.cover_letter ? (
+            {answers ? (
+              <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-4">
+                <div className="text-xs font-medium tracking-wide text-white/55">{t("applicationAnswersTitle")}</div>
+                <dl className="grid gap-2 text-sm text-white/75 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs text-white/45">{t("applyAvailableFrom")}</dt>
+                    <dd className="mt-0.5">
+                      {formatAvailabilityStartDisplay(answers, (code) =>
+                        t(`applyAvailableFromOption.${code}`)
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-white/45">{t("applyNoticePeriod")}</dt>
+                    <dd className="mt-0.5">{answers.noticePeriod}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-white/45">{t("applyWeeklyHours")}</dt>
+                    <dd className="mt-0.5">{answers.weeklyHoursDesired}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-white/45">{t("applyScheduleFit")}</dt>
+                    <dd className="mt-0.5">{t(`applyScheduleFitOption.${answers.scheduleFits}`)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-white/45">{t("applyInterviewPreference")}</dt>
+                    <dd className="mt-0.5">
+                      {formatInterviewPreferencesDisplay(
+                        answers,
+                        (code) => t(`applyInterviewOption.${code}`),
+                        t("applyPreferFirstInterviewOnline")
+                      ).formats}
+                      {answers.prefer_first_interview_online ? (
+                        <div className="mt-1 text-xs text-emerald-100/80">{t("applyPreferFirstInterviewOnline")}</div>
+                      ) : null}
+                    </dd>
+                  </div>
+                </dl>
+                {answers.noteForEmployer ? (
+                  <div className="border-t border-white/[0.08] pt-3">
+                    <div className="text-xs text-white/45">{t("applyNoteLabel")}</div>
+                    <div className="mt-1 whitespace-pre-wrap text-sm text-white/75">{answers.noteForEmployer}</div>
+                  </div>
+                ) : null}
+              </div>
+            ) : app.cover_letter ? (
               <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
                 <div className="text-xs font-medium tracking-wide text-white/55">{t("applicationsMessage")}</div>
                 <div className="mt-2 whitespace-pre-wrap text-sm text-white/75">{app.cover_letter as string}</div>

@@ -7,9 +7,46 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
+import {
+  buildCertificateObjectPath,
+  CERTIFICATES_BUCKET,
+  persistCertificateImageRef,
+} from "@/lib/seeker/certificateStorage";
+import {
+  calculateAgeYears,
+  isLearningObligationStatus,
+  needsLearningObligationStatus,
+  type LearningObligationStatus,
+  type LegalRepresentativeConsentStatus,
+} from "@/lib/seeker/age";
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SeekerExperienceBackgroundFields } from "@/components/seeker/SeekerExperienceBackgroundFields";
+import {
+  emptyExperienceBackgroundFormValue,
+  experienceBackgroundToDbPayload,
+  type ExperienceBackgroundFormValue,
+} from "@/lib/seeker/experienceBackground";
+import { SeekerBirthDateFields } from "@/components/seeker/SeekerBirthDateFields";
+import {
+  SeekerWorkPreferencesFields,
+  emptyWorkPreferencesFormValue,
+  sanitizeWorkPreferencesForSave,
+  workPreferencesToDbPayload,
+  type WorkPreferencesFormValue,
+} from "@/components/seeker/SeekerWorkPreferencesFields";
+import { SeekerWorkplaceNeedsFields } from "@/components/seeker/SeekerWorkplaceNeedsFields";
+import { SeekerWorkCapacityFields } from "@/components/seeker/SeekerWorkCapacityFields";
+import {
+  emptyWorkplaceNeedsFormValue,
+  workplaceNeedsToDbPayload,
+  type WorkplaceNeedsFormValue,
+} from "@/lib/seeker/workplaceNeeds";
+import {
+  workCapacityToDbPayload,
+  type WorkCapacityStatus,
+} from "@/lib/seeker/workCapacity";
 
 type Props = {
   locale: string;
@@ -40,6 +77,21 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [cvUrl, setCvUrl] = useState("");
   const [cvUploading, setCvUploading] = useState(false);
   const [cvFileName, setCvFileName] = useState<string | null>(null);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [learningObligationStatus, setLearningObligationStatus] = useState<LearningObligationStatus | "">("");
+  const [legalRepresentativeConsentStatus, setLegalRepresentativeConsentStatus] = useState<
+    LegalRepresentativeConsentStatus | ""
+  >("");
+  const [workPreferences, setWorkPreferences] = useState<WorkPreferencesFormValue>(() =>
+    emptyWorkPreferencesFormValue()
+  );
+  const [workplaceNeeds, setWorkplaceNeeds] = useState<WorkplaceNeedsFormValue>(() =>
+    emptyWorkplaceNeedsFormValue()
+  );
+  const [workCapacity, setWorkCapacity] = useState<WorkCapacityStatus>("prefer_not_to_say");
+  const [experienceBackground, setExperienceBackground] = useState<ExperienceBackgroundFormValue>(() =>
+    emptyExperienceBackgroundFormValue()
+  );
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
@@ -120,16 +172,17 @@ export function SeekerOnboardingForm({ locale }: Props) {
         ? await prepareRasterImageForUpload(file, "certificate")
         : file;
       const ext = (uploadFile.name.split(".").pop() || "jpg").toLowerCase();
-      const path = `${user.id}/certificates/${idx}-${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, uploadFile, {
-        upsert: true,
-        contentType: uploadFile.type || undefined,
-      });
+      // Private bucket — store object path only (never a permanent public URL).
+      const path = buildCertificateObjectPath(user.id, idx, ext);
+      const { error: uploadErr } = await supabase.storage
+        .from(CERTIFICATES_BUCKET)
+        .upload(path, uploadFile, {
+          upsert: true,
+          contentType: uploadFile.type || undefined,
+        });
       if (uploadErr) throw uploadErr;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      const publicUrl = data.publicUrl;
       setCertificates((prev) =>
-        prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: publicUrl } : x))
+        prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: path } : x))
       );
     } catch (err) {
       const message = getErrorMessage(err);
@@ -280,6 +333,27 @@ export function SeekerOnboardingForm({ locale }: Props) {
       if (preferredJobTypes.length < 1) throw new Error(t("errPreferredJobTypesRequired"));
       if (preferredLocations.length < 1) throw new Error(t("errPreferredLocationsRequired"));
 
+      const ageYears = calculateAgeYears(dateOfBirth);
+      if (ageYears === null) throw new Error(t("errDateOfBirthRequired"));
+      const learningStatus = needsLearningObligationStatus(ageYears)
+        ? learningObligationStatus
+        : "";
+      if (needsLearningObligationStatus(ageYears) && !isLearningObligationStatus(learningStatus)) {
+        throw new Error(t("errLearningObligationRequired"));
+      }
+      const isMinor = ageYears < 18;
+      const consentToSave = isMinor
+        ? legalRepresentativeConsentStatus === "pending"
+          ? "pending"
+          : "required"
+        : null;
+
+      const sanitizedPrefs = sanitizeWorkPreferencesForSave(
+        workPreferences,
+        dateOfBirth,
+        learningObligationStatus
+      );
+
       // Certificates are optional. If provided, only persist reasonably complete rows.
       const validCerts = certificates
         .map((c) => ({
@@ -287,7 +361,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
           certificate_name: c.certificate_name.trim(),
           certificate_number: c.certificate_number.trim(),
           certificate_issuer: c.certificate_issuer.trim(),
-          certificate_image_url: c.certificate_image_url.trim(),
+          certificate_image_url: persistCertificateImageRef(c.certificate_image_url) ?? "",
         }))
         .filter((c) => c.certificate_name && c.certificate_issuer);
       const isComplete = seekerCoreComplete({
@@ -302,6 +376,8 @@ export function SeekerOnboardingForm({ locale }: Props) {
           experience_level: experienceLevel,
           preferred_job_types: preferredJobTypes,
           preferred_locations: preferredLocations,
+          date_of_birth: dateOfBirth,
+          learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
         },
         certRowsWithImage: 0,
       });
@@ -320,12 +396,29 @@ export function SeekerOnboardingForm({ locale }: Props) {
         salary_expectation: salaryExpectation.trim() || null,
         work_authorization_notes: workAuthNotes.trim() || null,
         cv_url: cvUrl.trim() || null,
+        date_of_birth: dateOfBirth,
+        learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
+        legal_representative_consent_status: consentToSave,
+        ...workPreferencesToDbPayload(sanitizedPrefs),
+        ...experienceBackgroundToDbPayload(experienceBackground),
         is_complete: isComplete,
         // Privacy-by-default: keep profile hidden until seeker explicitly enables visibility in their account.
         profile_visible: false,
         has_b_category_drivers_license: hasBCategoryDriversLicense,
       });
       if (seekerErr) throw seekerErr;
+
+      const { error: needsErr } = await supabase.from("seeker_workplace_needs").upsert({
+        user_id: user.id,
+        ...workplaceNeedsToDbPayload(workplaceNeeds),
+      });
+      if (needsErr) throw needsErr;
+
+      const { error: capacityErr } = await supabase.from("seeker_work_capacity").upsert({
+        user_id: user.id,
+        ...workCapacityToDbPayload(workCapacity),
+      });
+      if (capacityErr) throw capacityErr;
 
       // MVP sync: avoid duplicate certificate rows if user resubmits onboarding.
       const { error: delErr } = await supabase
@@ -342,8 +435,11 @@ export function SeekerOnboardingForm({ locale }: Props) {
           certificate_issuer: c.certificate_issuer,
           certificate_valid_from: c.certificate_valid_from || null,
           certificate_valid_until: c.certificate_valid_until || null,
-          // Kept for storage uploads (user never enters URL manually).
-          certificate_image_url: c.certificate_image_url || null,
+          certificate_image_url: persistCertificateImageRef(c.certificate_image_url),
+          verification_status: "submitted" as const,
+          verified_at: null,
+          verification_source: null,
+          verified_by: null,
         }));
         const { error: certErr } = await supabase.from("seeker_certificates").insert(rows);
         if (certErr) throw certErr;
@@ -369,7 +465,18 @@ export function SeekerOnboardingForm({ locale }: Props) {
             (l.includes("schema cache") || l.includes("could not find"))) ||
           l.includes("salary_expectation") ||
           l.includes("work_authorization_notes") ||
-          l.includes("has_b_category_drivers_license")
+          l.includes("has_b_category_drivers_license") ||
+          l.includes("date_of_birth") ||
+          l.includes("learning_obligation_status") ||
+          l.includes("legal_representative_consent_status") ||
+          l.includes("pref_full_time") ||
+          l.includes("pref_desired_weekly_hours") ||
+          l.includes("seeker_workplace_needs") ||
+          l.includes("seeker_work_capacity") ||
+          l.includes("exp_seeking_first_job") ||
+          l.includes("experience_duration_years") ||
+          l.includes("shared_with_employer") ||
+          l.includes("is_minor")
         ) {
           shown = `${shown}\n\n${t("seekerProfileStructuredColumnsFixHint")}`;
         }
@@ -474,6 +581,15 @@ export function SeekerOnboardingForm({ locale }: Props) {
         </div>
       </div>
 
+      <SeekerBirthDateFields
+        dateOfBirth={dateOfBirth}
+        learningObligationStatus={learningObligationStatus}
+        legalRepresentativeConsentStatus={legalRepresentativeConsentStatus}
+        onDateOfBirthChange={setDateOfBirth}
+        onLearningObligationChange={setLearningObligationStatus}
+        onLegalRepresentativeConsentChange={setLegalRepresentativeConsentStatus}
+      />
+
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("about")}</label>
         <textarea
@@ -515,6 +631,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
             placeholder={t("csvHint")}
           />
         </div>
+        <SeekerExperienceBackgroundFields value={experienceBackground} onChange={setExperienceBackground} />
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">
             {t("preferredJobTypes")}
@@ -538,6 +655,17 @@ export function SeekerOnboardingForm({ locale }: Props) {
           />
         </div>
       </div>
+
+      <SeekerWorkPreferencesFields
+        value={workPreferences}
+        onChange={setWorkPreferences}
+        dateOfBirth={dateOfBirth}
+        learningObligationStatus={learningObligationStatus}
+      />
+
+      <SeekerWorkCapacityFields value={workCapacity} onChange={setWorkCapacity} />
+
+      <SeekerWorkplaceNeedsFields value={workplaceNeeds} onChange={setWorkplaceNeeds} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">

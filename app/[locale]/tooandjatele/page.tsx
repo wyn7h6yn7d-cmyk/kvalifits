@@ -9,16 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { publicPageMetadata } from "@/lib/seo/site";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
-  return {
+  return publicPageMetadata({
+    locale,
+    path: "/tooandjatele",
     title: t("title"),
     description: t("description"),
-  };
+  });
 }
 
 export default async function TooandjatelePage({ params }: Props) {

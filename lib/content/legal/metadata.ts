@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import { legalPathForLocale, type LegalLocale } from "./types";
+import { publicPageMetadata } from "@/lib/seo/site";
+import type { LegalLocale } from "./types";
 
 type MetaSource = {
   metaTitle: string;
@@ -9,17 +10,10 @@ type MetaSource = {
 };
 
 export function legalPageMetadata(source: MetaSource, locale: LegalLocale): Metadata {
-  const canonicalPath = legalPathForLocale(source.path, locale);
-  return {
+  return publicPageMetadata({
+    locale,
+    path: source.path,
     title: source.metaTitle,
     description: source.metaDescription,
-    alternates: {
-      canonical: canonicalPath,
-      languages: {
-        et: legalPathForLocale(source.path, "et"),
-        en: legalPathForLocale(source.path, "en"),
-        ru: legalPathForLocale(source.path, "ru"),
-      },
-    },
-  };
+  });
 }

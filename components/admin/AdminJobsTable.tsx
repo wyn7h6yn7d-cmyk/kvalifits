@@ -31,12 +31,29 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
     setBusyId(jobId);
     setError(null);
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const updates: Record<string, unknown> = { status };
       if (status === "published") updates.published_at = new Date().toISOString();
-      if (status !== "published") updates.published_at = null;
 
       const { error } = await supabase.from("job_posts").update(updates).eq("id", jobId);
       if (error) throw error;
+
+      const { tryWriteAdminAuditLog, ADMIN_AUDIT_ACTIONS } = await import("@/lib/admin/auditLog");
+      const action =
+        status === "published"
+          ? ADMIN_AUDIT_ACTIONS.jobPostRestore
+          : status === "archived"
+            ? ADMIN_AUDIT_ACTIONS.jobPostRemove
+            : ADMIN_AUDIT_ACTIONS.jobPostUnpublish;
+      await tryWriteAdminAuditLog(supabase, {
+        actorId: user?.id,
+        action,
+        targetType: "job_post",
+        targetId: jobId,
+        details: { status },
+      });
 
       router.refresh();
     } catch (err) {
@@ -50,8 +67,18 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
     setBusyId(jobId);
     setError(null);
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       const { error } = await supabase.from("job_posts").delete().eq("id", jobId);
       if (error) throw error;
+      const { tryWriteAdminAuditLog, ADMIN_AUDIT_ACTIONS } = await import("@/lib/admin/auditLog");
+      await tryWriteAdminAuditLog(supabase, {
+        actorId: user?.id,
+        action: ADMIN_AUDIT_ACTIONS.jobPostDelete,
+        targetType: "job_post",
+        targetId: jobId,
+      });
       router.refresh();
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));
