@@ -7,6 +7,7 @@ import {
 } from "@/lib/admin/moderationTypes";
 import { runModerationAction } from "@/lib/admin/runModerationAction";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { errorMessageFromUnknown } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "moderation_failed";
+    const message = errorMessageFromUnknown(err, "moderation_failed");
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

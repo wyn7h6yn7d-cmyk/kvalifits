@@ -82,6 +82,8 @@ export default async function AdminModerationPage({ params }: Props) {
 
   let companies: any[] = [];
   {
+    // When verification columns are not migrated yet, keep the queue empty
+    // (do not fake under_review — approve would fail with missing columns).
     const q = await supabase
       .from("employer_profiles")
       .select(
@@ -90,19 +92,7 @@ export default async function AdminModerationPage({ params }: Props) {
       .eq("verification_status", "under_review")
       .order("created_at", { ascending: false })
       .limit(100);
-    if (!q.error) {
-      companies = q.data ?? [];
-    } else {
-      const fallback = await supabase
-        .from("employer_profiles")
-        .select("id,company_name,registry_code,contact_email,created_at")
-        .order("created_at", { ascending: false })
-        .limit(100);
-      companies = (fallback.data ?? []).map((e) => ({
-        ...e,
-        verification_status: "under_review",
-      }));
-    }
+    if (!q.error) companies = q.data ?? [];
   }
 
   let blockedUsers: any[] = [];
