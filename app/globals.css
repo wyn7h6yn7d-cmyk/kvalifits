@@ -106,6 +106,26 @@ html {
   border-radius: 12px;
 }
 
+/*
+ * Browser autofill paints a bright/yellow-white fill on email fields.
+ * Force dark inputs so email + password stay visually consistent.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+  caret-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1000px #12121a inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #12121a inset !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+
+input:-webkit-autofill:focus-visible {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
 /* Premium display: gradient accent on key words */
 /* Tööportaali tausta animatsioonid (Hero) — ainult transform/opacity/stroke */
 @keyframes portal-dash-flow {

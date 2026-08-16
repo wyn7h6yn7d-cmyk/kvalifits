@@ -47,7 +47,8 @@ export function buildRateLimitBucketKey(opts: {
 
 /**
  * Fixed-window rate limit via Supabase RPC (service role).
- * Fails closed with a short retry if the table/RPC is missing and AUTH_RATE_LIMIT_FAIL_OPEN is not set.
+ * Missing infra (no service role / table / RPC) fails open so auth stays usable.
+ * Set AUTH_RATE_LIMIT_FAIL_OPEN=1 to also fail open on unexpected RPC errors.
  */
 export async function consumeAuthRateLimit(opts: {
   action: AuthRateLimitAction;
@@ -57,11 +58,10 @@ export async function consumeAuthRateLimit(opts: {
   const limits = AUTH_RATE_LIMITS[opts.action];
   const bucketKey = buildRateLimitBucketKey(opts);
   const admin = createSupabaseAdminClient();
-  const failOpen = process.env.AUTH_RATE_LIMIT_FAIL_OPEN === "1";
 
   if (!admin) {
-    if (failOpen || process.env.NODE_ENV !== "production") return { ok: true, hitCount: 0 };
-    return { ok: false, retryAfterSeconds: 60, hitCount: 0, error: "missing_service_role_key" };
+    // Without service role we cannot enforce buckets — do not lock users out.
+    return { ok: true, hitCount: 0 };
   }
 
   const { data, error } = await admin.rpc("auth_rate_limit_hit", {
@@ -72,11 +72,15 @@ export async function consumeAuthRateLimit(opts: {
 
   if (error) {
     const msg = (error.message ?? "").toLowerCase();
-    if (msg.includes("auth_rate_limit") || msg.includes("schema cache") || msg.includes("does not exist")) {
-      if (failOpen || process.env.NODE_ENV !== "production") return { ok: true, hitCount: 0 };
-      return { ok: false, retryAfterSeconds: 60, hitCount: 0, error: "missing_rate_limit_table" };
+    const missingInfra =
+      msg.includes("auth_rate_limit") ||
+      msg.includes("schema cache") ||
+      msg.includes("does not exist") ||
+      msg.includes("could not find");
+    if (missingInfra || process.env.AUTH_RATE_LIMIT_FAIL_OPEN === "1") {
+      // Table/RPC not deployed yet — allow auth; run fix-auth-rate-limit.sql in SQL Editor.
+      return { ok: true, hitCount: 0 };
     }
-    if (failOpen || process.env.NODE_ENV !== "production") return { ok: true, hitCount: 0 };
     return { ok: false, retryAfterSeconds: 60, hitCount: 0, error: "rate_limit_failed" };
   }
 
