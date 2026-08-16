@@ -17,7 +17,7 @@ export function FinalCTA() {
   return (
     <section
       id="registreeru"
-      className="relative scroll-mt-[var(--site-header-offset)] overflow-hidden bg-surface-deep py-28 sm:py-36 lg:py-40"
+      className="relative scroll-mt-[var(--site-header-offset)] overflow-hidden bg-surface py-28 sm:py-36 lg:py-40"
     >
       <AmbientBackground intensity={ctaSectionPortal.ambientIntensity} />
       {ctaSectionPortal.enabled ? (
@@ -34,15 +34,7 @@ export function FinalCTA() {
       ) : null}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_18%_15%,rgba(168,85,247,0.18),transparent_58%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[#09090D]/45"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-[#09090D]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_18%_15%,rgba(168,85,247,0.14),transparent_58%)]"
       />
 
       <Container className="relative z-10">

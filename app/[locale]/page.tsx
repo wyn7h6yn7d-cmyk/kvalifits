@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
 
-import { SectionDivider } from "@/components/site/SectionDivider";
 import { BelowFoldSectionSkeleton } from "@/components/site/BelowFoldSectionSkeleton";
 import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
@@ -55,11 +54,9 @@ export default async function HomePage({ params }: Props) {
       <main className="relative z-0">
         <Hero />
         <WhyKvalifits />
-        <SectionDivider />
         <Audience />
-        <SectionDivider tone="deep" />
-        <LoginAnchor />
         <FinalCTA />
+        <LoginAnchor />
       </main>
       <Footer />
     </div>

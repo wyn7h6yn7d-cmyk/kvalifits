@@ -19,14 +19,10 @@ export function WhyKvalifits() {
 
   return (
     <section id="miks" className="relative scroll-mt-24 overflow-hidden bg-surface py-28 sm:py-36 lg:py-40">
-      {/* Calm after hero — static wash only, no animated portal */}
+      {/* Calm after hero — soft wash only; no solid color band at the seam */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_10%_0%,rgba(255,255,255,0.03),transparent_55%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#15151F]/80 sm:h-32"
       />
 
       <Container className="relative z-10">

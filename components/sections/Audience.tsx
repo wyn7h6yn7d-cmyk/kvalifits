@@ -31,13 +31,13 @@ export function Audience() {
   ] as const;
 
   return (
-    <section className="relative overflow-hidden bg-surface-elevated py-28 sm:py-36 lg:py-40">
-      {/* Matching beat — soft connection lines + glow (lighter than hero) */}
+    <section className="relative overflow-hidden bg-surface py-28 sm:py-36 lg:py-40">
+      {/* Same surface as Why — atmosphere via glow only, no elevated color strip */}
       {matchingSectionPortal.enabled ? (
         <>
           <AmbientBackground
             intensity={matchingSectionPortal.ambientIntensity}
-            className="opacity-80"
+            className="opacity-70"
           />
           <div
             className="pointer-events-none absolute inset-0"
@@ -53,20 +53,7 @@ export function Audience() {
       ) : null}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_85%_20%,rgba(168,85,247,0.10),transparent_55%)]"
-      />
-      {/* Readability veil */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[#15151F]/55"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0F0F16]/70 to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-[#09090D]/75 sm:h-32"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_85%_20%,rgba(168,85,247,0.08),transparent_55%)]"
       />
 
       <Container className="relative z-10">

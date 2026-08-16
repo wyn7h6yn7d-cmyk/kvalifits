@@ -20,7 +20,7 @@ export async function Footer() {
   const tn = await getTranslations("nav");
 
   return (
-    <footer className="border-t border-white/[0.06] bg-surface-deep">
+    <footer className="border-t border-white/[0.06] bg-surface">
       <Container>
         <div className="py-12">
           <div className="grid grid-cols-1 items-start gap-x-0 gap-y-10 sm:grid-cols-6 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0 xl:gap-x-10">
