@@ -145,7 +145,7 @@ export async function POST(req: Request) {
         .from("seeker_certificates")
         .select("certificate_name,certificate_issuer,certificate_valid_until")
         .eq("user_id", user.id);
-      certs = fallback.data;
+      certs = fallback.data as typeof certs;
       certErr = fallback.error;
     }
     if (certErr) throw certErr;

@@ -141,7 +141,9 @@ export default async function EmployerCandidatesPage({ params }: Props) {
     : { data: [], error: null };
 
   // Fallback if discovery columns are not migrated yet.
-  let seekersRows = seekers;
+  // Loose row type so primary vs fallback selects stay assignable under strict TS.
+  let seekersRows: Record<string, unknown>[] | null =
+    (seekers as Record<string, unknown>[] | null) ?? null;
   let fetchError = error;
   if (error && /discovery_accessible|discovery_adapted|discovery_extra|languages|column/i.test(error.message ?? "")) {
     const fallback = await supabase
@@ -156,19 +158,17 @@ export default async function EmployerCandidatesPage({ params }: Props) {
       .not("experience_level", "is", null)
       .order("updated_at", { ascending: false })
       .limit(80);
-    seekersRows = fallback.data;
+    seekersRows = (fallback.data as Record<string, unknown>[] | null) ?? null;
     fetchError = fallback.error;
   }
 
-  const discoverableSeekers =
-    (seekersRows ?? []).filter((s) => {
-      const skills = (s as { skills?: string[] | null }).skills ?? [];
-      const about = (s as { about?: string | null }).about ?? "";
-      return Array.isArray(skills) && skills.length >= 1 && nonEmpty(about);
-    }) ?? [];
+  const discoverableSeekers = (seekersRows ?? []).filter((s) => {
+    const skills = (s.skills as string[] | null | undefined) ?? [];
+    const about = (s.about as string | null | undefined) ?? "";
+    return Array.isArray(skills) && skills.length >= 1 && nonEmpty(about);
+  });
 
-  const candidates: DiscoverableCandidate[] = discoverableSeekers.map((s) => {
-    const row = s as Record<string, unknown>;
+  const candidates: DiscoverableCandidate[] = discoverableSeekers.map((row) => {
     const userId = String(row.user_id ?? "");
     const certInfo = certByUser.get(userId);
 

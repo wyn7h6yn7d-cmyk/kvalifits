@@ -147,7 +147,7 @@ export default async function ToodPage({ params }: Props) {
       .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(200);
-    jobs = mid.data;
+    jobs = mid.data as typeof jobs;
     jobsErr = mid.error;
   }
   if (jobsErr && /weekly_hours|daily_hours|shift_|includes_night|is_hazardous|column/i.test(jobsErr.message ?? "")) {
@@ -157,7 +157,7 @@ export default async function ToodPage({ params }: Props) {
       .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(200);
-    jobs = mid.data;
+    jobs = mid.data as typeof jobs;
     jobsErr = mid.error;
   }
   if (jobsErr && /salary_tax|salary_period|column/i.test(jobsErr.message ?? "")) {
@@ -167,7 +167,7 @@ export default async function ToodPage({ params }: Props) {
       .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(200);
-    jobs = fallback.data;
+    jobs = fallback.data as typeof jobs;
     jobsErr = fallback.error;
   }
   if (jobsErr) throw jobsErr;
@@ -211,8 +211,6 @@ export default async function ToodPage({ params }: Props) {
         verified: isEmployerCompanyVerified({
           company_verified: e.company_verified,
           verification_status: e.verification_status,
-          verification_source: null,
-          verified_at: null,
         }),
       },
     ])

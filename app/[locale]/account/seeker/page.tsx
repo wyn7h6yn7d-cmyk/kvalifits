@@ -52,7 +52,7 @@ export default async function SeekerAccountPage({ params }: Props) {
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: true });
-    certs = fallback.data;
+    certs = fallback.data as typeof certs;
   }
 
   const { data: workplaceNeedsRow } = await supabase
