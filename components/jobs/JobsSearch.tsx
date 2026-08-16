@@ -9,7 +9,7 @@ import {
   type SetStateAction,
 } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, Search, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronDown, Search, SlidersHorizontal } from "lucide-react";
 
 import type { Job } from "@/components/jobs/types";
 import { chipMatchesJob } from "@/components/jobs/job-filters-config";
@@ -180,14 +180,48 @@ function CheckboxOption({
   onToggle: () => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-2.5 rounded-lg px-1 py-1.5 hover:bg-white/[0.03]">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onToggle}
-        className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded border-white/25 bg-transparent text-fuchsia-500 accent-fuchsia-500 focus:ring-0 focus:ring-offset-0"
-      />
-      <span className="text-[13px] leading-snug text-white/68">{label}</span>
+    <label
+      className={cn(
+        "group/opt flex cursor-pointer items-center gap-3 rounded-lg px-1.5 py-1.5 transition-colors duration-150",
+        "hover:bg-white/[0.04]",
+        checked ? "bg-white/[0.03]" : "bg-transparent",
+      )}
+    >
+      <span className="relative inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onToggle}
+          className="peer absolute inset-0 z-10 m-0 h-full w-full cursor-pointer appearance-none opacity-0"
+        />
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none flex h-[20px] w-[20px] items-center justify-center rounded-[6px] border transition-all duration-150",
+            "bg-white/[0.04]",
+            checked
+              ? "border-transparent bg-gradient-to-br from-violet-500 to-[rgba(227,31,141,0.92)] shadow-[0_0_0_1px_rgba(168,85,247,0.18),0_0_12px_rgba(168,85,247,0.18)]"
+              : "border-white/[0.14] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] group-hover/opt:border-violet-400/45 group-hover/opt:shadow-[0_0_10px_rgba(168,85,247,0.12)]",
+            "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-violet-400/70",
+          )}
+        >
+          <Check
+            className={cn(
+              "h-3 w-3 text-white transition-opacity duration-150",
+              checked ? "opacity-100" : "opacity-0",
+            )}
+            strokeWidth={2.75}
+          />
+        </span>
+      </span>
+      <span
+        className={cn(
+          "min-w-0 text-[13px] leading-snug transition-colors duration-150",
+          checked ? "text-zinc-100" : "text-zinc-400 group-hover/opt:text-zinc-300",
+        )}
+      >
+        {label}
+      </span>
     </label>
   );
 }
