@@ -41,6 +41,7 @@ export function AdminMfaSetupPanel({ locale, nextPath }: { locale: string; nextP
       const { data, error: enrollErr } = await supabase.auth.mfa.enroll({
         factorType: "totp",
         friendlyName: "Kvalifits Admin",
+        issuer: "Kvalifits",
       });
       if (enrollErr) throw enrollErr;
       setFactorId(data.id);
