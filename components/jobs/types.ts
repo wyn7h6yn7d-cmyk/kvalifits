@@ -10,11 +10,19 @@ export type Job = {
   jobType?: string;
   summary?: string;
   salary?: string;
+  /** Numeric salary bounds for range filters (EUR etc.). */
+  salaryMin?: number | null;
+  salaryMax?: number | null;
   createdAt?: string;
+  /** Card display tags (may mix skills + keywords). Not used as skill facets. */
   tags: string[];
+  /** Structured required skills from the job post. */
+  skills?: string[];
   requiredCerts: string[];
   domains?: string[];
   languages?: string[];
+  /** Raw experience_level_required key (e.g. mid, not_required). */
+  experienceLevel?: string | null;
   /** When employer set experience to not_required. */
   openToFirstJob?: boolean;
   /**

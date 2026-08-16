@@ -189,14 +189,22 @@ export default async function ToodPage({ params }: Props) {
   if (employerIds.length) {
     const withVerif = await supabase
       .from("employer_profiles")
-      .select("id,company_name,logo_url,company_verified,verification_status")
+      .select("id,company_name,logo_url,company_verified,verification_status,industry")
       .in("id", employerIds);
     if (withVerif.error) {
-      const fallback = await supabase
+      const mid = await supabase
         .from("employer_profiles")
-        .select("id,company_name,logo_url")
+        .select("id,company_name,logo_url,industry")
         .in("id", employerIds);
-      employerRows = (fallback.data ?? []) as any[];
+      if (mid.error) {
+        const fallback = await supabase
+          .from("employer_profiles")
+          .select("id,company_name,logo_url")
+          .in("id", employerIds);
+        employerRows = (fallback.data ?? []) as any[];
+      } else {
+        employerRows = (mid.data ?? []) as any[];
+      }
     } else {
       employerRows = (withVerif.data ?? []) as any[];
     }
@@ -212,6 +220,7 @@ export default async function ToodPage({ params }: Props) {
           company_verified: e.company_verified,
           verification_status: e.verification_status,
         }),
+        industry: normFacetValue((e.industry ?? "").toString()) || null,
       },
     ])
   );
@@ -242,7 +251,8 @@ export default async function ToodPage({ params }: Props) {
     const skills = ((j.required_skills as string[] | null) ?? [])
       .map((x) => normFacetValue(x))
       .filter(Boolean);
-    const tags = Array.from(new Set([...kw, ...skills])).slice(0, 10);
+    // Card tags may include keywords for display; skill facets use `skills` only.
+    const tags = Array.from(new Set([...skills, ...kw])).slice(0, 10);
 
     const certReq = (j.certificate_requirements ?? "").toString().trim();
     const requiredCerts = certReq
@@ -254,6 +264,9 @@ export default async function ToodPage({ params }: Props) {
       : [];
 
     const emp = employerById.get(j.employer_profile_id);
+    const experienceLevel = (j.experience_level_required ?? "").toString().trim() || null;
+    const domains = emp?.industry ? [emp.industry] : [];
+
     return {
       id: j.id,
       title: (j.title ?? "").toString().trim() || "—",
@@ -263,15 +276,19 @@ export default async function ToodPage({ params }: Props) {
       location: normFacetValue((j.location ?? "").toString()) || "—",
       type,
       salary,
+      salaryMin: min,
+      salaryMax: max,
       workType,
       jobType,
       summary,
       createdAt: j.created_at ?? undefined,
       tags,
+      skills,
       requiredCerts,
-      domains: [],
+      domains,
       languages: [],
-      openToFirstJob: (j.experience_level_required ?? "").toString().trim() === "not_required",
+      experienceLevel,
+      openToFirstJob: experienceLevel === "not_required",
       suitableForYoungSeeker: jobPassesYoungSeekerAutoEligibility(
         jobWorkConditionsFromJobRow({
           job_type: j.job_type ?? null,
