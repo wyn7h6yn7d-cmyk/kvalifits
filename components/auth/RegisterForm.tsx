@@ -63,12 +63,12 @@ export function RegisterForm({
         needsEmailVerification?: boolean;
       };
       if (!res.ok) {
-        if (json.error === "rate_limited" || res.status === 429) {
-          setError(t("errorRateLimited"));
-          return;
-        }
         if (json.error === "missing_rate_limit_table") {
           setError(t("errorRateLimitTable"));
+          return;
+        }
+        if (json.error === "rate_limited" || res.status === 429) {
+          setError(t("errorRateLimited"));
           return;
         }
         if (json.error === "terms_required") {
