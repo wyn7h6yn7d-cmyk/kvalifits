@@ -28,7 +28,7 @@ const RING_C = 2 * Math.PI * RING_R;
 
 function Tag({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] leading-tight text-white/65">
+    <span className="inline-block max-w-full break-words rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] leading-snug text-white/65">
       {children}
     </span>
   );
@@ -40,71 +40,26 @@ function SideCard({
   subtitle,
   location,
   tags,
-  align = "left",
 }: {
   eyebrow: string;
   title: string;
   subtitle: string;
   location: string;
   tags: string[];
-  align?: "left" | "right";
 }) {
   return (
-    <div
-      className={cn(
-        "relative w-full rounded-2xl border border-white/[0.10] bg-[#141418]/[0.85] p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] backdrop-blur-md sm:p-5",
-        align === "right" && "lg:text-right",
-      )}
-    >
-      <div
-        className={cn(
-          "text-[11px] font-medium tracking-wide text-white/45",
-          align === "right" && "lg:text-right",
-        )}
-      >
-        {eyebrow}
-      </div>
-      <div
-        className={cn(
-          "mt-2 text-[15px] font-semibold leading-snug tracking-tight text-white/92 sm:text-[16px]",
-        )}
-      >
+    <div className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418]/[0.92] p-3.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] backdrop-blur-md sm:p-4">
+      <div className="text-[11px] font-medium tracking-wide text-white/45">{eyebrow}</div>
+      <div className="mt-1.5 text-pretty text-[14px] font-semibold leading-snug tracking-tight text-white/92 sm:text-[15px]">
         {title}
       </div>
-      <div className={cn("mt-1 text-[13px] text-white/62")}>{subtitle}</div>
-      <div className={cn("mt-0.5 text-[12px] text-white/45")}>{location}</div>
-      <div
-        className={cn(
-          "mt-3 flex flex-wrap gap-1.5",
-          align === "right" && "lg:justify-end",
-        )}
-      >
+      <div className="mt-1 text-pretty text-[12.5px] leading-snug text-white/62">{subtitle}</div>
+      <div className="mt-0.5 text-[12px] text-white/45">{location}</div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
         {tags.map((tag) => (
           <Tag key={tag}>{tag}</Tag>
         ))}
       </div>
-    </div>
-  );
-}
-
-function ConnectionLine({ reverse = false }: { reverse?: boolean }) {
-  const reduce = useReducedMotion();
-  return (
-    <div
-      className={cn(
-        "relative hidden h-px flex-1 overflow-hidden lg:block",
-        reverse && "scale-x-[-1]",
-      )}
-      aria-hidden
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.06] via-violet-400/35 to-fuchsia-400/40" />
-      {!reduce ? (
-        <motion.div
-          className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/55 to-transparent"
-          animate={{ left: ["-35%", "110%"] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.6 }}
-        />
-      ) : null}
     </div>
   );
 }
@@ -136,11 +91,11 @@ function MatchScoreRing({ active }: { active: boolean }) {
   const offset = RING_C * (1 - score / 100);
 
   return (
-    <div className="relative z-[1] flex flex-col items-center">
-      <div className="relative flex h-[132px] w-[132px] items-center justify-center">
+    <div className="relative z-[1] mx-auto flex w-full max-w-[9.5rem] flex-col items-center">
+      <div className="relative flex h-[112px] w-[112px] items-center justify-center sm:h-[120px] sm:w-[120px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-10%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.22),transparent_68%)] blur-md"
+          className="pointer-events-none absolute inset-[-8%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.22),transparent_68%)] blur-md"
         />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
           <circle
@@ -174,8 +129,8 @@ function MatchScoreRing({ active }: { active: boolean }) {
             </linearGradient>
           </defs>
         </svg>
-        <div className="relative text-center">
-          <div className="text-[28px] font-semibold tabular-nums leading-none tracking-tight text-white">
+        <div className="relative px-1 text-center">
+          <div className="text-[26px] font-semibold tabular-nums leading-none tracking-tight text-white sm:text-[28px]">
             {score}%
           </div>
           <div className="mt-1.5 text-[11px] font-medium tracking-wide text-white/50">
@@ -183,7 +138,9 @@ function MatchScoreRing({ active }: { active: boolean }) {
           </div>
         </div>
       </div>
-      <p className="mt-2.5 text-center text-[12px] text-white/55">{t("reqsFilledShort")}</p>
+      <p className="mt-2 max-w-[10rem] text-center text-[11px] leading-snug text-white/55 sm:text-[12px]">
+        {t("reqsFilledShort")}
+      </p>
     </div>
   );
 }
@@ -223,7 +180,7 @@ function HeroMatchMockup() {
         <div
           {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
           className={cn(
-            "relative flex min-w-0 flex-col gap-5 p-5 sm:gap-5 sm:p-6 md:p-7",
+            "relative flex min-w-0 flex-col gap-4 overflow-hidden p-4 sm:gap-5 sm:p-5 md:p-6",
             locale === "ru" && "gap-4 sm:p-5",
           )}
         >
@@ -231,14 +188,17 @@ function HeroMatchMockup() {
             <span className="text-[12px] font-medium tracking-wide text-white/55">
               {t("matching")}
             </span>
-            <span className="rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
+            <span className="shrink-0 rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
               {t("sampleBadge")}
             </span>
           </div>
 
-          {/* Candidate | score | job */}
-          <div className="flex flex-col items-stretch gap-4 lg:flex-row lg:items-center lg:gap-0">
-            <div className="min-w-0 flex-1">
+          {/*
+            Narrow hero column: score on top, two cards below.
+            Wide: seeker | score | job with glow links (no layout width stolen).
+          */}
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_7.75rem_minmax(0,1fr)] xl:items-center xl:gap-4">
+            <div className="order-2 min-w-0 sm:order-1 xl:order-1">
               <SideCard
                 eyebrow={t("seeker")}
                 title={t("roleSample")}
@@ -248,35 +208,49 @@ function HeroMatchMockup() {
               />
             </div>
 
-            <div className="flex items-center justify-center gap-2 px-1 lg:w-[min(100%,220px)] lg:shrink-0 lg:px-2">
-              <ConnectionLine />
+            <div className="relative order-1 flex min-w-0 justify-center py-1 sm:col-span-2 sm:order-first xl:col-span-1 xl:order-2 xl:py-0">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-0 right-0 top-1/2 hidden h-px -translate-y-1/2 xl:block"
+              >
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-violet-400/25 via-fuchsia-400/35 to-violet-400/25" />
+                {!reduce ? (
+                  <motion.div
+                    className="absolute top-0 h-px w-16 bg-gradient-to-r from-transparent via-white/70 to-transparent"
+                    animate={{ left: ["0%", "calc(100%-4rem)"] }}
+                    transition={{
+                      duration: 2.6,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      repeatDelay: 0.5,
+                    }}
+                  />
+                ) : null}
+              </div>
               <MatchScoreRing active={inView} />
-              <ConnectionLine reverse />
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="order-3 min-w-0 sm:order-2 xl:order-3">
               <SideCard
                 eyebrow={t("employer")}
                 title={t("positionSample")}
                 subtitle={t("jobCompany")}
                 location={t("jobLocation")}
                 tags={jobTags}
-                align="right"
               />
             </div>
           </div>
 
-          {/* Why score */}
-            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 sm:p-5">
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3.5 sm:p-4">
             <div className="text-[13px] font-medium text-white/80">{t("whyTitle")}</div>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
+            <ul className="mt-3 grid min-w-0 gap-2 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-2">
               {reasons.map((r, i) => (
                 <motion.li
                   key={r.text}
                   initial={reduce ? false : { opacity: 0, y: 6 }}
                   animate={inView ? { opacity: 1, y: 0 } : undefined}
                   transition={{ delay: 0.35 + i * 0.07, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex items-start gap-2 text-[13px] leading-snug text-white/70"
+                  className="flex min-w-0 items-start gap-2 text-[12.5px] leading-snug text-white/70 sm:text-[13px]"
                 >
                   {r.status === "match" ? (
                     <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
@@ -287,18 +261,19 @@ function HeroMatchMockup() {
                       <Circle className="h-3 w-3" strokeWidth={2} aria-hidden />
                     </span>
                   )}
-                  <span>{r.text}</span>
+                  <span className="min-w-0 text-pretty break-words">{r.text}</span>
                 </motion.li>
               ))}
             </ul>
           </div>
 
-          {/* Requirements + verification */}
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-            <div className="min-w-0">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+            <div className="min-w-0 overflow-hidden">
               <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[13px] font-medium text-white/78">{t("reqsFilledTitle")}</span>
-                <span className="text-[12px] tabular-nums text-white/50">
+                <span className="min-w-0 text-[13px] font-medium text-white/78">
+                  {t("reqsFilledTitle")}
+                </span>
+                <span className="shrink-0 text-[12px] tabular-nums text-white/50">
                   {DEMO_FILLED}/{DEMO_TOTAL}
                 </span>
               </div>
@@ -316,10 +291,12 @@ function HeroMatchMockup() {
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2.5">
+            <div className="inline-flex max-w-full items-center gap-2.5 overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2.5">
               <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden />
               <div className="min-w-0">
-                <div className="text-[12px] font-medium text-emerald-100/90">{t("verifiedCert")}</div>
+                <div className="truncate text-[12px] font-medium text-emerald-100/90">
+                  {t("verifiedCert")}
+                </div>
                 <div className="text-[11px] text-emerald-200/65">{t("verifiedStatus")}</div>
               </div>
             </div>
