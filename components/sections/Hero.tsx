@@ -1,10 +1,10 @@
 "use client";
 
-import { useId, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { ShieldCheck } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { Check, Circle, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -20,215 +20,309 @@ const heroPrimaryCta =
 const heroSecondaryCta =
   "h-14 min-w-[180px] rounded-2xl border-white/[0.22] bg-white/[0.04] px-8 text-[15px] font-medium tracking-tight text-white backdrop-blur-md transition-all duration-300 hover:border-white/[0.32] hover:bg-white/[0.09] hover:shadow-[0_0_40px_-12px_rgba(255,255,255,0.12)]";
 
+const DEMO_SCORE = 87;
+const DEMO_FILLED = 8;
+const DEMO_TOTAL = 10;
+const RING_R = 54;
+const RING_C = 2 * Math.PI * RING_R;
+
+function Tag({ children }: { children: ReactNode }) {
+  return (
+    <span className="rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] leading-tight text-white/65">
+      {children}
+    </span>
+  );
+}
+
+function SideCard({
+  eyebrow,
+  title,
+  subtitle,
+  location,
+  tags,
+  align = "left",
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  tags: string[];
+  align?: "left" | "right";
+}) {
+  return (
+    <div
+      className={cn(
+        "relative w-full rounded-2xl border border-white/[0.10] bg-[#141418]/[0.85] p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] backdrop-blur-md sm:p-5",
+        align === "right" && "lg:text-right",
+      )}
+    >
+      <div
+        className={cn(
+          "text-[11px] font-medium tracking-wide text-white/45",
+          align === "right" && "lg:text-right",
+        )}
+      >
+        {eyebrow}
+      </div>
+      <div
+        className={cn(
+          "mt-2 text-[15px] font-semibold leading-snug tracking-tight text-white/92 sm:text-[16px]",
+        )}
+      >
+        {title}
+      </div>
+      <div className={cn("mt-1 text-[13px] text-white/62")}>{subtitle}</div>
+      <div className={cn("mt-0.5 text-[12px] text-white/45")}>{location}</div>
+      <div
+        className={cn(
+          "mt-3 flex flex-wrap gap-1.5",
+          align === "right" && "lg:justify-end",
+        )}
+      >
+        {tags.map((tag) => (
+          <Tag key={tag}>{tag}</Tag>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ConnectionLine({ reverse = false }: { reverse?: boolean }) {
+  const reduce = useReducedMotion();
+  return (
+    <div
+      className={cn(
+        "relative hidden h-px flex-1 overflow-hidden lg:block",
+        reverse && "scale-x-[-1]",
+      )}
+      aria-hidden
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-white/[0.06] via-violet-400/35 to-fuchsia-400/40" />
+      {!reduce ? (
+        <motion.div
+          className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/55 to-transparent"
+          animate={{ left: ["-35%", "110%"] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.6 }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function MatchScoreRing({ active }: { active: boolean }) {
+  const t = useTranslations("heroMockup");
+  const reduce = useReducedMotion();
+  const [score, setScore] = useState(reduce ? DEMO_SCORE : 0);
+
+  useEffect(() => {
+    if (!active || reduce) {
+      setScore(DEMO_SCORE);
+      return;
+    }
+    setScore(0);
+    let raf = 0;
+    const start = performance.now();
+    const duration = 1100;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setScore(Math.round(DEMO_SCORE * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, reduce]);
+
+  const offset = RING_C * (1 - score / 100);
+
+  return (
+    <div className="relative z-[1] flex flex-col items-center">
+      <div className="relative flex h-[132px] w-[132px] items-center justify-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-[-10%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.22),transparent_68%)] blur-md"
+        />
+        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
+          <circle
+            cx="66"
+            cy="66"
+            r={RING_R}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="7"
+          />
+          <circle
+            cx="66"
+            cy="66"
+            r={RING_R}
+            fill="none"
+            stroke="url(#heroMatchGrad)"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeDasharray={RING_C}
+            strokeDashoffset={offset}
+            className="transition-[stroke-dashoffset] duration-75 ease-out"
+            style={{
+              filter: "drop-shadow(0 0 8px rgba(168,85,247,0.45))",
+            }}
+          />
+          <defs>
+            <linearGradient id="heroMatchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgb(139,92,246)" />
+              <stop offset="55%" stopColor="rgb(217,70,239)" />
+              <stop offset="100%" stopColor="rgba(227,31,141,0.95)" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="relative text-center">
+          <div className="text-[28px] font-semibold tabular-nums leading-none tracking-tight text-white">
+            {score}%
+          </div>
+          <div className="mt-1.5 text-[11px] font-medium tracking-wide text-white/50">
+            {t("fitLabel")}
+          </div>
+        </div>
+      </div>
+      <p className="mt-2.5 text-center text-[12px] text-white/55">{t("reqsFilledShort")}</p>
+    </div>
+  );
+}
+
 function HeroMatchMockup() {
   const locale = useLocale();
   const t = useTranslations("heroMockup");
-  const explainId = useId();
-  const [active, setActive] = useState<"seeker" | "fit" | "employer" | "verified" | "requirements">("fit");
+  const reduce = useReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { once: true, margin: "-80px" });
+  const [barReady, setBarReady] = useState(false);
 
-  const explain = {
-    seeker: { title: t("explainSeekerTitle"), text: t("explainSeekerText") },
-    fit: { title: t("explainFitTitle"), text: t("explainFitText") },
-    employer: { title: t("explainEmployerTitle"), text: t("explainEmployerText") },
-    verified: { title: t("explainVerifiedTitle"), text: t("explainVerifiedText") },
-    requirements: { title: t("explainRequirementsTitle"), text: t("explainRequirementsText") },
-  } as const;
+  useEffect(() => {
+    if (inView) setBarReady(true);
+  }, [inView]);
 
-  const activeTopBlock =
-    "border-white/[0.18] bg-white/[0.07] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_18px_60px_-34px_rgba(0,0,0,0.75)]";
-  const inactiveTopBlock =
-    "border-white/[0.10] bg-white/[0.05] hover:border-white/[0.14] hover:bg-white/[0.06]";
+  const seekerTags = [t("seekerTag1"), t("seekerTag2"), t("seekerTag3")];
+  const jobTags = [t("jobTag1"), t("jobTag2"), t("jobTag3")];
+
+  const reasons: { status: "match" | "partial"; text: string }[] = [
+    { status: "match", text: t("reason1") },
+    { status: "match", text: t("reason2") },
+    { status: "match", text: t("reason3") },
+    { status: "match", text: t("reason4") },
+    { status: "match", text: t("reason5") },
+    { status: "partial", text: t("reason6") },
+  ];
 
   return (
-    <div className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0">
-      <div className="relative min-w-0 overflow-hidden rounded-[28px] border border-white/[0.11] bg-gradient-to-b from-white/[0.07] via-[#0F0F16]/70 to-[#09090D]/90 p-px shadow-[0_28px_100px_-40px_rgba(9,9,13,0.8),0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-2xl sm:rounded-[32px]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.14),transparent_55%)]" />
+    <div
+      ref={rootRef}
+      className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0"
+    >
+      <div className="relative min-w-0 overflow-hidden rounded-[28px] border border-white/[0.11] bg-gradient-to-b from-white/[0.07] via-[#101014]/80 to-[#09090D]/95 p-px shadow-[0_28px_100px_-40px_rgba(9,9,13,0.8),0_0_0_1px_rgba(255,255,255,0.04)_inset] backdrop-blur-2xl sm:rounded-[32px]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-8%,rgba(168,85,247,0.16),transparent_55%)]" />
 
         <div
           {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
           className={cn(
-            "relative flex min-w-0 flex-col gap-5 p-5 sm:gap-6 sm:p-7 md:p-8",
-            locale === "ru" && "gap-4 sm:gap-5 sm:p-6",
+            "relative flex min-w-0 flex-col gap-5 p-5 sm:gap-5 sm:p-6 md:p-7",
+            locale === "ru" && "gap-4 sm:p-5",
           )}
         >
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[12px] font-medium uppercase tracking-[0.2em] text-white/55">
-                {t("matching")}
-              </span>
-              <span className="rounded-full border border-white/[0.12] bg-white/[0.05] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white/55">
-                {t("sampleBadge")}
-              </span>
+            <span className="text-[12px] font-medium tracking-wide text-white/55">
+              {t("matching")}
+            </span>
+            <span className="rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
+              {t("sampleBadge")}
+            </span>
+          </div>
+
+          {/* Candidate | score | job */}
+          <div className="flex flex-col items-stretch gap-4 lg:flex-row lg:items-center lg:gap-0">
+            <div className="min-w-0 flex-1">
+              <SideCard
+                eyebrow={t("seeker")}
+                title={t("roleSample")}
+                subtitle={t("seekerName")}
+                location={t("seekerLocation")}
+                tags={seekerTags}
+              />
+            </div>
+
+            <div className="flex items-center justify-center gap-2 px-1 lg:w-[min(100%,220px)] lg:shrink-0 lg:px-2">
+              <ConnectionLine />
+              <MatchScoreRing active={inView} />
+              <ConnectionLine reverse />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <SideCard
+                eyebrow={t("employer")}
+                title={t("positionSample")}
+                subtitle={t("jobCompany")}
+                location={t("jobLocation")}
+                tags={jobTags}
+                align="right"
+              />
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-col items-stretch gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(2.75rem,3.25rem)_minmax(0,1fr)] sm:items-center sm:gap-3 md:gap-5">
-            <motion.button
-              type="button"
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              aria-pressed={active === "seeker"}
-              aria-controls={explainId}
-              onMouseEnter={() => setActive("seeker")}
-              onFocus={() => setActive("seeker")}
-              onClick={() => setActive("seeker")}
-              className={cn(
-                "flex min-h-[96px] min-w-0 items-center rounded-2xl border px-3 py-3 text-left transition-colors sm:min-h-[104px] sm:px-3.5 sm:py-3.5 md:min-h-[108px]",
-                active === "seeker" ? activeTopBlock : inactiveTopBlock
-              )}
-            >
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[11px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52 sm:text-[11.5px] sm:whitespace-nowrap">
-                  {t("seeker")}
-                </div>
-                <div className="mt-1 min-w-0 max-w-full text-pretty text-[13px] font-semibold leading-snug text-white/92 break-words sm:text-[14px] md:text-[15px]">
-                  {t("roleSample")}
-                </div>
-                <div className="mt-1.5 min-w-0 text-pretty text-[12px] leading-relaxed text-white/58 break-words sm:text-[12.5px]">
-                  {t("seekerHint")}
-                </div>
-              </div>
-            </motion.button>
-
-            <button
-              type="button"
-              aria-pressed={active === "fit"}
-              aria-controls={explainId}
-              onMouseEnter={() => setActive("fit")}
-              onFocus={() => setActive("fit")}
-              onClick={() => setActive("fit")}
-              className={cn(
-                "group flex shrink-0 flex-col items-center gap-1 rounded-2xl px-0.5 text-center outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2 sm:px-1",
-                active === "fit" ? "text-white" : "text-white"
-              )}
-            >
-              <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
-              <div
-                className={cn(
-                  "relative -mt-0 flex h-11 w-11 items-center justify-center rounded-2xl border bg-gradient-to-b shadow-[0_0_24px_-4px_rgba(168,85,247,0.45)] sm:-mt-[13px] transition-colors",
-                  active === "fit"
-                    ? "border-white/[0.18] from-violet-500/28 to-black/55"
-                    : "border-white/[0.14] from-violet-500/25 to-black/60"
-                )}
-              >
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-white/70">
-                  {t("fitScoreSample")}
-                </span>
-              </div>
-              <span className="text-[11px] font-medium tracking-wide text-white/50">
-                {t("fit")}
-              </span>
-            </button>
-
-            <motion.button
-              type="button"
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.28 }}
-              aria-pressed={active === "employer"}
-              aria-controls={explainId}
-              onMouseEnter={() => setActive("employer")}
-              onFocus={() => setActive("employer")}
-              onClick={() => setActive("employer")}
-              className={cn(
-                "flex min-h-[96px] min-w-0 items-center rounded-2xl border px-3 py-3 text-left transition-colors sm:min-h-[104px] sm:px-3.5 sm:py-3.5 md:min-h-[108px]",
-                active === "employer" ? activeTopBlock : inactiveTopBlock
-              )}
-            >
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-[11px] font-medium uppercase leading-snug tracking-[0.08em] text-white/52 sm:text-[11.5px] sm:whitespace-nowrap">
-                  {t("employer")}
-                </div>
-                <div className="mt-1 min-w-0 max-w-full text-pretty text-[13px] font-semibold leading-snug text-white/90 break-words sm:text-[14px] md:text-[15px]">
-                  {t("positionSample")}
-                </div>
-                <div className="mt-1.5 min-w-0 text-pretty text-[12px] leading-relaxed text-white/58 break-words sm:text-[12.5px]">
-                  {t("employerHint")}
-                </div>
-              </div>
-            </motion.button>
+          {/* Why score */}
+            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 sm:p-5">
+            <div className="text-[13px] font-medium text-white/80">{t("whyTitle")}</div>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
+              {reasons.map((r, i) => (
+                <motion.li
+                  key={r.text}
+                  initial={reduce ? false : { opacity: 0, y: 6 }}
+                  animate={inView ? { opacity: 1, y: 0 } : undefined}
+                  transition={{ delay: 0.35 + i * 0.07, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex items-start gap-2 text-[13px] leading-snug text-white/70"
+                >
+                  {r.status === "match" ? (
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                      <Check className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />
+                    </span>
+                  ) : (
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-violet-300/80">
+                      <Circle className="h-3 w-3" strokeWidth={2} aria-hidden />
+                    </span>
+                  )}
+                  <span>{r.text}</span>
+                </motion.li>
+              ))}
+            </ul>
           </div>
 
-          <div
-            id={explainId}
-            className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3.5 py-3 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl sm:px-4 sm:py-3.5"
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={active}
-                initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -4, filter: "blur(4px)" }}
-                transition={{ duration: 0.22 }}
-                className="min-h-[3.75rem]"
-              >
-                <div className="text-[12px] font-medium uppercase tracking-wide text-white/62">
-                  {explain[active].title}
-                </div>
-                <div className="mt-1.5 min-w-0 text-pretty text-[13px] leading-relaxed text-white/74 break-words sm:text-[13.5px]">
-                  {explain[active].text}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <div className="mt-6 space-y-4">
-            <button
-              type="button"
-              aria-pressed={active === "verified"}
-              aria-controls={explainId}
-              onMouseEnter={() => setActive("verified")}
-              onFocus={() => setActive("verified")}
-              onClick={() => setActive("verified")}
-              className={cn(
-                "w-full rounded-2xl border border-transparent p-0 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2",
-                active === "verified" ? "bg-white/[0.02]" : "hover:bg-white/[0.02]"
-              )}
-            >
-              <div className="flex min-w-0 items-center gap-2.5 text-[15px] text-white/68">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400/85" />
-                <span className={cn("min-w-0 break-words", active === "verified" ? "text-white/88" : "")}>
-                  {t("verified")}
+          {/* Requirements + verification */}
+          <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div className="min-w-0">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[13px] font-medium text-white/78">{t("reqsFilledTitle")}</span>
+                <span className="text-[12px] tabular-nums text-white/50">
+                  {DEMO_FILLED}/{DEMO_TOTAL}
                 </span>
               </div>
-              <p className="mt-2.5 min-w-0 text-pretty text-[12.5px] leading-relaxed text-white/52 break-words">
-                {t("verifiedHint")}
-              </p>
-            </button>
-
-            <button
-              type="button"
-              aria-pressed={active === "requirements"}
-              aria-controls={explainId}
-              onMouseEnter={() => setActive("requirements")}
-              onFocus={() => setActive("requirements")}
-              onClick={() => setActive("requirements")}
-              className={cn(
-                "w-full rounded-2xl border border-transparent p-0 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2",
-                active === "requirements" ? "bg-white/[0.02]" : "hover:bg-white/[0.02]"
-              )}
-            >
-              <div>
-                <div className="flex items-center justify-between text-[12.5px] text-white/50">
-                  <span className={cn(active === "requirements" ? "text-white/70" : "")}>{t("requirements")}</span>
-                  <span className="tabular-nums text-white/58" title={t("sampleBadge")}>
-                    {t("requirementsFilledSample")}
-                  </span>
-                </div>
-                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "80%" }}
-                    transition={{ duration: 1.1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="h-full rounded-full bg-gradient-to-r from-violet-500/80 via-fuchsia-500/70 to-[rgba(227,31,141,0.75)]"
-                  />
-                </div>
+              <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: barReady ? "80%" : 0 }}
+                  transition={{ duration: 1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                  className="h-full rounded-full bg-gradient-to-r from-violet-500/85 via-fuchsia-500/75 to-[rgba(227,31,141,0.8)]"
+                />
               </div>
-              <p className="mt-2.5 min-w-0 text-pretty text-[12.5px] leading-relaxed text-white/52 break-words">
-                {t("requirementsHint")}
-              </p>
-            </button>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-white/45">
+                <span>{t("reqsMandatory")}</span>
+                <span>{t("reqsOptional")}</span>
+              </div>
+            </div>
+
+            <div className="inline-flex items-center gap-2.5 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2.5">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-400" aria-hidden />
+              <div className="min-w-0">
+                <div className="text-[12px] font-medium text-emerald-100/90">{t("verifiedCert")}</div>
+                <div className="text-[11px] text-emerald-200/65">{t("verifiedStatus")}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -254,22 +348,17 @@ export function Hero() {
         <PortalBackground variant={heroPortal.variant} intensity={heroPortal.intensity} />
       </div>
 
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[1]"
-      >
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_130%_90%_at_50%_-15%,rgba(168,85,247,0.28),transparent_55%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#09090D]/35 via-transparent to-transparent" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(9,9,13,0.28)_100%)] opacity-70" />
       </div>
 
-      {/* Soft handoff into shared landing surface (#0F0F16) */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-32 bg-gradient-to-b from-transparent via-[#0F0F16]/55 to-[#0F0F16] sm:h-40"
       />
 
-      {/* Tumedam ülariba: loetav navbar + vähem hero “bleed” läbi klaasi */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-36 bg-gradient-to-b from-[#09090D]/95 via-[#09090D]/50 to-transparent sm:h-40"
