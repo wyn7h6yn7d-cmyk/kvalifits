@@ -1,6 +1,13 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  controllerParagraph,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  publicGeneralContact,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const privacyRU: LegalDocument = {
   path: "/privaatsus",
@@ -8,14 +15,14 @@ export const privacyRU: LegalDocument = {
   metaDescription:
     "Как Kvalifits собирает, использует и защищает персональные данные. Ваши права, файлы cookie и контактные данные.",
   h1: "Политика конфиденциальности",
-  lead: `В этом документе описано, как ${PL.operatorName} («мы» или «платформа») обрабатывает персональные данные в сервисе Kvalifits. Мы серьёзно относимся к конфиденциальности и обрабатываем данные в соответствии с применимым законодательством Эстонии и, где это уместно, Общим регламентом ЕС по защите данных (GDPR).`,
-  lastUpdated: "2026-04-08",
+  lead: `В этом документе описано, как ${operatorLeadName("ru")} («мы» или «платформа») обрабатывает персональные данные в сервисе Kvalifits. Мы серьёзно относимся к конфиденциальности и обрабатываем данные в соответствии с применимым законодательством Эстонии и, где это уместно, Общим регламентом ЕС по защите данных (GDPR).`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "andmekaitse",
       title: "Цель и контролёр",
       paragraphs: [
-        `Контролёром является ${PL.companyName}, регистрационный код ${PL.registryCode}, адрес: ${PL.legalAddress}. По вопросам конфиденциальности: ${PL.emailPrivacy}.`,
+        controllerParagraph("ru"),
         "Если вы находитесь в ЕС, у вас есть права по GDPR, включая доступ, исправление, удаление, ограничение обработки, возражение (где применимо), а также право подать жалобу в надзорный орган (в Эстонии — Инспекция по защите данных).",
       ],
     },
@@ -83,7 +90,7 @@ export const privacyRU: LegalDocument = {
       title: "Ваши права",
       paragraphs: [
         "Вы можете запросить доступ, исправление, удаление (где применимо), ограничение обработки, возразить против обработки на основании законных интересов, а также отозвать согласие, если обработка основана на согласии.",
-        "Как подать запрос — см. /ru/andmekaitse. Контакт: " + PL.emailPrivacy + ".",
+        "Как подать запрос — см. /ru/andmekaitse. Контакт: " + publicPrivacyContact("ru") + ".",
       ],
     },
     {
@@ -110,9 +117,9 @@ export const privacyRU: LegalDocument = {
     {
       id: "kontakt",
       title: "Контакты",
-      paragraphs: [`Конфиденциальность: ${PL.emailPrivacy}. Общие вопросы: ${PL.emailGeneral}.`],
+      paragraphs: [`Конфиденциальность: ${publicPrivacyContact("ru")}. Общие вопросы: ${publicGeneralContact("ru")}.`],
     },
   ],
   footnote:
-    "Этот текст носит общий информационный характер и не заменяет юридическую консультацию. Перед запуском замените плейсхолдеры и проверьте документ с юристом.",
+    legalPrelaunchFootnote("ru"),
 };

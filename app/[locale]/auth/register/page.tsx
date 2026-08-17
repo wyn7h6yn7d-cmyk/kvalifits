@@ -1,7 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { AlreadySignedIn } from "@/components/auth/AlreadySignedIn";
@@ -39,15 +37,9 @@ export default async function RegisterPage({ params, searchParams }: Props) {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("registerTitle")} subtitle={subtitle}>
-          {user ? <AlreadySignedIn /> : <RegisterForm locale={locale} defaultRole={defaultRole} />}
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+    <AuthShell title={t("registerTitle")} subtitle={subtitle}>
+      {user ? <AlreadySignedIn /> : <RegisterForm locale={locale} defaultRole={defaultRole} />}
+    </AuthShell>
   );
 }
 

@@ -1,15 +1,12 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { getTranslations } from "next-intl/server";
 import { Fingerprint, Landmark, ShieldCheck } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
 
 const ICONS = [Fingerprint, ShieldCheck, Landmark] as const;
 
-export function WhyKvalifits() {
-  const t = useTranslations("why");
+export async function WhyKvalifits() {
+  const t = await getTranslations("why");
 
   const blocks = [
     { icon: ICONS[0], title: t("b1Title"), desc: t("b1Desc") },
@@ -19,7 +16,6 @@ export function WhyKvalifits() {
 
   return (
     <section id="miks" className="relative scroll-mt-24 overflow-hidden bg-surface py-28 sm:py-36 lg:py-40">
-      {/* Calm after hero — soft wash only; no solid color band at the seam */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_10%_0%,rgba(255,255,255,0.03),transparent_55%)]"
@@ -41,13 +37,10 @@ export function WhyKvalifits() {
 
         <div className="mt-20 max-w-4xl space-y-0 lg:mt-24">
           {blocks.map((b, idx) => (
-            <motion.div
+            <div
               key={b.title}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="group grid gap-4 border-t border-white/[0.07] py-10 first:border-t-0 first:pt-0 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-8 sm:py-12"
+              className="kf-enter group grid gap-4 border-t border-white/[0.07] py-10 first:border-t-0 first:pt-0 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-8 sm:py-12"
+              style={{ animationDelay: `${idx * 0.05}s` }}
             >
               <div className="flex h-10 w-10 items-center justify-center text-muted">
                 <b.icon className="h-5 w-5" strokeWidth={1.6} />
@@ -60,7 +53,7 @@ export function WhyKvalifits() {
                   {b.desc}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </Container>

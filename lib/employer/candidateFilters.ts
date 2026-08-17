@@ -6,6 +6,10 @@
 export type CandidateCertificateSummary = {
   name: string;
   validUntil: string | null;
+  issuer?: string | null;
+  verification_status?: string | null;
+  verified_at?: string | null;
+  verification_source?: string | null;
 };
 
 export type DiscoverableCandidate = {

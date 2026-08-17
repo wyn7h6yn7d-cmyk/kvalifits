@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 
@@ -27,12 +25,6 @@ export default async function AccountIndex({ params }: Props) {
   if (role === "employer") redirect(`/${locale}/account/employer`);
   if (role === "admin") redirect(`/${locale}/admin`);
 
-  return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]" />
-      <Footer />
-    </div>
-  );
+  return null;
 }
 

@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import {
   APPLICATION_PIPELINE_ACTIVE,
   APPLICATION_PIPELINE_TERMINAL,
+  isApplicationPipelineStatus,
   normalizeApplicationStatus,
   type ApplicationPipelineStatus,
 } from "@/lib/employer/applicationPipeline";
@@ -15,7 +16,7 @@ import { cn, errorMessageFromUnknown } from "@/lib/utils";
 type Props = {
   applicationId: string;
   status: string | null | undefined;
-  onUpdated?: (next: ApplicationPipelineStatus) => void;
+  onUpdated?: (next: ApplicationPipelineStatus, statusUpdatedAt?: string | null) => void;
   compact?: boolean;
   className?: string;
 };
@@ -55,8 +56,12 @@ export function EmployerApplicationStatusSelect({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setValue(normalizeApplicationStatus(status));
+  }, [status, applicationId]);
+
   async function onChange(next: ApplicationPipelineStatus) {
-    if (next === value) return;
+    if (!isApplicationPipelineStatus(next) || next === value) return;
     const prev = value;
     setValue(next);
     setSaving(true);
@@ -67,7 +72,19 @@ export function EmployerApplicationStatusSelect({
         .update({ status: next, updated_at: new Date().toISOString() })
         .eq("id", applicationId);
       if (updErr) throw updErr;
-      onUpdated?.(next);
+
+      const { data, error: selErr } = await supabase
+        .from("job_applications")
+        .select("status,status_updated_at")
+        .eq("id", applicationId)
+        .maybeSingle();
+      if (selErr && !/status_updated_at|does not exist|schema cache|column/i.test(selErr.message ?? "")) {
+        throw selErr;
+      }
+      const row = data as { status?: string | null; status_updated_at?: string | null } | null;
+      const confirmed = normalizeApplicationStatus(row?.status ?? next);
+      setValue(confirmed);
+      onUpdated?.(confirmed, typeof row?.status_updated_at === "string" ? row.status_updated_at : new Date().toISOString());
     } catch (e) {
       setValue(prev);
       const raw = errorMessageFromUnknown(e, t("unknownError"));
@@ -96,7 +113,7 @@ export function EmployerApplicationStatusSelect({
         className={cn(
           "w-full rounded-xl border px-2.5 font-medium outline-none transition-colors",
           "focus:border-white/[0.20]",
-          compact ? "h-9 text-[11px]" : "h-10 text-xs",
+          compact ? "h-11 text-[13px] lg:h-9 lg:text-[11px]" : "h-11 text-sm lg:h-10 lg:text-xs",
           tone(value),
           saving && "opacity-70"
         )}

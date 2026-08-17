@@ -1,8 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { MfaChallengeForm } from "@/components/auth/MfaChallengeForm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -26,14 +24,8 @@ export default async function MfaChallengePage({ params, searchParams }: Props) 
   const nextPath = nextRaw.startsWith(`/${locale}/`) ? nextRaw : `/${locale}/admin`;
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("mfaTitle")} subtitle={t("mfaSubtitle")}>
-          <MfaChallengeForm locale={locale} nextPath={nextPath} />
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+    <AuthShell title={t("mfaTitle")} subtitle={t("mfaSubtitle")}>
+      <MfaChallengeForm locale={locale} nextPath={nextPath} />
+    </AuthShell>
   );
 }

@@ -1,6 +1,13 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  dataRequestHowTo,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  publicGeneralContact,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const dataRightsET: LegalDocument = {
   path: "/andmekaitse",
@@ -8,8 +15,8 @@ export const dataRightsET: LegalDocument = {
   metaDescription:
     "Kuidas taotleda oma andmete koopiat, parandamist või kustutamist Kvalifitsis. Vastamise tähtajad ja kontakt.",
   h1: "Andmesubjekti õigused ja andmete kustutamine",
-  lead: `See leht aitab sul kasutada õigusi, mis sul on oma isikuandmete suhtes teenuses Kvalifits, mida haldab ${PL.operatorName}.`,
-  lastUpdated: "2026-04-08",
+  lead: `See leht aitab sul kasutada õigusi, mis sul on oma isikuandmete suhtes teenuses Kvalifits, mida haldab ${operatorLeadName("et")}.`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "oigused-ulevaade",
@@ -31,7 +38,7 @@ export const dataRightsET: LegalDocument = {
       id: "kuidas-taotleda",
       title: "Kuidas taotlus esitada",
       paragraphs: [
-        `Saada e-kiri aadressile ${PL.emailPrivacy} märgis „Andmekaitse taotlus“ või kasuta kontaktivormi lehel /kontakt.`,
+        dataRequestHowTo("et"),
         "Palun lisa: oma nimi, e-post (kasutatud kontol), taotluse liik (koopia, parandus, kustutamine jne) ja vajadusel konto tuvastamiseks vajalikud andmed. Võime paluda isikut tõendada, et kaitsta sinu andmeid volitamata päringute eest.",
       ],
     },
@@ -61,10 +68,10 @@ export const dataRightsET: LegalDocument = {
       id: "kontakt",
       title: "Kontakt",
       paragraphs: [
-        `Andmekaitse päringud: ${PL.emailPrivacy}. Üldkontakt: ${PL.emailGeneral}.`,
+        `Andmekaitse päringud: ${publicPrivacyContact("et")}. Üldkontakt: ${publicGeneralContact("et")}.`,
       ],
     },
   ],
   footnote:
-    "Täpsed menetlused peaksid vastama tegelikule IT-lahendusele ja juriidilisele ülevaatusele.",
+    legalPrelaunchFootnote("et"),
 };

@@ -1,37 +1,36 @@
 import type { ContactPageContent } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  companyIdentityLines,
+  contactFormMailto,
+  legalPrelaunchFootnote,
+} from "./placeholders";
 
 export const contactEN: ContactPageContent = {
   path: "/kontakt",
   metaTitle: "Contact",
   metaDescription: "Get in touch — we read every message and reply on business days.",
   h1: "Contact",
-  lead: "Question about the platform, or just want to say hello? We reply on business days as soon as we can.",
-  lastUpdated: "2026-04-13",
+  lead: "Question about the platform, or just want to say hello? Use the form below. We reply on business days as soon as we can.",
+  lastUpdated: LEGAL_COPY_UPDATED,
   blocks: [
     {
-      title: "Company",
-      lines: [
-        "Kvalifits OÜ",
-        `Registry code: ${PL.registryCode}`,
-        `Address: ${PL.legalAddress}`,
-        "General contact: [email]",
-        "Phone: [phone]",
-      ],
+      title: "Platform",
+      lines: companyIdentityLines("en"),
       icon: "building2",
       span: 2,
     },
     {
-      title: "Web & social",
-      lines: ["Website: kvalifits.ee", "Social — we’ll add links soon"],
+      title: "Web",
+      lines: ["kvalifits.ee"],
       icon: "share2",
       span: 2,
     },
   ],
   blocksAside: {
-    title: "Contact details",
-    lead: "Company and web — we update these as needed.",
+    title: "How to reach us",
+    lead: "Official company email, phone and address will be published after the legal entity is registered. Until then, use the form.",
   },
   form: {
     nameLabel: "Name",
@@ -42,5 +41,6 @@ export const contactEN: ContactPageContent = {
     privacyHint: "We only use your contact details to reply. More here: /en/privaatsus.",
     successNote: "Your mail app will open — give the message a quick read before sending.",
   },
-  formMailTo: "info@kvalifits.ee",
+  formMailTo: contactFormMailto(),
+  footnote: legalPrelaunchFootnote("en"),
 };

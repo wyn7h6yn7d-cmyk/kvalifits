@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/routing";
 
@@ -12,6 +12,13 @@ import {
 import type { AdminModerationAction, ModerationQueue } from "@/lib/admin/moderationTypes";
 import { Button } from "@/components/ui/button";
 import { errorMessageFromUnknown } from "@/lib/utils";
+import { parseCertificateVerificationStatus } from "@/lib/seeker/certificateVerification";
+import { parseEmployerCompanyVerificationStatus } from "@/lib/employer/companyVerification";
+import {
+  CertificateStatusBlock,
+  certificateViewLabelsFromT,
+} from "@/components/seeker/CertificateVerificationBadge";
+import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
 
 export type ModerationReportItem = {
   id: string;
@@ -110,6 +117,8 @@ export function AdminModerationPanel({
   blockedUsers,
 }: Props) {
   const t = useTranslations("admin");
+  const tOnb = useTranslations("onboarding");
+  const locale = useLocale();
   const router = useRouter();
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -233,14 +242,25 @@ export function AdminModerationPanel({
               key={c.id}
               className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
             >
-              <div className="text-sm font-medium text-white/88">
-                {(c.certificate_name ?? "").trim() || "—"}
-              </div>
+              <CertificateStatusBlock
+                name={(c.certificate_name ?? "").trim() || "—"}
+                fields={{
+                  verification_status: parseCertificateVerificationStatus(c.verification_status),
+                  verified_at: null,
+                  verification_source: null,
+                  certificate_valid_until: null,
+                  certificate_issuer: c.certificate_issuer ?? null,
+                }}
+                labels={certificateViewLabelsFromT((key, values) => tOnb(key, values))}
+                locale={locale}
+              />
               <div className="mt-1 text-xs text-white/55">
-                {(c.certificate_issuer ?? "").trim() || "—"}
-                {c.owner_email ? ` · ${c.owner_email}` : ""}
-                {" · "}
-                {c.verification_status}
+                {[
+                  (c.certificate_issuer ?? "").trim(),
+                  c.owner_email,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
               </div>
               <ActionButtons
                 queue="certificates"
@@ -273,11 +293,17 @@ export function AdminModerationPanel({
               <div className="text-sm font-medium text-white/88">
                 {(e.company_name ?? "").trim() || "—"}
               </div>
+              <div className="mt-2">
+                <CompanyVerificationBadge
+                  status={parseEmployerCompanyVerificationStatus(e.verification_status)}
+                  statusLine={t(
+                    `companyVerificationStatus.${parseEmployerCompanyVerificationStatus(e.verification_status)}`,
+                  )}
+                />
+              </div>
               <div className="mt-1 text-xs text-white/55">
                 {(e.registry_code ?? "").toString().trim() || "—"}
                 {e.contact_email ? ` · ${e.contact_email}` : ""}
-                {" · "}
-                {e.verification_status}
               </div>
               <ActionButtons
                 queue="companies"

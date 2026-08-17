@@ -13,7 +13,7 @@ export function ContactForm({
   className,
 }: {
   form: ContactPageContent["form"];
-  /** Tavaliselt üldkontakt; asenda placeholder päris aadressiga. */
+  /** Mailbox from legal placeholders (not shown as registered-company identity). */
   mailTo: string;
   className?: string;
 }) {
@@ -80,7 +80,7 @@ export function ContactForm({
         <label className="block sm:col-span-2">
           <span className="text-xs font-medium text-white/50">{form.messageLabel}</span>
           <textarea
-            className="mt-2 min-h-[140px] w-full resize-y rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="mt-2 min-h-[140px] w-full resize-y rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required

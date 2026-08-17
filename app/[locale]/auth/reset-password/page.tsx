@@ -1,7 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
@@ -12,15 +10,9 @@ export default async function ResetPasswordPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "auth" });
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("resetPasswordTitle")} subtitle={t("resetPasswordSubtitle")}>
-          <ResetPasswordForm locale={locale} />
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+    <AuthShell title={t("resetPasswordTitle")} subtitle={t("resetPasswordSubtitle")}>
+      <ResetPasswordForm locale={locale} />
+    </AuthShell>
   );
 }
 

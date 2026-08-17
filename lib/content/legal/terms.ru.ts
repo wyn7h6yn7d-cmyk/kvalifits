@@ -1,6 +1,12 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  providerParagraph,
+  publicGeneralContact,
+} from "./placeholders";
 
 export const termsRU: LegalDocument = {
   path: "/tingimused",
@@ -8,14 +14,14 @@ export const termsRU: LegalDocument = {
   metaDescription:
     "Правила пользования платформой Kvalifits: учётные записи, роли, ответственность, изменения и контакты.",
   h1: "Условия использования",
-  lead: `Настоящие условия регулируют использование вами сайта и сервисов Kvalifits, предоставляемых ${PL.operatorName}. Пользуясь платформой, вы подтверждаете, что ознакомились с условиями и принимаете их. Если вы не согласны — не используйте сервис.`,
-  lastUpdated: "2026-04-08",
+  lead: `Настоящие условия регулируют использование вами сайта и сервисов Kvalifits, которыми управляет ${operatorLeadName("ru")}. Пользуясь платформой, вы подтверждаете, что ознакомились с условиями и принимаете их. Если вы не согласны — не используйте сервис.`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "teenus",
       title: "Сервис и стороны",
       paragraphs: [
-        `Kvalifits — платформа рекрутинга на основе навыков. Поставщик: ${PL.companyName} (${PL.registryCode}), ${PL.legalAddress}. «Пользователь» — любое физическое или юридическое лицо, создавшее учётную запись или иным образом использующее сервис.`,
+        providerParagraph("ru"),
       ],
     },
     {
@@ -94,9 +100,9 @@ export const termsRU: LegalDocument = {
     {
       id: "kontakt-tingimused",
       title: "Контакты",
-      paragraphs: [`Вопросы: ${PL.emailGeneral}.`],
+      paragraphs: [`Вопросы: ${publicGeneralContact("ru")}.`],
     },
   ],
   footnote:
-    "Это рабочая рамка для проверки. Перед продакшеном замените плейсхолдеры и получите юридическое согласование.",
+    legalPrelaunchFootnote("ru"),
 };

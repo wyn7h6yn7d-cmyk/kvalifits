@@ -1,6 +1,8 @@
 -- Harden job_applications UPDATE fields (mirror of
 -- migration 20260816_job_applications_update_field_security.sql).
 -- Run in Supabase SQL Editor if needed. Does not change apply UI.
+-- For status timestamps + event trail, also run
+-- supabase/scripts/fix-job-application-status-audit.sql (or apply that migration).
 
 create or replace function public.current_user_is_admin()
 returns boolean
@@ -40,6 +42,36 @@ $$;
 revoke all on function public.current_user_owns_job_application_employer(public.job_applications) from public;
 grant execute on function public.current_user_owns_job_application_employer(public.job_applications) to authenticated;
 
+create or replace function public.canonical_job_application_status(raw text)
+returns text
+language sql
+immutable
+as $$
+  select case lower(btrim(coalesce(raw, '')))
+    when '' then 'new'
+    when 'submitted' then 'new'
+    when 'new' then 'new'
+    when 'reviewing' then 'reviewing'
+    when 'interview' then 'interview'
+    when 'interview_2' then 'interview_2'
+    when 'offer' then 'offer'
+    when 'hired' then 'hired'
+    when 'rejected' then 'rejected'
+    when 'withdrawn' then 'withdrawn'
+    else null
+  end;
+$$;
+
+revoke all on function public.canonical_job_application_status(text) from public;
+grant execute on function public.canonical_job_application_status(text) to authenticated;
+
+alter table public.job_applications
+  add column if not exists status_updated_at timestamptz;
+
+update public.job_applications
+set status_updated_at = coalesce(status_updated_at, updated_at, created_at, now())
+where status_updated_at is null;
+
 create or replace function public.job_applications_guard_update_fields()
 returns trigger
 language plpgsql
@@ -53,6 +85,7 @@ declare
   overlay jsonb := '{}'::jsonb;
   old_j jsonb;
   k text;
+  next_status text;
   protected_keys text[] := array[
     'id',
     'created_at',
@@ -66,7 +99,8 @@ declare
     'employer_status',
     'employer_notes',
     'reviewed_at',
-    'reviewed_by'
+    'reviewed_by',
+    'status_updated_at'
   ];
   seeker_allowed text[] := array[
     'cover_letter',
@@ -76,11 +110,23 @@ declare
   akey text;
 begin
   if auth.uid() is null then
+    if new.status is distinct from old.status then
+      new.status := coalesce(public.canonical_job_application_status(new.status), old.status);
+      new.status_updated_at := now();
+    else
+      new.status_updated_at := old.status_updated_at;
+    end if;
     return new;
   end if;
 
   select public.current_user_is_admin() into actor_is_admin;
   if coalesce(actor_is_admin, false) then
+    if new.status is distinct from old.status then
+      new.status := coalesce(public.canonical_job_application_status(new.status), old.status);
+      new.status_updated_at := now();
+    else
+      new.status_updated_at := old.status_updated_at;
+    end if;
     return new;
   end if;
 
@@ -91,8 +137,16 @@ begin
   if coalesce(actor_is_employer, false)
      and old.seeker_user_id is distinct from auth.uid() then
     new := old;
-    new.status := attempted.status;
+    next_status := public.canonical_job_application_status(attempted.status);
+    if next_status is null then
+      new.status := old.status;
+    else
+      new.status := next_status;
+    end if;
     new.updated_at := attempted.updated_at;
+    if new.status is distinct from old.status then
+      new.status_updated_at := now();
+    end if;
     return new;
   end if;
 
@@ -108,7 +162,7 @@ begin
 
     if lower(coalesce(old.status, '')) = 'withdrawn' then
       new.status := old.status;
-    elsif lower(coalesce(attempted.status, '')) = 'withdrawn' then
+    elsif public.canonical_job_application_status(attempted.status) = 'withdrawn' then
       new.status := 'withdrawn';
     else
       new.status := old.status;
@@ -122,6 +176,12 @@ begin
         );
       end if;
     end loop;
+
+    if new.status is distinct from old.status then
+      new.status_updated_at := now();
+    else
+      new.status_updated_at := old.status_updated_at;
+    end if;
 
     return new;
   end if;
@@ -173,7 +233,8 @@ alter table public.job_applications
   add column if not exists status text not null default 'submitted',
   add column if not exists updated_at timestamptz not null default now(),
   add column if not exists cover_letter text null,
-  add column if not exists application_answers jsonb not null default '{}'::jsonb;
+  add column if not exists application_answers jsonb not null default '{}'::jsonb,
+  add column if not exists status_updated_at timestamptz;
 
 revoke update on table public.job_applications from authenticated;
 revoke update on table public.job_applications from anon;

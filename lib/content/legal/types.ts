@@ -56,7 +56,7 @@ export type ContactPageContent = {
     title: string;
     lead: string;
   };
-  /** Mailto recipient when displayed emails use placeholders like [e-post]. */
+  /** Mailto recipient. Prefer contactFormMailto() from legal placeholders. */
   formMailTo?: string;
   footnote?: string;
 };

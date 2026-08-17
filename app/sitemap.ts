@@ -8,6 +8,7 @@ import {
   hreflangLanguages,
   normalizePathWithoutLocale,
 } from "@/lib/seo/site";
+import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 function staticEntry(
@@ -43,13 +44,13 @@ async function publishedJobEntries(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data, error } = await supabase
       .from("job_posts")
-      .select("id, published_at, created_at, expires_at")
+      .select("id, published_at, created_at, expires_at, application_deadline, status")
       .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(5000);
 
     if (error || !data?.length) {
-      if (error && /published_at|expires_at|column/i.test(error.message ?? "")) {
+      if (error && /published_at|expires_at|application_deadline|column/i.test(error.message ?? "")) {
         const legacy = await supabase
           .from("job_posts")
           .select("id, created_at")
@@ -67,15 +68,16 @@ async function publishedJobEntries(): Promise<MetadataRoute.Sitemap> {
       return [];
     }
 
-    const now = Date.now();
     return expandJobs(
       data
-        .filter((j) => {
-          const exp = (j as { expires_at?: string | null }).expires_at;
-          if (!exp) return true;
-          const t = new Date(exp).getTime();
-          return Number.isNaN(t) || t >= now;
-        })
+        .filter((j) =>
+          jobAcceptsApplications({
+            status: "published",
+            published_at: (j.published_at as string | null) ?? null,
+            application_deadline: (j.application_deadline as string | null) ?? null,
+            expires_at: (j.expires_at as string | null) ?? null,
+          }),
+        )
         .map((j) => ({
           id: String(j.id),
           lastMod:
@@ -110,6 +112,45 @@ function expandJobs(
   return out;
 }
 
+async function publicCompanyEntries(): Promise<MetadataRoute.Sitemap> {
+  const supabase = createPublicSupabase();
+  if (!supabase) return [];
+
+  try {
+    const fromView = await supabase
+      .from("employer_public_profiles")
+      .select("public_slug")
+      .limit(2000);
+    let slugs: string[] = [];
+    if (!fromView.error) {
+      slugs = (fromView.data ?? [])
+        .map((r) => (r.public_slug ?? "").toString().trim())
+        .filter(Boolean);
+    } else {
+      // Do not fall back to all employer_profiles slugs — that can include
+      // companies without an active public listing.
+      return [];
+    }
+
+    const out: MetadataRoute.Sitemap = [];
+    for (const slug of slugs) {
+      const languages = hreflangLanguages(`/ettevotted/${slug}`);
+      for (const locale of SEO_LOCALES) {
+        out.push({
+          url: absoluteUrl(locale, `/ettevotted/${slug}`),
+          lastModified: new Date(),
+          changeFrequency: "weekly",
+          priority: 0.6,
+          alternates: { languages },
+        });
+      }
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPriority: Record<string, number> = {
     "": 1,
@@ -122,16 +163,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/kupsised": 0.4,
     "/andmekaitse": 0.4,
     "/ettevote": 0.5,
+    "/ettevotted": 0.8,
   };
 
   const staticEntries = PUBLIC_STATIC_PATHS.flatMap((path) => {
     const p = normalizePathWithoutLocale(path);
     const priority = staticPriority[p] ?? 0.5;
     const changeFrequency =
-      p === "" || p === "/tood" ? "daily" : p.startsWith("/too") ? "weekly" : "monthly";
+      p === "" || p === "/tood"
+        ? "daily"
+        : p === "/ettevotted" || p.startsWith("/too")
+          ? "weekly"
+          : "monthly";
     return staticEntry(p, priority, changeFrequency);
   });
 
   const jobs = await publishedJobEntries();
-  return [...staticEntries, ...jobs];
+  const companies = await publicCompanyEntries();
+  return [...staticEntries, ...jobs, ...companies];
 }

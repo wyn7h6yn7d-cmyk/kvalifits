@@ -54,10 +54,10 @@ function persistLocalePreference(next: string) {
 }
 
 const triggerClass =
-  "flex w-full items-center justify-center gap-1.5 rounded-md border border-white/[0.10] bg-white/[0.05] px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-white/90 transition-colors";
+  "flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md border border-white/[0.10] bg-white/[0.05] px-3 py-2 text-[13px] font-medium uppercase tracking-wide text-white/90 transition-colors lg:min-h-0 lg:px-2 lg:py-0.5 lg:text-[11px]";
 
 const itemClass =
-  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[11px] font-medium uppercase tracking-wide transition-colors";
+  "flex min-h-11 w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-[14px] font-medium uppercase tracking-wide transition-colors lg:min-h-0 lg:px-2 lg:py-1.5 lg:text-[11px]";
 
 function useLgHover() {
   const [lg, setLg] = useState(false);
@@ -143,7 +143,7 @@ export function LanguageSwitcher({
         <div
           role="menu"
           aria-label={t("switchTo")}
-          className="flex flex-col gap-0.5 rounded-md border border-white/[0.10] bg-black/90 p-0.5 shadow-lg backdrop-blur-md"
+          className="flex flex-col gap-0.5 rounded-md border border-white/[0.10] bg-[#111116] p-1 shadow-lg"
         >
           {others.map((loc) => (
             <button

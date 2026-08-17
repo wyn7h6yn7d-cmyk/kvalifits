@@ -18,6 +18,8 @@
   --site-header-offset: calc(
     var(--site-header-top) + var(--site-header-bar) + var(--site-header-tail)
   );
+  --site-bottom-nav-height: 3.75rem;
+  --site-bottom-nav-offset: 0px;
   /* Hero: offset below fixed navbar + extra gap */
   --site-hero-content-top: calc(var(--site-header-offset) + 3.25rem);
 
@@ -83,6 +85,18 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+html,
+body {
+  overflow-x: clip;
+}
+
+@media (max-width: 1023px) {
+  .portal-bg-a--lines path.portal-bg-a__path,
+  .portal-bg-a__hub-ring {
+    animation: none !important;
+  }
 }
 
 /* Lighter selection: dark pink can surface in Word as odd shading when pasting from HTML */
@@ -177,6 +191,138 @@ input:-webkit-autofill:focus-visible {
   font-size: 0.925rem;
 }
 
+/* Lightweight content placeholders — opacity only, no shimmer sweep */
+@keyframes kf-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.58;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+.kf-skeleton {
+  background-color: rgba(255, 255, 255, 0.055);
+  animation: kf-skeleton-pulse 1.85s ease-in-out infinite;
+}
+
+@keyframes kf-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes kf-ambient-a {
+  0%,
+  100% {
+    transform: translate(-50%, -8px) scale(1);
+  }
+  33% {
+    transform: translate(-48%, 6px) scale(1.03);
+  }
+  66% {
+    transform: translate(-52%, -10px) scale(0.99);
+  }
+}
+
+@keyframes kf-ambient-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(-18px, -10px) scale(1.04);
+  }
+  70% {
+    transform: translate(10px, 8px) scale(1);
+  }
+}
+
+@keyframes kf-hero-scan {
+  from {
+    left: 0;
+  }
+  to {
+    left: calc(100% - 4rem);
+  }
+}
+
+@keyframes kf-hero-bar {
+  from {
+    width: 0;
+  }
+  to {
+    width: 80%;
+  }
+}
+
+@keyframes kf-portal-b-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.4deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0.28deg);
+  }
+}
+
+@keyframes kf-portal-b-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+.kf-enter {
+  animation: kf-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kf-enter-slow {
+  animation: kf-fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kf-enter-d1 {
+  animation-delay: 0.12s;
+}
+
+.kf-hero-scan {
+  animation: kf-hero-scan 2.6s ease-in-out infinite;
+}
+
+.kf-hero-bar {
+  animation: kf-hero-bar 1s 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kf-portal-b-card {
+  animation-name: kf-portal-b-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.kf-portal-b-pill {
+  animation-name: kf-portal-b-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@media (min-width: 1024px) {
+  .kf-ambient-orb {
+    animation: kf-ambient-a 18s ease-in-out infinite;
+  }
+  .kf-ambient-orb-b {
+    animation: kf-ambient-b 22s ease-in-out infinite;
+  }
+}
+
 /* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -184,5 +330,25 @@ input:-webkit-autofill:focus-visible {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .kf-skeleton {
+    animation: none !important;
+    opacity: 0.72;
+  }
+
+  .kf-enter,
+  .kf-enter-slow,
+  .kf-hero-scan,
+  .kf-hero-bar,
+  .kf-ambient-orb,
+  .kf-ambient-orb-b,
+  .kf-portal-b-card,
+  .kf-portal-b-pill {
+    animation: none !important;
+  }
+
+  .kf-hero-bar {
+    width: 80%;
   }
 }

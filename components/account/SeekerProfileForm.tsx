@@ -56,13 +56,13 @@ import { errorMessageFromUnknown } from "@/lib/utils";
 import {
   certificateIdentityKey,
   formatCertificateExpiryWarning,
-  formatCertificateStatusLine,
-  formatCertificateVerifiedMeta,
   parseCertificateVerificationStatus,
-  resolveCertificateEffectiveStatus,
   type CertificateVerificationStatus,
 } from "@/lib/seeker/certificateVerification";
-import { CertificateVerificationBadge } from "@/components/seeker/CertificateVerificationBadge";
+import {
+  CertificateStatusBlock,
+  certificateViewLabelsFromT,
+} from "@/components/seeker/CertificateVerificationBadge";
 import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
 
 type Certificate = {
@@ -81,6 +81,8 @@ type Certificate = {
 
 type Props = {
   locale: string;
+  /** `profile` hides certificates; `certificates` hides the rest of the form. */
+  section?: "full" | "profile" | "certificates";
   initial: {
     email: string;
     avatar_url: string | null;
@@ -132,7 +134,9 @@ type Props = {
   };
 };
 
-export function SeekerProfileForm({ locale, initial }: Props) {
+export function SeekerProfileForm({ locale, initial, section = "full" }: Props) {
+  const showProfile = section !== "certificates";
+  const showCertificates = section !== "profile";
   const t = useTranslations("onboarding");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -452,7 +456,9 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
       if (avatarUploading) throw new Error(t("avatarUploadInProgress"));
       if (cvUploading) throw new Error(t("cvUploadInProgress"));
-      if (!isSeekerAvatarFromStorageUpload(avatarUrl)) throw new Error(t("avatarRequired"));
+      if (section !== "certificates") {
+        if (!isSeekerAvatarFromStorageUpload(avatarUrl)) throw new Error(t("avatarRequired"));
+      }
 
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
       const title = profileTitle.trim();
@@ -460,26 +466,30 @@ export function SeekerProfileForm({ locale, initial }: Props) {
       const preferredJobTypes = parseCommaList(preferredJobTypesCsv);
       const preferredLocations = parseCommaList(preferredLocationsCsv);
 
-      if (!firstName.trim()) throw new Error(t("errFirstNameRequired"));
-      if (!lastName.trim()) throw new Error(t("errLastNameRequired"));
-      if (!phone.trim()) throw new Error(t("errPhoneRequired"));
-      if (!location.trim()) throw new Error(t("errLocationRequired"));
-      if (!experienceLevel) throw new Error(t("errExperienceLevelRequired"));
-      if (title.length < 3) throw new Error(t("errProfileTitleTooShort"));
-      if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
-      if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
-      if (preferredJobTypes.length < 1) throw new Error(t("errPreferredJobTypesRequired"));
-      if (preferredLocations.length < 1) throw new Error(t("errPreferredLocationsRequired"));
+      if (section !== "certificates") {
+        if (!firstName.trim()) throw new Error(t("errFirstNameRequired"));
+        if (!lastName.trim()) throw new Error(t("errLastNameRequired"));
+        if (!phone.trim()) throw new Error(t("errPhoneRequired"));
+        if (!location.trim()) throw new Error(t("errLocationRequired"));
+        if (!experienceLevel) throw new Error(t("errExperienceLevelRequired"));
+        if (title.length < 3) throw new Error(t("errProfileTitleTooShort"));
+        if (about.trim().length < 40) throw new Error(t("errAboutTooShort"));
+        if (skills.length < 2) throw new Error(t("errSkillsTooFew"));
+        if (preferredJobTypes.length < 1) throw new Error(t("errPreferredJobTypesRequired"));
+        if (preferredLocations.length < 1) throw new Error(t("errPreferredLocationsRequired"));
+      }
 
       const ageYears = calculateAgeYears(dateOfBirth);
-      if (ageYears === null) throw new Error(t("errDateOfBirthRequired"));
+      if (section !== "certificates") {
+        if (ageYears === null) throw new Error(t("errDateOfBirthRequired"));
+        if (needsLearningObligationStatus(ageYears) && !isLearningObligationStatus(learningObligationStatus)) {
+          throw new Error(t("errLearningObligationRequired"));
+        }
+      }
       const learningStatus = needsLearningObligationStatus(ageYears)
         ? learningObligationStatus
         : "";
-      if (needsLearningObligationStatus(ageYears) && !isLearningObligationStatus(learningStatus)) {
-        throw new Error(t("errLearningObligationRequired"));
-      }
-      const isMinor = ageYears < 18;
+      const isMinor = ageYears !== null && ageYears < 18;
       const consentStatus = normalizeSeekerEditableConsentStatus(
         legalRepresentativeConsentStatus || "required",
         isMinor
@@ -715,6 +725,8 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         ) : null}
       </div>
 
+      {showProfile ? (
+      <>
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -822,7 +834,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           required
           rows={4}
           placeholder={t("aboutHint")}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
         <div className="text-xs text-white/45">{t("aboutHelp")}</div>
       </div>
@@ -836,7 +848,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
               setExperienceLevel(e.target.value as (typeof EXPERIENCE_LEVEL_VALUES)[number] | "")
             }
             required
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="">{t("experienceLevelPlaceholder")}</option>
             {EXPERIENCE_LEVEL_VALUES.map((v) => (
@@ -911,11 +923,14 @@ export function SeekerProfileForm({ locale, initial }: Props) {
             onChange={(e) => setWorkAuthNotes(e.target.value)}
             rows={2}
             placeholder={t("workAuthorizationHint")}
-            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           />
         </div>
       </div>
+      </>
+      ) : null}
 
+      {showCertificates ? (
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm font-medium text-white/85">{t("certificateSection")}</div>
@@ -964,42 +979,13 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
         <div className="mt-4 space-y-6">
           {certificates.map((c, idx) => {
-            const status = resolveCertificateEffectiveStatus({
+            const fields = {
               verification_status: parseCertificateVerificationStatus(c.verification_status),
+              verified_at: c.verified_at ?? null,
+              verification_source: c.verification_source ?? null,
               certificate_valid_until: c.certificate_valid_until || null,
-            });
-            const statusLabels = {
-              submitted: t("certificateStatus.submitted"),
-              under_review: t("certificateStatus.under_review"),
-              verified: t("certificateStatus.verified"),
-              rejected: t("certificateStatus.rejected"),
-              expired: t("certificateStatus.expired"),
+              certificate_issuer: c.certificate_issuer || null,
             };
-            const statusLine = formatCertificateStatusLine(
-              {
-                verification_status: parseCertificateVerificationStatus(c.verification_status),
-                verified_at: c.verified_at ?? null,
-                verification_source: c.verification_source ?? null,
-                certificate_valid_until: c.certificate_valid_until || null,
-              },
-              statusLabels,
-              locale
-            );
-            const metaLine = formatCertificateVerifiedMeta(
-              {
-                certificate_valid_until: c.certificate_valid_until || null,
-                verified_by: c.verified_by ?? null,
-                verification_status: parseCertificateVerificationStatus(c.verification_status),
-                verified_at: c.verified_at ?? null,
-                verification_source: c.verification_source ?? null,
-              },
-              {
-                validUntil: t("certificateVerifiedValidUntil"),
-                verifiedBy: t("certificateVerifiedBy"),
-                previouslyVerified: t("certificatePreviouslyVerified"),
-              },
-              locale
-            );
             const warningLine = formatCertificateExpiryWarning(c.certificate_valid_until || null, {
               expiresToday: t("certificateExpiresToday"),
               expiresInDays: (days) => t("certificateExpiresInDays", { days }),
@@ -1011,10 +997,11 @@ export function SeekerProfileForm({ locale, initial }: Props) {
                   <div className="text-xs font-medium tracking-wide text-white/55">
                     {t("certificate")} #{idx + 1}
                   </div>
-                  <CertificateVerificationBadge
-                    status={status}
-                    statusLine={statusLine}
-                    metaLine={metaLine}
+                  <CertificateStatusBlock
+                    name={(c.certificate_name ?? "").trim() || null}
+                    fields={fields}
+                    labels={certificateViewLabelsFromT((key, values) => t(key, values))}
+                    locale={locale}
                     warningLine={warningLine}
                   />
                 </div>
@@ -1070,6 +1057,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
           })}
         </div>
       </div>
+      ) : null}
 
       <Button
         type="submit"
@@ -1083,6 +1071,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
         {t("saveAndContinue")}
       </Button>
 
+      {showProfile ? (
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("accountTitle")}</div>
         <div className="mt-1 text-sm leading-relaxed text-white/60">{t("accountHint")}</div>
@@ -1138,6 +1127,7 @@ export function SeekerProfileForm({ locale, initial }: Props) {
 
         <AccountPrivacySettings locale={locale} className="mt-4" />
       </div>
+      ) : null}
     </form>
   );
 }

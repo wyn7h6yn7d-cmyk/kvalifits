@@ -2,17 +2,18 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
 import { parseMatchBreakdown } from "@/lib/employer/parseMatchBreakdown";
+import { buildMatchExplanationFromSharedProfile } from "@/lib/matching/matchExplanation";
 import { EmployerApplicantMatchPanel } from "@/components/employer/EmployerApplicantMatchPanel";
 import { EmployerLegalRepresentativeConsentNotice } from "@/components/employer/EmployerLegalRepresentativeConsentNotice";
+import { formatPipelineTimestamp } from "@/lib/employer/applicationPipeline";
 import { EmployerApplicationStatusSelect } from "@/components/employer/EmployerApplicationStatusSelect";
 import { EmployerApplicationInternalNotes } from "@/components/employer/EmployerApplicationInternalNotes";
+import { EmployerApplicationStatusHistory } from "@/components/employer/EmployerApplicationStatusHistory";
 import { Link } from "@/i18n/routing";
 import { safeHttpUrl } from "@/lib/utils";
 import {
@@ -24,12 +25,12 @@ import { isWorkplaceNeedKey, type SharedWorkplaceNeed, type WorkplaceNeedKey } f
 import { applicationAnswersFromUnknown, formatAvailabilityStartDisplay, formatInterviewPreferencesDisplay, formatSalaryExpectationScan } from "@/lib/jobs/applicationAnswers";
 import {
   formatCertificateExpiryWarning,
-  formatCertificateStatusLine,
-  formatCertificateVerifiedMeta,
   parseCertificateVerificationStatus,
-  resolveCertificateEffectiveStatus,
 } from "@/lib/seeker/certificateVerification";
-import { CertificateVerificationBadge } from "@/components/seeker/CertificateVerificationBadge";
+import {
+  CertificateStatusBlock,
+  certificateViewLabelsFromT,
+} from "@/components/seeker/CertificateVerificationBadge";
 
 type Props = { params: Promise<{ locale: string; id: string; applicationId: string }> };
 
@@ -132,7 +133,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
   const { data: appRaw, error: appErr } = await supabase
     .from("job_applications")
     .select(
-      "id,job_post_id,seeker_user_id,created_at,status,cover_letter,application_answers,match_score,match_breakdown,shared_profile"
+      "id,job_post_id,seeker_user_id,created_at,status,status_updated_at,cover_letter,application_answers,match_score,match_breakdown,shared_profile"
     )
     .eq("id", applicationId)
     .eq("job_post_id", id)
@@ -140,7 +141,34 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
     .maybeSingle();
 
   let app = appRaw;
-  if (appErr && /application_answers|column/i.test(appErr.message ?? "")) {
+  if (appErr && /status_updated_at/i.test(appErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select(
+        "id,job_post_id,seeker_user_id,created_at,status,cover_letter,application_answers,match_score,match_breakdown,shared_profile"
+      )
+      .eq("id", applicationId)
+      .eq("job_post_id", id)
+      .neq("status", "withdrawn")
+      .maybeSingle();
+    if (fallback.error && /application_answers|column/i.test(fallback.error.message ?? "")) {
+      const fallback2 = await supabase
+        .from("job_applications")
+        .select(
+          "id,job_post_id,seeker_user_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile"
+        )
+        .eq("id", applicationId)
+        .eq("job_post_id", id)
+        .neq("status", "withdrawn")
+        .maybeSingle();
+      if (fallback2.error) throw fallback2.error;
+      app = fallback2.data as typeof appRaw;
+    } else if (fallback.error) {
+      throw fallback.error;
+    } else {
+      app = fallback.data as typeof appRaw;
+    }
+  } else if (appErr && /application_answers|column/i.test(appErr.message ?? "")) {
     const fallback = await supabase
       .from("job_applications")
       .select(
@@ -227,6 +255,11 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
   const breakdown = parseMatchBreakdown(app.match_breakdown);
   const score = typeof app.match_score === "number" ? app.match_score : null;
+  const explanation = buildMatchExplanationFromSharedProfile({
+    breakdown,
+    sharedProfile: app.shared_profile,
+    applicationAnswers: answers,
+  });
   const employerName = ((employerSnap.company_name as string | undefined) ?? "").toString().trim() || "—";
   const about = ((seeker.about as string | undefined) ?? "").toString().trim();
   const workplaceNeedsShared: SharedWorkplaceNeed[] = (() => {
@@ -273,10 +306,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
     : [];
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={name} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-5xl">
+    <AuthShell title={name} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-5xl">
           <div className="space-y-6">
             <Link
               href={`/account/employer/jobs/${id}/applicants`}
@@ -337,6 +367,14 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                         applicationId={String(app.id)}
                         status={(app as { status?: string | null }).status}
                       />
+                      <p className="mt-1.5 text-[11px] tabular-nums text-white/40">
+                        {t("applicationStatusUpdatedAt")}:{" "}
+                        {formatPipelineTimestamp(
+                          locale,
+                          (app as { status_updated_at?: string | null }).status_updated_at ??
+                            (app.created_at as string | null),
+                        )}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -432,6 +470,12 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
               initialNote={internalNoteText}
             />
 
+            <EmployerApplicationStatusHistory
+              locale={locale}
+              applicationId={String(app.id)}
+              refreshKey={(app as { status_updated_at?: string | null }).status_updated_at ?? null}
+            />
+
             <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
               <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
                 <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailSeeker")}</div>
@@ -488,41 +532,6 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                         .slice(0, 8)
                         .map((c, i) => {
                           const stored = parseCertificateVerificationStatus(c.verification_status);
-                          const status = resolveCertificateEffectiveStatus({
-                            verification_status: stored,
-                            certificate_valid_until: c.certificate_valid_until ?? null,
-                          });
-                          const statusLine = formatCertificateStatusLine(
-                            {
-                              verification_status: stored,
-                              verified_at: c.verified_at ?? null,
-                              verification_source: c.verification_source ?? null,
-                              certificate_valid_until: c.certificate_valid_until ?? null,
-                            },
-                            {
-                              submitted: tOnb("certificateStatus.submitted"),
-                              under_review: tOnb("certificateStatus.under_review"),
-                              verified: tOnb("certificateStatus.verified"),
-                              rejected: tOnb("certificateStatus.rejected"),
-                              expired: tOnb("certificateStatus.expired"),
-                            },
-                            locale
-                          );
-                          const metaLine = formatCertificateVerifiedMeta(
-                            {
-                              certificate_valid_until: c.certificate_valid_until ?? null,
-                              verified_by: c.verified_by ?? null,
-                              verification_status: stored,
-                              verified_at: c.verified_at ?? null,
-                              verification_source: c.verification_source ?? null,
-                            },
-                            {
-                              validUntil: tOnb("certificateVerifiedValidUntil"),
-                              verifiedBy: tOnb("certificateVerifiedBy"),
-                              previouslyVerified: tOnb("certificatePreviouslyVerified"),
-                            },
-                            locale
-                          );
                           const warningLine = formatCertificateExpiryWarning(
                             c.certificate_valid_until ?? null,
                             {
@@ -532,20 +541,17 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                           );
                           return (
                             <li key={`${i}-${(c.certificate_name ?? "").toString().slice(0, 24)}`}>
-                              <div className="text-white/80">
-                                {(c.certificate_name ?? "—").toString()}
-                                {(c.certificate_issuer ?? "").toString().trim() ? (
-                                  <span className="text-white/45">
-                                    {" "}
-                                    · {(c.certificate_issuer ?? "").toString()}
-                                  </span>
-                                ) : null}
-                              </div>
-                              <CertificateVerificationBadge
-                                className="mt-1.5"
-                                status={status}
-                                statusLine={statusLine}
-                                metaLine={metaLine}
+                              <CertificateStatusBlock
+                                name={(c.certificate_name ?? "—").toString()}
+                                fields={{
+                                  verification_status: stored,
+                                  verified_at: c.verified_at ?? null,
+                                  verification_source: c.verification_source ?? null,
+                                  certificate_valid_until: c.certificate_valid_until ?? null,
+                                  certificate_issuer: c.certificate_issuer ?? null,
+                                }}
+                                labels={certificateViewLabelsFromT((key, values) => tOnb(key, values))}
+                                locale={locale}
                                 warningLine={warningLine}
                               />
                             </li>
@@ -610,6 +616,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                 variant="breakdownOnly"
                 score={score}
                 breakdown={breakdown}
+                explanation={explanation}
                 seeker={{
                   displayName: name,
                   profileTitle,
@@ -683,8 +690,5 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
             ) : null}
           </div>
         </AuthShell>
-      </main>
-      <Footer />
-    </div>
   );
 }

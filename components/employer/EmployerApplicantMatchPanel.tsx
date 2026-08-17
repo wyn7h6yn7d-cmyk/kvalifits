@@ -5,11 +5,15 @@ import { useTranslations } from "next-intl";
 
 import type { MatchBreakdown } from "@/lib/matching/calculateJobMatch";
 import { MATCH_MODEL_VERSION, MATCH_WEIGHTS } from "@/lib/matching/calculateJobMatch";
+import { FitScoreExplain } from "@/components/jobs/FitScoreExplain";
+import type { MatchExplanation } from "@/lib/matching/matchExplanation";
+import { buildMatchExplanation } from "@/lib/matching/matchExplanation";
 import { cn } from "@/lib/utils";
 
 export type EmployerApplicantMatchPanelProps = {
   score: number | null;
   breakdown: Partial<MatchBreakdown> | null;
+  explanation?: MatchExplanation | null;
   /** Render full interactive panel (default) or a breakdown-only card for detail sections. */
   variant?: "full" | "breakdownOnly";
   seeker: {
@@ -175,6 +179,7 @@ function highlightLabel(code: string, t: (key: string) => string) {
 export function EmployerApplicantMatchPanel({
   score,
   breakdown,
+  explanation,
   variant = "full",
   seeker,
   job,
@@ -186,6 +191,11 @@ export function EmployerApplicantMatchPanel({
   const bd = breakdown ?? {};
   const isLegacyModel = (bd.modelVersion ?? MATCH_MODEL_VERSION) < 2;
   const scoreLabel = score == null ? "—" : `${score}%`;
+  const resolvedExplanation =
+    explanation ??
+    buildMatchExplanation({
+      breakdown,
+    });
 
   const explain: Record<Segment, { title: string; text: string }> = {
     seeker: {
@@ -235,29 +245,10 @@ export function EmployerApplicantMatchPanel({
   const availBar = bar(bd.availability_contribution ?? 0, W.availability);
 
   if (variant === "breakdownOnly") {
-    const scoreLabelSimple = score == null ? "—" : `${score}%`;
-    const penaltyPoints = bd.penalty_points ?? 0;
-    const softFloorApplied = bd.soft_floor_applied ?? 0;
-    const scoreBeforeSoftFloor = bd.score_before_soft_floor;
     const penaltyCodes = (bd.penalty_codes ?? []) as string[];
     const highlights = Array.isArray(bd.highlights)
       ? (bd.highlights.filter((x): x is string => typeof x === "string") as string[])
       : [];
-    const basePoints =
-      (bd.skills_keywords_contribution ?? 0) +
-      (bd.certificate_contribution ?? 0) +
-      (bd.requirements_mandatory_contribution ?? 0) +
-      (bd.requirements_recommended_contribution ?? 0) +
-      (bd.experience_contribution ?? 0) +
-      (bd.location_contribution ?? 0) +
-      (bd.languages_contribution ?? 0) +
-      (bd.work_mode_contribution ?? 0) +
-      (bd.arrangement_contribution ?? 0) +
-      (bd.workload_contribution ?? 0) +
-      (bd.work_hours_contribution ?? 0) +
-      (bd.availability_contribution ?? 0);
-    const unclamped = basePoints - penaltyPoints;
-    const clampedToZero = score === 0 && unclamped < 0;
     const bandLabel = scoreBandLabel(score, t);
     const weakFiltered = filterWeakAreasAgainstPenalties(
       Array.isArray(bd.weak_areas) ? bd.weak_areas : [],
@@ -277,53 +268,22 @@ export function EmployerApplicantMatchPanel({
             </div>
             <div className="mt-2 text-sm leading-relaxed text-white/60">{t("applicantMatchExplainBreakdownTextCalm")}</div>
           </div>
-          <div className="shrink-0 rounded-2xl border border-white/[0.10] bg-black/25 px-5 py-3.5 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:min-w-[7.5rem]">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
-              {t("applicantMatchFit")}
-            </div>
-            <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-white">{scoreLabelSimple}</div>
-            {bandLabel ? (
-              <div className="mt-2 inline-block rounded-full border border-white/[0.12] bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-medium leading-snug text-white/65">
-                {bandLabel}
-              </div>
-            ) : null}
-          </div>
         </div>
 
-        <div className="mt-5 grid gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-4 text-[12px] text-white/65 sm:grid-cols-3">
-          <div className="flex flex-col gap-1 sm:gap-1.5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantMatchBaseScore")}</div>
-            <div className="text-lg font-semibold tabular-nums text-white/85">{basePoints}p</div>
-            <div className="text-[11px] leading-snug text-white/50">{t("applicantMatchBaseScoreHint")}</div>
-          </div>
-          <div className="flex flex-col gap-1 sm:gap-1.5 border-t border-white/[0.06] pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantMatchReducingFactors")}</div>
-            <div className={cn("text-lg font-semibold tabular-nums", penaltyPoints > 0 ? "text-white/75" : "text-white/50")}>
-              {penaltyPoints > 0 ? `−${penaltyPoints}p` : "—"}
+        <div className="mt-5">
+          <FitScoreExplain
+            score={score}
+            explanation={resolvedExplanation}
+            label={t("applicantMatchFit")}
+            defaultOpen
+            showCountsWhenCollapsed
+          />
+          {bandLabel ? (
+            <div className="mt-3 inline-block rounded-full border border-white/[0.12] bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-medium leading-snug text-white/65">
+              {bandLabel}
             </div>
-            <div className="text-[11px] leading-snug text-white/50">{t("applicantMatchReducingFactorsHint")}</div>
-          </div>
-          <div className="flex flex-col gap-1 sm:gap-1.5 border-t border-white/[0.06] pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantMatchFinalScore")}</div>
-            <div className="text-lg font-semibold tabular-nums text-white/90">{scoreLabelSimple}</div>
-            <div className="text-[11px] leading-snug text-white/50">{t("applicantMatchFinalScoreHint")}</div>
-          </div>
+          ) : null}
         </div>
-
-        {clampedToZero ? (
-          <div className="mt-4 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-[12px] leading-relaxed text-white/70">
-            {t("applicantMatchClampedToZero", { unclamped })}
-          </div>
-        ) : null}
-
-        {softFloorApplied > 0 ? (
-          <div className="mt-4 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-[12px] leading-relaxed text-white/65">
-            {t("applicantMatchSoftFloorNote", {
-              before: scoreBeforeSoftFloor ?? 0,
-              added: softFloorApplied,
-            })}
-          </div>
-        ) : null}
 
         {highlightLines.length ? (
           <div className="mt-6 rounded-2xl border border-emerald-500/22 bg-emerald-500/[0.09] px-4 py-4 sm:px-5 sm:py-4">
@@ -338,48 +298,6 @@ export function EmployerApplicantMatchPanel({
             </ul>
           </div>
         ) : null}
-
-        <div className="mt-6">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantMatchContributionsHeading")}</div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <BreakRow label={`${t("applicantMatchAxisSkillsKeywords")} (${W.skillsKeywords})`} {...skillsBar} />
-            <BreakRow label={`${t("applicantMatchAxisCertificates")} (${W.certificates})`} {...certBar} />
-            <BreakRow label={`${t("applicantMatchAxisReqMandatory")} (${W.requirementsMandatory})`} {...mandBar} />
-            <BreakRow label={`${t("applicantMatchAxisReqRecommended")} (${W.requirementsRecommended})`} {...recBar} />
-            <BreakRow label={`${t("applicantMatchAxisExperience")} (${W.experience})`} {...expBar} />
-            <BreakRow label={`${t("applicantMatchAxisLocation")} (${W.location})`} {...locBar} />
-            <BreakRow label={`${t("applicantMatchAxisLanguages")} (${W.languages})`} {...langBar} />
-            <BreakRow label={`${t("applicantMatchAxisWorkMode")} (${W.workMode})`} {...modeBar} />
-            <BreakRow label={`${t("applicantMatchAxisArrangement")} (${W.arrangement})`} {...arrBar} />
-            <BreakRow label={`${t("applicantMatchAxisWorkload")} (${W.workload})`} {...loadBar} />
-            <BreakRow label={`${t("applicantMatchAxisWorkHours")} (${W.workHours})`} {...hoursBar} />
-            <BreakRow label={`${t("applicantMatchAxisAvailability")} (${W.availability})`} {...availBar} />
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-4 text-[12px] text-white/62">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantMatchEvidenceSection")}</div>
-          <div className="mt-3 space-y-2">
-            <div>{t("applicantMatchRequirementsCount", { matched: bd.requirementsMatched ?? 0, total: bd.requirementsTotal ?? 0 })}</div>
-            {(bd.tag_total ?? 0) > 0 ? (
-              <div>
-                {t("applicantMatchTagSummary", {
-                  full: bd.tag_matched_full ?? 0,
-                  partial: bd.tag_matched_partial ?? 0,
-                  total: bd.tag_total ?? 0,
-                })}
-              </div>
-            ) : null}
-            {(bd.certificate_slots_required ?? 0) > 0 ? (
-              <div>
-                {t("applicantMatchCertSlotSummary", {
-                  matched: bd.certificate_slots_matched ?? 0,
-                  total: bd.certificate_slots_required ?? 0,
-                })}
-              </div>
-            ) : null}
-          </div>
-        </div>
 
         {Array.isArray(penaltyCodes) && penaltyCodes.length ? (
           <div className="mt-5 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-4">

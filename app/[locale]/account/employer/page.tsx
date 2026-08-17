@@ -2,8 +2,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
@@ -57,10 +55,7 @@ export default async function EmployerAccountPage({ params }: Props) {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("employerArea")} subtitle={t("employerAreaSubtitle")} maxWidthClassName="max-w-3xl">
+    <AuthShell title={t("employerArea")} subtitle={t("employerAreaSubtitle")} maxWidthClassName="max-w-3xl">
           <div className="space-y-10">
             <section className="space-y-4">
               <div>
@@ -81,9 +76,6 @@ export default async function EmployerAccountPage({ params }: Props) {
             </section>
           </div>
         </AuthShell>
-      </main>
-      <Footer />
-    </div>
   );
 }
 

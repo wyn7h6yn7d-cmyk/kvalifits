@@ -1,38 +1,37 @@
 import type { CompanyPageContent } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  companyIdentityLines,
+  companyMissionOperatorSentence,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const companyRU: CompanyPageContent = {
   path: "/ettevote",
-  metaTitle: "Компания",
+  metaTitle: "Платформа",
   metaDescription:
-    "Сведения об операторе платформы Kvalifits — рекрутинг на основе навыков в Эстонии.",
-  h1: "Сведения о компании",
-  lead: "Ключевая информация о платформе Kvalifits.",
-  lastUpdated: "2026-04-13",
+    "О платформе Kvalifits — рекрутинг на основе навыков в Эстонии.",
+  h1: "Платформа",
+  lead: "Kvalifits — платформа рекрутинга на основе навыков. Данные юридического лица будут опубликованы после регистрации.",
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "operaator",
-      title: "Компания",
-      paragraphs: [
-        "Kvalifits OÜ",
-        `Регистрационный код: ${PL.registryCode}`,
-        `Адрес: ${PL.legalAddress}`,
-        "Общий контакт: [email]",
-        "Телефон: [телефон]",
-      ],
+      title: "Оператор",
+      paragraphs: companyIdentityLines("ru"),
     },
     {
       id: "kontakt-ettevote",
       title: "Конфиденциальность",
-      paragraphs: ["Учётная запись или персональные данные: [email]"],
+      paragraphs: [`Учётная запись или персональные данные: ${publicPrivacyContact("ru")}.`],
     },
     {
       id: "eesmark",
       title: "Миссия",
       paragraphs: [
         "Kvalifits стремится снизить шум на рынке труда, делая проверяемые навыки видимыми, проясняя соответствие и поддерживая более справедливый найм. Платформа развивается с учётом отзывов пользователей.",
-        "Kvalifits OÜ разрабатывает и эксплуатирует веб-платформу Kvalifits для рекрутинга на основе навыков в Эстонии, связывая подтверждения соискателей с требованиями работодателей.",
+        companyMissionOperatorSentence("ru"),
       ],
     },
   ],

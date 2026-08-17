@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
@@ -10,6 +9,7 @@ import { portalDurationScale, portalLayerOpacity } from "./portal-tokens";
 
 /**
  * Variant B: abstraktsed kaardi-outline’id + “kontrollitud” markerid.
+ * CSS-only motion so this chunk does not pull Framer Motion.
  */
 export function PortalBackgroundVariantB({
   intensity = "default",
@@ -19,7 +19,6 @@ export function PortalBackgroundVariantB({
   className?: string;
 }) {
   const t = useTranslations("portalDecor");
-  const reduce = useReducedMotion();
   const opacity = portalLayerOpacity(intensity);
   const dur = portalDurationScale(intensity);
 
@@ -35,62 +34,40 @@ export function PortalBackgroundVariantB({
       style={{ opacity }}
     >
       {cards.map((c, i) => (
-        <motion.div
+        <div
           key={i}
           className={cn(
-            "portal-bg-b__card absolute border border-white/[0.16] bg-gradient-to-br from-white/[0.06] to-transparent shadow-[0_0_40px_-12px_rgba(168,85,247,0.15)]",
+            "kf-portal-b-card portal-bg-b__card absolute border border-white/[0.16] bg-gradient-to-br from-white/[0.06] to-transparent",
             c.className,
           )}
-          style={{ animationDelay: `${c.delay}s` }}
-          animate={
-            reduce
-              ? undefined
-              : {
-                  y: [0, -10, 0],
-                  rotate: [-0.45, 0.28, -0.25],
-                }
-          }
-          transition={
-            reduce
-              ? undefined
-              : {
-                  duration: 26 + i * 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }
-          }
+          style={{
+            animationDelay: `${c.delay}s`,
+            animationDuration: `${26 + i * 3}s`,
+          }}
         />
       ))}
 
-      {/* Abstraktne “töökaart” — õhuke riba nagu pealkiri */}
       <div className="pointer-events-none absolute right-[14%] top-[38%] h-[3px] w-[12%] rounded-full bg-white/[0.14]" />
       <div className="pointer-events-none absolute left-[12%] bottom-[30%] h-[3px] w-[9%] rounded-full bg-white/[0.1]" />
 
-      {/* Väikesed “kontrollitud” markerid */}
-      <motion.div
-        className="pointer-events-none absolute right-[22%] top-[48%] flex items-center gap-1 rounded-full border border-white/[0.14] bg-black/35 px-2 py-0.5"
-        animate={reduce ? undefined : { opacity: [0.45, 0.85, 0.45] }}
-        transition={
-          reduce ? undefined : { duration: 14 * dur, repeat: Infinity, ease: "easeInOut" }
-        }
+      <div
+        className="kf-portal-b-pill pointer-events-none absolute right-[22%] top-[48%] flex items-center gap-1 rounded-full border border-white/[0.14] bg-black/35 px-2 py-0.5"
+        style={{ animationDuration: `${14 * dur}s` }}
       >
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/75" />
         <span className="text-[9px] font-medium uppercase tracking-wider text-white/55">
           {t("certPill")}
         </span>
-      </motion.div>
+      </div>
 
-      <motion.div
-        className="pointer-events-none absolute left-[26%] top-[58%] flex items-center gap-1 rounded-full border border-white/[0.12] bg-black/30 px-2 py-0.5"
-        animate={reduce ? undefined : { opacity: [0.38, 0.72, 0.38] }}
-        transition={
-          reduce ? undefined : { duration: 17 * dur, repeat: Infinity, ease: "easeInOut", delay: 3 }
-        }
+      <div
+        className="kf-portal-b-pill pointer-events-none absolute left-[26%] top-[58%] flex items-center gap-1 rounded-full border border-white/[0.12] bg-black/30 px-2 py-0.5"
+        style={{ animationDuration: `${17 * dur}s`, animationDelay: "3s" }}
       >
         <span className="text-[9px] font-medium uppercase tracking-wider text-white/50">
           {t("fitPill")}
         </span>
-      </motion.div>
+      </div>
     </div>
   );
 }

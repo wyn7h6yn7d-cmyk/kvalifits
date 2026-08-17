@@ -1,7 +1,4 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { getTranslations } from "next-intl/server";
 import {
   ArrowUpRight,
   Briefcase,
@@ -13,16 +10,13 @@ import {
 } from "lucide-react";
 
 import { GradientAccentText } from "@/components/site/GradientAccentText";
-import { AmbientBackground } from "@/components/site/AmbientBackground";
-import { PortalBackground } from "@/components/site/portal-background";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
-import { matchingSectionPortal } from "@/lib/site-portal-config";
 import { cn } from "@/lib/utils";
 
-export function Audience() {
-  const t = useTranslations("audience");
+export async function Audience() {
+  const t = await getTranslations("audience");
 
   const seekerSteps = [
     { n: "01", title: t("step1Title"), line: t("step1Line") },
@@ -32,25 +26,6 @@ export function Audience() {
 
   return (
     <section className="relative overflow-hidden bg-surface py-28 sm:py-36 lg:py-40">
-      {/* Same surface as Why — atmosphere via glow only, no elevated color strip */}
-      {matchingSectionPortal.enabled ? (
-        <>
-          <AmbientBackground
-            intensity={matchingSectionPortal.ambientIntensity}
-            className="opacity-70"
-          />
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{ opacity: matchingSectionPortal.opacity }}
-            aria-hidden="true"
-          >
-            <PortalBackground
-              variant={matchingSectionPortal.variant}
-              intensity={matchingSectionPortal.intensity}
-            />
-          </div>
-        </>
-      ) : null}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_85%_20%,rgba(168,85,247,0.08),transparent_55%)]"
@@ -71,15 +46,7 @@ export function Audience() {
         </div>
 
         <div className="mt-20 grid gap-20 lg:mt-28 lg:grid-cols-12 lg:items-start lg:gap-16 xl:gap-20">
-          {/* Open editorial side — seeker */}
-          <motion.div
-            id="toootsijatele"
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="scroll-mt-28 lg:col-span-6"
-          >
+          <div id="toootsijatele" className="kf-enter scroll-mt-28 lg:col-span-6">
             <div className="flex items-center gap-3">
               <UserRound className="h-5 w-5 text-accent-pink/85" strokeWidth={1.6} />
               <div className="text-[11px] font-medium uppercase tracking-wide text-accent-pink/90">
@@ -97,13 +64,10 @@ export function Audience() {
 
             <ol className="mt-12 space-y-11">
               {seekerSteps.map((s, i) => (
-                <motion.li
+                <li
                   key={s.n}
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.4, delay: 0.05 * i }}
-                  className="flex gap-5 sm:gap-6"
+                  className="kf-enter flex gap-5 sm:gap-6"
+                  style={{ animationDelay: `${0.05 * i}s` }}
                 >
                   <span className="mt-0.5 shrink-0 text-[13px] font-medium tabular-nums text-muted-2">
                     {s.n}
@@ -116,7 +80,7 @@ export function Audience() {
                       {s.line}
                     </p>
                   </div>
-                </motion.li>
+                </li>
               ))}
             </ol>
 
@@ -132,21 +96,13 @@ export function Audience() {
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Single meaningful card — employer */}
-          <motion.div
-            id="tooandjatele"
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
-            className="scroll-mt-28 lg:col-span-6 lg:mt-4"
-          >
+          <div id="tooandjatele" className="kf-enter scroll-mt-28 lg:col-span-6 lg:mt-4">
             <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0F0F16]/55 px-6 py-7 sm:px-8 sm:py-9">
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -right-8 top-0 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.12),transparent_70%)] blur-2xl"
+                className="pointer-events-none absolute -right-8 top-0 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.12),transparent_70%)]"
               />
 
               <div className="relative">
@@ -255,7 +211,7 @@ export function Audience() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>

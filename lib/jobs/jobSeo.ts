@@ -4,6 +4,11 @@
  */
 
 import {
+  applyUntilDate,
+  endOfDayTallinnIso,
+  jobAcceptsApplications,
+} from "@/lib/jobs/jobLifecycle";
+import {
   SITE_NAME,
   SITE_ORIGIN,
   absoluteUrl,
@@ -12,6 +17,7 @@ import {
   ogAlternateLocales,
   ogLocaleTag,
 } from "@/lib/seo/site";
+import { safeHttpUrl } from "@/lib/utils";
 
 export const JOB_SEO_SITE_ORIGIN = SITE_ORIGIN;
 export const JOB_SEO_SITE_NAME = SITE_NAME;
@@ -30,6 +36,7 @@ export type JobSeoJobRow = {
   created_at?: string | null;
   published_at?: string | null;
   application_deadline?: string | null;
+  expires_at?: string | null;
   salary_min?: number | null;
   salary_max?: number | null;
   salary_currency?: string | null;
@@ -42,6 +49,7 @@ export type JobSeoEmployerRow = {
   website?: string | null;
   logo_url?: string | null;
   location?: string | null;
+  public_slug?: string | null;
 };
 
 function trimText(v: unknown): string {
@@ -149,11 +157,6 @@ function toIsoDate(v: unknown): string | undefined {
   return d.toISOString();
 }
 
-function toDateOnly(v: unknown): string | undefined {
-  const iso = toIsoDate(v);
-  return iso ? iso.slice(0, 10) : undefined;
-}
-
 /**
  * Google JobPosting JSON-LD. Omits properties that are missing from the listing.
  */
@@ -162,12 +165,14 @@ export function buildJobPostingJsonLd(opts: {
   job: JobSeoJobRow;
   employer: JobSeoEmployerRow | null;
 }): Record<string, unknown> | null {
+  if (!jobAcceptsApplications(opts.job)) return null;
+
   const title = trimText(opts.job.title);
   if (!title) return null;
 
-  const descriptionRaw =
-    stripHtmlish(trimText(opts.job.short_summary)) ||
-    stripHtmlish(trimText(opts.job.description));
+  const summary = stripHtmlish(trimText(opts.job.short_summary));
+  const body = stripHtmlish(trimText(opts.job.description));
+  const descriptionRaw = [summary, body].filter(Boolean).join("\n\n");
   if (!descriptionRaw) return null;
 
   const companyName = trimText(opts.employer?.company_name);
@@ -185,15 +190,17 @@ export function buildJobPostingJsonLd(opts: {
     "@type": "Organization",
     name: companyName,
   };
-  const website = trimText(opts.employer?.website);
+  const publicSlug = trimText(opts.employer?.public_slug);
+  if (publicSlug) {
+    hiringOrganization.url = absoluteUrl(opts.locale, `/ettevotted/${publicSlug}`);
+  }
+  const website = safeHttpUrl(opts.employer?.website);
   if (website) {
     hiringOrganization.sameAs = website;
-    hiringOrganization.url = website;
+    if (!hiringOrganization.url) hiringOrganization.url = website;
   }
-  const logo = trimText(opts.employer?.logo_url);
-  if (logo && (logo.startsWith("http://") || logo.startsWith("https://"))) {
-    hiringOrganization.logo = logo;
-  }
+  const logo = safeHttpUrl(opts.employer?.logo_url);
+  if (logo) hiringOrganization.logo = logo;
 
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -210,16 +217,16 @@ export function buildJobPostingJsonLd(opts: {
     url: jobCanonicalUrl(opts.locale, opts.job.id),
   };
 
-  const validThrough = toIsoDate(opts.job.application_deadline);
-  if (validThrough) jsonLd.validThrough = validThrough;
+  const untilDay = applyUntilDate(opts.job);
+  if (untilDay) jsonLd.validThrough = endOfDayTallinnIso(untilDay);
 
   const employmentType = mapEmploymentType(opts.job.job_type);
   if (employmentType) jsonLd.employmentType = employmentType;
 
   if (isRemote) {
     jsonLd.jobLocationType = "TELECOMMUTE";
-    // Applicant location optional — omit rather than invent.
-  } else if (location) {
+  }
+  if (location) {
     jsonLd.jobLocation = {
       "@type": "Place",
       address: {
@@ -227,7 +234,7 @@ export function buildJobPostingJsonLd(opts: {
         addressLocality: location,
       },
     };
-  } else {
+  } else if (!isRemote) {
     // Google requires jobLocation or TELECOMMUTE — without either, skip structured data.
     return null;
   }

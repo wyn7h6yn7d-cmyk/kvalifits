@@ -125,7 +125,7 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
                     rows={2}
                     maxLength={500}
                     placeholder={t("workplaceNeedOtherNoteHint")}
-                    className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+                    className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
                   />
                   <div className="text-xs text-white/40">{t("workplaceNeedOtherNoteNoMedical")}</div>
                 </div>

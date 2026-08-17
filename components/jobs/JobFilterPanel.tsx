@@ -1,19 +1,83 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
+import { Bone } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 import {
+  FACET_INITIAL_VISIBLE,
+  FACET_SEARCH_MIN_CHARS,
+  isSearchableFacet,
+  visibleFacetOptions,
   type FacetOption,
   type JobFilterFacet,
   type JobFilterSelection,
   selectionKey,
 } from "@/lib/jobs/jobSearchFacets";
 
-const INITIAL_VISIBLE = 6;
+export type FilterGroupConfig = {
+  facet: JobFilterFacet;
+  title: string;
+  options: FacetOption[];
+  optionTotal: number;
+  defaultOpen?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  formatLabel?: (value: string) => string;
+};
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebounced(value), delayMs);
+    return () => window.clearTimeout(id);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+function useRemoteFacetSearch(
+  facet: JobFilterFacet,
+  query: string,
+  keywordQuery: string,
+  enabled: boolean,
+) {
+  const debounced = useDebouncedValue(query.trim(), 280);
+  const [options, setOptions] = useState<FacetOption[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || debounced.length < FACET_SEARCH_MIN_CHARS) {
+      setOptions(null);
+      setLoading(false);
+      return;
+    }
+
+    const ac = new AbortController();
+    setLoading(true);
+    const params = new URLSearchParams({ facet, q: debounced });
+    if (keywordQuery.trim()) params.set("query", keywordQuery.trim());
+
+    void fetch(`/api/jobs/facets?${params.toString()}`, { signal: ac.signal })
+      .then((res) => (res.ok ? res.json() : { options: [] }))
+      .then((data: { options?: FacetOption[] }) => {
+        setOptions(Array.isArray(data.options) ? data.options : []);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setOptions([]);
+      })
+      .finally(() => {
+        if (!ac.signal.aborted) setLoading(false);
+      });
+
+    return () => ac.abort();
+  }, [enabled, facet, debounced, keywordQuery]);
+
+  return { options, loading, debouncedQuery: debounced };
+}
 
 export function FilterCheckboxOption({
   label,
@@ -29,7 +93,7 @@ export function FilterCheckboxOption({
   return (
     <label
       className={cn(
-        "group/opt flex cursor-pointer items-center gap-3 rounded-lg px-1.5 py-1.5 transition-colors duration-150",
+        "group/opt flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-1.5 py-2.5 transition-colors duration-150 lg:min-h-0 lg:py-1.5",
         "hover:bg-white/[0.04]",
         checked ? "bg-white/[0.03]" : "bg-transparent",
       )}
@@ -92,7 +156,7 @@ function FilterGroupShell({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 py-3 text-left"
+        className="flex min-h-11 w-full items-center justify-between gap-2 py-3 text-left lg:min-h-0"
         aria-expanded={open}
       >
         <span className="text-[13px] font-medium text-white/78">{title}</span>
@@ -113,57 +177,53 @@ export function FacetFilterGroup({
   facet,
   title,
   options,
+  optionTotal,
   selections,
   onToggle,
   defaultOpen = false,
   searchable = false,
   searchPlaceholder,
   formatLabel,
-}: {
-  facet: JobFilterFacet;
-  title: string;
-  options: FacetOption[];
+  keywordQuery = "",
+}: FilterGroupConfig & {
   selections: readonly JobFilterSelection[];
   onToggle: (facet: JobFilterFacet, value: string) => void;
-  defaultOpen?: boolean;
-  searchable?: boolean;
-  searchPlaceholder?: string;
-  formatLabel?: (value: string) => string;
+  keywordQuery?: string;
 }) {
   const t = useTranslations("jobsSearch");
   const [expanded, setExpanded] = useState(false);
   const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
+  const remoteEnabled = searchable && isSearchableFacet(facet);
+  const { options: remoteOptions, loading: remoteLoading } = useRemoteFacetSearch(
+    facet,
+    search,
+    keywordQuery,
+    remoteEnabled,
+  );
 
   const selectedForFacet = useMemo(
     () => new Set(selections.filter((s) => s.facet === facet).map((s) => s.value)),
     [selections, facet],
   );
 
-  const filtered = useMemo(() => {
-    const q = deferredSearch.trim().toLowerCase();
-    if (!q) return options;
-    return options.filter((o) => {
-      const label = (formatLabel?.(o.value) ?? o.value).toLowerCase();
-      return label.includes(q) || o.value.toLowerCase().includes(q);
-    });
-  }, [options, deferredSearch, formatLabel]);
+  const visible = useMemo(
+    () =>
+      visibleFacetOptions({
+        catalog: options,
+        selectedValues: selectedForFacet,
+        searchQuery: search,
+        remoteOptions,
+        expanded,
+        searchable,
+        formatLabel,
+      }),
+    [options, selectedForFacet, search, remoteOptions, expanded, searchable, formatLabel],
+  );
 
-  const visible = useMemo(() => {
-    if (searchable && deferredSearch.trim()) {
-      return filtered.slice(0, 40);
-    }
-    if (expanded) return filtered;
-
-    const top = filtered.slice(0, INITIAL_VISIBLE);
-    const topValues = new Set(top.map((o) => o.value));
-    const extras = filtered.filter(
-      (o) => selectedForFacet.has(o.value) && !topValues.has(o.value),
-    );
-    return [...top, ...extras];
-  }, [filtered, expanded, searchable, deferredSearch, selectedForFacet]);
-
-  const canToggleMore = !deferredSearch.trim() && filtered.length > INITIAL_VISIBLE;
+  const unselectedCount = options.filter((o) => !selectedForFacet.has(o.value) && o.count > 0).length;
+  const canShowMore = !search.trim() && !expanded && unselectedCount > FACET_INITIAL_VISIBLE;
+  const remainingHint =
+    searchable && !search.trim() && expanded && optionTotal > visible.length;
 
   if (!options.length && !selectedForFacet.size) return null;
 
@@ -179,7 +239,7 @@ export function FacetFilterGroup({
               setExpanded(false);
             }}
             placeholder={searchPlaceholder ?? t("facetSearchPlaceholder")}
-            className="h-9 rounded-lg border-white/[0.08] bg-white/[0.03] pl-8 text-[13px]"
+            className="h-11 rounded-lg border-white/[0.08] bg-white/[0.03] pl-8 text-base lg:h-9 lg:text-[13px]"
           />
           {search ? (
             <button
@@ -194,7 +254,7 @@ export function FacetFilterGroup({
         </div>
       ) : null}
 
-      <div className="max-h-56 space-y-0.5 overflow-y-auto pr-0.5">
+      <div className="space-y-0.5 pr-0.5">
         {visible.map((o) => (
           <FilterCheckboxOption
             key={`${facet}:${o.value}`}
@@ -204,19 +264,30 @@ export function FacetFilterGroup({
             onToggle={() => onToggle(facet, o.value)}
           />
         ))}
-        {!visible.length ? (
+        {!visible.length && !remoteLoading ? (
           <p className="px-1 py-1 text-[12px] text-white/40">{t("facetNoMatches")}</p>
+        ) : null}
+        {remoteLoading ? (
+          <div className="space-y-1.5 px-1 py-1" aria-busy="true">
+            <Bone className="h-7 w-full rounded-md" />
+            <Bone className="h-7 w-[86%] rounded-md" />
+            <Bone className="h-7 w-[70%] rounded-md" />
+          </div>
         ) : null}
       </div>
 
-      {canToggleMore ? (
+      {canShowMore ? (
         <button
           type="button"
           className="mt-2 px-1 text-[12px] font-medium text-fuchsia-300/80 transition-colors hover:text-fuchsia-200"
-          onClick={() => setExpanded((v) => !v)}
+          onClick={() => setExpanded(true)}
         >
-          {expanded ? t("showLess") : t("showMore")}
+          {t("showMore")}
         </button>
+      ) : null}
+
+      {remainingHint ? (
+        <p className="mt-2 px-1 text-[12px] leading-snug text-white/40">{t("facetSearchToFindMore")}</p>
       ) : null}
     </FilterGroupShell>
   );
@@ -224,54 +295,67 @@ export function FacetFilterGroup({
 
 export function JobFiltersBody({
   groups,
+  moreGroups = [],
   selections,
   onToggle,
   onClear,
+  showHeader = true,
+  keywordQuery = "",
 }: {
-  groups: Array<{
-    facet: JobFilterFacet;
-    title: string;
-    options: FacetOption[];
-    defaultOpen?: boolean;
-    searchable?: boolean;
-    searchPlaceholder?: string;
-    formatLabel?: (value: string) => string;
-  }>;
+  groups: FilterGroupConfig[];
+  moreGroups?: FilterGroupConfig[];
   selections: readonly JobFilterSelection[];
   onToggle: (facet: JobFilterFacet, value: string) => void;
   onClear: () => void;
+  showHeader?: boolean;
+  keywordQuery?: string;
 }) {
   const t = useTranslations("jobsSearch");
+  const activeCount = selections.length;
 
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between gap-2 px-1 pb-2">
-        <div className="text-[13px] font-medium text-white/80">{t("filters")}</div>
-        {selections.length ? (
-          <button
-            type="button"
-            className="text-[12px] text-white/45 transition-colors hover:text-white/75"
-            onClick={onClear}
-          >
-            {t("clearAll")}
-          </button>
-        ) : null}
-      </div>
+      {showHeader ? (
+        <div className="mb-1 flex items-center justify-between gap-2 px-1 pb-2">
+          <div className="text-[13px] font-medium text-white/80">{t("filters")}</div>
+          {activeCount ? (
+            <button
+              type="button"
+              className="text-[12px] text-white/45 transition-colors hover:text-white/75"
+              onClick={onClear}
+            >
+              {t("clearAll")}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       {groups.map((g) => (
         <FacetFilterGroup
           key={g.facet}
-          facet={g.facet}
-          title={g.title}
-          options={g.options}
+          {...g}
           selections={selections}
           onToggle={onToggle}
-          defaultOpen={g.defaultOpen}
-          searchable={g.searchable}
-          searchPlaceholder={g.searchPlaceholder}
-          formatLabel={g.formatLabel}
+          keywordQuery={keywordQuery}
         />
       ))}
+
+      {moreGroups.length ? (
+        <div className="border-t border-white/[0.06] pt-1">
+          <div className="px-1 py-2 text-[11px] font-medium uppercase tracking-wide text-white/42">
+            {t("moreFilters")}
+          </div>
+          {moreGroups.map((g) => (
+            <FacetFilterGroup
+              key={`more-${g.facet}`}
+              {...g}
+              selections={selections}
+              onToggle={onToggle}
+              keywordQuery={keywordQuery}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,12 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  providerParagraph,
+  publicGeneralContact,
+} from "./placeholders";
 
 export const termsEN: LegalDocument = {
   path: "/tingimused",
@@ -8,14 +14,14 @@ export const termsEN: LegalDocument = {
   metaDescription:
     "Rules for using the Kvalifits platform: accounts, roles, liability, changes and contact.",
   h1: "Terms of use",
-  lead: `These terms apply to your use of the Kvalifits website and services provided by ${PL.operatorName}. By using the platform you confirm that you have read and accept these terms. If you do not agree, do not use the service.`,
-  lastUpdated: "2026-04-08",
+  lead: `These terms apply to your use of the Kvalifits website and services operated by ${operatorLeadName("en")}. By using the platform you confirm that you have read and accept these terms. If you do not agree, do not use the service.`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "teenus",
       title: "Service and parties",
       paragraphs: [
-        `Kvalifits is a skills-based recruitment platform. The provider is ${PL.companyName} (${PL.registryCode}), ${PL.legalAddress}. A “user” is any person or legal entity that creates an account or otherwise uses the service.`,
+        providerParagraph("en"),
       ],
     },
     {
@@ -94,9 +100,9 @@ export const termsEN: LegalDocument = {
     {
       id: "kontakt-tingimused",
       title: "Contact",
-      paragraphs: [`Questions: ${PL.emailGeneral}.`],
+      paragraphs: [`Questions: ${publicGeneralContact("en")}.`],
     },
   ],
   footnote:
-    "This is a framework for review. Replace placeholders and obtain legal sign-off before production use.",
+    legalPrelaunchFootnote("en"),
 };

@@ -1,21 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Send } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn, errorMessageFromUnknown } from "@/lib/utils";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { jobMetaFromSharedProfile, seekerApplicationStatusLabelKey } from "@/lib/applications/seekerFacingStatus";
 
 type Row = {
   id: string;
   job_post_id: string;
   created_at: string | null;
   updated_at: string | null;
+  status_updated_at?: string | null;
   status: string | null;
   shared_profile: unknown;
 };
@@ -27,28 +29,6 @@ function fmtDate(locale: string, iso: string | null) {
   } catch {
     return iso.slice(0, 10);
   }
-}
-
-function jobFromShared(sp: unknown) {
-  const job = (sp as any)?.job ?? {};
-  const employer = (sp as any)?.employer ?? {};
-  return {
-    jobTitle: (job.title ?? "").toString().trim() || "—",
-    employerName: (employer.company_name ?? "").toString().trim() || "—",
-    jobId: (job.id ?? "").toString().trim() || "",
-  };
-}
-
-/** Seeker-facing status only — never exposes employer pipeline nuance beyond these labels. */
-function statusLabelKey(status: string | null | undefined) {
-  const v = (status ?? "").toString().trim().toLowerCase();
-  if (v === "rejected" || v === "withdrawn") return "seekerApplicationStatus_processEnded";
-  if (v === "hired") return "seekerApplicationStatus_hired";
-  if (v === "offer") return "seekerApplicationStatus_offer";
-  if (v === "interview" || v === "interview_2") return "seekerApplicationStatus_interview";
-  if (v === "reviewing") return "seekerApplicationStatus_reviewing";
-  // new / submitted / empty
-  return "seekerApplicationStatus_sent";
 }
 
 function statusTone(status: string | null | undefined) {
@@ -109,10 +89,36 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
 
       const { data: check, error: checkErr } = await supabase
         .from("job_applications")
-        .select("status,updated_at")
+        .select("status,updated_at,status_updated_at")
         .eq("id", id)
         .eq("seeker_user_id", user.id)
         .maybeSingle();
+      if (checkErr && /status_updated_at|column/i.test(checkErr.message ?? "")) {
+        const fallback = await supabase
+          .from("job_applications")
+          .select("status,updated_at")
+          .eq("id", id)
+          .eq("seeker_user_id", user.id)
+          .maybeSingle();
+        if (fallback.error) throw fallback.error;
+        if ((fallback.data?.status ?? "").toString().toLowerCase() !== "withdrawn") {
+          throw new Error(t("seekerWithdrawPolicyFixHint"));
+        }
+        setRows((prev) =>
+          prev.map((r) =>
+            r.id === id
+              ? {
+                  ...r,
+                  status: "withdrawn",
+                  updated_at: (fallback.data?.updated_at as string | null) ?? now,
+                  status_updated_at: now,
+                }
+              : r
+          )
+        );
+        router.refresh();
+        return;
+      }
       if (checkErr) throw checkErr;
       if ((check?.status ?? "").toString().toLowerCase() !== "withdrawn") {
         throw new Error(t("seekerWithdrawPolicyFixHint"));
@@ -121,7 +127,12 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
       setRows((prev) =>
         prev.map((r) =>
           r.id === id
-            ? { ...r, status: "withdrawn", updated_at: (check?.updated_at as string | null) ?? now }
+            ? {
+                ...r,
+                status: "withdrawn",
+                updated_at: (check?.updated_at as string | null) ?? now,
+                status_updated_at: (check?.status_updated_at as string | null) ?? now,
+              }
             : r
         )
       );
@@ -135,15 +146,15 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
 
   if (!rows.length) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] px-6 py-10 text-center sm:px-8">
-        <div className="text-sm font-medium text-white/85">{t("seekerNoApplicationsTitle")}</div>
-        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/55">{t("seekerNoApplicationsBody")}</p>
-        <div className="mt-5">
-          <Link href="/tood" className="text-sm font-medium text-white/80 underline hover:text-white">
-            {t("seekerNoApplicationsCta")}
-          </Link>
-        </div>
-      </div>
+      <EmptyState
+        icon={Send}
+        title={t("seekerNoApplicationsTitle")}
+        actions={
+          <Button asChild variant="primary" size="sm">
+            <Link href="/account/seeker/matches">{t("seekerNoApplicationsCta")}</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -157,9 +168,9 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
 
       <ul className="list-none space-y-3 p-0">
         {rows.map((r) => {
-          const meta = jobFromShared(r.shared_profile);
+          const meta = jobMetaFromSharedProfile(r.shared_profile);
           const applied = fmtDate(locale, r.created_at);
-          const updated = fmtDate(locale, r.updated_at ?? r.created_at);
+          const updated = fmtDate(locale, r.status_updated_at ?? r.updated_at ?? r.created_at);
           const closed = isClosed(r.status);
           const canWithdraw = !closed && (r.status ?? "").toString().toLowerCase() !== "withdrawn";
 
@@ -193,7 +204,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                         statusTone(r.status)
                       )}
                     >
-                      {t(statusLabelKey(r.status))}
+                      {t(seekerApplicationStatusLabelKey(r.status))}
                     </span>
                   </div>
                 </div>
@@ -217,7 +228,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                   {meta.jobId ? (
                     <Link
                       href={`/tood/${meta.jobId}`}
-                      className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05]"
+                      className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05] lg:h-9"
                     >
                       {t("seekerViewJob")} <ChevronRight className="h-4 w-4" aria-hidden />
                     </Link>
@@ -228,7 +239,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                       type="button"
                       onClick={() => void withdraw(r.id)}
                       className={cn(
-                        "h-9 rounded-xl px-3 text-[13px] font-medium transition-colors",
+                        "h-11 rounded-xl px-3 text-[13px] font-medium transition-colors lg:h-9",
                         "border-white/[0.10] bg-white/[0.03] text-rose-100/75 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-100/90",
                         busyId === r.id && "opacity-60"
                       )}

@@ -1,38 +1,37 @@
 import type { CompanyPageContent } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  companyIdentityLines,
+  companyMissionOperatorSentence,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const companyEN: CompanyPageContent = {
   path: "/ettevote",
-  metaTitle: "Company",
+  metaTitle: "Platform",
   metaDescription:
-    "Operator information for the Kvalifits platform — skills-based recruitment in Estonia.",
-  h1: "Company information",
-  lead: "Key information about the Kvalifits platform.",
-  lastUpdated: "2026-04-13",
+    "About the Kvalifits platform — skills-based recruitment in Estonia.",
+  h1: "Platform",
+  lead: "Kvalifits is a skills-based recruitment platform. Registered company details will be published after the legal entity is created.",
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "operaator",
-      title: "Company",
-      paragraphs: [
-        "Kvalifits OÜ",
-        `Registry code: ${PL.registryCode}`,
-        `Address: ${PL.legalAddress}`,
-        "General contact: [email]",
-        "Phone: [phone]",
-      ],
+      title: "Operator",
+      paragraphs: companyIdentityLines("en"),
     },
     {
       id: "kontakt-ettevote",
       title: "Privacy",
-      paragraphs: ["Account or personal data: [email]"],
+      paragraphs: [`Account or personal data: ${publicPrivacyContact("en")}.`],
     },
     {
       id: "eesmark",
       title: "Mission",
       paragraphs: [
         "Kvalifits aims to reduce noise in the labour market by making verifiable skills visible, clarifying fit, and supporting fairer hiring. The platform evolves with user feedback.",
-        "Kvalifits OÜ develops and operates the Kvalifits web platform for skills-based recruitment in Estonia, connecting job seekers’ evidence and employers’ requirements.",
+        companyMissionOperatorSentence("en"),
       ],
     },
   ],

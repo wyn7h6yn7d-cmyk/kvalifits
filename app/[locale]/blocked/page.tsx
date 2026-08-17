@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { Link } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -15,11 +16,15 @@ export default async function BlockedPage({ params }: Props) {
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
         <AuthShell title={t("accessBlockedTitle")} subtitle={t("accessBlockedSubtitle")}>
-          <div className="text-sm text-white/70">{t("accessBlockedBody")}</div>
+          <div className="space-y-4 text-sm text-white/70">
+            <p>{t("accessBlockedBody")}</p>
+            <Link href="/kontakt" className="text-white/90 underline decoration-white/25 underline-offset-2 hover:decoration-white/50">
+              {t("accessBlockedContactCta")}
+            </Link>
+          </div>
         </AuthShell>
       </main>
       <Footer />
     </div>
   );
 }
-

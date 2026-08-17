@@ -116,7 +116,7 @@ async function buildRetentionSnapshots(
 
   const { data: apps } = await admin
     .from("job_applications")
-    .select("id,job_post_id,created_at,employer_status")
+    .select("id,job_post_id,created_at,status")
     .eq("seeker_user_id", userId);
 
   if (apps?.length) {
@@ -129,7 +129,7 @@ async function buildRetentionSnapshots(
           applicationId: a.id,
           jobPostId: a.job_post_id,
           createdAt: a.created_at,
-          employerStatus: a.employer_status ?? null,
+          status: a.status ?? null,
         })),
       },
     });
@@ -243,6 +243,12 @@ async function erasePersonalData(
     })
     .eq("seeker_user_id", userId);
   erased.push("applications_personal");
+
+  const savedDel = await admin.from("saved_jobs").delete().eq("seeker_user_id", userId);
+  if (!savedDel.error) erased.push("saved_jobs");
+
+  const savedSearchDel = await admin.from("saved_job_searches").delete().eq("seeker_user_id", userId);
+  if (!savedSearchDel.error) erased.push("saved_job_searches");
 
   await admin.from("seeker_profiles").delete().eq("user_id", userId);
   erased.push("profile");

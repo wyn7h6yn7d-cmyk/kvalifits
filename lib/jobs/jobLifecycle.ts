@@ -92,6 +92,17 @@ export function formatApplyUntilLabel(
   return t("jobApplyUntil", { date: formatted });
 }
 
+/** Whole calendar days from today (Tallinn) until `raw`. Negative = already past. */
+export function daysUntilCalendarDate(raw: string | null | undefined, asOf: Date = new Date()): number | null {
+  const day = toCalendarDate(raw);
+  if (!day) return null;
+  const today = calendarDateInTallinn(asOf);
+  const start = Date.parse(`${today}T00:00:00Z`);
+  const end = Date.parse(`${day}T00:00:00Z`);
+  if (Number.isNaN(start) || Number.isNaN(end)) return null;
+  return Math.round((end - start) / (24 * 60 * 60 * 1000));
+}
+
 /** Add N calendar days to a YYYY-MM-DD (UTC date arithmetic on the calendar parts). */
 export function addCalendarDays(ymd: string, days: number): string {
   const [y, m, d] = ymd.split("-").map(Number);

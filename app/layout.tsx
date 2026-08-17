@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import { ConsentedAnalytics } from "@/components/cookies/ConsentedAnalytics";
+import { SEO_DEFAULT_LOCALE } from "@/lib/seo/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,14 +22,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let locale: string = SEO_DEFAULT_LOCALE;
+  try {
+    locale = await getLocale();
+  } catch {
+    // Root layout can render before the locale segment is resolved.
+  }
   return (
     <html
-      lang="et"
+      lang={locale}
       suppressHydrationWarning
       className={`${geistSans.variable} h-full font-sans antialiased overflow-x-hidden`}
     >

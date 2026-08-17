@@ -81,7 +81,7 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
                 type="button"
                 onClick={() => onFilterChange(s)}
                 className={cn(
-                  "min-w-[5.5rem] rounded-2xl border px-2.5 py-2 text-left transition-colors",
+                  "min-h-11 min-w-[5.75rem] rounded-2xl border px-2.5 py-2 text-left transition-colors",
                   stageTone(s, filter === s)
                 )}
               >
@@ -108,7 +108,7 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
               type="button"
               onClick={() => onFilterChange(s)}
               className={cn(
-                "rounded-2xl border px-3 py-2 text-left transition-colors",
+                "min-h-11 rounded-2xl border px-3 py-2 text-left transition-colors",
                 stageTone(s, filter === s)
               )}
             >

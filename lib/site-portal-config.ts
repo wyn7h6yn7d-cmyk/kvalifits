@@ -21,7 +21,7 @@ export const matchingSectionPortal: {
   ambientIntensity: "soft" | "default" | "strong";
   opacity: number;
 } = {
-  enabled: true,
+  enabled: false,
   variant: "a",
   intensity: "soft",
   ambientIntensity: "soft",
@@ -36,7 +36,7 @@ export const ctaSectionPortal: {
   ambientIntensity: "soft" | "default" | "strong";
   opacity: number;
 } = {
-  enabled: true,
+  enabled: false,
   variant: "a",
   intensity: "soft",
   ambientIntensity: "soft",

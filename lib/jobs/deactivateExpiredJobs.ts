@@ -3,8 +3,16 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 /**
  * Mark published jobs with past expires_at as archived (inactive).
  * Does not delete rows. Safe no-op without service role.
+ * Throttled per isolate so listing pages do not issue an admin UPDATE on every request.
  */
+let lastDeactivateAt = 0;
+const DEACTIVATE_THROTTLE_MS = 60_000;
+
 export async function deactivateExpiredJobPosts(): Promise<number> {
+  const now = Date.now();
+  if (now - lastDeactivateAt < DEACTIVATE_THROTTLE_MS) return 0;
+  lastDeactivateAt = now;
+
   const admin = createSupabaseAdminClient();
   if (!admin) return 0;
 

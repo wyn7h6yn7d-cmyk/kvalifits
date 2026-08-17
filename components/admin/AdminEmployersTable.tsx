@@ -12,6 +12,7 @@ import {
 } from "@/lib/employer/companyVerification";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
+import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
 export type AdminEmployerRow = {
@@ -107,6 +108,14 @@ export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow
           >
             <div className="min-w-0">
               <div className="text-sm font-medium text-white/88">{name}</div>
+              <div className="mt-2">
+                <CompanyVerificationBadge
+                  status={parseEmployerCompanyVerificationStatus(e.verification_status)}
+                  statusLine={t(
+                    `companyVerificationStatus.${parseEmployerCompanyVerificationStatus(e.verification_status)}`,
+                  )}
+                />
+              </div>
               <div className="mt-1 text-xs text-white/55">
                 {(e.registry_code ?? "").toString().trim() || "—"}
                 {e.contact_email ? ` · ${e.contact_email}` : ""}

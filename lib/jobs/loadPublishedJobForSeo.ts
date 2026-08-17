@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { JobSeoEmployerRow, JobSeoJobRow } from "@/lib/jobs/jobSeo";
 
@@ -11,12 +10,15 @@ const SELECT_LEGACY =
 const SELECT_MIN =
   "id,title,location,job_type,work_type,short_summary,description,employer_profile_id,status,created_at";
 
+const EMPLOYER_SELECT_FULL = "company_name,website,logo_url,location,public_slug";
+const EMPLOYER_SELECT_LEGACY = "company_name,website,logo_url,location";
+
 /**
- * Load a published job + employer fields needed for SEO / JobPosting.
- * Returns null when missing or not published.
+ * Load a public job + employer fields for SEO (published, or archived public history).
+ * Returns null when missing or not a public listing. Indexability is decided by the caller.
  */
 export async function loadPublishedJobForSeo(jobId: string): Promise<{
-  job: JobSeoJobRow & { employer_profile_id?: string | null; expires_at?: string | null };
+  job: JobSeoJobRow & { employer_profile_id?: string | null };
   employer: JobSeoEmployerRow | null;
 } | null> {
   const supabase = await createSupabaseServerClient();
@@ -42,17 +44,30 @@ export async function loadPublishedJobForSeo(jobId: string): Promise<{
     jobRaw = min.data as typeof jobRaw;
   }
 
-  const job = jobRaw as (JobSeoJobRow & { employer_profile_id?: string | null; status?: string }) | null;
-  if (!job || (job.status as string) !== "published") return null;
+  const job = jobRaw as (JobSeoJobRow & { employer_profile_id?: string | null }) | null;
+  if (!job) return null;
+  const status = (job.status ?? "").toString();
+  const isPublicListing = status === "published";
+  const isArchivedPublicHistory = status === "archived" && Boolean(job.published_at);
+  if (!isPublicListing && !isArchivedPublicHistory) return null;
 
   let employer: JobSeoEmployerRow | null = null;
   if (job.employer_profile_id) {
-    const { data } = await supabase
+    const withSlug = await supabase
       .from("employer_profiles")
-      .select("company_name,website,logo_url,location")
+      .select(EMPLOYER_SELECT_FULL)
       .eq("id", job.employer_profile_id)
       .maybeSingle();
-    employer = (data as JobSeoEmployerRow | null) ?? null;
+    if (withSlug.error && /public_slug|column/i.test(withSlug.error.message ?? "")) {
+      const fallback = await supabase
+        .from("employer_profiles")
+        .select(EMPLOYER_SELECT_LEGACY)
+        .eq("id", job.employer_profile_id)
+        .maybeSingle();
+      employer = (fallback.data as JobSeoEmployerRow | null) ?? null;
+    } else {
+      employer = (withSlug.data as JobSeoEmployerRow | null) ?? null;
+    }
   }
 
   return { job, employer };

@@ -1,6 +1,13 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  dataRequestHowTo,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  publicGeneralContact,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const dataRightsRU: LegalDocument = {
   path: "/andmekaitse",
@@ -8,8 +15,8 @@ export const dataRightsRU: LegalDocument = {
   metaDescription:
     "Как запросить доступ, исправление или удаление ваших данных на Kvalifits. Сроки ответа и контакты.",
   h1: "Права субъекта данных и удаление",
-  lead: `На этой странице объяснено, как реализовать ваши права в отношении персональных данных, обрабатываемых в Kvalifits компанией ${PL.operatorName}.`,
-  lastUpdated: "2026-04-08",
+  lead: `На этой странице объяснено, как реализовать ваши права в отношении персональных данных, обрабатываемых в сервисе Kvalifits (${operatorLeadName("ru")}).`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "oigused-ulevaade",
@@ -29,7 +36,7 @@ export const dataRightsRU: LegalDocument = {
       id: "kuidas-taotleda",
       title: "Как подать запрос",
       paragraphs: [
-        `Напишите на ${PL.emailPrivacy} с темой «Запрос по защите данных» или воспользуйтесь формой на /ru/kontakt.`,
+        dataRequestHowTo("ru"),
         "Укажите имя, электронную почту учётной записи, тип запроса (копия, исправление, удаление и т. д.) и сведения, нужные для проверки личности. Мы можем запросить подтверждение, чтобы защитить ваши данные от мошеннических запросов.",
       ],
     },
@@ -58,8 +65,8 @@ export const dataRightsRU: LegalDocument = {
     {
       id: "kontakt",
       title: "Контакты",
-      paragraphs: [`Запросы по данным: ${PL.emailPrivacy}. Общие вопросы: ${PL.emailGeneral}.`],
+      paragraphs: [`Запросы по данным: ${publicPrivacyContact("ru")}. Общие вопросы: ${publicGeneralContact("ru")}.`],
     },
   ],
-  footnote: "Процедуры должны соответствовать вашей технической настройке и юридической проверке.",
+  footnote: legalPrelaunchFootnote("ru"),
 };

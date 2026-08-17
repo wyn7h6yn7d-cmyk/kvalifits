@@ -22,6 +22,10 @@ import {
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  CertificateStatusBlock,
+  certificateViewLabelsFromT,
+} from "@/components/seeker/CertificateVerificationBadge";
 import { SeekerExperienceBackgroundFields } from "@/components/seeker/SeekerExperienceBackgroundFields";
 import {
   emptyExperienceBackgroundFormValue,
@@ -597,7 +601,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
           onChange={(e) => setAbout(e.target.value)}
           required
           rows={4}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
       </div>
 
@@ -612,7 +616,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
               setExperienceLevel(e.target.value as (typeof EXPERIENCE_LEVEL_VALUES)[number] | "")
             }
             required
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="">{t("experienceLevelPlaceholder")}</option>
             {EXPERIENCE_LEVEL_VALUES.map((v) => (
@@ -702,7 +706,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
             onChange={(e) => setWorkAuthNotes(e.target.value)}
             rows={2}
             placeholder={t("workAuthorizationHint")}
-            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           />
         </div>
       </div>
@@ -751,9 +755,23 @@ export function SeekerOnboardingForm({ locale }: Props) {
         <div className="mt-4 space-y-6">
           {certificates.map((c, idx) => (
             <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="text-xs font-medium tracking-wide text-white/55">
-                  {t("certificate")} #{idx + 1}
+              <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 space-y-1.5">
+                  <div className="text-xs font-medium tracking-wide text-white/55">
+                    {t("certificate")} #{idx + 1}
+                  </div>
+                  <CertificateStatusBlock
+                    name={(c.certificate_name ?? "").trim() || null}
+                    fields={{
+                      verification_status: "submitted",
+                      verified_at: null,
+                      verification_source: null,
+                      certificate_valid_until: c.certificate_valid_until || null,
+                      certificate_issuer: c.certificate_issuer || null,
+                    }}
+                    labels={certificateViewLabelsFromT((key, values) => t(key, values))}
+                    locale={locale}
+                  />
                 </div>
                 {certificates.length > 1 ? (
                   <button

@@ -10,31 +10,37 @@ export function Logo({
   className,
   imageClassName,
   variant = "wordmark",
+  priority = false,
 }: {
   className?: string;
   /** Näiteks päises kompaktsem kõrgus */
   imageClassName?: string;
   variant?: "wordmark" | "icon";
+  /** Set true only for the header mark (LCP). Footer stays lazy. */
+  priority?: boolean;
 }) {
   const t = useTranslations("nav");
+  const isIcon = variant === "icon";
 
   return (
     <Link
       href="/"
-      aria-label={`${t("home")} — Kvalifits`}
+      aria-label={t("brandHome")}
       className={cn("inline-flex items-center gap-3", className)}
     >
       <Image
         className={cn("block object-contain object-left", imageClassName)}
         src={
-          variant === "icon"
+          isIcon
             ? "/brand/kvalifits-mark-transparent.png"
             : "/brand/kvalifits-wordmark-transparent.png"
         }
-        alt={variant === "icon" ? "Kvalifits" : "Kvalifits"}
-        width={variant === "icon" ? 52 : 200}
-        height={variant === "icon" ? 52 : 42}
-        priority
+        alt="Kvalifits"
+        width={isIcon ? 52 : 200}
+        height={isIcon ? 52 : 42}
+        sizes={isIcon ? "52px" : "(max-width: 640px) 112px, 168px"}
+        quality={75}
+        priority={priority}
       />
     </Link>
   );

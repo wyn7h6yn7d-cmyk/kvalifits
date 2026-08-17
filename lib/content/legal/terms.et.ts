@@ -1,6 +1,12 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  providerParagraph,
+  publicGeneralContact,
+} from "./placeholders";
 
 export const termsET: LegalDocument = {
   path: "/tingimused",
@@ -8,14 +14,14 @@ export const termsET: LegalDocument = {
   metaDescription:
     "Kvalifitsi platvormi kasutamise reeglid: kontod, rollid, vastutus, teenuse muutmine ja kontakt.",
   h1: "Kasutustingimused",
-  lead: `Need tingimused kehtivad veebiplatvormi Kvalifits kasutamisele, mida pakub ${PL.operatorName}. Platvormi kasutades kinnitad, et oled tingimustega tutvunud ja nõustud nendega. Kui ei nõustu, ära kasuta teenust.`,
-  lastUpdated: "2026-04-08",
+  lead: `Need tingimused kehtivad veebiplatvormi Kvalifits kasutamisele, mida haldab ${operatorLeadName("et")}. Platvormi kasutades kinnitad, et oled tingimustega tutvunud ja nõustud nendega. Kui ei nõustu, ära kasuta teenust.`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "teenus",
       title: "Teenus ja lepingupooled",
       paragraphs: [
-        `Kvalifits on pädevuspõhine töövahenduse platvorm. Teenuse pakkuja on ${PL.companyName} (${PL.registryCode}), ${PL.legalAddress}. Kasutaja on iga isik või juriidiline isik, kes loob konto või muul viisil teenust kasutab.`,
+        providerParagraph("et"),
       ],
     },
     {
@@ -95,10 +101,10 @@ export const termsET: LegalDocument = {
       id: "kontakt-tingimused",
       title: "Kontakt",
       paragraphs: [
-        `Küsimuste korral: ${PL.emailGeneral}.`,
+        `Küsimuste korral kasuta ${publicGeneralContact("et")}.`,
       ],
     },
   ],
   footnote:
-    "Need tingimused on üldine raamistik. Enne tootmiskasutust peaks lõpliku versiooni kinnitama jurist ning täitma ettevõtte identiteedi väljad.",
+    legalPrelaunchFootnote("et"),
 };

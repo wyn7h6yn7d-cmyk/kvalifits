@@ -272,7 +272,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           <select
             value={workType}
             onChange={(e) => setWorkType(e.target.value)}
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="on_site">{t("workTypeOnSite")}</option>
             <option value="hybrid">{t("workTypeHybrid")}</option>
@@ -284,7 +284,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           <select
             value={jobType}
             onChange={(e) => setJobType(e.target.value)}
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="full_time">{t("jobTypeFullTime")}</option>
             <option value="part_time">{t("jobTypePartTime")}</option>
@@ -305,7 +305,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           onChange={(e) => setShortSummary(e.target.value)}
           rows={2}
           required
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           placeholder={t("summaryPlaceholder")}
         />
         <div className="text-xs text-white/45">{t("jobFieldGuideSummary")}</div>
@@ -318,7 +318,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           onChange={(e) => setDescription(e.target.value)}
           required
           rows={6}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
         <div className="text-xs text-white/45">{t("jobFieldGuideDescription")}</div>
       </div>
@@ -344,7 +344,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
               setExperienceLevelRequired(e.target.value as (typeof JOB_EXPERIENCE_LEVEL_VALUES)[number] | "")
             }
             required
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="">{tOnb("experienceLevelPlaceholder")}</option>
             {JOB_EXPERIENCE_LEVEL_VALUES.map((v) => (
@@ -369,7 +369,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           onChange={(e) => setCertificateRequirements(e.target.value)}
           rows={2}
           placeholder={t("jobCertRequirementsPlaceholder")}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
         <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
       </div>

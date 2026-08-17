@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 
 import type { PortalIntensity } from "./portal-tokens";
@@ -42,13 +40,6 @@ export function PortalBackgroundVariantA({
             <stop offset="50%" stopColor="rgba(227,31,141,0.38)" />
             <stop offset="100%" stopColor="rgba(168,85,247,0.48)" />
           </linearGradient>
-          <filter id="portal-soft-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.4" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
         <g className="portal-bg-a--lines">
@@ -90,7 +81,7 @@ export function PortalBackgroundVariantA({
           />
         </g>
 
-        <g filter="url(#portal-soft-glow)">
+        <g>
           <circle
             cx="140"
             cy="360"

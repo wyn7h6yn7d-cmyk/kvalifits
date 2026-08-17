@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
 import type { ContactBlock, ContactPageContent } from "@/lib/content/legal";
-import { PL } from "@/lib/content/legal";
+import { contactFormMailto } from "@/lib/content/legal";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
@@ -163,7 +163,7 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
           <aside className="flex min-h-0 h-full min-w-0 flex-col">
             <ContactForm
               form={content.form}
-              mailTo={content.formMailTo ?? PL.emailGeneral}
+              mailTo={content.formMailTo ?? contactFormMailto()}
               className="min-h-0 flex-1 flex-col"
             />
           </aside>

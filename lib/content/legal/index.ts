@@ -25,7 +25,12 @@ export type {
   LegalSection,
 } from "./types";
 export { LEGAL_DOC_PATHS, legalPathForLocale, type LegalDocId } from "./types";
-export { PL } from "./placeholders";
+export {
+  LAUNCH_OPERATOR,
+  PLATFORM_NAME,
+  contactFormMailto,
+  isLegalEntityRegistered,
+} from "./placeholders";
 
 const privacyByLocale: Record<LegalLocale, LegalDocument> = {
   et: privacyET,

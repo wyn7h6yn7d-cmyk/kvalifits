@@ -1,6 +1,13 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  controllerParagraph,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  publicGeneralContact,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const privacyET: LegalDocument = {
   path: "/privaatsus",
@@ -8,14 +15,14 @@ export const privacyET: LegalDocument = {
   metaDescription:
     "Kuidas Kvalifits isikuandmeid kogub, kasutab ja kaitseb. Kasutaja õigused, küpsised ja kontakt.",
   h1: "Privaatsuspoliitika",
-  lead: `Käesolev dokument kirjeldab, kuidas ${PL.operatorName} (edaspidi „meie“ või „platvorm“) töötleb isikuandmeid teenuses Kvalifits. Me võtame privaatsust tõsiselt ja töötleme andmeid kooskõlas kehtiva isikuandmete kaitse seadusega ning Euroopa Liidu üldmäärusega (GDPR), kui see rakendub.`,
-  lastUpdated: "2026-04-08",
+  lead: `Käesolev dokument kirjeldab, kuidas ${operatorLeadName("et")} (edaspidi „meie“ või „platvorm“) töötleb isikuandmeid teenuses Kvalifits. Me võtame privaatsust tõsiselt ja töötleme andmeid kooskõlas kehtiva isikuandmete kaitse seadusega ning Euroopa Liidu üldmäärusega (GDPR), kui see rakendub.`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "andmekaitse",
       title: "Andmekaitse eesmärk ja vastutav töötleja",
       paragraphs: [
-        `Vastutavaks töötlejaks on ${PL.companyName}, registrikood ${PL.registryCode}, asukoht ${PL.legalAddress}. Andmekaitse ja privaatsusküsimustes võid ühendust võtta aadressil ${PL.emailPrivacy}.`,
+        controllerParagraph("et"),
         "Kui oled EL-is asuv isik, on sul GDPR-ist tulenevad õigused, sealhulgas õigus tutvuda oma andmetega, nõuda parandamist või kustutamist ning esitada kaebus Andmekaitse Inspektsioonile.",
       ],
     },
@@ -87,8 +94,8 @@ export const privacyET: LegalDocument = {
       title: "Sinu õigused",
       paragraphs: [
         "Sul on õigus tutvuda oma isikuandmetega, nõuda nende parandamist või kustutamist (tingimustel, mida piirab seadus), piirata töötlust, esitada vastuväiteid töötlusele õigustatud huvi alusel ning kui töötlus põhineb nõusolekul — nõusolek tagasi võtta.",
-        "Täpsemad juhised, kuidas taotleda koopiaid, kustutamist või muudatust, leiad lehelt „Andmesubjekti õigused ja kustutamine“ (/andmekaitse). Taotluse võid saata aadressile " +
-          PL.emailPrivacy +
+        "Täpsemad juhised, kuidas taotleda koopiaid, kustutamist või muudatust, leiad lehelt „Andmesubjekti õigused ja kustutamine“ (/andmekaitse). Taotluse võid esitada " +
+          publicPrivacyContact("et") +
           ".",
       ],
     },
@@ -117,10 +124,10 @@ export const privacyET: LegalDocument = {
       id: "kontakt",
       title: "Kontakt",
       paragraphs: [
-        `Privaatsus- ja andmekaitseküsimustes: ${PL.emailPrivacy}. Üldkontakt: ${PL.emailGeneral}.`,
+        `Privaatsus- ja andmekaitseküsimustes: ${publicPrivacyContact("et")}. Üldkontakt: ${publicGeneralContact("et")}.`,
       ],
     },
   ],
   footnote:
-    "See dokument on ettevalmistatud üldiseks teabeks ja ei asenda individuaalset õigusnõustamist. Enne avalikku kasutamist peaks teksti üle vaatama jurist ning täitma kõik kohustuslikud ettevõtteandmed.",
+    legalPrelaunchFootnote("et"),
 };

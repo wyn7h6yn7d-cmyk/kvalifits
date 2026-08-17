@@ -103,7 +103,7 @@ export function SeekerBirthDateFields({
               onLearningObligationChange(e.target.value as LearningObligationStatus | "")
             }
             required
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="">{t("learningObligationPlaceholder")}</option>
             {LEARNING_OBLIGATION_VALUES.map((v) => (
@@ -143,7 +143,7 @@ export function SeekerBirthDateFields({
                     onLegalRepresentativeConsentChange(v);
                   }
                 }}
-                className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+                className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
               >
                 {LEGAL_REPRESENTATIVE_CONSENT_SEEKER_EDITABLE.map((v) => (
                   <option key={v} value={v}>

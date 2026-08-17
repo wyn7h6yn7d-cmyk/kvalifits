@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { Flag } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import {
@@ -13,9 +14,10 @@ import { cn } from "@/lib/utils";
 type Props = {
   jobPostId: string;
   className?: string;
+  variant?: "link" | "toolbar";
 };
 
-export function JobPostReportLink({ jobPostId, className }: Props) {
+export function JobPostReportLink({ jobPostId, className, variant = "link" }: Props) {
   const t = useTranslations("jobs");
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<JobPostReportReason | "">("");
@@ -84,9 +86,14 @@ export function JobPostReportLink({ jobPostId, className }: Props) {
           setDone(false);
           setError(null);
         }}
-        className="text-sm font-medium text-white/50 underline-offset-4 transition-colors hover:text-white/75 hover:underline"
+        className={
+          variant === "toolbar"
+            ? "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/55 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white/85 lg:h-9"
+            : "text-sm font-medium text-white/50 underline-offset-4 transition-colors hover:text-white/75 hover:underline"
+        }
       >
-        {t("jobReportLink")}
+        {variant === "toolbar" ? <Flag className="h-4 w-4" aria-hidden /> : null}
+        {variant === "toolbar" ? t("jobDetailReportCta") : t("jobReportLink")}
       </button>
 
       {open ? (

@@ -1,5 +1,5 @@
 import type { LegalDocument, LegalLocale } from "@/lib/content/legal/types";
-import { PL } from "@/lib/content/legal/placeholders";
+import { LEGAL_COPY_UPDATED, operatorLeadName, publicPrivacyContact } from "@/lib/content/legal/placeholders";
 import {
   COOKIE_CATEGORY_META,
   COOKIE_CONSENT_VERSION,
@@ -44,7 +44,7 @@ const chrome: Record<
     metaDescription:
       "Milliseid küpsiseid ja sarnaseid tehnoloogiaid Kvalifits tegelikult kasutab ning kuidas nõusolekut hallata.",
     h1: "Küpsiste poliitika",
-    lead: `See poliitika kirjeldab ${PL.operatorName} tegelikku küpsiste ja sarnaste tehnoloogiate kasutust platvormil Kvalifits. Isikuandmete töötlemine: privaatsuspoliitika (/privaatsus).`,
+    lead: `See poliitika kirjeldab, kuidas ${operatorLeadName("et")} kasutab küpsiseid ja sarnaseid tehnoloogiaid platvormil Kvalifits. Isikuandmete töötlemine: privaatsuspoliitika (/privaatsus).`,
     whatTitle: "Mis on küpsised",
     whatBody:
       "Küpsis on väike tekstifail, mille brauser võib seadmesse salvestada. Kasutame ka sarnaseid tehnoloogiaid (nt kohalik salvesti või analüütikaskriptid), mida käsitleme siin samas poliitikas.",
@@ -59,7 +59,7 @@ const chrome: Record<
     privacyTitle: "Seos privaatsuspoliitikaga",
     privacyBody:
       "Isikuandmete töötlemine on kirjeldatud privaatsuspoliitikas (/privaatsus). Küsimused: " +
-      PL.emailPrivacy +
+      publicPrivacyContact("et") +
       ".",
     updatesTitle: "Poliitika uuendamine",
     updatesBody:
@@ -76,7 +76,7 @@ const chrome: Record<
     metaDescription:
       "Which cookies and similar technologies Kvalifits actually uses, and how to manage consent.",
     h1: "Cookie policy",
-    lead: `This policy describes ${PL.operatorName}'s actual use of cookies and similar technologies on Kvalifits. Personal data: privacy policy (/en/privaatsus).`,
+    lead: `This policy describes how ${operatorLeadName("en")} uses cookies and similar technologies on Kvalifits. Personal data: privacy policy (/en/privaatsus).`,
     whatTitle: "What cookies are",
     whatBody:
       "A cookie is a small text file a browser may store on your device. We also use similar technologies (e.g. local storage or analytics scripts), covered by this policy.",
@@ -91,7 +91,7 @@ const chrome: Record<
     privacyTitle: "Privacy policy",
     privacyBody:
       "Processing of personal data is described in the privacy policy (/en/privaatsus). Questions: " +
-      PL.emailPrivacy +
+      publicPrivacyContact("en") +
       ".",
     updatesTitle: "Updates",
     updatesBody:
@@ -108,7 +108,7 @@ const chrome: Record<
     metaDescription:
       "Какие cookie и схожие технологии реально использует Kvalifits и как управлять согласием.",
     h1: "Политика cookie",
-    lead: `Этот документ описывает фактическое использование cookie и схожих технологий ${PL.operatorName} на Kvalifits. Персональные данные: политика конфиденциальности (/ru/privaatsus).`,
+    lead: `Этот документ описывает, как ${operatorLeadName("ru")} использует cookie и схожие технологии на Kvalifits. Персональные данные: политика конфиденциальности (/ru/privaatsus).`,
     whatTitle: "Что такое cookie",
     whatBody:
       "Cookie — небольшой текстовый файл, который браузер может сохранить на устройстве. Мы также используем схожие технологии (локальное хранилище или скрипты аналитики), которые описаны здесь.",
@@ -123,7 +123,7 @@ const chrome: Record<
     privacyTitle: "Политика конфиденциальности",
     privacyBody:
       "Обработка персональных данных описана в политике конфиденциальности (/ru/privaatsus). Вопросы: " +
-      PL.emailPrivacy +
+      publicPrivacyContact("ru") +
       ".",
     updatesTitle: "Обновления",
     updatesBody:
@@ -184,7 +184,7 @@ export function buildCookiePolicy(locale: LegalLocale): LegalDocument {
     metaDescription: c.metaDescription,
     h1: c.h1,
     lead: c.lead,
-    lastUpdated: "2026-08-16",
+    lastUpdated: LEGAL_COPY_UPDATED,
     sections: [
       {
         id: "mis-on",

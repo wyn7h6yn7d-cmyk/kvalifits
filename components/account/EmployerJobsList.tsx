@@ -2,11 +2,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Briefcase } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Link } from "@/i18n/routing";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
@@ -74,12 +76,15 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
 
   if (!jobs.length) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 text-sm text-white/70">
-        {t("noJobsYet")}{" "}
-        <Link href="/account/employer/jobs/new" className="text-white/80 underline hover:text-white">
-          {t("createOne")}
-        </Link>
-      </div>
+      <EmptyState
+        icon={Briefcase}
+        title={t("noJobsYet")}
+        actions={
+          <Button asChild variant="primary" size="sm">
+            <Link href="/account/employer/jobs/new">{t("createOne")}</Link>
+          </Button>
+        }
+      />
     );
   }
 
@@ -104,12 +109,12 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <Button asChild variant="outline" size="sm" className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto">
               <Link href={`/account/employer/jobs/${job.id}/edit`}>{t("edit")}</Link>
             </Button>
 
-            <Button asChild variant="outline" size="sm" className="h-9 rounded-xl px-3 text-[13px]">
+            <Button asChild variant="outline" size="sm" className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto">
               <Link href={`/account/employer/jobs/${job.id}/applicants`}>{t("applicants")}</Link>
             </Button>
 
@@ -118,7 +123,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
                 type="button"
                 variant="primary"
                 size="sm"
-                className="h-9 rounded-xl px-3 text-[13px]"
+                className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto"
                 onClick={() => void setStatus(job.id, "published")}
                 disabled={busyId === job.id}
               >
@@ -129,7 +134,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-9 rounded-xl px-3 text-[13px]"
+                className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto"
                 onClick={() => void setStatus(job.id, "draft")}
                 disabled={busyId === job.id}
               >
@@ -141,7 +146,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-9 rounded-xl px-3 text-[13px]"
+              className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto"
               onClick={() => void setStatus(job.id, "archived")}
               disabled={busyId === job.id}
             >
@@ -152,7 +157,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
               type="button"
               variant="outline"
               size="sm"
-              className="h-9 rounded-xl border-red-500/45 bg-red-500/[0.12] px-3 text-[13px] text-red-100 hover:bg-red-500/25 hover:text-white"
+              className="h-11 w-full rounded-xl border-red-500/45 bg-red-500/[0.12] px-3 text-[13px] text-red-100 hover:bg-red-500/25 hover:text-white sm:h-9 sm:w-auto"
               onClick={() => void deleteJob(job.id, job.title)}
               disabled={busyId === job.id}
             >

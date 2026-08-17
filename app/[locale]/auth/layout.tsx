@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { PublicSiteShell } from "@/components/site/PublicSiteShell";
 import { NOINDEX_ROBOTS } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  return children;
+  return <PublicSiteShell>{children}</PublicSiteShell>;
 }

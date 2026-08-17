@@ -100,12 +100,13 @@ export function CookieConsent() {
     <>
       {bannerOpen ? (
         <div
-          className="fixed inset-x-0 bottom-0 z-[60] p-4 sm:p-6"
+          className="fixed inset-x-0 z-[60] p-4 sm:p-6"
+          style={{ bottom: "var(--site-bottom-nav-offset, 0px)" }}
           role="dialog"
           aria-modal="false"
           aria-labelledby="cookie-consent-title"
         >
-          <div className="mx-auto max-w-3xl rounded-3xl border border-white/[0.12] bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-md sm:p-6">
+          <div className="mx-auto max-w-3xl rounded-3xl border border-white/[0.12] bg-zinc-950 p-5 sm:p-6">
             <div id="cookie-consent-title" className="text-sm font-semibold text-white/90">
               {t("title")}
             </div>

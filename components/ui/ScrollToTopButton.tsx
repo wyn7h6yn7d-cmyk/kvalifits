@@ -27,9 +27,9 @@ export function ScrollToTopButton() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
         "fixed z-[60]",
-        "bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] right-[max(1.25rem,env(safe-area-inset-right,0px))]",
+        "bottom-[calc(var(--site-bottom-nav-offset,0px)+5.5rem)] right-[max(1.25rem,env(safe-area-inset-right,0px))] lg:bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))]",
         "flex h-12 w-12 items-center justify-center rounded-2xl",
-        "border border-white/[0.12] bg-white/[0.06] text-white/88 shadow-[0_14px_60px_-34px_rgba(0,0,0,0.75)] backdrop-blur-xl",
+        "border border-white/[0.12] bg-[#16161c] text-white/88",
         "transition-colors hover:border-white/[0.16] hover:bg-white/[0.09]",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2"
       )}

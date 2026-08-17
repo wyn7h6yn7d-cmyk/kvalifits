@@ -20,6 +20,7 @@ export const PUBLIC_STATIC_PATHS = [
   "/kupsised",
   "/andmekaitse",
   "/ettevote",
+  "/ettevotted",
 ] as const;
 
 /** Path prefixes that must not be crawled or indexed (no locale prefix). */
@@ -83,6 +84,39 @@ export const NOINDEX_ROBOTS: Metadata["robots"] = {
   googleBot: { index: false, follow: false },
 };
 
+/** Filter / search-query URLs: do not index duplicates; still follow links to jobs. */
+export const NOINDEX_FOLLOW: Metadata["robots"] = {
+  index: false,
+  follow: true,
+  googleBot: { index: false, follow: true },
+};
+
+const TRACKING_SEARCH_PARAM = /^(utm_|gclid$|gbraid$|wbraid$|fbclid$|msclkid$|ttclid$|_ga$|mc_cid$|mc_eid$)/i;
+
+function searchParamHasValue(value: string | string[] | undefined): boolean {
+  if (value == null) return false;
+  if (Array.isArray(value)) return value.some((v) => String(v).trim().length > 0);
+  return String(value).trim().length > 0;
+}
+
+/**
+ * True when the URL has query params that would create a duplicate landing page
+ * (filters, sort, search). Tracking params alone do not count.
+ */
+export function searchParamsIndicateDuplicateLanding(
+  sp: URLSearchParams | Record<string, string | string[] | undefined>,
+): boolean {
+  const keys =
+    sp instanceof URLSearchParams
+      ? [...new Set([...sp.keys()])].filter((k) => searchParamHasValue(sp.getAll(k)))
+      : Object.keys(sp).filter((k) => searchParamHasValue(sp[k]));
+  return keys.some((k) => !TRACKING_SEARCH_PARAM.test(k));
+}
+
+export function jsonLdScriptHtml(data: Record<string, unknown>): string {
+  return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
 /** Shared metadata for public, indexable locale pages. */
 export function publicPageMetadata(opts: {
   locale: string;
@@ -95,6 +129,7 @@ export function publicPageMetadata(opts: {
   const locale = opts.locale as AppLocale;
   const path = normalizePathWithoutLocale(opts.path);
   const url = absoluteUrl(locale, path);
+  const titleString = typeof opts.title === "string" ? opts.title : undefined;
 
   return {
     ...(opts.title !== undefined ? { title: opts.title } : {}),
@@ -107,7 +142,12 @@ export function publicPageMetadata(opts: {
       siteName: SITE_NAME,
       locale: ogLocaleTag(locale),
       alternateLocale: ogAlternateLocales(locale),
-      ...(typeof opts.title === "string" ? { title: opts.title } : {}),
+      ...(titleString ? { title: titleString } : {}),
+      ...(opts.description ? { description: opts.description } : {}),
+    },
+    twitter: {
+      card: "summary",
+      ...(titleString ? { title: titleString } : {}),
       ...(opts.description ? { description: opts.description } : {}),
     },
   };

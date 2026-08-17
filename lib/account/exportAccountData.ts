@@ -40,12 +40,28 @@ export async function exportAccountData(opts: {
     .eq("user_id", userId)
     .maybeSingle();
 
-  const { data: applications } = await supabase
+  const { data: applications, error: applicationsErr } = await supabase
     .from("job_applications")
     .select(
-      "id,job_post_id,created_at,consent_to_share,cover_letter,application_answers,employer_status,shared_profile"
+      "id,job_post_id,created_at,status,status_updated_at,consent_to_share,cover_letter,application_answers,shared_profile"
     )
     .eq("seeker_user_id", userId);
+  let jobApplications = applications ?? [];
+  if (applicationsErr && /status_updated_at/i.test(applicationsErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select(
+        "id,job_post_id,created_at,status,consent_to_share,cover_letter,application_answers,shared_profile"
+      )
+      .eq("seeker_user_id", userId);
+    if (!fallback.error) jobApplications = fallback.data ?? [];
+  } else if (applicationsErr && /status|column/i.test(applicationsErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select("id,job_post_id,created_at,consent_to_share,cover_letter,application_answers,shared_profile")
+      .eq("seeker_user_id", userId);
+    if (!fallback.error) jobApplications = fallback.data ?? [];
+  }
 
   const { data: employer } = await supabase
     .from("employer_profiles")
@@ -69,6 +85,26 @@ export async function exportAccountData(opts: {
     .select("id,job_post_id,reason,details,status,created_at")
     .eq("reporter_user_id", userId);
 
+  let savedJobs: any[] = [];
+  {
+    const savedRes = await supabase
+      .from("saved_jobs")
+      .select("id,job_post_id,created_at")
+      .eq("seeker_user_id", userId);
+    if (!savedRes.error) savedJobs = savedRes.data ?? [];
+  }
+
+  let savedJobSearches: any[] = [];
+  {
+    const savedSearchRes = await supabase
+      .from("saved_job_searches")
+      .select(
+        "id,name,query,filters,require_public_salary,min_match_percent,frequency,enabled,locale,created_at,updated_at",
+      )
+      .eq("seeker_user_id", userId);
+    if (!savedSearchRes.error) savedJobSearches = savedSearchRes.data ?? [];
+  }
+
   return {
     exportVersion: 1,
     exportedAt,
@@ -88,7 +124,9 @@ export async function exportAccountData(opts: {
     certificates: certificates ?? [],
     workplaceNeeds: workplaceNeeds ?? null,
     workCapacity: workCapacity ?? null,
-    jobApplications: applications ?? [],
+    jobApplications,
+    savedJobs: savedJobs ?? [],
+    savedJobSearches: savedJobSearches ?? [],
     employerProfile: employer ?? null,
     jobPosts,
     jobPostReportsFiled: reports ?? [],

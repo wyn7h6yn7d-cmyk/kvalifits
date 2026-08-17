@@ -2,8 +2,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
@@ -30,27 +28,33 @@ export default async function SeekerApplicationsPage({ params }: Props) {
 
   const { data: applications, error } = await supabase
     .from("job_applications")
-    .select("id,job_post_id,created_at,updated_at,status,shared_profile")
+    .select("id,job_post_id,created_at,updated_at,status_updated_at,status,shared_profile")
     .eq("seeker_user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(200);
-  if (error) throw error;
+  let applicationRows = applications;
+  let applicationErr = error;
+  if (applicationErr && /status_updated_at/i.test(applicationErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select("id,job_post_id,created_at,updated_at,status,shared_profile")
+      .eq("seeker_user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(200);
+    applicationRows = fallback.data;
+    applicationErr = fallback.error;
+  }
+  if (applicationErr) throw applicationErr;
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell
+    <AuthShell
           title={tNav("seekerApplications")}
           subtitle={tNav("seekerAreaSubtitle")}
           maxWidthClassName="max-w-3xl"
         >
-          <SeekerApplicationsList locale={locale} applications={(applications ?? []) as any[]} />
+          <SeekerApplicationsList locale={locale} applications={(applicationRows ?? []) as any[]} />
           <div className="mt-8 text-xs text-white/40">{tJobs("seekerApplicationsPrivacyNote")}</div>
         </AuthShell>
-      </main>
-      <Footer />
-    </div>
   );
 }
 

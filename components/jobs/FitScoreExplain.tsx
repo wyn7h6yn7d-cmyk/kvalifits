@@ -1,73 +1,165 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
+import type { MatchCriterion, MatchExplanation } from "@/lib/matching/matchExplanation";
 import { cn } from "@/lib/utils";
 
-export type FitReasonRow = {
-  status: "pass" | "partial" | "gap";
-  text: string;
-};
+const LANG_NAME_IDS = new Set(["et", "en", "ru", "fi", "de", "fr", "es", "sv", "lv", "lt"]);
 
 type Props = {
   score: number | null;
-  label: string;
-  whyLabel: string;
-  hideLabel: string;
-  reasons: FitReasonRow[];
+  explanation: MatchExplanation | null | undefined;
+  label?: string;
+  defaultOpen?: boolean;
+  compact?: boolean;
+  /** Show mandatory/preferred totals next to the score (not only inside the why panel). */
+  showCountsWhenCollapsed?: boolean;
+  className?: string;
 };
 
-/** Compact fit % with optional human-readable “why” reasons. */
-export function FitScoreExplain({ score, label, whyLabel, hideLabel, reasons }: Props) {
-  const [open, setOpen] = useState(false);
+function criterionText(
+  t: (key: string, values?: Record<string, string | number>) => string,
+  row: MatchCriterion,
+): string {
+  const values: Record<string, string | number> = { ...(row.values ?? {}) };
+  if (typeof values.language === "string" && LANG_NAME_IDS.has(values.language)) {
+    values.language = t(`matchLangName.${values.language}`);
+  }
+  return t(row.messageKey, values);
+}
+
+/** Shared match % + expandable “why” criteria. Never a bare percentage. */
+export function FitScoreExplain({
+  score,
+  explanation,
+  label,
+  defaultOpen = false,
+  compact = false,
+  showCountsWhenCollapsed = false,
+  className,
+}: Props) {
+  const tJobs = useTranslations("jobs");
+  const t = tJobs as unknown as (key: string, values?: Record<string, string | number>) => string;
+  const [open, setOpen] = useState(defaultOpen);
   const hasScore = score !== null;
+  const criteria = explanation?.criteria ?? [];
+  const mandTotal = explanation?.mandatoryTotal ?? 0;
+  const recTotal = explanation?.recommendedTotal ?? 0;
+  const whyLabel = t("fitWhyOpen", { score: score ?? 0 });
+  const hideLabel = t("fitWhyHide");
+
+  const counts = (
+    <ul className={cn("space-y-0.5 tabular-nums text-white/55", compact ? "text-[11px]" : "text-[13px]")}>
+      {mandTotal > 0 ? (
+        <li>
+          {t("matchExplainMandatoryCount", {
+            filled: explanation?.mandatoryFilled ?? 0,
+            total: mandTotal,
+          })}
+        </li>
+      ) : null}
+      {recTotal > 0 ? (
+        <li>
+          {t("matchExplainRecommendedCount", {
+            filled: explanation?.recommendedFilled ?? 0,
+            total: recTotal,
+          })}
+        </li>
+      ) : null}
+    </ul>
+  );
 
   return (
-    <div>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{label}</div>
-      <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <div className="text-2xl font-semibold tabular-nums text-white/95">
+    <div
+      className={cn("min-w-0", className)}
+      onClick={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      {label ? (
+        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{label}</div>
+      ) : null}
+      <div className={cn("flex flex-wrap items-baseline gap-x-3 gap-y-1", label ? "mt-1" : "")}>
+        <div
+          className={cn(
+            "font-semibold tabular-nums tracking-tight text-white",
+            compact ? "text-xl leading-none" : "text-[1.65rem] leading-none",
+          )}
+        >
           {hasScore ? `${score}%` : "—"}
         </div>
-        {hasScore && reasons.length ? (
+        {hasScore ? (
           <button
             type="button"
-            className="text-sm text-white/55 underline-offset-4 hover:text-white/85 hover:underline"
+            className="relative z-[2] inline-flex min-h-11 items-center text-sm text-white/55 underline-offset-4 hover:text-white/85 hover:underline lg:min-h-0"
             aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setOpen((v) => !v);
+            }}
           >
             {open ? hideLabel : whyLabel}
           </button>
         ) : null}
       </div>
 
-      {open && reasons.length ? (
-        <ul className="mt-3 space-y-1.5 rounded-2xl border border-white/[0.08] bg-black/20 px-3.5 py-3">
-          {reasons.map((r) => (
-            <li key={`${r.status}-${r.text}`} className="flex items-start gap-2 text-[13px] leading-snug">
-              <span
-                className={cn(
-                  "mt-px shrink-0 font-semibold",
-                  r.status === "pass" && "text-emerald-300/90",
-                  r.status === "partial" && "text-amber-200/80",
-                  r.status === "gap" && "text-white/35"
-                )}
-                aria-hidden
-              >
-                {r.status === "pass" ? "✓" : "○"}
-              </span>
-              <span
-                className={cn(
-                  r.status === "pass" && "text-white/82",
-                  r.status === "partial" && "text-white/65",
-                  r.status === "gap" && "text-white/48"
-                )}
-              >
-                {r.text}
-              </span>
-            </li>
-          ))}
-        </ul>
+      {showCountsWhenCollapsed && !open && (mandTotal > 0 || recTotal > 0) ? (
+        <div className="mt-2">{counts}</div>
+      ) : null}
+
+      {open && hasScore ? (
+        <div
+          className={cn(
+            "mt-3 space-y-3 rounded-2xl border border-white/[0.08] bg-black/20 px-3.5 py-3",
+            compact &&
+              "max-lg:relative max-lg:right-auto max-lg:mt-2 max-lg:w-full max-lg:shadow-none lg:absolute lg:right-0 lg:z-30 lg:w-[min(20.5rem,calc(100vw-2rem))] lg:border-white/[0.12] lg:bg-[#16161b] lg:shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]",
+          )}
+        >
+          {mandTotal > 0 || recTotal > 0 ? counts : null}
+          {criteria.length ? (
+            <ul className="space-y-1.5">
+              {criteria.map((row) => (
+                <li key={row.id} className="flex items-start gap-2 text-[13px] leading-snug">
+                  <span
+                    className={cn(
+                      "mt-px shrink-0 font-semibold",
+                      row.status === "pass" && "text-emerald-300/90",
+                      row.status === "partial" && "text-amber-200/80",
+                      row.status === "gap" && "text-white/35",
+                    )}
+                    aria-hidden
+                  >
+                    {row.status === "pass" ? "✓" : "○"}
+                  </span>
+                  <span
+                    className={cn(
+                      "min-w-0 flex-1",
+                      row.status === "pass" && "text-white/82",
+                      row.status === "partial" && "text-white/65",
+                      row.status === "gap" && "text-white/48",
+                    )}
+                  >
+                    {criterionText(t, row)}
+                  </span>
+                  <span
+                    className={cn(
+                      "mt-0.5 shrink-0 rounded-md border px-1.5 py-px text-[10px] font-medium",
+                      row.priority === "mandatory"
+                        ? "border-white/[0.12] text-white/55"
+                        : "border-white/[0.08] text-white/40",
+                    )}
+                  >
+                    {row.priority === "mandatory" ? t("matchPriorityMandatory") : t("matchPriorityPreferred")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-[13px] leading-snug text-white/55">{t("matchExplainFallback")}</p>
+          )}
+        </div>
       ) : null}
     </div>
   );

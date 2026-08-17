@@ -89,8 +89,8 @@ function answersToInput(a: ApplicationAnswers): ApplicationAnswersInput {
 
 /**
  * Build a complete apply-answers draft for one-step quick apply.
- * Prefers last application answers; fills gaps from profile hints.
- * Returns null when a full draft cannot be formed without asking the user.
+ * Only last *complete* application answers skip the form — profile salary/hours
+ * are used to prefill, not to invent schedule/interview/start.
  */
 export function buildQuickApplyDraft(args: {
   lastAnswers: unknown | null;
@@ -99,46 +99,106 @@ export function buildQuickApplyDraft(args: {
   defaultNoticePeriod: string;
 }): ApplicationAnswers | null {
   const last = applicationAnswersFromUnknown(args.lastAnswers);
+  if (!last) return null;
+
+  const hoursFromProfile = args.profile.preferredWeeklyHours;
+  const salaryFromProfile = parseProfileSalaryExpectation(args.profile.salaryExpectationText);
+
+  const draftInput: ApplicationAnswersInput = {
+    salaryMode: last.salaryMode,
+    salaryBasis: last.salaryBasis,
+    salary_expectation_min:
+      last.salary_expectation_min !== null ? String(last.salary_expectation_min) : salaryFromProfile?.salary_expectation_min ?? "",
+    salary_expectation_max:
+      last.salary_expectation_max !== null ? String(last.salary_expectation_max) : salaryFromProfile?.salary_expectation_max ?? "",
+    availability_start: last.availability_start,
+    availability_start_date: last.availability_start_date ?? "",
+    noticePeriod: last.noticePeriod.trim() || args.defaultNoticePeriod,
+    weeklyHoursDesired:
+      last.weeklyHoursDesired !== undefined && last.weeklyHoursDesired !== null
+        ? String(last.weeklyHoursDesired)
+        : hoursFromProfile !== null && hoursFromProfile !== undefined
+          ? String(hoursFromProfile)
+          : "",
+    scheduleFits: last.scheduleFits,
+    interview_preferences: last.interview_preferences,
+    prefer_first_interview_online: last.prefer_first_interview_online,
+    noteForEmployer: last.noteForEmployer ?? "",
+  };
+
+  const parsed = parseApplicationAnswers(draftInput);
+  return parsed.ok ? parsed.value : null;
+}
+
+export type ApplyFormPrefill = {
+  salaryMode: SalaryMode | "";
+  salaryBasis: SalaryBasis | "";
+  salaryMin: string;
+  salaryMax: string;
+  availabilityStart: ApplicationAnswers["availability_start"] | "";
+  availabilityStartDate: string;
+  noticePeriod: string;
+  weeklyHoursDesired: string;
+  scheduleFits: ApplicationAnswers["scheduleFits"] | "";
+  interviewPreferences: ApplicationAnswers["interview_preferences"];
+  preferFirstInterviewOnline: boolean;
+  noteForEmployer: string;
+};
+
+/** Prefill application-specific fields from last apply + profile. Never invents schedule/interview. */
+export function buildApplyFormPrefill(args: {
+  lastAnswers: unknown | null;
+  profile: QuickApplyProfileHints;
+}): ApplyFormPrefill {
+  const last = applicationAnswersFromUnknown(args.lastAnswers);
   const salaryFromProfile = parseProfileSalaryExpectation(args.profile.salaryExpectationText);
   const hoursFromProfile = args.profile.preferredWeeklyHours;
 
-  // Need either a prior structured apply or enough profile salary + hours to draft.
-  if (!last && !salaryFromProfile && (hoursFromProfile === null || hoursFromProfile === undefined)) {
-    return null;
-  }
-  if (!last && !salaryFromProfile) return null;
-  if (!last && (hoursFromProfile === null || hoursFromProfile === undefined)) return null;
-
-  const draftInput: ApplicationAnswersInput = {
+  return {
     salaryMode: last?.salaryMode ?? salaryFromProfile?.salaryMode ?? "",
-    salaryBasis: last?.salaryBasis ?? salaryFromProfile?.salaryBasis ?? "bruto_monthly",
-    salary_expectation_min:
+    salaryBasis: last?.salaryBasis ?? salaryFromProfile?.salaryBasis ?? "",
+    salaryMin:
       last?.salary_expectation_min !== null && last?.salary_expectation_min !== undefined
         ? String(last.salary_expectation_min)
         : salaryFromProfile?.salary_expectation_min ?? "",
-    salary_expectation_max:
+    salaryMax:
       last?.salary_expectation_max !== null && last?.salary_expectation_max !== undefined
         ? String(last.salary_expectation_max)
         : salaryFromProfile?.salary_expectation_max ?? "",
-    availability_start: last?.availability_start ?? "by_agreement",
-    availability_start_date: last?.availability_start_date ?? "",
-    noticePeriod: (last?.noticePeriod ?? "").trim() || args.defaultNoticePeriod,
+    availabilityStart: last?.availability_start ?? "",
+    availabilityStartDate: last?.availability_start_date ?? "",
+    noticePeriod: last?.noticePeriod ?? "",
     weeklyHoursDesired:
       last?.weeklyHoursDesired !== undefined && last?.weeklyHoursDesired !== null
         ? String(last.weeklyHoursDesired)
         : hoursFromProfile !== null && hoursFromProfile !== undefined
           ? String(hoursFromProfile)
           : "",
-    scheduleFits: last?.scheduleFits ?? "yes",
-    interview_preferences: last?.interview_preferences?.length
-      ? last.interview_preferences
-      : ["any"],
-    prefer_first_interview_online: last?.prefer_first_interview_online ?? false,
+    scheduleFits: last?.scheduleFits ?? "",
+    interviewPreferences: last?.interview_preferences ?? [],
+    preferFirstInterviewOnline: last?.prefer_first_interview_online ?? false,
     noteForEmployer: last?.noteForEmployer ?? "",
   };
+}
 
-  const parsed = parseApplicationAnswers(draftInput);
-  return parsed.ok ? parsed.value : null;
+export function noticePeriodRelevant(start: string): boolean {
+  return (
+    start === "within_1_week" ||
+    start === "within_2_weeks" ||
+    start === "within_1_month" ||
+    start === "specific_date"
+  );
+}
+
+export function resolvedNoticePeriod(
+  start: string,
+  notice: string,
+  defaults: { none: string; agreement: string },
+): string {
+  const trimmed = notice.trim();
+  if (trimmed) return trimmed;
+  if (start === "immediate") return defaults.none;
+  return defaults.agreement;
 }
 
 export function isQuickApplyReady(draft: ApplicationAnswers | null): boolean {

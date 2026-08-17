@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
@@ -38,15 +36,9 @@ export default async function EmployerEditJobPage({ params }: Props) {
   if (job.created_by !== user.id) redirect(`/${locale}/account/employer`);
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={tJobs("editJob")} subtitle={t("employerAreaSubtitle")} maxWidthClassName="max-w-3xl">
+    <AuthShell title={tJobs("editJob")} subtitle={t("employerAreaSubtitle")} maxWidthClassName="max-w-3xl">
           <EmployerEditJobForm locale={locale} initialJob={job} />
         </AuthShell>
-      </main>
-      <Footer />
-    </div>
   );
 }
 

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ApplyFormSkeleton } from "@/components/skeletons/ApplyFormSkeleton";
 import { Link } from "@/i18n/routing";
 import {
   AVAILABILITY_START_VALUES,
@@ -25,12 +27,22 @@ import {
   type ScheduleFit,
 } from "@/lib/jobs/applicationAnswers";
 import {
+  buildApplyFormPrefill,
   buildQuickApplyDraft,
   formatWorkloadSummary,
   isQuickApplyReady,
+  noticePeriodRelevant,
+  resolvedNoticePeriod,
+  type ApplyFormPrefill,
   type QuickApplyProfileHints,
 } from "@/lib/jobs/quickApply";
-import { calculateJobMatch, type JobMatchInput } from "@/lib/matching/calculateJobMatch";
+import {
+  calculateJobMatch,
+  type JobMatchInput,
+  type SeekerCertificateInput,
+  type SeekerMatchInput,
+} from "@/lib/matching/calculateJobMatch";
+import { buildMatchExplanation, type MatchExplanation } from "@/lib/matching/matchExplanation";
 import {
   evaluateApplyEligibility,
   type ApplyEligibilityResult,
@@ -39,32 +51,57 @@ import {
 import { JobApplyEligibilityBanner } from "@/components/jobs/JobApplyEligibilityBanner";
 import { FitScoreExplain } from "@/components/jobs/FitScoreExplain";
 import { calculateAgeYears, isLearningObligationStatus, minorAgeBandFromAge } from "@/lib/seeker/age";
-import { buildMatchReasonLines } from "@/lib/employer/matchReasonLines";
-import type { MatchBreakdown } from "@/lib/matching/calculateJobMatch";
+import { cn } from "@/lib/utils";
 
-type PanelMode = "closed" | "quick" | "form";
+type PanelMode = "closed" | "answers" | "review";
 
 type Props = {
   locale: string;
   jobPostId: string;
-  /** Optional short schedule summary from the job post (hours / shifts). */
   scheduleHint?: string | null;
-  /** Job fields for live fit preview in quick-apply summary. */
   jobMatch?: JobMatchInput | null;
-  /** When false, apply UI is disabled (deadline/expiry). */
+  jobTitle?: string | null;
+  employerName?: string | null;
   acceptsApplications?: boolean;
-  /** e.g. "Kandideeri kuni 31.08.2026" */
   applyUntilLabel?: string | null;
 };
 
-const selectClassName =
-  "h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]";
+function ChoiceButton({
+  selected,
+  onClick,
+  children,
+  className,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={cn(
+        "min-h-11 rounded-xl border px-3.5 py-2.5 text-left text-[13px] font-medium leading-snug transition-colors",
+        selected
+          ? "border-white/25 bg-white/[0.12] text-white"
+          : "border-white/[0.10] bg-white/[0.03] text-white/72 hover:border-white/[0.16] hover:bg-white/[0.06]",
+        className,
+      )}
+    >
+      {children}
+    </button>
+  );
+}
 
 export function JobApplyForm({
   locale,
   jobPostId,
   scheduleHint,
   jobMatch,
+  jobTitle = null,
+  employerName = null,
   acceptsApplications = true,
   applyUntilLabel = null,
 }: Props) {
@@ -84,9 +121,12 @@ export function JobApplyForm({
     hasCv: false,
   });
   const [quickDraft, setQuickDraft] = useState<ApplicationAnswers | null>(null);
+  const [formPrefill, setFormPrefill] = useState<ApplyFormPrefill | null>(null);
   const [matchScore, setMatchScore] = useState<number | null>(null);
-  const [matchBreakdown, setMatchBreakdown] = useState<MatchBreakdown | null>(null);
+  const [matchExplanation, setMatchExplanation] = useState<MatchExplanation | null>(null);
   const [eligibilitySeeker, setEligibilitySeeker] = useState<ApplyEligibilitySeekerInput | null>(null);
+  const [seekerMatchInput, setSeekerMatchInput] = useState<SeekerMatchInput | null>(null);
+  const [certInputs, setCertInputs] = useState<SeekerCertificateInput[]>([]);
 
   const [salaryMode, setSalaryMode] = useState<SalaryMode | "">("");
   const [salaryMin, setSalaryMin] = useState("");
@@ -107,12 +147,15 @@ export function JobApplyForm({
   const [success, setSuccess] = useState(false);
 
   const canQuickApply = isQuickApplyReady(quickDraft);
+  const showNotice = noticePeriodRelevant(availabilityStart);
+  const displayTitle = (jobTitle ?? jobMatch?.title ?? "").trim();
+  const displayEmployer = (employerName ?? "").trim();
 
   const eligibility: ApplyEligibilityResult | null = useMemo(() => {
     if (!eligibilitySeeker || !jobMatch) return null;
     const liveHours = weeklyHoursDesired.trim() ? Number(weeklyHoursDesired) : null;
     const hasLiveAnswers = Boolean(
-      scheduleFits || availabilityStart || (liveHours !== null && Number.isFinite(liveHours))
+      scheduleFits || availabilityStart || (liveHours !== null && Number.isFinite(liveHours)),
     );
     const answersFromForm = hasLiveAnswers
       ? {
@@ -165,7 +208,7 @@ export function JobApplyForm({
           supabase
             .from("seeker_profiles")
             .select(
-              "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,salary_expectation,cv_url,has_b_category_drivers_license,pref_desired_weekly_hours,pref_min_weekly_hours,pref_max_weekly_hours,pref_full_time,pref_part_time,pref_remote_work,pref_hybrid_work,pref_on_site_work,exp_seeking_first_job,exp_is_student,exp_has_internship,exp_has_volunteer,exp_has_project,exp_has_prior_work,experience_duration_years,languages,date_of_birth,is_minor,minor_age_band,learning_obligation_status"
+              "full_name,profile_title,phone,location,about,skills,experience_level,preferred_job_types,preferred_locations,salary_expectation,cv_url,has_b_category_drivers_license,pref_desired_weekly_hours,pref_min_weekly_hours,pref_max_weekly_hours,pref_full_time,pref_part_time,pref_remote_work,pref_hybrid_work,pref_on_site_work,exp_seeking_first_job,exp_is_student,exp_has_internship,exp_has_volunteer,exp_has_project,exp_has_prior_work,experience_duration_years,languages,date_of_birth,is_minor,minor_age_band,learning_obligation_status",
             )
             .eq("user_id", user.id)
             .maybeSingle(),
@@ -186,8 +229,7 @@ export function JobApplyForm({
         if (!mounted) return;
 
         const hoursRaw = seeker?.pref_desired_weekly_hours;
-        const hoursNum =
-          hoursRaw === null || hoursRaw === undefined ? null : Number(hoursRaw);
+        const hoursNum = hoursRaw === null || hoursRaw === undefined ? null : Number(hoursRaw);
         const hints: QuickApplyProfileHints = {
           salaryExpectationText: (seeker?.salary_expectation ?? null) as string | null,
           preferredWeeklyHours: hoursNum !== null && Number.isFinite(hoursNum) ? hoursNum : null,
@@ -208,6 +250,15 @@ export function JobApplyForm({
           defaultNoticePeriod: t("applyNoticePeriodDefault"),
         });
         setQuickDraft(draft);
+        setFormPrefill(buildApplyFormPrefill({ lastAnswers, profile: hints }));
+
+        const mappedCerts: SeekerCertificateInput[] = (certs ?? []).map((c) => ({
+          certificate_name: (c as { certificate_name?: string | null }).certificate_name ?? null,
+          certificate_issuer: (c as { certificate_issuer?: string | null }).certificate_issuer ?? null,
+          certificate_valid_until:
+            (c as { certificate_valid_until?: string | null }).certificate_valid_until ?? null,
+        }));
+        setCertInputs(mappedCerts);
 
         if (seeker) {
           const dob = (seeker.date_of_birth ?? "").toString();
@@ -230,12 +281,7 @@ export function JobApplyForm({
                 : Number(seeker.pref_max_weekly_hours),
             pref_full_time: Boolean(seeker.pref_full_time),
             pref_part_time: Boolean(seeker.pref_part_time),
-            certificates: (certs ?? []).map((c) => ({
-              certificate_name: (c as { certificate_name?: string | null }).certificate_name ?? null,
-              certificate_issuer: (c as { certificate_issuer?: string | null }).certificate_issuer ?? null,
-              certificate_valid_until:
-                (c as { certificate_valid_until?: string | null }).certificate_valid_until ?? null,
-            })),
+            certificates: mappedCerts,
             legal: {
               ageYears,
               isMinor: Boolean(seeker.is_minor) || (ageYears !== null && ageYears < 18),
@@ -245,66 +291,71 @@ export function JobApplyForm({
               learningObligationStatus: isLearningObligationStatus(learningRaw) ? learningRaw : null,
             },
           });
-        }
 
-        if (seeker && jobMatch) {
-          const { score, breakdown } = calculateJobMatch(
-            {
-              profile_title: seeker.profile_title ?? null,
-              full_name: seeker.full_name ?? null,
-              location: seeker.location ?? null,
-              about: seeker.about ?? null,
-              skills: (seeker.skills as string[] | null) ?? null,
-              experience_level: seeker.experience_level ?? null,
-              preferred_job_types: (seeker.preferred_job_types as string[] | null) ?? null,
-              preferred_locations: (seeker.preferred_locations as string[] | null) ?? null,
-              has_b_category_drivers_license: Boolean(seeker.has_b_category_drivers_license),
-              languages: (seeker.languages as string[] | null) ?? null,
-              pref_desired_weekly_hours: hoursNum !== null && Number.isFinite(hoursNum) ? hoursNum : null,
-              pref_min_weekly_hours:
-                seeker.pref_min_weekly_hours === null || seeker.pref_min_weekly_hours === undefined
-                  ? null
-                  : Number(seeker.pref_min_weekly_hours),
-              pref_max_weekly_hours:
-                seeker.pref_max_weekly_hours === null || seeker.pref_max_weekly_hours === undefined
-                  ? null
-                  : Number(seeker.pref_max_weekly_hours),
-              pref_full_time: Boolean(seeker.pref_full_time),
-              pref_part_time: Boolean(seeker.pref_part_time),
-              pref_remote_work: Boolean(seeker.pref_remote_work),
-              pref_hybrid_work: Boolean(seeker.pref_hybrid_work),
-              pref_on_site_work: Boolean(seeker.pref_on_site_work),
-              experience_background: {
-                seeking_first_job: Boolean(seeker.exp_seeking_first_job),
-                is_student: Boolean(seeker.exp_is_student),
-                has_internship: Boolean(seeker.exp_has_internship),
-                has_volunteer: Boolean(seeker.exp_has_volunteer),
-                has_project: Boolean(seeker.exp_has_project),
-                has_prior_work: Boolean(seeker.exp_has_prior_work),
-                experience_duration_years: seeker.experience_duration_years ?? null,
-              },
+          const seekerInput: SeekerMatchInput = {
+            profile_title: seeker.profile_title ?? null,
+            full_name: seeker.full_name ?? null,
+            location: seeker.location ?? null,
+            about: seeker.about ?? null,
+            skills: (seeker.skills as string[] | null) ?? null,
+            experience_level: seeker.experience_level ?? null,
+            preferred_job_types: (seeker.preferred_job_types as string[] | null) ?? null,
+            preferred_locations: (seeker.preferred_locations as string[] | null) ?? null,
+            has_b_category_drivers_license: Boolean(seeker.has_b_category_drivers_license),
+            languages: (seeker.languages as string[] | null) ?? null,
+            pref_desired_weekly_hours: hoursNum !== null && Number.isFinite(hoursNum) ? hoursNum : null,
+            pref_min_weekly_hours:
+              seeker.pref_min_weekly_hours === null || seeker.pref_min_weekly_hours === undefined
+                ? null
+                : Number(seeker.pref_min_weekly_hours),
+            pref_max_weekly_hours:
+              seeker.pref_max_weekly_hours === null || seeker.pref_max_weekly_hours === undefined
+                ? null
+                : Number(seeker.pref_max_weekly_hours),
+            pref_full_time: Boolean(seeker.pref_full_time),
+            pref_part_time: Boolean(seeker.pref_part_time),
+            pref_remote_work: Boolean(seeker.pref_remote_work),
+            pref_hybrid_work: Boolean(seeker.pref_hybrid_work),
+            pref_on_site_work: Boolean(seeker.pref_on_site_work),
+            experience_background: {
+              seeking_first_job: Boolean(seeker.exp_seeking_first_job),
+              is_student: Boolean(seeker.exp_is_student),
+              has_internship: Boolean(seeker.exp_has_internship),
+              has_volunteer: Boolean(seeker.exp_has_volunteer),
+              has_project: Boolean(seeker.exp_has_project),
+              has_prior_work: Boolean(seeker.exp_has_prior_work),
+              experience_duration_years: seeker.experience_duration_years ?? null,
             },
-            (certs ?? []).map((c) => ({
-              certificate_name: (c as { certificate_name?: string | null }).certificate_name ?? null,
-              certificate_issuer: (c as { certificate_issuer?: string | null }).certificate_issuer ?? null,
-              certificate_valid_until:
-                (c as { certificate_valid_until?: string | null }).certificate_valid_until ?? null,
-            })),
-            jobMatch,
-            draft
+          };
+          setSeekerMatchInput(seekerInput);
+
+          if (jobMatch) {
+            const answers = draft
               ? {
-                  answers: {
-                    weeklyHoursDesired: draft.weeklyHoursDesired,
-                    scheduleFits: draft.scheduleFits,
-                    availability_start: draft.availability_start,
-                    availability_start_date: draft.availability_start_date,
-                  },
+                  weeklyHoursDesired: draft.weeklyHoursDesired,
+                  scheduleFits: draft.scheduleFits,
+                  availability_start: draft.availability_start,
+                  availability_start_date: draft.availability_start_date,
                 }
-              : null
-          );
-          if (mounted) {
-            setMatchScore(score);
-            setMatchBreakdown(breakdown);
+              : null;
+            const { score, breakdown } = calculateJobMatch(
+              seekerInput,
+              mappedCerts,
+              jobMatch,
+              answers ? { answers } : null,
+            );
+            if (mounted) {
+              setMatchScore(score);
+              setMatchExplanation(
+                buildMatchExplanation({
+                  breakdown,
+                  job: jobMatch,
+                  seeker: seekerInput,
+                  certs: mappedCerts,
+                  answers,
+                }),
+              );
+            }
           }
         }
       } finally {
@@ -347,30 +398,151 @@ export function JobApplyForm({
     }
   }
 
-  function prefillFromAnswers(a: ApplicationAnswers) {
-    setSalaryMode(a.salaryMode);
-    setSalaryBasis(a.salaryBasis);
-    setSalaryMin(a.salary_expectation_min !== null ? String(a.salary_expectation_min) : "");
-    setSalaryMax(a.salary_expectation_max !== null ? String(a.salary_expectation_max) : "");
-    setAvailabilityStart(a.availability_start);
-    setAvailabilityStartDate(a.availability_start_date ?? "");
-    setNoticePeriod(a.noticePeriod);
-    setWeeklyHoursDesired(String(a.weeklyHoursDesired));
-    setScheduleFits(a.scheduleFits);
-    setInterviewPreferences(a.interview_preferences);
-    setPreferFirstInterviewOnline(a.prefer_first_interview_online);
-    setNoteForEmployer(a.noteForEmployer ?? "");
+  function applyPrefill(source: ApplyFormPrefill | ApplicationAnswers) {
+    if ("salary_expectation_min" in source) {
+      const a = source as ApplicationAnswers;
+      setSalaryMode(a.salaryMode);
+      setSalaryBasis(a.salaryBasis);
+      setSalaryMin(a.salary_expectation_min !== null ? String(a.salary_expectation_min) : "");
+      setSalaryMax(a.salary_expectation_max !== null ? String(a.salary_expectation_max) : "");
+      setAvailabilityStart(a.availability_start);
+      setAvailabilityStartDate(a.availability_start_date ?? "");
+      setNoticePeriod(a.noticePeriod);
+      setWeeklyHoursDesired(String(a.weeklyHoursDesired));
+      setScheduleFits(a.scheduleFits);
+      setInterviewPreferences(a.interview_preferences);
+      setPreferFirstInterviewOnline(a.prefer_first_interview_online);
+      setNoteForEmployer(a.noteForEmployer ?? "");
+      return;
+    }
+    const p = source;
+    setSalaryMode(p.salaryMode);
+    setSalaryBasis(p.salaryBasis);
+    setSalaryMin(p.salaryMin);
+    setSalaryMax(p.salaryMax);
+    setAvailabilityStart(p.availabilityStart);
+    setAvailabilityStartDate(p.availabilityStartDate);
+    setNoticePeriod(p.noticePeriod);
+    setWeeklyHoursDesired(p.weeklyHoursDesired);
+    setScheduleFits(p.scheduleFits);
+    setInterviewPreferences(p.interviewPreferences);
+    setPreferFirstInterviewOnline(p.preferFirstInterviewOnline);
+    setNoteForEmployer(p.noteForEmployer);
   }
 
-  function openQuickOrForm() {
+  function openApply() {
+    if (success) return;
     setError(null);
     setConsent(false);
     if (canQuickApply && quickDraft) {
-      setPanel("quick");
+      applyPrefill(quickDraft);
+      setPanel("review");
       return;
     }
-    if (quickDraft) prefillFromAnswers(quickDraft);
-    setPanel("form");
+    if (formPrefill) applyPrefill(formPrefill);
+    else if (quickDraft) applyPrefill(quickDraft);
+    setPanel("answers");
+  }
+
+  function closeApply() {
+    setError(null);
+    setConsent(false);
+    setPanel("closed");
+  }
+
+  useEffect(() => {
+    if (authLoading || success || !acceptsApplications) return;
+    if (!authed || role !== "seeker") return;
+
+    function openFromHashOrEvent() {
+      if (typeof window === "undefined") return;
+      if (window.location.hash === "#kandideeri") openApply();
+    }
+
+    function onOpenEvent() {
+      openApply();
+    }
+
+    openFromHashOrEvent();
+    window.addEventListener("hashchange", openFromHashOrEvent);
+    window.addEventListener("kvalifits:open-apply", onOpenEvent);
+    return () => {
+      window.removeEventListener("hashchange", openFromHashOrEvent);
+      window.removeEventListener("kvalifits:open-apply", onOpenEvent);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, authed, role, acceptsApplications, success]);
+
+  useEffect(() => {
+    if (panel === "closed") return;
+    const prev = document.body.style.overflow;
+    const mq = window.matchMedia("(max-width: 1023px)");
+    function lock() {
+      document.body.style.overflow = mq.matches ? "hidden" : prev;
+    }
+    lock();
+    mq.addEventListener("change", lock);
+    return () => {
+      mq.removeEventListener("change", lock);
+      document.body.style.overflow = prev;
+    };
+  }, [panel]);
+
+  function refreshMatch(answers: ApplicationAnswers) {
+    if (!seekerMatchInput || !jobMatch) return;
+    const ctx = {
+      weeklyHoursDesired: answers.weeklyHoursDesired,
+      scheduleFits: answers.scheduleFits,
+      availability_start: answers.availability_start,
+      availability_start_date: answers.availability_start_date,
+    };
+    const { score, breakdown } = calculateJobMatch(seekerMatchInput, certInputs, jobMatch, {
+      answers: ctx,
+    });
+    setMatchScore(score);
+    setMatchExplanation(
+      buildMatchExplanation({
+        breakdown,
+        job: jobMatch,
+        seeker: seekerMatchInput,
+        certs: certInputs,
+        answers: ctx,
+      }),
+    );
+  }
+
+  function parseCurrentAnswers() {
+    const notice = resolvedNoticePeriod(availabilityStart, noticePeriod, {
+      none: t("applyNoticeNone"),
+      agreement: t("applyNoticePeriodDefault"),
+    });
+    return parseApplicationAnswers({
+      salaryMode,
+      salaryBasis,
+      salary_expectation_min: salaryMin,
+      salary_expectation_max: salaryMax,
+      availability_start: availabilityStart,
+      availability_start_date: availabilityStartDate,
+      noticePeriod: notice,
+      weeklyHoursDesired,
+      scheduleFits,
+      interview_preferences: interviewPreferences,
+      prefer_first_interview_online: preferFirstInterviewOnline,
+      noteForEmployer,
+    });
+  }
+
+  function goToReview(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const parsed = parseCurrentAnswers();
+    if (!parsed.ok) {
+      setError(mapParseError(parsed.error));
+      return;
+    }
+    setQuickDraft(parsed.value);
+    refreshMatch(parsed.value);
+    setPanel("review");
   }
 
   async function submitAnswers(answers: ApplicationAnswers) {
@@ -422,7 +594,7 @@ export function JobApplyForm({
     }
   }
 
-  async function onQuickSubmit(e: FormEvent) {
+  async function onReviewSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     if (!consent) {
@@ -430,43 +602,25 @@ export function JobApplyForm({
       return;
     }
     if (!quickDraft) {
-      setPanel("form");
+      setPanel("answers");
       return;
     }
     await submitAnswers(quickDraft);
   }
 
-  async function onFormSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (!consent) {
-      setError(t("applyConsentRequired"));
-      return;
-    }
-
-    const parsed = parseApplicationAnswers({
-      salaryMode,
-      salaryBasis,
-      salary_expectation_min: salaryMin,
-      salary_expectation_max: salaryMax,
-      availability_start: availabilityStart,
-      availability_start_date: availabilityStartDate,
-      noticePeriod,
-      weeklyHoursDesired,
-      scheduleFits,
-      interview_preferences: interviewPreferences,
-      prefer_first_interview_online: preferFirstInterviewOnline,
-      noteForEmployer,
+  function toggleInterview(v: InterviewPreference) {
+    setInterviewPreferences((prev) => {
+      if (v === "any") return prev.includes("any") ? [] : ["any"];
+      const withoutAny = prev.filter((x) => x !== "any");
+      if (withoutAny.includes(v)) return withoutAny.filter((x) => x !== v);
+      return [...withoutAny, v];
     });
-    if (!parsed.ok) {
-      setError(mapParseError(parsed.error));
-      return;
-    }
-    await submitAnswers(parsed.value);
   }
 
+  const advertisedHours = jobMatch?.weekly_hours;
+
   if (authLoading) {
-    return <div className="text-sm text-white/60">{t("applyLoading")}</div>;
+    return <ApplyFormSkeleton label={t("applyLoading")} />;
   }
 
   if (!acceptsApplications) {
@@ -474,9 +628,7 @@ export function JobApplyForm({
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
         <div className="mt-1 text-sm text-white/60">{t("applyClosedBody")}</div>
-        {applyUntilLabel ? (
-          <p className="mt-3 text-sm font-medium text-white/75">{applyUntilLabel}</p>
-        ) : null}
+        {applyUntilLabel ? <p className="mt-3 text-sm font-medium text-white/75">{applyUntilLabel}</p> : null}
       </div>
     );
   }
@@ -517,445 +669,381 @@ export function JobApplyForm({
     );
   }
 
-  // One-step quick apply: summary + send (no intermediate “open” screen).
-  if (canQuickApply && quickDraft && panel !== "form") {
-    const salary = formatSalaryExpectationScan(quickDraft, {
-      negotiable: t("applySalaryModeOption.negotiable"),
-      brutoMonthly: t("applySalaryBasisOption.bruto_monthly"),
-      brutoHourly: t("applySalaryBasisOption.bruto_hourly"),
-    });
-    const interview = formatInterviewPreferencesDisplay(
-      quickDraft,
-      (code) => t(`applyInterviewOption.${code}`),
-      t("applyPreferFirstInterviewOnline")
-    );
-    const start = formatAvailabilityStartDisplay(quickDraft, (code) =>
-      t(`applyAvailableFromOption.${code}`)
-    );
-    const workloadLine = formatWorkloadSummary(quickDraft.weeklyHoursDesired, profileHints, {
-      hours: (n) => t("quickApplyHoursPerWeek", { hours: n }),
-      fullTime: t("quickApplyFullTime"),
-      partTime: t("quickApplyPartTime"),
-    });
-    const fitReasons = buildMatchReasonLines({
-      breakdown: matchBreakdown,
-      answers: quickDraft,
-    }).map((r) => ({
-      status: r.status,
-      text: t(r.key as "matchReasonCertPass"),
-    }));
+  const reviewAnswers = quickDraft;
+  const salaryScan = reviewAnswers
+    ? formatSalaryExpectationScan(reviewAnswers, {
+        negotiable: t("applySalaryModeOption.negotiable"),
+        brutoMonthly: t("applySalaryBasisChip.bruto_monthly"),
+        brutoHourly: t("applySalaryBasisChip.bruto_hourly"),
+      })
+    : null;
+  const interviewScan = reviewAnswers
+    ? formatInterviewPreferencesDisplay(
+        reviewAnswers,
+        (code) => t(`applyInterviewOption.${code}`),
+        t("applyPreferFirstInterviewOnline"),
+      )
+    : null;
+  const startScan = reviewAnswers
+    ? formatAvailabilityStartDisplay(reviewAnswers, (code) => t(`applyAvailableFromOption.${code}`))
+    : null;
+  const workloadScan = reviewAnswers
+    ? formatWorkloadSummary(reviewAnswers.weeklyHoursDesired, profileHints, {
+        hours: (n) => t("quickApplyHoursPerWeek", { hours: n }),
+        fullTime: t("quickApplyFullTime"),
+        partTime: t("quickApplyPartTime"),
+      })
+    : null;
 
-    return (
-      <div className="space-y-4">
+  const sheetOpen = panel !== "closed";
+
+  const answersBody = (
+    <form onSubmit={goToReview} className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-4 pt-1 sm:px-5">
         {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
-        <form
-          onSubmit={onQuickSubmit}
-          className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6"
-        >
-          <div className="text-sm font-medium text-white/85">{t("quickApplyTitle")}</div>
-          <div className="mt-1 text-sm text-white/60">{t("quickApplySubtitle")}</div>
 
-          <dl className="mt-4 space-y-3 rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-4">
-            <div>
-              <FitScoreExplain
-                score={matchScore}
-                label={t("quickApplyFit")}
-                whyLabel={
-                  matchScore === null
-                    ? t("fitWhyOpen", { score: 0 })
-                    : t("fitWhyOpen", { score: matchScore })
-                }
-                hideLabel={t("fitWhyHide")}
-                reasons={fitReasons}
+        <p className="text-[13px] leading-relaxed text-white/55">{t("quickApplyNoCvHint")}</p>
+
+        <fieldset className="space-y-3">
+          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+            {t("applySalaryQuestion")}
+          </legend>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {SALARY_MODE_VALUES.map((v) => (
+              <ChoiceButton key={v} selected={salaryMode === v} onClick={() => setSalaryMode(v)}>
+                {t(`applySalaryModeOption.${v}`)}
+              </ChoiceButton>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {SALARY_BASIS_VALUES.map((v) => (
+              <ChoiceButton key={v} selected={salaryBasis === v} onClick={() => setSalaryBasis(v)}>
+                {t(`applySalaryBasisChip.${v}`)}
+              </ChoiceButton>
+            ))}
+          </div>
+          {salaryMode === "fixed" ? (
+            <Input
+              value={salaryMin}
+              onChange={(e) => setSalaryMin(e.target.value)}
+              inputMode="decimal"
+              autoComplete="off"
+              enterKeyHint="next"
+              placeholder={t("applySalaryPlaceholder")}
+              aria-label={t("applySalaryFixedAmount")}
+            />
+          ) : null}
+          {salaryMode === "range" ? (
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                value={salaryMin}
+                onChange={(e) => setSalaryMin(e.target.value)}
+                inputMode="decimal"
+                autoComplete="off"
+                enterKeyHint="next"
+                placeholder={t("applySalaryMin")}
+                aria-label={t("applySalaryMin")}
+              />
+              <Input
+                value={salaryMax}
+                onChange={(e) => setSalaryMax(e.target.value)}
+                inputMode="decimal"
+                autoComplete="off"
+                enterKeyHint="next"
+                placeholder={t("applySalaryMax")}
+                aria-label={t("applySalaryMax")}
               />
             </div>
+          ) : null}
+          {salaryMode === "negotiable" ? (
+            <p className="text-xs leading-relaxed text-white/45">{t("applySalaryNegotiableHint")}</p>
+          ) : null}
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+            {t("quickApplyStart")}
+          </legend>
+          <div className="grid grid-cols-2 gap-2">
+            {AVAILABILITY_START_VALUES.map((v) => (
+              <ChoiceButton
+                key={v}
+                selected={availabilityStart === v}
+                onClick={() => setAvailabilityStart(v)}
+              >
+                {t(`applyAvailableFromOption.${v}`)}
+              </ChoiceButton>
+            ))}
+          </div>
+          {availabilityStart === "specific_date" ? (
+            <Input
+              type="date"
+              value={availabilityStartDate}
+              onChange={(e) => setAvailabilityStartDate(e.target.value)}
+              aria-label={t("applyAvailableFromDate")}
+              className="min-h-12 [color-scheme:dark]"
+            />
+          ) : null}
+        </fieldset>
+
+        {showNotice ? (
+          <div className="space-y-2">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45" htmlFor="apply-notice">
+              {t("applyNoticePeriod")}
+            </label>
+            <p className="text-xs text-white/45">{t("applyNoticeHint")}</p>
+            <Input
+              id="apply-notice"
+              value={noticePeriod}
+              onChange={(e) => setNoticePeriod(e.target.value)}
+              placeholder={t("applyNoticePeriodPlaceholder")}
+            />
+          </div>
+        ) : null}
+
+        <fieldset className="space-y-3">
+          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+            {t("quickApplyWorkload")}
+          </legend>
+          <label className="text-xs text-white/55" htmlFor="apply-hours">
+            {t("applyWeeklyHours")}
+          </label>
+          {advertisedHours ? (
+            <p className="text-xs text-white/45">{t("applyAdvertisedHours", { hours: advertisedHours })}</p>
+          ) : null}
+          <Input
+            id="apply-hours"
+            value={weeklyHoursDesired}
+            onChange={(e) => setWeeklyHoursDesired(e.target.value)}
+            inputMode="numeric"
+            autoComplete="off"
+            enterKeyHint="next"
+            placeholder={t("applyWeeklyHoursPlaceholder")}
+          />
+          <div className="text-xs text-white/55">{t("applyScheduleFit")}</div>
+          {scheduleHint ? <p className="text-xs text-white/45">{scheduleHint}</p> : null}
+          <div className="grid grid-cols-3 gap-2">
+            {SCHEDULE_FIT_VALUES.map((v) => (
+              <ChoiceButton key={v} selected={scheduleFits === v} onClick={() => setScheduleFits(v)}>
+                {t(`applyScheduleFitOption.${v}`)}
+              </ChoiceButton>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset className="space-y-3">
+          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+            {t("applyInterviewPreference")}
+          </legend>
+          <p className="text-xs text-white/45">{t("applyInterviewPreferenceHint")}</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {INTERVIEW_PREFERENCE_VALUES.map((v) => (
+              <ChoiceButton key={v} selected={interviewPreferences.includes(v)} onClick={() => toggleInterview(v)}>
+                {t(`applyInterviewOption.${v}`)}
+              </ChoiceButton>
+            ))}
+          </div>
+        </fieldset>
+
+        <div className="space-y-2">
+          <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45" htmlFor="apply-note">
+            {t("applyNoteLabel")}
+          </label>
+          <textarea
+            id="apply-note"
+            value={noteForEmployer}
+            onChange={(e) => setNoteForEmployer(e.target.value)}
+            rows={3}
+            maxLength={500}
+            className="min-h-[6.5rem] w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 py-3 text-base text-white/85 placeholder:text-white/35 outline-none transition-colors focus:border-white/[0.18] lg:text-sm"
+            placeholder={t("applyNotePlaceholder")}
+          />
+        </div>
+
+        {error ? (
+          <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+            {error}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="shrink-0 border-t border-white/[0.08] bg-[#121216] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <Button type="submit" variant="primary" size="lg" className="h-12 w-full">
+          {t("applyContinueToReview")}
+        </Button>
+      </div>
+    </form>
+  );
+
+  const reviewBody = reviewAnswers ? (
+    <form onSubmit={onReviewSubmit} className="flex min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4 pt-1 sm:px-5">
+        {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
+
+        <dl className="space-y-3 rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-4">
+          {displayTitle ? (
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("applyReviewJob")}</dt>
+              <dd className="mt-1 text-[15px] font-semibold text-white/90">{displayTitle}</dd>
+            </div>
+          ) : null}
+          {displayEmployer ? (
             <div>
               <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
-                {t("applySalary")}
+                {t("applyReviewEmployer")}
               </dt>
+              <dd className="mt-1 text-sm text-white/80">{displayEmployer}</dd>
+            </div>
+          ) : null}
+          <div>
+            <FitScoreExplain
+              score={matchScore}
+              explanation={matchExplanation}
+              label={t("quickApplyFit")}
+              showCountsWhenCollapsed
+            />
+          </div>
+          {salaryScan ? (
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("applySalary")}</dt>
               <dd className="mt-1 text-base font-semibold tabular-nums text-white/90">
-                {salary.primary}{" "}
-                <span className="text-sm font-normal text-white/55">{salary.basis}</span>
+                {salaryScan.primary}{" "}
+                <span className="text-sm font-normal text-white/55">{salaryScan.basis}</span>
               </dd>
             </div>
+          ) : null}
+          {startScan ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
-                {t("quickApplyStart")}
-              </dt>
-              <dd className="mt-1 text-sm text-white/80">{start}</dd>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("quickApplyStart")}</dt>
+              <dd className="mt-1 text-sm text-white/80">{startScan}</dd>
             </div>
+          ) : null}
+          {workloadScan ? (
             <div>
               <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
                 {t("quickApplyWorkload")}
               </dt>
-              <dd className="mt-1 text-sm text-white/80">{workloadLine}</dd>
+              <dd className="mt-1 text-sm text-white/80">
+                {workloadScan}
+                {reviewAnswers.scheduleFits ? (
+                  <span className="mt-1 block text-xs text-white/50">
+                    {t("applyScheduleFit")}: {t(`applyScheduleFitOption.${reviewAnswers.scheduleFits}`)}
+                  </span>
+                ) : null}
+              </dd>
             </div>
+          ) : null}
+          {interviewScan ? (
             <div>
               <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
                 {t("applyInterviewPreference")}
               </dt>
-              <dd className="mt-1 text-sm text-white/80">
-                {interview.formats}
-                {interview.preferOnline ? (
-                  <div className="mt-1 text-xs text-emerald-100/85">{interview.preferOnlineLabel}</div>
-                ) : null}
-              </dd>
-            </div>
-          </dl>
-
-          <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-sm text-white/70">
-            <input
-              type="checkbox"
-              checked={consent}
-              onChange={(e) => setConsent(e.target.checked)}
-              className="mt-0.5"
-            />
-            <span>{t("applyConsent")}</span>
-          </label>
-
-          {error ? (
-            <div className="mt-4 whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
-              {error}
+              <dd className="mt-1 text-sm text-white/80">{interviewScan.formats}</dd>
             </div>
           ) : null}
-
-          <div className="mt-4 flex flex-col gap-2">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full"
-              loading={loading}
-              loadingText={t("applySending")}
-            >
-              {t("applyCta")}
-            </Button>
-            <button
-              type="button"
-              className="text-sm text-white/55 underline-offset-4 hover:text-white/80 hover:underline"
-              onClick={() => {
-                prefillFromAnswers(quickDraft);
-                setConsent(false);
-                setError(null);
-                setPanel("form");
-              }}
-              disabled={loading}
-            >
-              {t("quickApplyEditAnswers")}
-            </button>
-          </div>
-        </form>
-      </div>
-    );
-  }
-
-  if (panel === "closed") {
-    return (
-      <div className="space-y-4">
-        {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
-        <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-          <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-          <div className="mt-1 text-sm text-white/60">{t("applySubtitle")}</div>
-          {applyUntilLabel ? (
-            <p className="mt-2 text-sm font-medium text-white/80">{applyUntilLabel}</p>
-          ) : null}
-          <p className="mt-3 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
-          <div className="mt-4">
-            <Button type="button" variant="primary" size="lg" className="w-full" onClick={openQuickOrForm}>
-              {t("applyOpenCta")}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
-    <form onSubmit={onFormSubmit} className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-      <div className="text-sm font-medium text-white/85">{t("applyFormTitle")}</div>
-      <div className="mt-1 text-sm text-white/60">{t("applyFormSubtitle")}</div>
-      <p className="mt-2 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
-
-      <fieldset className="mt-4 space-y-3">
-        <legend className="text-xs font-medium tracking-wide text-white/65">
-          {t("applySalaryQuestion")}
-        </legend>
-
-        <div className="space-y-2">
-          <label className="sr-only" htmlFor="apply-salary-mode">
-            {t("applySalaryQuestion")}
-          </label>
-          <select
-            id="apply-salary-mode"
-            value={salaryMode}
-            onChange={(e) => setSalaryMode(e.target.value as SalaryMode | "")}
-            required
-            className={selectClassName}
-          >
-            <option value="">{t("applySelectPlaceholder")}</option>
-            {SALARY_MODE_VALUES.map((v) => (
-              <option key={v} value={v}>
-                {t(`applySalaryModeOption.${v}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-salary-basis">
-            {t("applySalaryBasis")}
-          </label>
-          <select
-            id="apply-salary-basis"
-            value={salaryBasis}
-            onChange={(e) => setSalaryBasis(e.target.value as SalaryBasis | "")}
-            required
-            className={selectClassName}
-          >
-            <option value="">{t("applySelectPlaceholder")}</option>
-            {SALARY_BASIS_VALUES.map((v) => (
-              <option key={v} value={v}>
-                {t(`applySalaryBasisOption.${v}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {salaryMode === "fixed" ? (
-          <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-salary-fixed">
-              {t("applySalaryFixedAmount")}
-            </label>
-            <Input
-              id="apply-salary-fixed"
-              value={salaryMin}
-              onChange={(e) => setSalaryMin(e.target.value)}
-              inputMode="decimal"
-              required
-              placeholder={t("applySalaryPlaceholder")}
-            />
-          </div>
-        ) : null}
-
-        {salaryMode === "range" ? (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-salary-min">
-                {t("applySalaryMin")}
-              </label>
-              <Input
-                id="apply-salary-min"
-                value={salaryMin}
-                onChange={(e) => setSalaryMin(e.target.value)}
-                inputMode="decimal"
-                required
-                placeholder={t("applySalaryPlaceholder")}
-              />
+          {reviewAnswers.noteForEmployer ? (
+            <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("applyNoteLabel")}</dt>
+              <dd className="mt-1 whitespace-pre-wrap text-sm text-white/75">{reviewAnswers.noteForEmployer}</dd>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-salary-max">
-                {t("applySalaryMax")}
-              </label>
-              <Input
-                id="apply-salary-max"
-                value={salaryMax}
-                onChange={(e) => setSalaryMax(e.target.value)}
-                inputMode="decimal"
-                required
-                placeholder={t("applySalaryPlaceholder")}
-              />
-            </div>
-          </div>
-        ) : null}
-
-        {salaryMode === "negotiable" ? (
-          <p className="text-xs leading-relaxed text-white/45">{t("applySalaryNegotiableHint")}</p>
-        ) : null}
-      </fieldset>
-
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-start">
-            {t("applyAvailableFrom")}
-          </label>
-          <select
-            id="apply-start"
-            value={availabilityStart}
-            onChange={(e) => setAvailabilityStart(e.target.value as AvailabilityStart | "")}
-            required
-            className={selectClassName}
-          >
-            <option value="">{t("applySelectPlaceholder")}</option>
-            {AVAILABILITY_START_VALUES.map((v) => (
-              <option key={v} value={v}>
-                {t(`applyAvailableFromOption.${v}`)}
-              </option>
-            ))}
-          </select>
-          {availabilityStart === "specific_date" ? (
-            <Input
-              id="apply-start-date"
-              type="date"
-              value={availabilityStartDate}
-              onChange={(e) => setAvailabilityStartDate(e.target.value)}
-              required
-              aria-label={t("applyAvailableFromDate")}
-            />
           ) : null}
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-notice">
-            {t("applyNoticePeriod")}
-          </label>
-          <Input
-            id="apply-notice"
-            value={noticePeriod}
-            onChange={(e) => setNoticePeriod(e.target.value)}
-            required
-            placeholder={t("applyNoticePeriodPlaceholder")}
-          />
-        </div>
-      </div>
+        </dl>
 
-      <div className="mt-3 space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-hours">
-          {t("applyWeeklyHours")}
-        </label>
-        <Input
-          id="apply-hours"
-          value={weeklyHoursDesired}
-          onChange={(e) => setWeeklyHoursDesired(e.target.value)}
-          inputMode="decimal"
-          required
-          placeholder={t("applyWeeklyHoursPlaceholder")}
-        />
-      </div>
+        <p className="text-[13px] leading-relaxed text-white/50">
+          {profileHints.hasCv ? t("quickApplyCvFromProfile") : t("quickApplyNoCvRequired")}
+        </p>
 
-      <div className="mt-3 space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-schedule">
-          {t("applyScheduleFit")}
-        </label>
-        {scheduleHint ? <p className="text-xs text-white/45">{scheduleHint}</p> : null}
-        <select
-          id="apply-schedule"
-          value={scheduleFits}
-          onChange={(e) => setScheduleFits(e.target.value as ScheduleFit | "")}
-          required
-          className={selectClassName}
-        >
-          <option value="">{t("applySelectPlaceholder")}</option>
-          {SCHEDULE_FIT_VALUES.map((v) => (
-            <option key={v} value={v}>
-              {t(`applyScheduleFitOption.${v}`)}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mt-3 space-y-3">
-        <div className="text-xs font-medium tracking-wide text-white/65">{t("applyInterviewPreference")}</div>
-        <p className="text-xs text-white/45">{t("applyInterviewPreferenceHint")}</p>
-        <div className="flex flex-col gap-2">
-          {INTERVIEW_PREFERENCE_VALUES.map((v) => {
-            const checked = interviewPreferences.includes(v);
-            return (
-              <label
-                key={v}
-                className="flex cursor-pointer select-none items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-2.5 text-sm text-white/75"
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => {
-                    setInterviewPreferences((prev) => {
-                      if (v === "any") {
-                        return prev.includes("any") ? [] : ["any"];
-                      }
-                      const withoutAny = prev.filter((x) => x !== "any");
-                      if (withoutAny.includes(v)) {
-                        return withoutAny.filter((x) => x !== v);
-                      }
-                      return [...withoutAny, v];
-                    });
-                  }}
-                  className="mt-0.5"
-                />
-                <span>{t(`applyInterviewOption.${v}`)}</span>
-              </label>
-            );
-          })}
-        </div>
-        <label className="flex cursor-pointer select-none items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-2.5 text-sm text-white/75">
+        <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-sm text-white/70">
           <input
             type="checkbox"
-            checked={preferFirstInterviewOnline}
-            onChange={(e) => setPreferFirstInterviewOnline(e.target.checked)}
-            className="mt-0.5"
+            checked={consent}
+            onChange={(e) => setConsent(e.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-white"
           />
-          <span>{t("applyPreferFirstInterviewOnline")}</span>
+          <span>{t("applyConsent")}</span>
         </label>
+
+        {error ? (
+          <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+            {error}
+          </div>
+        ) : null}
       </div>
 
-      <div className="mt-3 space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="apply-note">
-          {t("applyNoteLabel")}
-        </label>
-        <textarea
-          id="apply-note"
-          value={noteForEmployer}
-          onChange={(e) => setNoteForEmployer(e.target.value)}
-          rows={2}
-          maxLength={500}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none backdrop-blur-md transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
-          placeholder={t("applyNotePlaceholder")}
-        />
-      </div>
-
-      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-sm text-white/70">
-        <input
-          type="checkbox"
-          checked={consent}
-          onChange={(e) => setConsent(e.target.checked)}
-          className="mt-0.5"
-        />
-        <span>{t("applyConsent")}</span>
-      </label>
-
-      {error ? (
-        <div className="mt-4 whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
-          {error}
-        </div>
-      ) : null}
-
-      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-        <Button
+      <div className="shrink-0 space-y-2 border-t border-white/[0.08] bg-[#121216] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <Button type="submit" variant="primary" size="lg" className="h-12 w-full" loading={loading} loadingText={t("applySending")}>
+          {t("applyCta")}
+        </Button>
+        <button
           type="button"
-          variant="outline"
-          size="lg"
-          className="w-full sm:w-auto"
+          className="w-full text-center text-sm text-white/55 underline-offset-4 hover:text-white/80 hover:underline"
           onClick={() => {
-            setError(null);
+            applyPrefill(reviewAnswers);
             setConsent(false);
-            setPanel(canQuickApply ? "quick" : "closed");
+            setError(null);
+            setPanel("answers");
           }}
           disabled={loading}
         >
-          {t("applyCancel")}
-        </Button>
-        <Button
-          type="submit"
-          variant="primary"
-          size="lg"
-          className="w-full flex-1"
-          loading={loading}
-          loadingText={t("applySending")}
-        >
-          {t("applyCta")}
-        </Button>
+          {t("quickApplyEditAnswers")}
+        </button>
       </div>
     </form>
+  ) : null;
+
+  return (
+    <div>
+      <div className={cn("rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
+        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
+        <div className="mt-1 text-sm text-white/60">{t("applySubtitle")}</div>
+        {applyUntilLabel ? <p className="mt-2 text-sm font-medium text-white/80">{applyUntilLabel}</p> : null}
+        <p className="mt-3 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
+        <div className="mt-4">
+          <Button type="button" variant="primary" size="lg" className="w-full" onClick={openApply}>
+            {t("applyOpenCta")}
+          </Button>
+        </div>
+      </div>
+
+      {sheetOpen ? (
+        <>
+          <button
+            type="button"
+            aria-label={t("applySheetClose")}
+            className="fixed inset-0 z-50 bg-black/70 lg:hidden"
+            onClick={closeApply}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-apply-title"
+            className={cn(
+              "z-50 flex flex-col border border-white/[0.10] bg-[#121216]",
+              "fixed inset-0 h-dvh lg:static lg:h-auto lg:max-h-none lg:rounded-3xl",
+            )}
+          >
+            <div className="flex shrink-0 items-start justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 lg:pt-3">
+              <div className="min-w-0">
+                <h2 id="quick-apply-title" className="text-base font-semibold text-white/90">
+                  {panel === "review" ? t("applyReviewTitle") : t("quickApplyTitle")}
+                </h2>
+                <p className="mt-0.5 text-[13px] text-white/50">
+                  {panel === "review" ? t("quickApplySummarySubtitle") : t("quickApplySubtitle")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeApply}
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] text-white/70 hover:bg-white/[0.06]"
+                aria-label={t("applySheetClose")}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {panel === "answers" ? answersBody : reviewBody}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

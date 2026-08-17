@@ -1,7 +1,4 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
 
 import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
@@ -36,11 +33,7 @@ export function PageHero({
             ambient ? "pb-16 sm:pb-20" : "pb-20 sm:pb-24 lg:pb-[6.5rem]",
           )}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div className="kf-enter">
             {prepend ? <div className="mb-10 w-full sm:mb-12">{prepend}</div> : null}
             <div className="mx-auto max-w-3xl">
               <div className="text-[13px] font-medium uppercase tracking-wide text-white/60 sm:text-sm">
@@ -54,10 +47,9 @@ export function PageHero({
               </p>
             </div>
             {children ? <div className="mt-10 w-full">{children}</div> : null}
-          </motion.div>
+          </div>
         </div>
       </Container>
     </section>
   );
 }
-

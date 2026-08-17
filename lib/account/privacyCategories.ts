@@ -11,6 +11,8 @@ export const ACCOUNT_ERASE_CATEGORIES = [
   "certificates_and_files",
   "preferences_and_needs",
   "applications_personal",
+  "saved_jobs",
+  "saved_job_searches",
   "employer_company",
   "job_posts_personal",
 ] as const;

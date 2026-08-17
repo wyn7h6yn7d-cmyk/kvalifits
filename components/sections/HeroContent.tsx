@@ -1,0 +1,386 @@
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Check, Circle } from "lucide-react";
+
+import { HeroJobSearch } from "@/components/sections/HeroJobSearch";
+import { CertificateVerificationBadge } from "@/components/seeker/CertificateVerificationBadge";
+import { GradientAccentText } from "@/components/site/GradientAccentText";
+import type { HeroQuickFilterId } from "@/lib/jobs/heroQuickFilters";
+import { cn } from "@/lib/utils";
+
+const DEMO_SCORE = 87;
+const DEMO_FILLED = 8;
+const DEMO_TOTAL = 10;
+const RING_R = 54;
+const RING_C = 2 * Math.PI * RING_R;
+
+function usePrefersReducedMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduce(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  return reduce;
+}
+
+function useInViewOnce(ref: RefObject<HTMLElement | null>) {
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "-80px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return inView;
+}
+
+function Tag({ children }: { children: ReactNode }) {
+  return (
+    <span className="inline-block max-w-full break-words rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] leading-snug text-white/65">
+      {children}
+    </span>
+  );
+}
+
+function SideCard({
+  eyebrow,
+  title,
+  subtitle,
+  location,
+  tags,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  location: string;
+  tags: string[];
+}) {
+  return (
+    <div className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418] p-3.5 sm:p-4">
+      <div className="text-[11px] font-medium tracking-wide text-white/45">{eyebrow}</div>
+      <div className="mt-1.5 text-pretty text-[14px] font-semibold leading-snug tracking-tight text-white/92 sm:text-[15px]">
+        {title}
+      </div>
+      <div className="mt-1 text-pretty text-[12.5px] leading-snug text-white/62">{subtitle}</div>
+      <div className="mt-0.5 text-[12px] text-white/45">{location}</div>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {tags.map((tag) => (
+          <Tag key={tag}>{tag}</Tag>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MatchScoreRing({ active }: { active: boolean }) {
+  const t = useTranslations("heroMockup");
+  const reduce = usePrefersReducedMotion();
+  const [score, setScore] = useState(reduce ? DEMO_SCORE : 0);
+
+  useEffect(() => {
+    if (!active || reduce) {
+      window.setTimeout(() => setScore(DEMO_SCORE), 0);
+      return;
+    }
+    window.setTimeout(() => setScore(0), 0);
+    let raf = 0;
+    const start = performance.now();
+    const duration = 1100;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setScore(Math.round(DEMO_SCORE * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, reduce]);
+
+  const offset = RING_C * (1 - score / 100);
+
+  return (
+    <div className="relative z-[1] mx-auto flex w-full max-w-[9.5rem] flex-col items-center">
+      <div className="relative flex h-[112px] w-[112px] items-center justify-center sm:h-[120px] sm:w-[120px]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-[-8%] hidden rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.22),transparent_68%)] blur-md lg:block"
+        />
+        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
+          <circle
+            cx="66"
+            cy="66"
+            r={RING_R}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="7"
+          />
+          <circle
+            cx="66"
+            cy="66"
+            r={RING_R}
+            fill="none"
+            stroke="url(#heroMatchGrad)"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeDasharray={RING_C}
+            strokeDashoffset={offset}
+            className="transition-[stroke-dashoffset] duration-75 ease-out"
+            style={{
+              filter: "drop-shadow(0 0 8px rgba(168,85,247,0.45))",
+            }}
+          />
+          <defs>
+            <linearGradient id="heroMatchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgb(139,92,246)" />
+              <stop offset="55%" stopColor="rgb(217,70,239)" />
+              <stop offset="100%" stopColor="rgba(227,31,141,0.95)" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="relative px-1 text-center">
+          <div className="text-[26px] font-semibold tabular-nums leading-none tracking-tight text-white sm:text-[28px]">
+            {score}%
+          </div>
+          <div className="mt-1.5 text-[11px] font-medium tracking-wide text-white/50">
+            {t("fitLabel")}
+          </div>
+        </div>
+      </div>
+      <p className="mt-2 max-w-[10rem] text-center text-[11px] leading-snug text-white/55 sm:text-[12px]">
+        {t("reqsFilledShort")}
+      </p>
+    </div>
+  );
+}
+
+function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
+  const locale = useLocale();
+  const t = useTranslations("heroMockup");
+  const reduce = usePrefersReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInViewOnce(rootRef);
+  const [barReady, setBarReady] = useState(false);
+
+  useEffect(() => {
+    if (!inView) return;
+    window.setTimeout(() => setBarReady(true), 0);
+  }, [inView]);
+
+  const seekerTags = [t("seekerTag1"), t("seekerTag2"), t("seekerTag3")];
+  const jobTags = [t("jobTag1"), t("jobTag2"), t("jobTag3")];
+
+  const reasons: { status: "match" | "partial"; text: string }[] = [
+    { status: "match", text: t("reason1") },
+    { status: "match", text: t("reason2") },
+    { status: "match", text: t("reason3") },
+    { status: "match", text: t("reason4") },
+    { status: "match", text: t("reason5") },
+    { status: "partial", text: t("reason6") },
+  ];
+
+  return (
+    <div
+      ref={rootRef}
+      className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0"
+    >
+      <div className="relative min-w-0 overflow-hidden rounded-[28px] border border-white/[0.11] bg-[#101014] p-px sm:rounded-[32px] lg:bg-gradient-to-b lg:from-white/[0.07] lg:via-[#101014]/80 lg:to-[#09090D]/95 lg:shadow-[0_28px_100px_-40px_rgba(9,9,13,0.8),0_0_0_1px_rgba(255,255,255,0.04)_inset]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-8%,rgba(168,85,247,0.16),transparent_55%)]" />
+
+        <div
+          {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
+          className={cn(
+            "relative flex min-w-0 flex-col overflow-hidden p-4 sm:gap-5 sm:p-5 md:p-6",
+            compact ? "gap-3" : "gap-4 sm:gap-5",
+            locale === "ru" && "gap-4 sm:p-5",
+          )}
+        >
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[12px] font-medium tracking-wide text-white/55">
+              {t("matching")}
+            </span>
+            <span className="shrink-0 rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
+              {t("sampleBadge")}
+            </span>
+          </div>
+
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_7.75rem_minmax(0,1fr)] xl:items-center xl:gap-4">
+            {!compact ? (
+              <div className="order-2 min-w-0 sm:order-1 xl:order-1">
+                <SideCard
+                  eyebrow={t("seeker")}
+                  title={t("roleSample")}
+                  subtitle={t("seekerName")}
+                  location={t("seekerLocation")}
+                  tags={seekerTags}
+                />
+              </div>
+            ) : null}
+
+            <div
+              className={cn(
+                "relative order-1 flex min-w-0 justify-center py-1 xl:py-0",
+                compact ? "sm:col-span-2" : "sm:col-span-2 sm:order-first xl:col-span-1 xl:order-2",
+              )}
+            >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute left-0 right-0 top-1/2 hidden h-px -translate-y-1/2 xl:block"
+              >
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-violet-400/25 via-fuchsia-400/35 to-violet-400/25" />
+                {!reduce ? (
+                  <div className="kf-hero-scan absolute top-0 h-px w-16 bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                ) : null}
+              </div>
+              <MatchScoreRing active={inView} />
+            </div>
+
+            {!compact ? (
+              <div className="order-3 min-w-0 sm:order-2 xl:order-3">
+                <SideCard
+                  eyebrow={t("employer")}
+                  title={t("positionSample")}
+                  subtitle={t("jobCompany")}
+                  location={t("jobLocation")}
+                  tags={jobTags}
+                />
+              </div>
+            ) : null}
+          </div>
+
+          {!compact ? (
+            <>
+              <div className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3.5 sm:p-4">
+                <div className="text-[13px] font-medium text-white/80">{t("whyTitle")}</div>
+                <ul className="mt-3 grid min-w-0 gap-2 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-2">
+                  {reasons.map((r, i) => (
+                    <li
+                      key={r.text}
+                      className={cn(
+                        "flex min-w-0 items-start gap-2 text-[12.5px] leading-snug text-white/70 sm:text-[13px]",
+                        inView && !reduce && "kf-enter",
+                      )}
+                      style={
+                        inView && !reduce
+                          ? { animationDelay: `${0.35 + i * 0.07}s` }
+                          : undefined
+                      }
+                    >
+                      {r.status === "match" ? (
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                          <Check className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />
+                        </span>
+                      ) : (
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-violet-300/80">
+                          <Circle className="h-3 w-3" strokeWidth={2} aria-hidden />
+                        </span>
+                      )}
+                      <span className="min-w-0 text-pretty break-words">{r.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="grid min-w-0 gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <div className="min-w-0 overflow-hidden">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="min-w-0 text-[13px] font-medium text-white/78">
+                      {t("reqsFilledTitle")}
+                    </span>
+                    <span className="shrink-0 text-[12px] tabular-nums text-white/50">
+                      {DEMO_FILLED}/{DEMO_TOTAL}
+                    </span>
+                  </div>
+                  <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
+                    <div
+                      className={cn(
+                        "h-full rounded-full bg-gradient-to-r from-violet-500/85 via-fuchsia-500/75 to-[rgba(227,31,141,0.8)]",
+                        barReady && !reduce ? "kf-hero-bar" : barReady ? "w-4/5" : "w-0",
+                      )}
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-white/45">
+                    <span>{t("reqsMandatory")}</span>
+                    <span>{t("reqsOptional")}</span>
+                  </div>
+                </div>
+
+                <div className="relative inline-flex max-w-full flex-col gap-1.5 overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2.5">
+                  <span className="self-start rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
+                    {t("sampleBadge")}
+                  </span>
+                  <CertificateVerificationBadge
+                    name={t("verifiedCert")}
+                    status="verified"
+                    statusLabel={t("verifiedStatus")}
+                    sourceLine={t("verifiedSource")}
+                    validUntilLine={t("verifiedUntil")}
+                  />
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[] }) {
+  const t = useTranslations("hero");
+  const locale = useLocale();
+  const headlineClamp =
+    locale === "ru"
+      ? "text-[clamp(1.62rem,4.2vw+0.55rem,3.55rem)] sm:leading-[1.05] md:text-[clamp(1.9rem,3.45vw+0.85rem,3.35rem)] lg:text-[clamp(2.25rem,2.75vw+0.95rem,3.55rem)]"
+      : "text-[clamp(1.85rem,5.2vw+0.65rem,4.35rem)] sm:leading-[1.03] md:text-[clamp(2.25rem,4vw+1rem,4rem)] lg:text-[clamp(2.65rem,3.4vw+1.1rem,4.35rem)]";
+
+  return (
+    <div className="grid min-w-0 items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 xl:gap-16">
+      <div className="kf-enter-slow min-w-0 max-w-[42rem]">
+        <h1
+          className={cn(
+            "text-balance font-semibold leading-[1.04] tracking-[-0.035em] text-white",
+            headlineClamp,
+          )}
+        >
+          {t("headlineBefore")}{" "}
+          <GradientAccentText wrapClassName="font-semibold">{t("headlineAccent")}</GradientAccentText>
+          {t("headlineAfter").trim() ? (
+            <>
+              <br className="hidden sm:block" />
+              <span className="text-white/[0.96]">{t("headlineAfter")}</span>
+            </>
+          ) : null}
+        </h1>
+
+        <p className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-body sm:mt-5 sm:text-lg">
+          {t("subheadline")}
+        </p>
+
+        <HeroJobSearch quickFilters={quickFilters} />
+      </div>
+
+      <div className="kf-enter-slow kf-enter-d1 relative flex min-w-0 justify-center lg:justify-end">
+        <div className="w-full lg:hidden">
+          <HeroMatchMockup compact />
+        </div>
+        <div className="hidden w-full lg:block">
+          <HeroMatchMockup />
+        </div>
+      </div>
+    </div>
+  );
+}

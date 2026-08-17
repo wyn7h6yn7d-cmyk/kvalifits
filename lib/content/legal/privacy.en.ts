@@ -1,6 +1,13 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  controllerParagraph,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  publicGeneralContact,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const privacyEN: LegalDocument = {
   path: "/privaatsus",
@@ -8,14 +15,14 @@ export const privacyEN: LegalDocument = {
   metaDescription:
     "How Kvalifits collects, uses and protects personal data. Your rights, cookies and contact details.",
   h1: "Privacy policy",
-  lead: `This document describes how ${PL.operatorName} (“we” or “the platform”) processes personal data in the Kvalifits service. We take privacy seriously and process data in line with applicable Estonian law and, where relevant, the EU General Data Protection Regulation (GDPR).`,
-  lastUpdated: "2026-04-08",
+  lead: `This document describes how ${operatorLeadName("en")} (“we” or “the platform”) processes personal data in the Kvalifits service. We take privacy seriously and process data in line with applicable Estonian law and, where relevant, the EU General Data Protection Regulation (GDPR).`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "andmekaitse",
       title: "Purpose and controller",
       paragraphs: [
-        `The controller is ${PL.companyName}, registry code ${PL.registryCode}, located at ${PL.legalAddress}. For privacy matters contact ${PL.emailPrivacy}.`,
+        controllerParagraph("en"),
         "If you are in the EU, you have GDPR rights including access, rectification, erasure, restriction, objection where applicable, and the right to lodge a complaint with a supervisory authority (in Estonia, the Data Protection Inspectorate).",
       ],
     },
@@ -83,7 +90,7 @@ export const privacyEN: LegalDocument = {
       title: "Your rights",
       paragraphs: [
         "You may request access, rectification, erasure (where applicable), restriction, object to processing based on legitimate interests, and withdraw consent where processing is consent-based.",
-        "See /en/andmekaitse for how to submit requests. Contact: " + PL.emailPrivacy + ".",
+        "See /en/andmekaitse for how to submit requests. Contact: " + publicPrivacyContact("en") + ".",
       ],
     },
     {
@@ -110,9 +117,9 @@ export const privacyEN: LegalDocument = {
     {
       id: "kontakt",
       title: "Contact",
-      paragraphs: [`Privacy: ${PL.emailPrivacy}. General: ${PL.emailGeneral}.`],
+      paragraphs: [`Privacy: ${publicPrivacyContact("en")}. General: ${publicGeneralContact("en")}.`],
     },
   ],
   footnote:
-    "This text is general information and is not a substitute for legal advice. Replace placeholders and have counsel review before going live.",
+    legalPrelaunchFootnote("en"),
 };

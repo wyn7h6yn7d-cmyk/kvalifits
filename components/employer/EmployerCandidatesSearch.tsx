@@ -1,11 +1,19 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Search, SlidersHorizontal, Users, X } from "lucide-react";
 
+import { parseCertificateVerificationStatus } from "@/lib/seeker/certificateVerification";
+import {
+  CertificateStatusBlock,
+  certificateViewLabelsFromT,
+} from "@/components/seeker/CertificateVerificationBadge";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { cn } from "@/lib/utils";
 import {
   activeFilterCount,
   buildCandidateFacetOptions,
@@ -21,11 +29,6 @@ type Props = {
   certificateLabel: string;
   validUntilLabel: string;
 };
-
-function formatIsoDate(iso: string) {
-  const s = iso.trim();
-  return s.length >= 10 ? s.slice(0, 10) : s;
-}
 
 function FilterToggle({
   label,
@@ -74,9 +77,12 @@ function FacetGroup({
   );
 }
 
-export function EmployerCandidatesSearch({ candidates, certificateLabel, validUntilLabel }: Props) {
+export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props) {
   const t = useTranslations("employerCandidates");
+  const tOnb = useTranslations("onboarding");
+  const locale = useLocale();
   const [filters, setFilters] = useState<CandidateFilterState>(() => emptyCandidateFilterState());
+  const [mobileOpen, setMobileOpen] = useState(false);
   const deferredQuery = useDeferredValue(filters.query);
 
   const facets = useMemo(() => buildCandidateFacetOptions(candidates), [candidates]);
@@ -105,9 +111,18 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel, validUn
     setFilters(emptyCandidateFilterState());
   }
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 backdrop-blur-md sm:p-6">
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div className="text-[15px] font-medium text-white/88">{t("searchTitle")}</div>
@@ -132,10 +147,46 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel, validUn
         <p className="mt-4 text-xs leading-relaxed text-white/45">{t("privacyNote")}</p>
       </div>
 
+      <div className="sticky top-[var(--site-header-offset)] z-30 -mx-1 mb-3 bg-background py-2 lg:hidden">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 w-full justify-between rounded-xl px-4"
+          onClick={() => setMobileOpen(true)}
+        >
+          <span className="inline-flex items-center gap-2 text-[14px]">
+            <SlidersHorizontal className="h-4 w-4 opacity-70" aria-hidden />
+            {activeCount ? t("filtersWithCount", { count: activeCount }) : t("filters")}
+          </span>
+        </Button>
+      </div>
+
       <div className="grid gap-8 lg:grid-cols-[320px_1fr] lg:items-start lg:gap-9">
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <div className="rounded-2xl border border-white/[0.11] bg-gradient-to-b from-violet-950/[0.38] via-black/[0.46] to-black/[0.30] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] ring-1 ring-violet-400/20 backdrop-blur-md sm:p-6">
-            <div className="flex items-center justify-between gap-3 border-b border-white/[0.10] pb-4">
+        <div
+          className={cn(
+            mobileOpen
+              ? "fixed inset-0 z-[90] flex flex-col bg-[#121214] lg:static lg:z-auto lg:block lg:bg-transparent"
+              : "hidden lg:sticky lg:top-24 lg:block lg:self-start",
+          )}
+        >
+          {mobileOpen ? (
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] lg:hidden">
+              <div className="text-[15px] font-medium text-white/90">
+                {activeCount ? t("filtersWithCount", { count: activeCount }) : t("filters")}
+              </div>
+              <button
+                type="button"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white/50 hover:bg-white/[0.05]"
+                aria-label={t("closeFilters")}
+                onClick={() => setMobileOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          ) : null}
+          <div className="min-h-0 flex-1 overflow-y-auto lg:overflow-visible">
+          <div className="rounded-none border-0 bg-transparent p-4 lg:rounded-2xl lg:border lg:border-white/[0.11] lg:bg-[#141018] lg:p-5">
+            <div className="hidden items-center justify-between gap-3 border-b border-white/[0.10] pb-4 lg:flex">
               <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/44">
                 {t("filters")}
               </div>
@@ -349,16 +400,23 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel, validUn
               ) : null}
             </div>
           </div>
+          </div>
+          {mobileOpen ? (
+            <div className="border-t border-white/[0.08] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden">
+              <Button
+                type="button"
+                variant="primary"
+                className="h-12 w-full rounded-xl"
+                onClick={() => setMobileOpen(false)}
+              >
+                {t("showResults", { count: results.length })}
+              </Button>
+            </div>
+          ) : null}
         </div>
 
         <div className="space-y-3">
           {results.map((c) => {
-            const certCount = c.certificates.length;
-            const latestValid = c.certificates
-              .map((x) => x.validUntil)
-              .filter((x): x is string => Boolean(x))
-              .sort((a, b) => b.localeCompare(a))[0];
-
             return (
               <div key={c.id} className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
@@ -371,14 +429,28 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel, validUn
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/70">
-                    {certCount >= 1 || c.hasBLicense ? certificateLabel : "—"}
-                    {certCount > 1 ? ` +${certCount - 1}` : ""}
-                  </span>
-                  {latestValid ? (
-                    <span className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/60">
-                      {validUntilLabel} {formatIsoDate(latestValid)}
+                <div className="mt-3 space-y-2">
+                  {c.certificates.slice(0, 2).map((cert, i) => (
+                    <CertificateStatusBlock
+                      key={`${c.id}-${cert.name}-${i}`}
+                      name={cert.name}
+                      fields={{
+                        verification_status: parseCertificateVerificationStatus(cert.verification_status),
+                        verified_at: cert.verified_at ?? null,
+                        verification_source: cert.verification_source ?? null,
+                        certificate_valid_until: cert.validUntil,
+                        certificate_issuer: cert.issuer ?? null,
+                      }}
+                      labels={certificateViewLabelsFromT((key, values) => tOnb(key, values))}
+                      locale={locale}
+                    />
+                  ))}
+                  {c.certificates.length > 2 ? (
+                    <div className="text-[11px] text-white/45">+{c.certificates.length - 2}</div>
+                  ) : null}
+                  {!c.certificates.length && c.hasBLicense ? (
+                    <span className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/70">
+                      {certificateLabel}
                     </span>
                   ) : null}
                   {c.seekingFirstJob ? (
@@ -405,9 +477,10 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel, validUn
           })}
 
           {!results.length ? (
-            <div className="rounded-3xl border border-white/[0.12] bg-white/[0.04] p-8 text-center text-sm leading-relaxed text-white/68">
-              {candidates.length ? t("noResults") : t("noCandidates")}
-            </div>
+            <EmptyState
+              icon={Users}
+              title={candidates.length ? t("noResults") : t("noCandidates")}
+            />
           ) : null}
         </div>
       </div>

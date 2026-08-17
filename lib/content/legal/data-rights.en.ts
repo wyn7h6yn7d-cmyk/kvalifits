@@ -1,6 +1,13 @@
 import type { LegalDocument } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  dataRequestHowTo,
+  legalPrelaunchFootnote,
+  operatorLeadName,
+  publicGeneralContact,
+  publicPrivacyContact,
+} from "./placeholders";
 
 export const dataRightsEN: LegalDocument = {
   path: "/andmekaitse",
@@ -8,8 +15,8 @@ export const dataRightsEN: LegalDocument = {
   metaDescription:
     "How to request access, correction or deletion of your data on Kvalifits. Response times and contact.",
   h1: "Data subject rights and erasure",
-  lead: `This page explains how to exercise your rights regarding personal data processed in Kvalifits by ${PL.operatorName}.`,
-  lastUpdated: "2026-04-08",
+  lead: `This page explains how to exercise your rights regarding personal data processed in Kvalifits by ${operatorLeadName("en")}.`,
+  lastUpdated: LEGAL_COPY_UPDATED,
   sections: [
     {
       id: "oigused-ulevaade",
@@ -29,7 +36,7 @@ export const dataRightsEN: LegalDocument = {
       id: "kuidas-taotleda",
       title: "How to submit a request",
       paragraphs: [
-        `Email ${PL.emailPrivacy} with subject line “Data protection request” or use the form on /en/kontakt.`,
+        dataRequestHowTo("en"),
         "Include your name, email used on the account, type of request (copy, correction, deletion, etc.) and information needed to verify your identity. We may ask for proof to protect your data from fraudulent requests.",
       ],
     },
@@ -58,8 +65,8 @@ export const dataRightsEN: LegalDocument = {
     {
       id: "kontakt",
       title: "Contact",
-      paragraphs: [`Data requests: ${PL.emailPrivacy}. General: ${PL.emailGeneral}.`],
+      paragraphs: [`Data requests: ${publicPrivacyContact("en")}. General: ${publicGeneralContact("en")}.`],
     },
   ],
-  footnote: "Procedures should match your technical setup and legal review.",
+  footnote: legalPrelaunchFootnote("en"),
 };

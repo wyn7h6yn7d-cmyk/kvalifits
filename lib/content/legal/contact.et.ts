@@ -1,37 +1,36 @@
 import type { ContactPageContent } from "./types";
 
-import { PL } from "./placeholders";
+import {
+  LEGAL_COPY_UPDATED,
+  companyIdentityLines,
+  contactFormMailto,
+  legalPrelaunchFootnote,
+} from "./placeholders";
 
 export const contactET: ContactPageContent = {
   path: "/kontakt",
   metaTitle: "Kontakt",
   metaDescription: "Võta meiega ühendust — loeme kirjad ja vastame tööpäeviti.",
   h1: "Kontakt",
-  lead: "Küsimus platvormi kohta või tahad lihtsalt kirjutada? Vastame tööpäeviti nii kiiresti kui saame.",
-  lastUpdated: "2026-04-13",
+  lead: "Küsimus platvormi kohta või tahad lihtsalt kirjutada? Kasuta allolevat vormi. Vastame tööpäeviti nii kiiresti kui saame.",
+  lastUpdated: LEGAL_COPY_UPDATED,
   blocks: [
     {
-      title: "Ettevõte",
-      lines: [
-        "Kvalifits OÜ",
-        `Registrikood: ${PL.registryCode}`,
-        `Aadress: ${PL.legalAddress}`,
-        "Üldkontakt: [e-post]",
-        "Telefon: [telefon]",
-      ],
+      title: "Platvorm",
+      lines: companyIdentityLines("et"),
       icon: "building2",
       span: 2,
     },
     {
-      title: "Veeb ja sotsiaalmeedia",
-      lines: ["Veeb: kvalifits.ee", "Sotsiaalmeedia — täpsustame peagi"],
+      title: "Veeb",
+      lines: ["kvalifits.ee"],
       icon: "share2",
       span: 2,
     },
   ],
   blocksAside: {
-    title: "Kontaktandmed",
-    lead: "Ettevõtte ja veebi kontakt — vajadusel uuendame.",
+    title: "Kuidas ühendust võtta",
+    lead: "Ametlikku ettevõtte e-posti, telefoni ja aadressi avaldame pärast juriidilise isiku registreerimist. Seni kasuta vormi.",
   },
   form: {
     nameLabel: "Nimi",
@@ -42,5 +41,6 @@ export const contactET: ContactPageContent = {
     privacyHint: "Kasutame sinu kontakti ainult vastamiseks. Loe lähemalt: /privaatsus.",
     successNote: "Avaneb sinu e-post — vaata kiri veel kord enne saatmist.",
   },
-  formMailTo: "info@kvalifits.ee",
+  formMailTo: contactFormMailto(),
+  footnote: legalPrelaunchFootnote("et"),
 };

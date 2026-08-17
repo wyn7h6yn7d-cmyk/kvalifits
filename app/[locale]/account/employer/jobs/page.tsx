@@ -2,8 +2,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
@@ -13,7 +11,6 @@ type Props = { params: Promise<{ locale: string }> };
 
 export default async function EmployerJobsPage({ params }: Props) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "nav" });
   const tJobs = await getTranslations({ locale, namespace: "jobs" });
 
   const supabase = await createSupabaseServerClient();
@@ -34,15 +31,9 @@ export default async function EmployerJobsPage({ params }: Props) {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={tJobs("myJobs")} subtitle={tJobs("myJobsSubtitle")} maxWidthClassName="max-w-3xl">
+    <AuthShell title={tJobs("myJobs")} subtitle={tJobs("myJobsSubtitle")} maxWidthClassName="max-w-3xl">
           <EmployerJobsList locale={locale} initialJobs={(jobs ?? []) as any} />
         </AuthShell>
-      </main>
-      <Footer />
-    </div>
   );
 }
 

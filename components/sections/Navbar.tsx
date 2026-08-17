@@ -2,59 +2,56 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { motion } from "framer-motion";
 import { Menu } from "lucide-react";
 
+import { SeekerBottomNav } from "@/components/navigation/SeekerBottomNav";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
+import {
+  ADMIN_NAV,
+  EMPLOYER_NAV,
+  GUEST_NAV,
+  SEEKER_NAV,
+  type NavItem,
+} from "@/lib/navigation/navConfig";
 import { cn } from "@/lib/utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Role = "seeker" | "employer" | "admin";
 
-const GUEST_NAV_PATHS = [
-  { href: "/tooandjatele", key: "employers" as const },
-  { href: "/toootsijatele", key: "seekers" as const },
-  { href: "/tood", key: "jobs" as const },
-];
+const langTriggerNavbar =
+  "h-11 min-h-11 w-auto shrink-0 rounded-md border-0 bg-transparent px-2.5 py-0 text-[13px] leading-none shadow-none ring-0 hover:!bg-white/[0.06] lg:!h-8 lg:!min-h-0 lg:px-2 lg:text-[12px]";
 
-const SEEKER_NAV_PATHS = [
-  { href: "/tood", key: "jobs" as const },
-  { href: "/account/seeker/applications", key: "seekerApplications" as const },
-];
-
-const EMPLOYER_NAV_PATHS = [
-  { href: "/hinnakiri", key: "pricing" as const },
-  { href: "/account/employer/jobs", key: "myJobs" as const },
-];
-
-// Admins should still be able to navigate the public site easily.
-const ADMIN_NAV_PATHS = [
-  { href: "/tooandjatele", key: "employers" as const },
-  { href: "/toootsijatele", key: "seekers" as const },
-  { href: "/tood", key: "jobs" as const },
-  { href: "/admin", key: "admin" as const },
-];
+function navIsActive(pathname: string, href: string) {
+  if (href === "/tood") return pathname === "/tood" || pathname.startsWith("/tood/");
+  if (href === "/account/seeker") return pathname === "/account/seeker";
+  if (href === "/account/employer") return pathname === "/account/employer";
+  if (href === "/admin") return pathname === "/admin";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 function NavLink({
   href,
   children,
+  active,
   className,
 }: {
   href: string;
   children: React.ReactNode;
+  active?: boolean;
   className?: string;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "inline-flex h-7 shrink-0 items-center justify-center rounded-md px-2 text-[13px] font-medium leading-none text-white/70 transition-colors hover:text-white",
-        className
+        "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-2 text-[12px] font-medium leading-none transition-colors xl:px-2.5 xl:text-[13px]",
+        active ? "bg-white/[0.08] text-white" : "text-white/68 hover:bg-white/[0.05] hover:text-white",
+        className,
       )}
     >
       {children}
@@ -62,17 +59,63 @@ function NavLink({
   );
 }
 
-/* Navbar only: strip LanguageSwitcher trigger border/background; flag + EE/EN/RU unchanged */
-const langTriggerNavbar =
-  "!h-7 !min-h-0 !w-auto shrink-0 rounded-none border-0 !border-0 bg-transparent !bg-transparent px-2 py-0 leading-none shadow-none ring-0 hover:!bg-white/[0.05]";
+function DesktopNav({ items, pathname, t }: { items: NavItem[]; pathname: string; t: (key: string) => string }) {
+  return (
+    <nav
+      className="hidden min-w-0 flex-1 items-center justify-center gap-0 overflow-x-auto lg:flex xl:gap-0.5"
+      aria-label={t("menu")}
+    >
+      {items.map((item) => (
+        <NavLink key={`${item.href}-${item.key}`} href={item.href} active={navIsActive(pathname, item.href)}>
+          {t(item.key)}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
+
+function MobileNavLinks({
+  items,
+  pathname,
+  t,
+  onNavigate,
+}: {
+  items: NavItem[];
+  pathname: string;
+  t: (key: string) => string;
+  onNavigate?: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {items.map((item) => (
+        <Link
+          key={`${item.href}-${item.key}`}
+          href={item.href}
+          onClick={onNavigate}
+          className={cn(
+            "flex items-center rounded-lg border px-4 py-3.5 text-[15px] transition-colors min-h-11",
+            navIsActive(pathname, item.href)
+              ? "border-white/[0.14] bg-white/[0.08] text-white"
+              : "border-white/[0.08] bg-white/[0.03] text-white/82 hover:bg-white/[0.06]",
+          )}
+        >
+          {t(item.key)}
+        </Link>
+      ))}
+    </div>
+  );
+}
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const tLang = useTranslations("language");
   const locale = useLocale();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [role, setRole] = useState<Role | null>(null);
-  const [authed, setAuthed] = useState<boolean>(false);
-  const [authResolved, setAuthResolved] = useState<boolean>(false);
+  const [authed, setAuthed] = useState(false);
+  const [authResolved, setAuthResolved] = useState(false);
   const supabaseRef = useRef<ReturnType<typeof createSupabaseBrowserClient> | null>(null);
 
   useEffect(() => {
@@ -121,202 +164,145 @@ export function Navbar() {
     };
   }, []);
 
-  /** Üks kiht: taust + blur + border samal elemendil kui rida → üks pidev klaasriba */
-  const glassBar = cn(
-    "isolate flex h-[var(--site-header-bar)] min-h-0 w-full items-center justify-between gap-2 rounded-2xl border px-2.5 py-0 backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-4 lg:justify-start lg:gap-0 lg:px-5",
-    "border-white/[0.10] bg-[rgba(5,5,8,0.78)] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset,0_12px_36px_-16px_rgba(0,0,0,0.55)]",
-    scrolled &&
-      "border-white/[0.12] bg-[rgba(5,5,8,0.84)] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_14px_40px_-14px_rgba(0,0,0,0.6)]",
-  );
+  useEffect(() => {
+    const syncBottomOffset = () => {
+      const mobile = window.matchMedia("(max-width: 1023px)").matches;
+      const show = authResolved && authed && role === "seeker" && mobile;
+      document.documentElement.style.setProperty(
+        "--site-bottom-nav-offset",
+        show ? "calc(var(--site-bottom-nav-height) + env(safe-area-inset-bottom, 0px))" : "0px",
+      );
+    };
 
-  const navPaths =
+    syncBottomOffset();
+    window.addEventListener("resize", syncBottomOffset);
+    return () => {
+      window.removeEventListener("resize", syncBottomOffset);
+      document.documentElement.style.setProperty("--site-bottom-nav-offset", "0px");
+    };
+  }, [authResolved, authed, role]);
+
+  const navPaths: NavItem[] =
     authResolved && authed
       ? role === "employer"
-        ? EMPLOYER_NAV_PATHS
+        ? EMPLOYER_NAV
         : role === "seeker"
-          ? SEEKER_NAV_PATHS
+          ? SEEKER_NAV
           : role === "admin"
-            ? ADMIN_NAV_PATHS
-          : GUEST_NAV_PATHS
-      : GUEST_NAV_PATHS;
+            ? ADMIN_NAV
+            : GUEST_NAV
+      : GUEST_NAV;
+
+  const showSeekerBottomNav = authResolved && authed && role === "seeker";
+
+  const headerBar = cn(
+    "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b px-3 sm:gap-3 sm:px-4 lg:px-5",
+    "border-white/[0.08] bg-[#09090d] lg:bg-[rgba(9,9,13,0.92)] lg:backdrop-blur-md",
+    scrolled && "border-white/[0.10] bg-[rgba(9,9,13,0.96)]",
+  );
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-0 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
-      <Container className="pointer-events-auto flex w-full justify-center">
-        <div className={glassBar}>
-          <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center">
-            <Logo className="inline-flex h-full max-h-full min-h-0 items-center leading-none" />
-          </div>
-
-          <nav
-            className="hidden h-full min-h-0 min-w-0 flex-1 items-center justify-center gap-2 lg:flex xl:gap-4"
-            aria-label={t("menu")}
-          >
-            {navPaths.map((item) => (
-              <NavLink key={item.href} href={item.href}>
-                {t(item.key)}
-              </NavLink>
-            ))}
-          </nav>
-
-          <div className="flex h-full min-h-0 min-w-0 shrink-0 items-center justify-end gap-1 sm:gap-1.5 lg:ml-1.5">
-            <div className="hidden h-full min-h-0 items-center gap-1.5 lg:flex">
-              {authResolved && authed ? (
-                <>
-                  {role === "seeker" ? (
-                    <Link
-                      href="/account/seeker"
-                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-                    >
-                      {t("seekerArea")}
-                    </Link>
-                  ) : null}
-                  {role === "employer" ? (
-                    <>
-                      <Link
-                        href="/account/employer"
-                        className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-                      >
-                        {t("employerArea")}
-                      </Link>
-                      <Button
-                        asChild
-                        variant="primary"
-                        size="sm"
-                        className="h-7 shrink-0 rounded-md px-2.5 text-[13px] leading-none"
-                      >
-                        <Link
-                          href="/account/employer/jobs/new"
-                          className="inline-flex h-full min-h-0 items-center justify-center gap-1.5"
-                        >
-                          {t("addJob")}
-                        </Link>
-                      </Button>
-                    </>
-                  ) : null}
-                  {role === "admin" ? (
-                    <Link
-                      href="/admin"
-                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-                    >
-                      {t("admin")}
-                    </Link>
-                  ) : null}
-                  {role === null ? (
-                    <Link
-                      href="/account"
-                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-                    >
-                      {t("account")}
-                    </Link>
-                  ) : null}
-
-                  <form action={`/${locale}/auth/logout`} method="post">
-                    <button
-                      type="submit"
-                      className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-                    >
-                      {t("logout")}
-                    </button>
-                  </form>
-                </>
-              ) : authResolved ? (
-                <>
-                  <Link
-                    href="/auth/login"
-                    className="inline-flex h-7 shrink-0 items-center justify-center text-[13px] font-medium leading-none text-white/80 transition-colors hover:text-white"
-                  >
-                    {t("login")}
-                  </Link>
-                  <Button
-                    asChild
-                    variant="primary"
-                    className="h-6 min-h-0 shrink-0 self-center rounded-md !px-2 py-0 text-[12px] leading-none"
-                  >
-                    <Link
-                      href="/auth/register"
-                      className="inline-flex min-h-0 items-center justify-center gap-0 py-0"
-                    >
-                      {t("signup")}
-                    </Link>
-                  </Button>
-                </>
-              ) : (
-                <div className="h-7 w-[172px]" aria-hidden="true" />
-              )}
-              <div className="flex h-full shrink-0 items-center">
-                <LanguageSwitcher triggerClassName={langTriggerNavbar} />
-              </div>
+    <>
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
+        <Container className="pointer-events-auto w-full max-w-[1320px]">
+          <div className={headerBar}>
+            <div className="flex min-w-0 shrink-0 items-center">
+              <Logo
+                className="inline-flex h-8 max-h-8 items-center leading-none"
+                imageClassName="h-7 w-auto max-w-[112px] sm:max-w-[168px]"
+                priority
+              />
             </div>
 
-            <div className="flex h-full min-h-0 items-center gap-2 lg:hidden">
-              <div className="flex h-full shrink-0 items-center">
+            <DesktopNav items={navPaths} pathname={pathname} t={t} />
+
+            <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
+              <div className="hidden items-center gap-1.5 lg:flex">
                 <LanguageSwitcher triggerClassName={langTriggerNavbar} />
-              </div>
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7 shrink-0 rounded-md border-white/[0.14] bg-white/[0.06]"
-                    aria-label={t("openMenu")}
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetTitle className="pr-12">{t("menu")}</SheetTitle>
 
-                  <div className="mt-6 flex flex-col gap-4">
-                    {navPaths.map((item) => (
-                      <motion.div
-                        key={item.href}
-                        initial={{ opacity: 0, x: 12 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.22 }}
+                {authResolved && authed ? (
+                  <>
+                    {role === "employer" ? (
+                      <Button asChild variant="primary" size="sm" className="h-8 rounded-md px-3 text-[13px]">
+                        <Link href="/account/employer/jobs/new">{t("addJob")}</Link>
+                      </Button>
+                    ) : null}
+                    {role === null ? (
+                      <Link
+                        href="/account"
+                        className="inline-flex h-8 items-center px-2 text-[13px] font-medium text-white/75 hover:text-white"
                       >
-                        <Link
-                          href={item.href}
-                          className="flex items-center rounded-xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/85 hover:bg-white/[0.07]"
-                        >
-                          {t(item.key)}
-                        </Link>
-                      </motion.div>
-                    ))}
+                        {t("account")}
+                      </Link>
+                    ) : null}
+                    <form action={`/${locale}/auth/logout`} method="post">
+                      <button
+                        type="submit"
+                        className="inline-flex h-8 items-center px-2 text-[13px] font-medium text-white/75 transition-colors hover:text-white"
+                      >
+                        {t("logout")}
+                      </button>
+                    </form>
+                  </>
+                ) : authResolved ? (
+                  <>
+                    <Link
+                      href="/auth/login"
+                      className="inline-flex h-8 items-center px-2 text-[13px] font-medium text-white/75 hover:text-white"
+                    >
+                      {t("login")}
+                    </Link>
+                    <Button asChild variant="primary" size="sm" className="h-8 rounded-md px-3 text-[13px]">
+                      <Link href="/auth/register">{t("signup")}</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <div className="h-8 w-40" aria-hidden />
+                )}
+              </div>
 
-                    <div className="pt-2">
-                      <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1 lg:hidden">
+                <LanguageSwitcher triggerClassName={langTriggerNavbar} />
+                <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-11 w-11 rounded-md border-white/[0.12] bg-white/[0.04]"
+                      aria-label={t("openMenu")}
+                    >
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetTitle className="pr-12">{t("menu")}</SheetTitle>
+                    <div className="mt-6 space-y-6">
+                      <MobileNavLinks
+                        items={navPaths}
+                        pathname={pathname}
+                        t={t}
+                        onNavigate={() => setMenuOpen(false)}
+                      />
+
+                      <div className="border-t border-white/[0.08] pt-4">
+                        <div className="mb-2 text-[12px] font-medium uppercase tracking-wide text-white/45">
+                          {tLang("label")}
+                        </div>
+                        <LanguageSwitcher className="w-full" triggerClassName="h-11 min-h-11 justify-start px-4 text-[14px]" />
+                      </div>
+
+                      <div className="flex flex-col gap-2 border-t border-white/[0.08] pt-4">
                         {authResolved && authed ? (
                           <>
-                            {role === "seeker" ? (
-                              <Button asChild variant="ghost" className="w-full">
-                                <Link href="/account/seeker">{t("seekerArea")}</Link>
-                              </Button>
-                            ) : null}
                             {role === "employer" ? (
-                              <>
-                                <Button asChild variant="ghost" className="w-full">
-                                  <Link href="/account/employer">{t("employerArea")}</Link>
-                                </Button>
-                                <Button asChild variant="primary" className="w-full">
-                                  <Link href="/account/employer/jobs/new">{t("addJob")}</Link>
-                                </Button>
-                              </>
-                            ) : null}
-                            {role === "admin" ? (
-                              <>
-                                <Button asChild variant="ghost" className="w-full">
-                                  <Link href="/admin">{t("admin")}</Link>
-                                </Button>
-                              </>
-                            ) : null}
-                            {role === null ? (
-                              <Button asChild variant="ghost" className="w-full">
-                                <Link href="/account">{t("account")}</Link>
+                              <Button asChild variant="primary" className="w-full">
+                                <Link href="/account/employer/jobs/new" onClick={() => setMenuOpen(false)}>
+                                  {t("addJob")}
+                                </Link>
                               </Button>
                             ) : null}
                             <form action={`/${locale}/auth/logout`} method="post">
-                              <Button variant="outline" className="w-full">
+                              <Button variant="outline" className="w-full" type="submit">
                                 {t("logout")}
                               </Button>
                             </form>
@@ -324,22 +310,28 @@ export function Navbar() {
                         ) : authResolved ? (
                           <>
                             <Button asChild variant="ghost" className="w-full">
-                              <Link href="/auth/login">{t("login")}</Link>
+                              <Link href="/auth/login" onClick={() => setMenuOpen(false)}>
+                                {t("login")}
+                              </Link>
                             </Button>
                             <Button asChild variant="primary" className="w-full">
-                              <Link href="/auth/register">{t("signup")}</Link>
+                              <Link href="/auth/register" onClick={() => setMenuOpen(false)}>
+                                {t("signup")}
+                              </Link>
                             </Button>
                           </>
                         ) : null}
                       </div>
                     </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                  </SheetContent>
+                </Sheet>
+              </div>
             </div>
           </div>
-        </div>
-      </Container>
-    </header>
+        </Container>
+      </header>
+
+      {showSeekerBottomNav ? <SeekerBottomNav /> : null}
+    </>
   );
 }

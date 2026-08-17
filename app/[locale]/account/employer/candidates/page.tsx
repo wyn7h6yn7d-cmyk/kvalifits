@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { EmployerCandidatesSearch } from "@/components/employer/EmployerCandidatesSearch";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import type { DiscoverableCandidate } from "@/lib/employer/candidateFilters";
+import { loadEmployerInboxJobOptions } from "@/lib/employer/loadEmployerInboxJobOptions";
+import { Link } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -38,6 +38,7 @@ export default async function EmployerCandidatesPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "nav" });
   const tOnboarding = await getTranslations({ locale, namespace: "onboarding" });
   const tEmployer = await getTranslations({ locale, namespace: "employer" });
+  const tJobs = await getTranslations({ locale, namespace: "jobs" });
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -57,7 +58,7 @@ export default async function EmployerCandidatesPage({ params }: Props) {
   const [certRes, bLicRes] = await Promise.all([
     supabase
       .from("seeker_certificates")
-      .select("user_id, certificate_name, certificate_issuer, certificate_valid_from, certificate_valid_until")
+      .select("user_id, certificate_name, certificate_issuer, certificate_valid_from, certificate_valid_until, verification_status, verified_at, verification_source")
       .order("created_at", { ascending: false })
       .limit(500),
     supabase
@@ -68,8 +69,17 @@ export default async function EmployerCandidatesPage({ params }: Props) {
       .limit(300),
   ]);
 
-  const certRows = certRes.data;
-  const certErr = certRes.error;
+  let certRows = certRes.data;
+  let certErr = certRes.error;
+  if (certErr && /verification_|column/i.test(certErr.message ?? "")) {
+    const legacy = await supabase
+      .from("seeker_certificates")
+      .select("user_id, certificate_name, certificate_issuer, certificate_valid_from, certificate_valid_until")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    certRows = legacy.data as typeof certRows;
+    certErr = legacy.error;
+  }
   const bLicenseRows = bLicRes.data;
   const bLicErr = bLicRes.error;
 
@@ -79,7 +89,7 @@ export default async function EmployerCandidatesPage({ params }: Props) {
 
   const certByUser = new Map<
     string,
-    { count: number; items: { name: string; validUntil: string | null }[] }
+    { count: number; items: DiscoverableCandidate["certificates"] }
   >();
   for (const row of certRows ?? []) {
     const userId = (row as { user_id?: string }).user_id;
@@ -90,6 +100,9 @@ export default async function EmployerCandidatesPage({ params }: Props) {
       certificate_issuer?: string | null;
       certificate_valid_from?: string | null;
       certificate_valid_until?: string | null;
+      verification_status?: string | null;
+      verified_at?: string | null;
+      verification_source?: string | null;
     };
 
     if (
@@ -104,6 +117,10 @@ export default async function EmployerCandidatesPage({ params }: Props) {
     const item = {
       name: (r.certificate_name ?? "").trim(),
       validUntil: r.certificate_valid_until ?? null,
+      issuer: (r.certificate_issuer ?? "").trim() || null,
+      verification_status: r.verification_status ?? null,
+      verified_at: r.verified_at ?? null,
+      verification_source: r.verification_source ?? null,
     };
     const prev = certByUser.get(userId);
     if (!prev) {
@@ -211,11 +228,25 @@ export default async function EmployerCandidatesPage({ params }: Props) {
       ? tEmployer("candidateFiltersFixHint")
       : null;
 
+  const inboxJobs = await loadEmployerInboxJobOptions(supabase, user.id);
+  const inboxJob =
+    [...inboxJobs].sort((a, b) => b.applicantCount - a.applicantCount)[0] ?? null;
+
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("candidates")} subtitle={t("candidatesSubtitle")} maxWidthClassName="max-w-6xl">
+    <AuthShell title={t("candidates")} subtitle={t("candidatesSubtitle")} maxWidthClassName="max-w-6xl">
+          {inboxJob ? (
+            <div className="mb-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-white/70">
+              <Link
+                href={`/account/employer/jobs/${inboxJob.id}/applicants`}
+                className="font-medium text-white/85 underline-offset-4 hover:text-white hover:underline"
+              >
+                {tJobs("inboxOpenFromDiscovery")}
+              </Link>
+              <span className="mt-1 block text-xs text-white/45">
+                {tJobs("inboxJobOption", { title: inboxJob.title, count: inboxJob.applicantCount })}
+              </span>
+            </div>
+          ) : null}
           {certErr || bLicErr || fetchError ? (
             <div className="mb-6 whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
               {tOnboarding("unknownError")}
@@ -229,8 +260,5 @@ export default async function EmployerCandidatesPage({ params }: Props) {
             validUntilLabel={tEmployer("validUntil")}
           />
         </AuthShell>
-      </main>
-      <Footer />
-    </div>
   );
 }

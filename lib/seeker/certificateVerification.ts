@@ -147,41 +147,82 @@ function formatIsoDateDisplay(iso: string | null | undefined, locale: string): s
   }
 }
 
+export type CertificateStatusLabels = {
+  submitted: string;
+  under_review: string;
+  verified: string;
+  rejected: string;
+  expired: string;
+};
+
+export type CertificateVerificationViewLabels = CertificateStatusLabels & {
+  source: (source: string) => string;
+  verifiedOn: (date: string) => string;
+  validUntil: (date: string) => string;
+  previouslyVerified?: string;
+};
+
+export type CertificateVerificationView = {
+  status: CertificateEffectiveStatus;
+  statusLabel: string;
+  sourceLine: string | null;
+  verifiedOnLine: string | null;
+  validUntilLine: string | null;
+};
+
+function certificateStatusLabel(
+  status: CertificateEffectiveStatus,
+  labels: CertificateStatusLabels,
+): string {
+  return labels[status];
+}
+
 /**
- * Primary status line, e.g. "Kontrollitud · Kutsekoda · 14.08.2026",
- * "Aegunud", or "Esitatud" / "Kontrollimisel".
+ * Status word only — never “Kontrollitud” from an upload.
+ * Extra facts (source, dates) live on {@link buildCertificateVerificationView}.
  */
 export function formatCertificateStatusLine(
+  fields: Pick<CertificateVerificationFields, "verification_status" | "certificate_valid_until">,
+  labels: CertificateStatusLabels,
+  _locale?: string,
+  asOf: Date = new Date(),
+): string {
+  return certificateStatusLabel(resolveCertificateEffectiveStatus(fields, asOf), labels);
+}
+
+/**
+ * Structured lines for a certificate:
+ * name (caller) + Kontrollitud + Allikas + verified date + Kehtib kuni.
+ */
+export function buildCertificateVerificationView(
   fields: Pick<
     CertificateVerificationFields,
     "verification_status" | "verified_at" | "verification_source" | "certificate_valid_until"
-  >,
-  labels: {
-    submitted: string;
-    under_review: string;
-    verified: string;
-    rejected?: string;
-    expired: string;
-  },
+  > & { certificate_issuer?: string | null },
+  labels: CertificateVerificationViewLabels,
   locale: string,
-  asOf: Date = new Date()
-): string {
-  const effective = resolveCertificateEffectiveStatus(fields, asOf);
-  if (effective === "expired") return labels.expired;
-  if (effective === "rejected") return labels.rejected ?? labels.submitted;
-  if (effective !== "verified") {
-    return effective === "under_review" ? labels.under_review : labels.submitted;
-  }
+  asOf: Date = new Date(),
+): CertificateVerificationView {
+  const status = resolveCertificateEffectiveStatus(fields, asOf);
+  const stored = parseCertificateVerificationStatus(fields.verification_status);
+  const showVerifiedFacts = status === "verified" || (status === "expired" && stored === "verified");
 
-  const parts = [labels.verified];
-  const source = (fields.verification_source ?? "").trim();
-  if (source) parts.push(source);
+  const sourceRaw = showVerifiedFacts
+    ? (fields.verification_source ?? "").trim() || (fields.certificate_issuer ?? "").trim()
+    : "";
+  const until = formatIsoDateDisplay(fields.certificate_valid_until, locale);
   const verifiedAt = formatIsoDateDisplay(fields.verified_at, locale);
-  if (verifiedAt) parts.push(verifiedAt);
-  return parts.join(" · ");
+
+  return {
+    status,
+    statusLabel: certificateStatusLabel(status, labels),
+    sourceLine: sourceRaw ? labels.source(sourceRaw) : null,
+    verifiedOnLine: showVerifiedFacts && verifiedAt ? labels.verifiedOn(verifiedAt) : null,
+    validUntilLine: until && (showVerifiedFacts || status === "expired") ? labels.validUntil(until) : null,
+  };
 }
 
-/** Extra meta: expiry / verifier; for expired also keep verification history. */
+/** Joined meta for compact contexts. Prefer {@link buildCertificateVerificationView} for layout. */
 export function formatCertificateVerifiedMeta(
   fields: Pick<
     CertificateVerificationFields,
@@ -190,42 +231,20 @@ export function formatCertificateVerifiedMeta(
     | "verification_status"
     | "verified_at"
     | "verification_source"
-  >,
-  labels: {
-    validUntil: string;
-    verifiedBy: string;
-    previouslyVerified?: string;
-  },
+  > & { certificate_issuer?: string | null },
+  labels: CertificateVerificationViewLabels,
   locale: string,
-  asOf: Date = new Date()
+  asOf: Date = new Date(),
 ): string | null {
-  const effective = resolveCertificateEffectiveStatus(fields, asOf);
-  const bits: string[] = [];
-
-  if (effective === "expired") {
-    const until = formatIsoDateDisplay(fields.certificate_valid_until, locale);
-    if (until) bits.push(`${labels.validUntil} ${until}`);
-    const stored = parseCertificateVerificationStatus(fields.verification_status);
-    if (stored === "verified") {
-      const hist: string[] = [];
-      if (labels.previouslyVerified) hist.push(labels.previouslyVerified);
-      const source = (fields.verification_source ?? "").trim();
-      if (source) hist.push(source);
-      const verifiedAt = formatIsoDateDisplay(fields.verified_at, locale);
-      if (verifiedAt) hist.push(verifiedAt);
-      const by = (fields.verified_by ?? "").trim();
-      if (by) hist.push(`${labels.verifiedBy} ${by}`);
-      if (hist.length) bits.push(hist.join(" · "));
-    }
-    return bits.length ? bits.join(" · ") : null;
+  const view = buildCertificateVerificationView(fields, labels, locale, asOf);
+  const bits = [view.sourceLine, view.verifiedOnLine, view.validUntilLine].filter(Boolean) as string[];
+  if (
+    view.status === "expired" &&
+    labels.previouslyVerified &&
+    parseCertificateVerificationStatus(fields.verification_status) === "verified"
+  ) {
+    bits.unshift(labels.previouslyVerified);
   }
-
-  if (effective !== "verified") return null;
-
-  const until = formatIsoDateDisplay(fields.certificate_valid_until, locale);
-  if (until) bits.push(`${labels.validUntil} ${until}`);
-  const by = (fields.verified_by ?? "").trim();
-  if (by) bits.push(`${labels.verifiedBy} ${by}`);
   return bits.length ? bits.join(" · ") : null;
 }
 

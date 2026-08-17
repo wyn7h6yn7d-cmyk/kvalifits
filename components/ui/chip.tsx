@@ -22,7 +22,7 @@ export function Chip({
 }) {
   const t = useTranslations("jobsSearch");
   const base =
-    "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] leading-tight transition-colors";
+    "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-2 text-[13px] leading-tight transition-colors lg:min-h-0 lg:py-1.5";
   const toneCls =
     tone === "pink"
       ? "border-white/[0.12] bg-[rgba(227,31,141,0.10)] text-white/85"
@@ -51,7 +51,7 @@ export function Chip({
       {onRemove ? (
         <button
           type="button"
-          className="inline-flex h-4 w-4 items-center justify-center rounded-full text-white/55 hover:text-white/80"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/55 hover:text-white/80 lg:h-5 lg:w-5"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();

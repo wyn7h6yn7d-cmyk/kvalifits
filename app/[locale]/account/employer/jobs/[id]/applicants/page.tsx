@@ -1,21 +1,22 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
-import { AuthShell } from "@/components/auth/AuthShell";
+import { AccountCalmShell } from "@/components/account/AccountCalmShell";
 import { EmployerApplicantList } from "@/components/employer/EmployerApplicantList";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
+import { loadEmployerInboxJobOptions } from "@/lib/employer/loadEmployerInboxJobOptions";
+import type { ApplicantApplicationRow } from "@/lib/employer/applicantScan";
 import { safeHttpUrl } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
+export const dynamic = "force-dynamic";
+
 export default async function EmployerJobApplicantsPage({ params }: Props) {
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "jobs" });
-  const tNav = await getTranslations({ locale, namespace: "nav" });
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -31,11 +32,37 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
   const job = await getEmployerJobIfOwned(supabase, user.id, id);
   if (!job) redirect(`/${locale}/account/employer`);
 
-  const { data: applications, error: appErr } = await supabase
+  const jobs = await loadEmployerInboxJobOptions(supabase, user.id);
+
+  let { data: applications, error: appErr } = await supabase
     .from("job_applications")
-    .select("id,seeker_user_id,created_at,status,match_score,match_breakdown,shared_profile,application_answers")
+    .select(
+      "id,seeker_user_id,created_at,status,status_updated_at,cover_letter,match_score,match_breakdown,shared_profile,application_answers",
+    )
     .eq("job_post_id", id)
     .limit(200);
+
+  if (appErr && /status_updated_at/i.test(appErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select(
+        "id,seeker_user_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile,application_answers",
+      )
+      .eq("job_post_id", id)
+      .limit(200);
+    applications = fallback.data as typeof applications;
+    appErr = fallback.error;
+  }
+
+  if (appErr && /application_answers|cover_letter|column/i.test(appErr.message ?? "")) {
+    const fallback = await supabase
+      .from("job_applications")
+      .select("id,seeker_user_id,created_at,status,match_score,match_breakdown,shared_profile")
+      .eq("job_post_id", id)
+      .limit(200);
+    applications = fallback.data as typeof applications;
+    appErr = fallback.error;
+  }
   if (appErr) throw appErr;
 
   const apps = applications ?? [];
@@ -73,12 +100,20 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
     }
   }
 
-  const enriched = apps.map((a) => {
+  const enriched: ApplicantApplicationRow[] = apps.map((a) => {
     const seeker = (a.shared_profile as { seeker?: Record<string, unknown> } | null)?.seeker ?? {};
     const fromSnap = safeHttpUrl(seeker.cv_url);
     const live = a.seeker_user_id ? liveBySeeker.get(a.seeker_user_id) : undefined;
     return {
-      ...a,
+      id: String(a.id),
+      created_at: (a.created_at ?? null) as string | null,
+      status: (a.status ?? null) as string | null,
+      status_updated_at: ((a as { status_updated_at?: string | null }).status_updated_at ?? null) as string | null,
+      cover_letter: ((a as { cover_letter?: string | null }).cover_letter ?? null) as string | null,
+      match_score: (a.match_score as number | null) ?? null,
+      match_breakdown: a.match_breakdown,
+      shared_profile: a.shared_profile,
+      application_answers: (a as { application_answers?: unknown }).application_answers,
       resolved_cv_url: fromSnap ?? live?.cvUrl ?? null,
       live: live
         ? {
@@ -91,21 +126,8 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
   });
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("applicantsTitle")} subtitle={tNav("employerAreaSubtitle")} maxWidthClassName="max-w-4xl">
-          <div className="space-y-6">
-            <div className="rounded-3xl border border-white/[0.10] bg-gradient-to-b from-white/[0.05] to-white/[0.02] p-5 sm:p-6">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantsForJob")}</div>
-              <div className="mt-2 text-base font-semibold leading-snug tracking-tight text-white/90">{job.title}</div>
-            </div>
-
-            <EmployerApplicantList locale={locale} jobPostId={id} applications={enriched} />
-          </div>
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+    <AccountCalmShell title={t("applicantsTitle")} subtitle={t("inboxSubtitle")} maxWidthClassName="max-w-7xl">
+          <EmployerApplicantList locale={locale} jobPostId={id} applications={enriched} jobs={jobs} />
+        </AccountCalmShell>
   );
 }
