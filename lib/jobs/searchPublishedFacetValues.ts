@@ -1,109 +1,58 @@
-import type { Job } from "@/components/jobs/types";
 import {
-  buildFacetOptions,
   FACET_SEARCH_RESULT_LIMIT,
-  isSearchableFacet,
-  isStructuredTaxonomyValue,
   optionMatchesFacetQuery,
   type FacetOption,
   type JobFilterFacet,
 } from "@/lib/jobs/jobSearchFacets";
-import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
+import { rpcArgsFromSearch } from "@/lib/jobs/loadPublishedJobSearch";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function splitCerts(raw: unknown): string[] {
-  const s = (raw ?? "").toString().trim();
-  if (!s) return [];
-  return s
-    .split(/[,;\n]/g)
-    .map((x) => x.trim())
-    .filter(Boolean);
-}
-
-function normText(s: string) {
-  return s.trim().replace(/\s+/g, " ").replace(/[\u2011\u2010\u2212]/g, "-");
-}
 
 export async function searchPublishedFacetValues(
   facet: JobFilterFacet,
   q: string,
   keywordQuery = "",
 ): Promise<FacetOption[]> {
-  if (!isSearchableFacet(facet)) return [];
   const needle = q.trim();
   if (needle.length < 2) return [];
 
   const supabase = await createSupabaseServerClient();
-  const selectCols =
-    "title,location,required_skills,certificate_requirements,employer_profile_id,status,published_at,application_deadline,expires_at,short_summary";
+  const args = rpcArgsFromSearch({
+    query: keywordQuery,
+    hasSalary: false,
+    selections: [],
+    sort: "newest",
+    page: 1,
+    pageSize: 20,
+  });
 
-  const { data, error } = await supabase
-    .from("job_posts")
-    .select(selectCols)
-    .eq("status", "published")
-    .limit(2500);
+  const { data, error } = await supabase.rpc("published_job_search_facets", {
+    p_query: args.p_query,
+    p_locations: args.p_locations,
+    p_titles: args.p_titles,
+    p_domains: args.p_domains,
+    p_job_types: args.p_job_types,
+    p_work_types: args.p_work_types,
+    p_salary_buckets: args.p_salary_buckets,
+    p_experience: args.p_experience,
+    p_skills: args.p_skills,
+    p_certs: args.p_certs,
+    p_languages: args.p_languages,
+    p_has_salary: args.p_has_salary,
+  });
 
-  if (error || !data) return [];
+  if (error || !data || typeof data !== "object") return [];
+  const list = (data as Record<string, unknown>)[facet];
+  if (!Array.isArray(list)) return [];
 
-  const rows = data.filter((row) =>
-    jobAcceptsApplications({
-      status: (row.status ?? null) as string | null,
-      published_at: (row.published_at ?? null) as string | null,
-      application_deadline: (row.application_deadline ?? null) as string | null,
-      expires_at: (row.expires_at ?? null) as string | null,
-    }),
-  );
-
-  let industryByEmployer = new Map<string, string>();
-  if (facet === "domain") {
-    const ids = Array.from(
-      new Set(rows.map((r) => (r.employer_profile_id ?? "").toString()).filter(Boolean)),
-    );
-    if (ids.length) {
-      const { data: employers } = await supabase
-        .from("employer_profiles")
-        .select("id,industry")
-        .in("id", ids.slice(0, 500));
-      industryByEmployer = new Map(
-        (employers ?? []).map((e) => [
-          e.id as string,
-          normText((e.industry ?? "").toString()),
-        ]),
-      );
-    }
-  }
-
-  const kw = keywordQuery.trim().toLowerCase();
-  const jobs: Job[] = rows
-    .map((row) => {
-      const skills = ((row.required_skills as string[] | null) ?? [])
-        .map((s) => normText(String(s)))
-        .filter((s) => isStructuredTaxonomyValue(s, "skill"));
-      const domain = industryByEmployer.get((row.employer_profile_id ?? "").toString()) || "";
-      return {
-        id: "",
-        title: (row.title ?? "").toString().trim() || "—",
-        company: "",
-        location: normText((row.location ?? "").toString()) || "—",
-        type: "—",
-        tags: [],
-        skills,
-        requiredCerts: splitCerts(row.certificate_requirements).filter((c) =>
-          isStructuredTaxonomyValue(c, "cert"),
-        ),
-        domains: domain ? [domain] : [],
-        summary: (row.short_summary ?? "").toString(),
-      } satisfies Job;
+  return list
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const value = ((item as { value?: unknown }).value ?? "").toString().trim();
+      const count = Number((item as { count?: unknown }).count) || 0;
+      if (!value) return null;
+      return { value, count } satisfies FacetOption;
     })
-    .filter((job) => {
-      if (!kw) return true;
-      const hay = [job.title, job.location, job.summary ?? "", ...(job.skills ?? []), ...(job.domains ?? [])]
-        .join(" ")
-        .toLowerCase();
-      return hay.includes(kw);
-    });
-
-  return buildFacetOptions(jobs, [], facet, "")
+    .filter((x): x is FacetOption => Boolean(x))
     .filter((o) => optionMatchesFacetQuery(o, needle))
     .slice(0, FACET_SEARCH_RESULT_LIMIT);
 }

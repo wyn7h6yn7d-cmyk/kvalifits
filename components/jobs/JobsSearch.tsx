@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useDeferredValue, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { MapPin, Search, SlidersHorizontal, X } from "lucide-react";
@@ -14,11 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
-  buildAllFacetOptions,
   isSearchableFacet,
-  jobMatchesSelections,
   limitFacetCatalog,
   toggleSelection,
+  type FacetOption,
   type JobFilterFacet,
   type JobFilterSelection,
 } from "@/lib/jobs/jobSearchFacets";
@@ -28,8 +27,8 @@ import {
   selectionsFromSearchParams,
   sortFromParams,
 } from "@/lib/jobs/jobSearchState";
-import { sortJobs, type JobSearchSort } from "@/lib/jobs/jobSearchSort";
-import { useRouter } from "@/i18n/routing";
+import { type JobSearchSort } from "@/lib/jobs/jobSearchSort";
+import { useRouter, Link } from "@/i18n/routing";
 import { JobFiltersBody, selectionKeyOf } from "@/components/jobs/JobFilterPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { JobCard } from "./JobCard";
@@ -49,6 +48,11 @@ const MORE_FACETS: JobFilterFacet[] = ["cert", "language"];
 
 type Props = {
   jobs: Job[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  facetOptions: Record<JobFilterFacet, FacetOption[]>;
   pageTitle: string;
   matchSortAvailable: boolean;
   savedJobIds?: string[];
@@ -57,6 +61,11 @@ type Props = {
 
 export function JobsSearch({
   jobs,
+  totalCount,
+  currentPage,
+  totalPages,
+  pageSize,
+  facetOptions,
   pageTitle,
   matchSortAvailable,
   savedJobIds = [],
@@ -76,18 +85,10 @@ export function JobsSearch({
   const [requirePublicSalary, setRequirePublicSalary] = useState(false);
   const [sort, setSort] = useState<JobSearchSort>("newest");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const deferredQuery = useDeferredValue(debouncedQuery);
-
-  useEffect(() => {
-    const id = window.setTimeout(() => setDebouncedQuery(query), 180);
-    return () => window.clearTimeout(id);
-  }, [query]);
 
   useEffect(() => {
     const parsed = parseJobSearchParams(searchParams);
     setQuery(parsed.query ?? "");
-    setDebouncedQuery(parsed.query ?? "");
     setLocationInput(parsed.location ?? "");
     setSelections(selectionsFromSearchParams(parsed, tJobs));
     setRequirePublicSalary(Boolean(parsed.hasSalary));
@@ -100,6 +101,7 @@ export function JobsSearch({
     selections?: JobFilterSelection[];
     requirePublicSalary?: boolean;
     sort?: JobSearchSort;
+    page?: number;
   }) => {
     const url = buildJobSearchUrl(
       buildSearchUrlState({
@@ -108,10 +110,21 @@ export function JobsSearch({
         selections: next.selections ?? selections,
         requirePublicSalary: next.requirePublicSalary ?? requirePublicSalary,
         sort: next.sort ?? sort,
+        page: next.page,
       }),
     );
     router.replace(url, { scroll: false });
   };
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const parsed = parseJobSearchParams(searchParams);
+      if ((parsed.query ?? "") === query) return;
+      replaceUrl({ query });
+    }, 180);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- debounce query into the URL for server search
+  }, [query, paramsKey]);
 
   const formatLabel = useMemo(() => {
     return (facet: JobFilterFacet, value: string) => {
@@ -129,19 +142,8 @@ export function JobsSearch({
     };
   }, [t, tExp]);
 
-  const filtered = useMemo(() => {
-    const matched = jobs.filter((j) => jobMatchesSelections(j, selections, deferredQuery));
-    if (!requirePublicSalary) return matched;
-    return matched.filter((j) => j.salaryMin != null || j.salaryMax != null);
-  }, [jobs, selections, deferredQuery, requirePublicSalary]);
-
-  const results = useMemo(() => sortJobs(filtered, sort), [filtered, sort]);
+  const results = jobs;
   const savedSet = useMemo(() => new Set(savedJobIds), [savedJobIds]);
-
-  const facetOptions = useMemo(
-    () => buildAllFacetOptions(jobs, selections, deferredQuery),
-    [jobs, selections, deferredQuery],
-  );
 
   const buildGroups = useCallback(
     (facets: JobFilterFacet[]) => {
@@ -244,7 +246,7 @@ export function JobsSearch({
     };
   }, [mobileOpen]);
 
-  const resultsLabel = t("resultsCount", { count: results.length });
+  const resultsLabel = t("resultsCount", { count: totalCount });
   const searchSnapshot = useMemo(
     () => ({
       query,
@@ -397,7 +399,7 @@ export function JobsSearch({
                 selections={selections}
                 onToggle={onToggle}
                 onClear={clearAll}
-                keywordQuery={deferredQuery}
+                keywordQuery={query}
               />
             </div>
           </aside>
@@ -446,7 +448,9 @@ export function JobsSearch({
             {results.length === 0 ? (
               <JobSearchEmptyState
                 t={t}
-                catalogEmpty={!jobs.length}
+                catalogEmpty={totalCount === 0 && !Boolean(
+                  query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
+                )}
                 hasConstraints={Boolean(
                   query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
                 )}
@@ -469,6 +473,54 @@ export function JobsSearch({
                   ) : null
                 }
               />
+            ) : null}
+
+            {totalPages > 1 ? (
+              <div className="mt-6 flex items-center justify-between gap-3">
+                {currentPage > 1 ? (
+                  <Button asChild variant="outline" size="sm">
+                    <Link
+                      href={buildJobSearchUrl(
+                        buildSearchUrlState({
+                          query,
+                          locationInput,
+                          selections,
+                          requirePublicSalary,
+                          sort,
+                          page: currentPage - 1,
+                        }),
+                      )}
+                    >
+                      {t("pagePrev")}
+                    </Link>
+                  </Button>
+                ) : (
+                  <span />
+                )}
+                <p className="text-[13px] text-white/50">
+                  {t("pageStatus", { page: currentPage, pages: totalPages, size: pageSize })}
+                </p>
+                {currentPage < totalPages ? (
+                  <Button asChild variant="outline" size="sm">
+                    <Link
+                      href={buildJobSearchUrl(
+                        buildSearchUrlState({
+                          query,
+                          locationInput,
+                          selections,
+                          requirePublicSalary,
+                          sort,
+                          page: currentPage + 1,
+                        }),
+                      )}
+                    >
+                      {t("pageNext")}
+                    </Link>
+                  </Button>
+                ) : (
+                  <span />
+                )}
+              </div>
             ) : null}
           </div>
         </div>
@@ -510,7 +562,7 @@ export function JobsSearch({
                 onToggle={onToggle}
                 onClear={clearAll}
                 showHeader={false}
-                keywordQuery={deferredQuery}
+                keywordQuery={query}
               />
             </div>
 
@@ -521,7 +573,7 @@ export function JobsSearch({
                 className="h-12 w-full rounded-xl"
                 onClick={() => setMobileOpen(false)}
               >
-                {t("showJobs", { count: results.length })}
+                {t("showJobs", { count: totalCount })}
               </Button>
             </div>
           </DialogPrimitive.Content>

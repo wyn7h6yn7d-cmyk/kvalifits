@@ -1830,6 +1830,9 @@
     "filtersWithCount": "Фильтры · {count}",
     "viewJobs": "{count, plural, one {Смотреть # вакансию} few {Смотреть # вакансии} many {Смотреть # вакансий} other {Смотреть # вакансий}}",
     "closeFilters": "Закрыть фильтры",
+    "pagePrev": "Назад",
+    "pageNext": "Вперёд",
+    "pageStatus": "{page} / {pages}",
     "salaryBucket": {
       "0-1499": "до 1 499 €",
       "1500-1999": "1 500–1 999 €",

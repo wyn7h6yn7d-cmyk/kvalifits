@@ -56,6 +56,7 @@ export function buildSearchUrlState(input: {
   selections: JobFilterSelection[];
   requirePublicSalary: boolean;
   sort: JobSearchSort;
+  page?: number;
 }): JobSearchUrlParams {
   const locationSelections = input.selections.filter((s) => s.facet === "location");
   const otherFilters = input.selections.filter((s) => s.facet !== "location");
@@ -77,6 +78,7 @@ export function buildSearchUrlState(input: {
     location: locationParam || undefined,
     hasSalary: input.requirePublicSalary || undefined,
     sort: input.sort !== "newest" ? input.sort : undefined,
+    page: input.page && input.page > 1 ? input.page : undefined,
     filters,
   };
 }

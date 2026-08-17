@@ -9,6 +9,7 @@ export type JobSearchUrlParams = {
   experience?: string;
   hasSalary?: boolean;
   sort?: JobSearchSort;
+  page?: number;
   filters?: JobFilterSelection[];
 };
 
@@ -52,6 +53,7 @@ export function buildJobSearchUrl(params: JobSearchUrlParams): string {
   if (params.experience) sp.set("experience", params.experience);
   if (params.hasSalary) sp.set("hasSalary", "1");
   if (params.sort && params.sort !== "newest") sp.set("sort", params.sort);
+  if (params.page && params.page > 1) sp.set("page", String(params.page));
 
   for (const f of params.filters ?? []) {
     sp.append("f", encodeFilter(f));
@@ -90,6 +92,9 @@ export function parseJobSearchParams(
     if (parsed) filters.push(parsed);
   }
 
+  const pageRaw = Number(get("page") ?? "1");
+  const page = Number.isFinite(pageRaw) ? Math.max(1, Math.floor(pageRaw)) : 1;
+
   return {
     query: get("query"),
     location: get("location"),
@@ -98,6 +103,7 @@ export function parseJobSearchParams(
     experience: get("experience"),
     hasSalary: get("hasSalary") === "1" || get("hasSalary") === "true",
     sort: (get("sort") as JobSearchUrlParams["sort"]) ?? undefined,
+    page: page > 1 ? page : undefined,
     filters,
   };
 }
