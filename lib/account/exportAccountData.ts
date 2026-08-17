@@ -54,13 +54,13 @@ export async function exportAccountData(opts: {
         "id,job_post_id,created_at,status,consent_to_share,cover_letter,application_answers,shared_profile"
       )
       .eq("seeker_user_id", userId);
-    if (!fallback.error) jobApplications = fallback.data ?? [];
+    if (!fallback.error) jobApplications = (fallback.data ?? []) as typeof jobApplications;
   } else if (applicationsErr && /status|column/i.test(applicationsErr.message ?? "")) {
     const fallback = await supabase
       .from("job_applications")
       .select("id,job_post_id,created_at,consent_to_share,cover_letter,application_answers,shared_profile")
       .eq("seeker_user_id", userId);
-    if (!fallback.error) jobApplications = fallback.data ?? [];
+    if (!fallback.error) jobApplications = (fallback.data ?? []) as typeof jobApplications;
   }
 
   const { data: employer } = await supabase

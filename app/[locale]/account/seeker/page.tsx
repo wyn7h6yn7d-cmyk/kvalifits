@@ -111,7 +111,7 @@ async function SeekerOverviewBody({
       .order("updated_at", { ascending: false })
       .limit(20);
     if (fallback.error) throw fallback.error;
-    applications = fallback.data as typeof applicationsRes.data;
+    applications = fallback.data as unknown as typeof applications;
   } else if (applicationsRes.error) {
     throw applicationsRes.error;
   }

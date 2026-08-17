@@ -41,7 +41,7 @@ export default async function SeekerApplicationsPage({ params }: Props) {
       .eq("seeker_user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(200);
-    applicationRows = fallback.data;
+    applicationRows = fallback.data as unknown as typeof applications;
     applicationErr = fallback.error;
   }
   if (applicationErr) throw applicationErr;

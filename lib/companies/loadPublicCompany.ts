@@ -37,7 +37,7 @@ async function fetchBySlugOrId(
 ): Promise<{ data: Record<string, unknown> | null; error: { message?: string } | null }> {
   const bySlug = await supabase.from(table).select(select).eq("public_slug", slug).maybeSingle();
   if (!bySlug.error && bySlug.data) {
-    return { data: bySlug.data as Record<string, unknown>, error: null };
+    return { data: bySlug.data as unknown as Record<string, unknown>, error: null };
   }
   if (bySlug.error && !isMissingDbObjectError(bySlug.error.message) && !/public_slug/i.test(bySlug.error.message ?? "")) {
     return { data: null, error: bySlug.error };
@@ -47,7 +47,7 @@ async function fetchBySlugOrId(
     if (byId.error && !isMissingDbObjectError(byId.error.message)) {
       return { data: null, error: byId.error };
     }
-    return { data: (byId.data as Record<string, unknown> | null) ?? null, error: byId.error };
+    return { data: (byId.data as unknown as Record<string, unknown> | null) ?? null, error: byId.error };
   }
   return { data: null, error: bySlug.error };
 }
