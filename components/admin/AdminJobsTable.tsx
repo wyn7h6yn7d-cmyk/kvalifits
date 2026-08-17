@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { errorMessageFromUnknown } from "@/lib/utils";
@@ -19,13 +20,21 @@ type JobRow = {
   employer_name?: string;
 };
 
-export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[] }) {
+const JOB_STATUSES = ["draft", "published", "archived"] as const;
+
+export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
   const t = useTranslations("admin");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  function statusLabel(status: string) {
+    return JOB_STATUSES.includes(status as (typeof JOB_STATUSES)[number])
+      ? t(`jobStatus.${status}`)
+      : status;
+  }
 
   async function setStatus(jobId: string, status: "draft" | "published" | "archived") {
     setBusyId(jobId);
@@ -63,22 +72,29 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
     }
   }
 
-  async function deleteJob(jobId: string) {
-    setBusyId(jobId);
+  async function deleteJob(row: JobRow) {
+    const title = row.title?.trim() || row.id;
+    if (!window.confirm(t("deleteJobConfirm1", { title }))) return;
+    if (!window.confirm(t("deleteJobConfirm2", { title }))) return;
+
+    setBusyId(row.id);
     setError(null);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const { error } = await supabase.from("job_posts").delete().eq("id", jobId);
-      if (error) throw error;
-      const { tryWriteAdminAuditLog, ADMIN_AUDIT_ACTIONS } = await import("@/lib/admin/auditLog");
-      await tryWriteAdminAuditLog(supabase, {
-        actorId: user?.id,
-        action: ADMIN_AUDIT_ACTIONS.jobPostDelete,
-        targetType: "job_post",
-        targetId: jobId,
+      const res = await fetch("/api/admin/jobs/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId: row.id,
+          confirmWord: ACCOUNT_DELETE_CONFIRM_WORD,
+        }),
       });
+      const json = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+      if (!res.ok) {
+        if (json.error === "missing_service_role_key") throw new Error(t("deleteUserErrConfig"));
+        if (json.error === "mfa_required") throw new Error(t("deleteUserErrMfa"));
+        if (json.error === "job_not_found") throw new Error(t("deleteJobErrMissing"));
+        throw new Error(json.message || t("unknownError"));
+      }
       router.refresh();
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));
@@ -104,7 +120,7 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
       ) : null}
 
       <div className="overflow-hidden rounded-3xl border border-white/[0.10]">
-        <div className="grid grid-cols-[1.3fr_0.9fr_0.6fr_0.9fr] gap-3 border-b border-white/[0.10] bg-white/[0.03] px-4 py-3 text-xs font-medium tracking-wide text-white/60">
+        <div className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-white/[0.10] bg-white/[0.03] px-4 py-3 text-xs font-medium tracking-wide text-white/60">
           <div>{t("colJob")}</div>
           <div className="hidden sm:block">{t("colCompany")}</div>
           <div>{t("colStatus")}</div>
@@ -114,7 +130,7 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
         {jobs.map((j) => (
           <div
             key={j.id}
-            className="grid grid-cols-[1.3fr_0.9fr_0.6fr_0.9fr] gap-3 border-b border-white/[0.08] bg-white/[0.02] px-4 py-3 last:border-b-0"
+            className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-white/[0.08] bg-white/[0.02] px-4 py-3 last:border-b-0"
           >
             <div className="min-w-0">
               <div className="truncate text-sm font-medium text-white/85">{j.title}</div>
@@ -127,7 +143,7 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
               <div className="truncate text-sm text-white/75">{j.employer_name ?? "—"}</div>
             </div>
 
-            <div className="text-sm text-white/75">{j.status}</div>
+            <div className="text-sm text-white/75">{statusLabel(j.status)}</div>
 
             <div className="flex flex-wrap justify-end gap-2">
               {j.status !== "published" ? (
@@ -153,22 +169,24 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
                   {t("unpublish")}
                 </Button>
               )}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-9 rounded-xl px-3 text-[13px]"
-                onClick={() => void setStatus(j.id, "archived")}
-                disabled={busyId === j.id}
-              >
-                {t("archive")}
-              </Button>
+              {j.status !== "archived" ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 rounded-xl px-3 text-[13px]"
+                  onClick={() => void setStatus(j.id, "archived")}
+                  disabled={busyId === j.id}
+                >
+                  {t("archive")}
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 className="h-9 rounded-xl border-red-500/30 bg-red-500/10 px-3 text-[13px] text-red-100 hover:bg-red-500/15"
-                onClick={() => void deleteJob(j.id)}
+                onClick={() => void deleteJob(j)}
                 disabled={busyId === j.id}
               >
                 {t("delete")}
@@ -180,4 +198,3 @@ export function AdminJobsTable({ locale, jobs }: { locale: string; jobs: JobRow[
     </div>
   );
 }
-

@@ -1,11 +1,9 @@
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
-import { AuthShell } from "@/components/auth/AuthShell";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -23,7 +21,7 @@ type EmployerRow = { owner_user_id: string };
 export default async function AdminUsersPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "admin" });
-  const { supabase } = await requireAdmin(locale);
+  const { supabase, user } = await requireAdmin(locale);
 
   const admin = createSupabaseAdminClient();
   const isUsingAdmin = Boolean(admin);
@@ -82,22 +80,16 @@ export default async function AdminUsersPage({ params }: Props) {
   const employerById = new Map((employerRows ?? []).map((r) => [r.owner_user_id, true]));
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("usersTitle")} subtitle={t("usersSubtitle")} maxWidthClassName="max-w-5xl">
-          {!isUsingAdmin ? (
-            <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-[12.5px] leading-relaxed text-white/70">
-              <div className="font-semibold text-white/85">Admin vaade on piiratud.</div>
-              <div className="mt-1">
-                Täieliku kasutajate nimekirja jaoks seadista serveris{" "}
-                <span className="font-mono text-white/85">SUPABASE_SERVICE_ROLE_KEY</span>. Hetkel näidatakse andmeid
-                vastavalt RLS reeglitele.
-              </div>
-            </div>
-          ) : null}
-          <AdminUsersTable
+    <AdminShell title={t("usersTitle")} subtitle={t("usersSubtitle")}>
+      {!isUsingAdmin ? (
+        <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-[12.5px] leading-relaxed text-white/70">
+          <div className="font-semibold text-white/85">{t("limitedViewTitle")}</div>
+          <div className="mt-1">{t("limitedViewBody")}</div>
+        </div>
+      ) : null}
+      <AdminUsersTable
             locale={locale}
+            actorId={user.id}
             users={ids
               .slice()
               .sort((a, b) => (createdById.get(b) ?? "").localeCompare(createdById.get(a) ?? ""))
@@ -117,11 +109,8 @@ export default async function AdminUsersPage({ params }: Props) {
                   has_employer_profile: Boolean(employerById.get(id)),
                 };
               })}
-          />
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+      />
+    </AdminShell>
   );
 }
 

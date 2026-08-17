@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
-import { AuthShell } from "@/components/auth/AuthShell";
-import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { AdminModerationPanel } from "@/components/admin/AdminModerationPanel";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -107,15 +105,8 @@ export default async function AdminModerationPage({ params }: Props) {
   }
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell
-          title={t("moderationTitle")}
-          subtitle={t("moderationSubtitle")}
-          maxWidthClassName="max-w-3xl"
-        >
-          <AdminModerationPanel
+    <AdminShell title={t("moderationTitle")} subtitle={t("moderationSubtitle")} maxWidthClassName="max-w-3xl">
+      <AdminModerationPanel
             reports={(reportRows ?? []).map((r) => {
               const meta = jobMetaById.get((r as any).job_post_id);
               return {
@@ -131,9 +122,6 @@ export default async function AdminModerationPage({ params }: Props) {
             companies={companies}
             blockedUsers={blockedUsers}
           />
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+    </AdminShell>
   );
 }

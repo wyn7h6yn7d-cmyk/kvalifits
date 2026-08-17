@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
+import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
 import {
   EMPLOYER_COMPANY_VERIFICATION_STATUS_VALUES,
   isEmployerCompanyVerificationStatus,
@@ -25,6 +26,7 @@ export type AdminEmployerRow = {
   verification_source: string | null;
   verified_at: string | null;
   created_at?: string | null;
+  job_count?: number;
 };
 
 export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow[] }) {
@@ -81,6 +83,37 @@ export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow
     }
   }
 
+  async function deleteEmployer(row: AdminEmployerRow) {
+    const name = (row.company_name ?? "").toString().trim() || row.id;
+    if (!window.confirm(t("deleteEmployerConfirm1", { name }))) return;
+    if (!window.confirm(t("deleteEmployerConfirm2", { name }))) return;
+
+    setBusyId(row.id);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/employers/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          employerId: row.id,
+          confirmWord: ACCOUNT_DELETE_CONFIRM_WORD,
+        }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+      if (!res.ok) {
+        if (json.error === "missing_service_role_key") throw new Error(t("deleteUserErrConfig"));
+        if (json.error === "mfa_required") throw new Error(t("deleteUserErrMfa"));
+        if (json.error === "employer_not_found") throw new Error(t("deleteEmployerErrMissing"));
+        throw new Error(json.message || t("unknownError"));
+      }
+      router.refresh();
+    } catch (err) {
+      setError(errorMessageFromUnknown(err, t("unknownError")));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (!employers.length) {
     return (
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 text-sm text-white/70">
@@ -119,6 +152,7 @@ export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow
               <div className="mt-1 text-xs text-white/55">
                 {(e.registry_code ?? "").toString().trim() || "—"}
                 {e.contact_email ? ` · ${e.contact_email}` : ""}
+                {typeof e.job_count === "number" ? ` · ${t("jobsCount", { count: e.job_count })}` : ""}
               </div>
             </div>
 
@@ -148,15 +182,27 @@ export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow
                   ))}
                 </select>
               </div>
-              <Button
-                type="button"
-                size="sm"
-                className="h-10 shrink-0 rounded-xl px-4 text-[13px]"
-                disabled={busyId === e.id}
-                onClick={() => void save(e.id)}
-              >
-                {busyId === e.id ? t("saving") : t("saveVerification")}
-              </Button>
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-10 rounded-xl px-4 text-[13px]"
+                  disabled={busyId === e.id}
+                  onClick={() => void save(e.id)}
+                >
+                  {busyId === e.id ? t("saving") : t("saveVerification")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-10 rounded-xl border-red-500/30 bg-red-500/10 px-4 text-[13px] text-red-100 hover:bg-red-500/15"
+                  disabled={busyId === e.id}
+                  onClick={() => void deleteEmployer(e)}
+                >
+                  {t("delete")}
+                </Button>
+              </div>
             </div>
           </div>
         );

@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTranslations } from "next-intl/server";
 
-import { Navbar } from "@/components/sections/Navbar";
-import { Footer } from "@/components/sections/Footer";
-import { AuthShell } from "@/components/auth/AuthShell";
-import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { AdminJobReportsTable } from "@/components/admin/AdminJobReportsTable";
+import { AdminShell } from "@/components/admin/AdminShell";
+import { requireAdmin } from "@/lib/admin/requireAdmin";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -50,23 +48,17 @@ export default async function AdminJobReportsPage({ params }: Props) {
   );
 
   return (
-    <div className="flex-1 bg-background">
-      <Navbar />
-      <main className="pt-[var(--site-header-offset)]">
-        <AuthShell title={t("reportsTitle")} subtitle={t("reportsSubtitle")} maxWidthClassName="max-w-3xl">
-          <AdminJobReportsTable
-            reports={(reports ?? []).map((r) => {
-              const meta = jobMetaById.get((r as any).job_post_id);
-              return {
-                ...(r as any),
-                job_title: meta?.title,
-                employer_name: meta?.employer_name,
-              };
-            })}
-          />
-        </AuthShell>
-      </main>
-      <Footer />
-    </div>
+    <AdminShell title={t("reportsTitle")} subtitle={t("reportsSubtitle")} maxWidthClassName="max-w-3xl">
+      <AdminJobReportsTable
+        reports={(reports ?? []).map((r) => {
+          const meta = jobMetaById.get((r as any).job_post_id);
+          return {
+            ...(r as any),
+            job_title: meta?.title,
+            employer_name: meta?.employer_name,
+          };
+        })}
+      />
+    </AdminShell>
   );
 }

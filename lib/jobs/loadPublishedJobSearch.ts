@@ -306,18 +306,18 @@ export async function loadPublishedJobSearch(input: {
   };
 }
 
-const FALLBACK_JOB_SELECTS = [
+const FALLBACK_JOB_SELECTS: string[] = [
   "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,salary_tax,salary_period,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work,languages",
   "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required",
   "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at,published_at",
   "id,title,location,job_type,work_type,short_summary,employer_profile_id,status,created_at",
-] as const;
+];
 
-const FALLBACK_EMPLOYER_SELECTS = [
+const FALLBACK_EMPLOYER_SELECTS: string[] = [
   "id,company_name,logo_url,company_verified,verification_status,industry,public_slug",
   "id,company_name,logo_url,industry",
   "id,company_name,logo_url",
-] as const;
+];
 
 async function fallbackPublishedSearch(
   supabase: SupabaseClient,
@@ -357,7 +357,7 @@ async function fallbackPublishedSearch(
     const { data, count, error } = await q.range(from, to);
     if (error && isTaxonomyColumnError(error.message)) continue;
     if (error) break;
-    rows = (data ?? []) as PublishedJobSearchRow[];
+    rows = ((data ?? []) as unknown) as PublishedJobSearchRow[];
     total = count ?? rows.length;
     break;
   }
@@ -370,7 +370,7 @@ async function fallbackPublishedSearch(
     for (const select of FALLBACK_EMPLOYER_SELECTS) {
       const { data, error } = await supabase.from("employer_profiles").select(select).in("id", employerIds);
       if (error && isTaxonomyColumnError(error.message)) continue;
-      if (!error) employers = (data ?? []) as Record<string, unknown>[];
+      if (!error) employers = ((data ?? []) as unknown) as Record<string, unknown>[];
       break;
     }
     const byId = new Map(employers.map((e) => [String(e.id), e]));
