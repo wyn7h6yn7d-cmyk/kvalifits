@@ -161,10 +161,10 @@ export function Navbar() {
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
         <Container className="pointer-events-auto w-full max-w-[1320px]">
           <div className={headerBar}>
-            <div className="flex min-w-0 shrink-0 items-center">
+            <div className="flex h-full shrink-0 items-center">
               <Logo
-                className="inline-flex h-10 max-h-10 items-center leading-none"
-                imageClassName="h-9 w-auto max-w-[168px] sm:h-10 sm:max-w-[220px]"
+                className="inline-flex h-full items-center"
+                imageClassName="h-[3.15rem] w-[15.25rem] object-cover object-center sm:h-[3.35rem] sm:w-[16.5rem]"
                 priority
               />
             </div>

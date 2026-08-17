@@ -26,7 +26,10 @@ export async function Footer() {
           <div className="grid grid-cols-1 items-start gap-x-0 gap-y-10 sm:grid-cols-6 sm:gap-x-8 sm:gap-y-10 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-0 xl:gap-x-10">
             <div className="flex min-w-0 flex-col gap-3 sm:col-span-6 lg:col-span-5">
               <div className="self-start leading-none">
-                <Logo className="flex flex-col items-start gap-0 opacity-95" />
+                <Logo
+                  className="flex items-start opacity-95"
+                  imageClassName="h-12 w-[16rem] object-cover object-left"
+                />
               </div>
               <div className="flex max-w-md flex-col gap-3">
                 <p className="text-[15px] leading-7 text-body sm:text-base">{t("tagline")}</p>
