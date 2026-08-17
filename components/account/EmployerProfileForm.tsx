@@ -20,7 +20,12 @@ import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUplo
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { errorMessageFromUnknown } from "@/lib/utils";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { taxonomyLabel, findTerm } from "@/lib/taxonomy/labels";
+import { resolveTaxonomyId } from "@/lib/taxonomy/resolve";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 
 const SIMPLE_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -34,6 +39,7 @@ export type EmployerProfile = {
   company_description: string | null;
   location: string | null;
   industry: string | null;
+  industry_id?: string | null;
   company_size?: string | null;
   logo_url?: string | null;
   company_verified?: boolean | null;
@@ -65,6 +71,8 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [website, setWebsite] = useState(initial?.website ?? "");
   const [locationValue, setLocationValue] = useState(initial?.location ?? "");
   const [industry, setIndustry] = useState(initial?.industry ?? "");
+  const [industryId, setIndustryId] = useState(initial?.industry_id ?? "");
+  const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
   const [companySize, setCompanySize] = useState(initial?.company_size ?? "");
   const [companyDescription, setCompanyDescription] = useState(initial?.company_description ?? "");
   const [logoUrl, setLogoUrl] = useState(initial?.logo_url ?? "");
@@ -84,6 +92,12 @@ export function EmployerProfileForm({ locale, initial }: Props) {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!taxonomyAvailable || industryId) return;
+    const mapped = resolveTaxonomyId(catalog, "industry", initial?.industry_id || industry);
+    if (mapped) setIndustryId(mapped);
+  }, [taxonomyAvailable, catalog, industryId, industry, initial?.industry_id]);
 
   useEffect(() => {
     setLogoUrl(initial?.logo_url ?? "");
@@ -186,12 +200,16 @@ export function EmployerProfileForm({ locale, initial }: Props) {
       if (!contactEmail.trim()) throw new Error(t("errContactEmailRequired"));
       if (!SIMPLE_EMAIL_RE.test(contactEmail.trim())) throw new Error(t("errContactEmailFormat"));
       if (!locationValue.trim()) throw new Error(t("errLocationRequired"));
-      if (industry.trim().length < 2) throw new Error(t("errIndustryRequired"));
+      if (taxonomyAvailable) {
+        if (!industryId) throw new Error(t("errIndustryRequired"));
+      } else if (industry.trim().length < 2) throw new Error(t("errIndustryRequired"));
       if (companyDescription.trim().length < 40) throw new Error(t("errCompanyDescriptionTooShort"));
       if (logoUrl.trim() && !isEmployerLogoFromStorageUpload(logoUrl)) {
         throw new Error(t("logoUploadError"));
       }
 
+      const selectedIndustry = findTerm(catalog, "industry", industryId);
+      const industryLabel = selectedIndustry ? taxonomyLabel(selectedIndustry, "et") : industry;
       const payload = {
         company_name: companyName,
         registry_code: registryCode || null,
@@ -200,16 +218,25 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         website: website || null,
         company_description: companyDescription,
         location: locationValue,
-        industry: industry || null,
+        industry: industryLabel || null,
+        industry_id: taxonomyAvailable ? industryId || null : undefined,
         logo_url: logoUrl.trim() || null,
         ...employerCompanySizeField(companySize.trim()),
         // Never send verification fields — name/registry alone must not mark company verified.
       };
 
-      const { error } = await supabase.from("employer_profiles").upsert(
+      let { error } = await supabase.from("employer_profiles").upsert(
         { owner_user_id: user.id, ...payload },
         { onConflict: "owner_user_id" }
       );
+      if (error && isTaxonomyColumnError(error.message)) {
+        const { industry_id: _id, ...rest } = payload;
+        const retry = await supabase.from("employer_profiles").upsert(
+          { owner_user_id: user.id, ...rest },
+          { onConflict: "owner_user_id" }
+        );
+        error = retry.error;
+      }
       if (error) throw error;
 
       setSaveSuccess(true);
@@ -296,13 +323,28 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("industry")}</label>
-          <Input
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-            required
-            minLength={2}
-            placeholder={t("industryHint")}
-          />
+          {taxonomyAvailable ? (
+            <TaxonomySelect
+              value={industryId}
+              required
+              terms={catalog.industries}
+              locale={locale}
+              placeholder={t("taxonomyPlaceholder")}
+              onChange={(id) => {
+                setIndustryId(id);
+                const term = findTerm(catalog, "industry", id);
+                if (term) setIndustry(taxonomyLabel(term, "et"));
+              }}
+            />
+          ) : (
+            <Input
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              required
+              minLength={2}
+              placeholder={t("industryHint")}
+            />
+          )}
         </div>
         {EMPLOYER_COMPANY_SIZE_DB_ENABLED ? (
           <div className="space-y-2 sm:col-span-2">

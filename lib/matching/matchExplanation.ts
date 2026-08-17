@@ -33,6 +33,48 @@ export type MatchExplanation = {
   recommendedTotal: number;
 };
 
+/** Card “why” panel and list payloads. Job/employer detail may use a higher cap. */
+export const MATCH_EXPLANATION_CRITERIA_CAP = 8;
+
+function isCriterionStatus(v: unknown): v is MatchCriterionStatus {
+  return v === "pass" || v === "partial" || v === "gap";
+}
+
+function isCriterionPriority(v: unknown): v is MatchCriterionPriority {
+  return v === "mandatory" || v === "preferred";
+}
+
+export function parseMatchExplanation(raw: unknown): MatchExplanation | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  const criteria: MatchCriterion[] = [];
+  if (Array.isArray(o.criteria)) {
+    for (const item of o.criteria) {
+      if (!item || typeof item !== "object") continue;
+      const row = item as Record<string, unknown>;
+      const id = (row.id ?? "").toString().trim();
+      const messageKey = (row.messageKey ?? "").toString().trim();
+      if (!id || !messageKey || !isCriterionStatus(row.status) || !isCriterionPriority(row.priority)) continue;
+      const values =
+        row.values && typeof row.values === "object" && !Array.isArray(row.values)
+          ? (row.values as Record<string, string | number>)
+          : undefined;
+      criteria.push({ id, status: row.status, priority: row.priority, messageKey, ...(values ? { values } : {}) });
+    }
+  }
+  const n = (v: unknown) => {
+    const x = Number(v);
+    return Number.isFinite(x) ? x : 0;
+  };
+  return {
+    criteria,
+    mandatoryFilled: n(o.mandatoryFilled),
+    mandatoryTotal: n(o.mandatoryTotal),
+    recommendedFilled: n(o.recommendedFilled),
+    recommendedTotal: n(o.recommendedTotal),
+  };
+}
+
 export function emptyMatchExplanation(): MatchExplanation {
   return {
     criteria: [],
@@ -133,6 +175,11 @@ function asJob(raw: JobMatchInput | Record<string, unknown> | null | undefined):
     keywords: (r.keywords as string[] | null) ?? null,
     experience_level_required: (r.experience_level_required ?? null) as string | null,
     certificate_requirements: (r.certificate_requirements ?? null) as string | null,
+    industry_id: (r.industry_id ?? null) as string | null,
+    profession_id: (r.profession_id ?? null) as string | null,
+    skill_ids: (r.skill_ids as string[] | null) ?? null,
+    certificate_ids: (r.certificate_ids as string[] | null) ?? null,
+    language_ids: (r.language_ids as string[] | null) ?? null,
     weekly_hours: r.weekly_hours as number | null | undefined,
     daily_hours: r.daily_hours as number | null | undefined,
     shift_start: (r.shift_start ?? null) as string | null,
@@ -144,6 +191,7 @@ function asJob(raw: JobMatchInput | Record<string, unknown> | null | undefined):
 
 function jobLanguageHints(job: JobMatchInput): string[] {
   return [
+    ...(job.language_ids ?? []).map(String),
     ...(job.requirement_lines ?? []).map(String),
     ...(job.required_skills ?? []).map(String),
     ...(job.keywords ?? []).map(String),
@@ -153,19 +201,25 @@ function jobLanguageHints(job: JobMatchInput): string[] {
   ].filter(Boolean);
 }
 
-function detectLanguageIds(texts: string[]): string[] {
-  const hay = texts.join(" ");
+function detectLanguageIds(texts: string[], jobLangIds?: string[] | null): string[] {
   const out: string[] = [];
+  for (const id of jobLangIds ?? []) {
+    if (id && !out.includes(id)) out.push(id);
+  }
+  const hay = texts.join(" ");
   for (const lang of LANG_CATALOG) {
     if (lang.re.test(hay) && !out.includes(lang.id)) out.push(lang.id);
   }
   return out;
 }
 
-function seekerHasLanguage(seekerLangs: string[] | null | undefined, id: string): boolean {
+function seekerHasLanguage(seekerLangs: string[] | null | undefined, id: string, seekerLangIds?: string[] | null): boolean {
+  if ((seekerLangIds ?? []).includes(id)) return true;
   const spec = LANG_CATALOG.find((l) => l.id === id);
   if (!spec) return false;
   for (const raw of seekerLangs ?? []) {
+    const n = String(raw).trim().toLowerCase();
+    if (n === id) return true;
     if (spec.re.test(String(raw))) return true;
   }
   return false;
@@ -335,11 +389,11 @@ export function buildMatchExplanation(args: MatchExplanationInput): MatchExplana
   }
 
   const hints = job ? jobLanguageHints(job) : [];
-  const langRelevant = hints.some((h) => LANG_HINT.test(h));
-  const namedLangs = detectLanguageIds(hints);
+  const langRelevant = Boolean(job?.language_ids?.length) || hints.some((h) => LANG_HINT.test(h));
+  const namedLangs = detectLanguageIds(hints, job?.language_ids);
   if (namedLangs.length) {
     for (const id of namedLangs) {
-      const ok = seekerHasLanguage(seeker?.languages, id);
+      const ok = seekerHasLanguage(seeker?.languages, id, seeker?.language_ids);
       push({
         id: `lang-${id}`,
         status: ok ? "pass" : "gap",

@@ -10,3 +10,18 @@ export function MatchPanelSkeleton({ compact = false, className }: { compact?: b
     </div>
   );
 }
+
+/** Expanded “why” panel only — same layout as criteria rows. */
+export function MatchExplanationSkeleton() {
+  return (
+    <div className="space-y-1.5" aria-hidden>
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="flex items-start gap-2">
+          <Bone className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded-sm" />
+          <Bone className={cn("h-3.5 flex-1", i % 2 === 0 ? "max-w-[14rem]" : "max-w-[11rem]")} />
+          <Bone className="mt-0.5 h-4 w-14 shrink-0 rounded-md" />
+        </div>
+      ))}
+    </div>
+  );
+}

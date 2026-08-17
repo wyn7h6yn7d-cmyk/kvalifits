@@ -24,6 +24,8 @@ import {
   type JobWorkConditionsFormValue,
 } from "@/components/jobs/JobWorkConditionsFields";
 import { JobYoungSeekerAutoHint } from "@/components/jobs/JobYoungSeekerAutoHint";
+import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
+import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { jobPassesYoungSeekerAutoEligibility } from "@/lib/employmentRules";
 import { JobRequirementsEditor } from "@/components/jobs/JobRequirementsEditor";
 import {
@@ -40,6 +42,11 @@ import {
   calendarDateInTallinn,
   type ListingPackageDays,
 } from "@/lib/jobs/jobLifecycle";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { findTerm } from "@/lib/taxonomy/labels";
+import { jobTaxonomyWriteColumns, stripTaxonomyWriteColumns } from "@/lib/taxonomy/jobWrite";
+import { mergeLegacyText, suggestedSkillIds } from "@/lib/taxonomy/resolve";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 
 type Props = {
   locale: string;
@@ -71,6 +78,13 @@ export function EmployerNewJobForm({ locale }: Props) {
   ]);
   const [requiredSkillsCsv, setRequiredSkillsCsv] = useState("");
   const [keywordsCsv, setKeywordsCsv] = useState("");
+  const [industryId, setIndustryId] = useState("");
+  const [professionId, setProfessionId] = useState("");
+  const [skillIds, setSkillIds] = useState<string[]>([]);
+  const [skillLeftover, setSkillLeftover] = useState<string[]>([]);
+  const [certificateIds, setCertificateIds] = useState<string[]>([]);
+  const [certificateLeftover, setCertificateLeftover] = useState<string[]>([]);
+  const [languageIds, setLanguageIds] = useState<string[]>([]);
   const [experienceLevelRequired, setExperienceLevelRequired] = useState<
     (typeof JOB_EXPERIENCE_LEVEL_VALUES)[number] | ""
   >("");
@@ -99,6 +113,8 @@ export function EmployerNewJobForm({ locale }: Props) {
     isHazardousWork: false,
   });
 
+  const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
+
   useEffect(() => {
     let mounted = true;
     async function loadCompanyName() {
@@ -109,13 +125,17 @@ export function EmployerNewJobForm({ locale }: Props) {
         if (!user) return;
         const { data: employer } = await supabase
           .from("employer_profiles")
-          .select("company_name,contact_email,company_description,location,industry")
+          .select("company_name,contact_email,company_description,location,industry,industry_id")
           .eq("owner_user_id", user.id)
           .maybeSingle();
         if (!mounted) return;
         const name = (employer?.company_name ?? "").toString();
         setCompanyName(name);
         setEmployerProfileOk(employerCoreComplete(employer ?? null));
+        const mappedIndustry =
+          (employer?.industry_id as string | null) ||
+          "";
+        if (mappedIndustry) setIndustryId((prev) => prev || mappedIndustry);
       } catch {
         // ignore
       }
@@ -141,8 +161,11 @@ export function EmployerNewJobForm({ locale }: Props) {
     const lines = synced.requirement_lines;
     if (lines.length < 2) return t("errRequirementLines");
 
-    const requiredSkills = parseCommaList(requiredSkillsCsv);
+    const requiredSkills = taxonomyAvailable
+      ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+      : parseCommaList(requiredSkillsCsv);
     if (requiredSkills.length < 1) return t("errRequiredSkills");
+    if (taxonomyAvailable && !professionId) return t("errProfessionRequired");
 
     const keywords = parseCommaList(keywordsCsv);
     if (keywords.length < 1) return t("errKeywords");
@@ -236,7 +259,18 @@ export function EmployerNewJobForm({ locale }: Props) {
 
       const synced = syncRequirementLinesFromStructured(requirementItems);
       const lines = synced.requirement_lines;
-      const requiredSkills = parseCommaList(requiredSkillsCsv);
+      const tax = taxonomyAvailable
+        ? jobTaxonomyWriteColumns(catalog, {
+            industryId,
+            professionId,
+            skillIds,
+            skillLeftover,
+            certificateIds,
+            certificateLeftover,
+            languageIds,
+          })
+        : null;
+      const requiredSkills = tax?.required_skills ?? parseCommaList(requiredSkillsCsv);
       const keywords = parseCommaList(keywordsCsv);
 
       const lifecycle = buildPublishLifecycleDates({
@@ -244,7 +278,7 @@ export function EmployerNewJobForm({ locale }: Props) {
         packageDays,
         applicationDeadline,
       });
-      const { error: jobErr } = await supabase.from("job_posts").insert({
+      const payload = {
         employer_profile_id: employer.id,
         created_by: user.id,
         title: title.trim(),
@@ -260,7 +294,8 @@ export function EmployerNewJobForm({ locale }: Props) {
         required_skills: requiredSkills,
         keywords,
         experience_level_required: experienceLevelRequired,
-        certificate_requirements: certificateRequirements.trim() || null,
+        certificate_requirements: tax?.certificate_requirements ?? (certificateRequirements.trim() || null),
+        languages: tax?.languages ?? [],
         weekly_hours: parseOptionalHours(workConditions.weeklyHours),
         daily_hours: parseOptionalHours(workConditions.dailyHours),
         shift_start: timeOrNull(workConditions.shiftStart),
@@ -289,7 +324,21 @@ export function EmployerNewJobForm({ locale }: Props) {
         published_at: lifecycle.published_at,
         application_deadline: lifecycle.application_deadline,
         expires_at: lifecycle.expires_at,
-      });
+        ...(tax
+          ? {
+              industry_id: tax.industry_id,
+              profession_id: tax.profession_id,
+              skill_ids: tax.skill_ids,
+              certificate_ids: tax.certificate_ids,
+              language_ids: tax.language_ids,
+            }
+          : {}),
+      };
+      let { error: jobErr } = await supabase.from("job_posts").insert(payload);
+      if (jobErr && isTaxonomyColumnError(jobErr.message)) {
+        const retry = await supabase.from("job_posts").insert(stripTaxonomyWriteColumns(payload));
+        jobErr = retry.error;
+      }
       if (jobErr) throw jobErr;
 
       if (mode === "payment") {
@@ -419,6 +468,44 @@ export function EmployerNewJobForm({ locale }: Props) {
           <label className="text-xs font-medium tracking-wide text-white/65">{t("title")}</label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
+        {taxonomyAvailable ? (
+          <>
+            <div className="space-y-2">
+              <label className="text-xs font-medium tracking-wide text-white/65">{t("jobIndustry")}</label>
+              <TaxonomySelect
+                value={industryId}
+                terms={catalog.industries}
+                locale={locale}
+                placeholder={t("taxonomyPlaceholder")}
+                onChange={(id) => {
+                  setIndustryId(id);
+                  const current = findTerm(catalog, "profession", professionId);
+                  if (id && current?.industry_id && current.industry_id !== id) setProfessionId("");
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium tracking-wide text-white/65">{t("jobProfession")}</label>
+              <TaxonomySelect
+                value={professionId}
+                required
+                terms={
+                  industryId
+                    ? catalog.professions.filter((p) => p.industry_id === industryId)
+                    : catalog.professions
+                }
+                locale={locale}
+                placeholder={t("taxonomyPlaceholder")}
+                onChange={(id) => {
+                  setProfessionId(id);
+                  const prof = findTerm(catalog, "profession", id);
+                  if (prof?.industry_id) setIndustryId(prof.industry_id);
+                }}
+              />
+              <div className="text-xs text-white/45">{t("jobProfessionHint")}</div>
+            </div>
+          </>
+        ) : null}
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">
             {t("location")}
@@ -486,15 +573,32 @@ export function EmployerNewJobForm({ locale }: Props) {
       <JobRequirementsEditor value={requirementItems} onChange={setRequirementItems} disabled={loading} />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobRequiredSkills")}</label>
-          <Input
-            value={requiredSkillsCsv}
-            onChange={(e) => setRequiredSkillsCsv(e.target.value)}
-            required
-            placeholder={t("csvHintJobs")}
-          />
-          <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
+          {taxonomyAvailable ? (
+            <>
+              <TaxonomyChipField
+                terms={catalog.skills}
+                selectedIds={skillIds}
+                leftover={skillLeftover}
+                onChangeIds={setSkillIds}
+                onChangeLeftover={setSkillLeftover}
+                locale={locale}
+                suggestedIds={suggestedSkillIds(catalog, professionId)}
+              />
+              <div className="text-xs text-white/45">{t("jobFieldGuideTaxonomySkills")}</div>
+            </>
+          ) : (
+            <>
+              <Input
+                value={requiredSkillsCsv}
+                onChange={(e) => setRequiredSkillsCsv(e.target.value)}
+                required
+                placeholder={t("csvHintJobs")}
+              />
+              <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
+            </>
+          )}
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobKeywords")}</label>
@@ -534,15 +638,45 @@ export function EmployerNewJobForm({ locale }: Props) {
 
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("jobCertRequirements")}</label>
-        <textarea
-          value={certificateRequirements}
-          onChange={(e) => setCertificateRequirements(e.target.value)}
-          rows={2}
-          placeholder={t("jobCertRequirementsPlaceholder")}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
-        />
-        <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
+        {taxonomyAvailable ? (
+          <>
+            <TaxonomyChipField
+              terms={catalog.certificates}
+              selectedIds={certificateIds}
+              leftover={certificateLeftover}
+              onChangeIds={setCertificateIds}
+              onChangeLeftover={setCertificateLeftover}
+              locale={locale}
+            />
+            <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
+          </>
+        ) : (
+          <>
+            <textarea
+              value={certificateRequirements}
+              onChange={(e) => setCertificateRequirements(e.target.value)}
+              rows={2}
+              placeholder={t("jobCertRequirementsPlaceholder")}
+              className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            />
+            <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
+          </>
+        )}
       </div>
+      {taxonomyAvailable ? (
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobLanguages")}</label>
+          <TaxonomyChipField
+            terms={catalog.languages}
+            selectedIds={languageIds}
+            leftover={[]}
+            onChangeIds={setLanguageIds}
+            onChangeLeftover={() => undefined}
+            locale={locale}
+          />
+          <div className="text-xs text-white/45">{t("jobLanguagesHint")}</div>
+        </div>
+      ) : null}
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("applicationKvalifitsOnlyTitle")}</div>

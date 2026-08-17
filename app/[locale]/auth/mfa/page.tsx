@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { AuthShell } from "@/components/auth/AuthShell";
 import { MfaChallengeForm } from "@/components/auth/MfaChallengeForm";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAuthUser } from "@/lib/auth/currentAuth";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -14,10 +14,7 @@ export default async function MfaChallengePage({ params, searchParams }: Props) 
   const { locale } = await params;
   const sp = await searchParams;
   const t = await getTranslations({ locale, namespace: "auth" });
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   if (!user) redirect(`/${locale}/auth/login`);
 
   const nextRaw = (sp.next ?? `/${locale}/admin`).toString();

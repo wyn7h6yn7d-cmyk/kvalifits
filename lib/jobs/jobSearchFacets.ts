@@ -129,7 +129,10 @@ function jobMatchesFacetValue(job: Job, facet: JobFilterFacet, value: string): b
     case "location":
       return jobMatchesLocation(job, value);
     case "domain":
-      return (job.domains ?? []).some((d) => norm(d) === norm(value));
+      return (
+        (job.industryId && job.industryId === value) ||
+        (job.domains ?? []).some((d) => norm(d) === norm(value))
+      );
     case "jobType":
       return Boolean(job.jobType && job.jobType === value);
     case "workType":
@@ -139,11 +142,20 @@ function jobMatchesFacetValue(job: Job, facet: JobFilterFacet, value: string): b
     case "experience":
       return Boolean(job.experienceLevel && job.experienceLevel === value);
     case "skill":
-      return (job.skills ?? []).some((s) => norm(s) === norm(value));
+      return (
+        (job.skillIds ?? []).includes(value) ||
+        (job.skills ?? []).some((s) => norm(s) === norm(value))
+      );
     case "cert":
-      return (job.requiredCerts ?? []).some((c) => norm(c) === norm(value));
+      return (
+        (job.certificateIds ?? []).includes(value) ||
+        (job.requiredCerts ?? []).some((c) => norm(c) === norm(value))
+      );
     case "language":
-      return (job.languages ?? []).some((l) => norm(l) === norm(value));
+      return (
+        (job.languageIds ?? []).includes(value) ||
+        (job.languages ?? []).some((l) => norm(l) === norm(value))
+      );
     default:
       return false;
   }

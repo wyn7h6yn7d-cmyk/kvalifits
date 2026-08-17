@@ -25,6 +25,8 @@ import {
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
+import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { SeekerExperienceBackgroundFields } from "@/components/seeker/SeekerExperienceBackgroundFields";
 import {
   emptyExperienceBackgroundFormValue,
@@ -53,6 +55,10 @@ import {
   type WorkCapacityStatus,
 } from "@/lib/seeker/workCapacity";
 import { errorMessageFromUnknown } from "@/lib/utils";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { findTerm, taxonomyLabel } from "@/lib/taxonomy/labels";
+import { mergeLegacyText, partitionTaxonomyValues, suggestedSkillIds } from "@/lib/taxonomy/resolve";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 import {
   certificateIdentityKey,
   formatCertificateExpiryWarning,
@@ -67,6 +73,7 @@ import { AccountPrivacySettings } from "@/components/account/AccountPrivacySetti
 
 type Certificate = {
   id?: string;
+  certificate_id?: string | null;
   certificate_name: string;
   certificate_number: string;
   certificate_issuer: string;
@@ -94,6 +101,10 @@ type Props = {
       location: string | null;
       about: string | null;
       skills: string[] | null;
+      skill_ids?: string[] | null;
+      profession_id?: string | null;
+      languages?: string[] | null;
+      language_ids?: string[] | null;
       experience_level: string | null;
       preferred_job_types: string[] | null;
       preferred_locations: string[] | null;
@@ -159,6 +170,12 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
     return (EXPERIENCE_LEVEL_VALUES as readonly string[]).includes(v) ? (v as (typeof EXPERIENCE_LEVEL_VALUES)[number]) : "";
   });
   const [skillsCsv, setSkillsCsv] = useState((initial.seeker?.skills ?? []).join(", "));
+  const [professionId, setProfessionId] = useState(initial.seeker?.profession_id ?? "");
+  const [skillIds, setSkillIds] = useState<string[]>(initial.seeker?.skill_ids ?? []);
+  const [skillLeftover, setSkillLeftover] = useState<string[]>([]);
+  const [languageIds, setLanguageIds] = useState<string[]>(initial.seeker?.language_ids ?? []);
+  const [hydratedTaxonomy, setHydratedTaxonomy] = useState(false);
+  const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
   const [preferredJobTypesCsv, setPreferredJobTypesCsv] = useState(
     (initial.seeker?.preferred_job_types ?? []).join(", ")
   );
@@ -247,6 +264,43 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         }))
       : []
   );
+
+  useEffect(() => {
+    if (!taxonomyAvailable || hydratedTaxonomy) return;
+    const skills = partitionTaxonomyValues(
+      catalog,
+      "skill",
+      initial.seeker?.skill_ids,
+      initial.seeker?.skills,
+    );
+    const langs = partitionTaxonomyValues(
+      catalog,
+      "language",
+      initial.seeker?.language_ids,
+      initial.seeker?.languages,
+    );
+    setSkillIds(skills.ids);
+    setSkillLeftover(skills.leftover);
+    setLanguageIds(langs.ids);
+    if (!professionId && initial.seeker?.profile_title) {
+      const mapped = catalog.aliases.find(
+        (a) =>
+          a.kind === "profession" &&
+          a.alias_norm === (initial.seeker?.profile_title ?? "").trim().toLowerCase(),
+      );
+      if (mapped) setProfessionId(mapped.term_id);
+    }
+    setCertificates((prev) =>
+      prev.map((c) => {
+        if (c.certificate_id) return c;
+        const mapped = catalog.aliases.find(
+          (a) => a.kind === "certificate" && a.alias_norm === (c.certificate_name ?? "").trim().toLowerCase(),
+        );
+        return mapped ? { ...c, certificate_id: mapped.term_id } : c;
+      }),
+    );
+    setHydratedTaxonomy(true);
+  }, [taxonomyAvailable, hydratedTaxonomy, catalog, initial.seeker, professionId]);
 
   useEffect(() => {
     const full = (initial.seeker?.full_name ?? "").trim();
@@ -462,7 +516,9 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
 
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
       const title = profileTitle.trim();
-      const skills = parseCommaList(skillsCsv);
+      const skills = taxonomyAvailable
+        ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+        : parseCommaList(skillsCsv);
       const preferredJobTypes = parseCommaList(preferredJobTypesCsv);
       const preferredLocations = parseCommaList(preferredLocationsCsv);
 
@@ -515,7 +571,8 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       const validCerts = certificates
         .map((c) => ({
           ...c,
-          certificate_name: c.certificate_name.trim(),
+            certificate_name: c.certificate_name.trim(),
+            certificate_id: c.certificate_id ?? null,
           certificate_number: c.certificate_number.trim(),
           certificate_issuer: c.certificate_issuer.trim(),
           certificate_image_url: persistCertificateImageRef(c.certificate_image_url) ?? "",
@@ -544,7 +601,10 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       });
       if (metaErr) throw metaErr;
 
-      const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
+      const languages = taxonomyAvailable
+        ? mergeLegacyText(catalog, "language", languageIds, [], "et")
+        : undefined;
+      const seekerPayload = {
         user_id: user.id,
         full_name: fullName,
         profile_title: title,
@@ -566,7 +626,23 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         is_complete: isComplete,
         profile_visible: profileVisible,
         has_b_category_drivers_license: hasBCategoryDriversLicense,
-      });
+        profession_id: taxonomyAvailable ? professionId || null : undefined,
+        skill_ids: taxonomyAvailable ? skillIds : undefined,
+        language_ids: taxonomyAvailable ? languageIds : undefined,
+        languages,
+      };
+      let { error: seekerErr } = await supabase.from("seeker_profiles").upsert(seekerPayload);
+      if (seekerErr && isTaxonomyColumnError(seekerErr.message)) {
+        const {
+          profession_id: _p,
+          skill_ids: _s,
+          language_ids: _l,
+          languages: _lang,
+          ...rest
+        } = seekerPayload;
+        const retry = await supabase.from("seeker_profiles").upsert(rest);
+        seekerErr = retry.error;
+      }
       if (seekerErr) throw seekerErr;
 
       const { error: needsErr } = await supabase.from("seeker_workplace_needs").upsert({
@@ -638,6 +714,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           const status = prev?.verification_status ?? "submitted";
           return {
             user_id: user.id,
+            certificate_id: c.certificate_id || null,
             certificate_name: c.certificate_name,
             certificate_number: c.certificate_number || null,
             certificate_issuer: c.certificate_issuer,
@@ -653,8 +730,14 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         let { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
         if (insErr && /verification_|column/i.test(insErr.message ?? "")) {
           const legacyRows = rows.map(
-            ({ verification_status: _s, verified_at: _a, verification_source: _src, verified_by: _by, ...rest }) =>
-              rest
+            ({
+              verification_status: _s,
+              verified_at: _a,
+              verification_source: _src,
+              verified_by: _by,
+              certificate_id: _cid,
+              ...rest
+            }) => rest
           );
           const retry = await supabase.from("seeker_certificates").insert(legacyRows);
           insErr = retry.error;
@@ -815,6 +898,19 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           />
           <div className="text-xs text-white/45">{t("profileTitleHelp")}</div>
         </div>
+        {taxonomyAvailable ? (
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("profession")}</label>
+            <TaxonomySelect
+              value={professionId}
+              terms={catalog.professions}
+              locale={locale}
+              placeholder={t("taxonomyPlaceholder")}
+              onChange={setProfessionId}
+            />
+            <div className="text-xs text-white/45">{t("professionHint")}</div>
+          </div>
+        ) : null}
       </div>
 
       <SeekerBirthDateFields
@@ -859,11 +955,42 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           </select>
           <div className="text-xs text-white/45">{t("experienceLevelHint")}</div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
-          <Input value={skillsCsv} onChange={(e) => setSkillsCsv(e.target.value)} required placeholder={t("csvHint")} />
-          <div className="text-xs text-white/45">{t("skillsHelp")}</div>
+          {taxonomyAvailable ? (
+            <>
+              <TaxonomyChipField
+                terms={catalog.skills}
+                selectedIds={skillIds}
+                leftover={skillLeftover}
+                onChangeIds={setSkillIds}
+                onChangeLeftover={setSkillLeftover}
+                locale={locale}
+                suggestedIds={suggestedSkillIds(catalog, professionId)}
+              />
+              <div className="text-xs text-white/45">{t("skillsHelp")}</div>
+            </>
+          ) : (
+            <>
+              <Input value={skillsCsv} onChange={(e) => setSkillsCsv(e.target.value)} required placeholder={t("csvHint")} />
+              <div className="text-xs text-white/45">{t("skillsHelp")}</div>
+            </>
+          )}
         </div>
+        {taxonomyAvailable ? (
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("languages")}</label>
+            <TaxonomyChipField
+              terms={catalog.languages}
+              selectedIds={languageIds}
+              leftover={[]}
+              onChangeIds={setLanguageIds}
+              onChangeLeftover={() => undefined}
+              locale={locale}
+            />
+            <div className="text-xs text-white/45">{t("languagesHint")}</div>
+          </div>
+        ) : null}
         <SeekerExperienceBackgroundFields value={experienceBackground} onChange={setExperienceBackground} />
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredJobTypes")}</label>
@@ -943,6 +1070,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
               setCertificates((prev) => [
                 ...prev,
                 {
+                  certificate_id: "",
                   certificate_name: "",
                   certificate_number: "",
                   certificate_issuer: "",
@@ -1019,7 +1147,40 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateName")}</label>
-                  <Input value={c.certificate_name} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_name: e.target.value } : x)))} />
+                  {taxonomyAvailable ? (
+                    <TaxonomySelect
+                      value={c.certificate_id ?? ""}
+                      terms={catalog.certificates}
+                      locale={locale}
+                      placeholder={t("taxonomyPlaceholder")}
+                      onChange={(id) =>
+                        setCertificates((prev) =>
+                          prev.map((x, i) => {
+                            if (i !== idx) return x;
+                            const term = findTerm(catalog, "certificate", id);
+                            return {
+                              ...x,
+                              certificate_id: id || null,
+                              certificate_name: term ? taxonomyLabel(term, "et") : x.certificate_name,
+                            };
+                          }),
+                        )
+                      }
+                    />
+                  ) : (
+                    <Input value={c.certificate_name} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_name: e.target.value } : x)))} />
+                  )}
+                  {taxonomyAvailable && !(c.certificate_id ?? "") ? (
+                    <Input
+                      value={c.certificate_name}
+                      onChange={(e) =>
+                        setCertificates((prev) =>
+                          prev.map((x, i) => (i === idx ? { ...x, certificate_name: e.target.value, certificate_id: null } : x)),
+                        )
+                      }
+                      placeholder={t("certificateName")}
+                    />
+                  ) : null}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateNumber")}</label>

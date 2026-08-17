@@ -6,7 +6,7 @@ import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { publicPageMetadata } from "@/lib/seo/site";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -26,14 +26,7 @@ export default async function TooandjatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const { data: profile } = user
-    ? await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-    : { data: null };
-  const role = profile?.role ?? user?.user_metadata?.role ?? null;
+  const { role } = await getCurrentAuth();
   const showPricing = role === "employer";
 
   const details = [

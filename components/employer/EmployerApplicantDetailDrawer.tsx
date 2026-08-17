@@ -10,8 +10,6 @@ import { FitScoreExplain } from "@/components/jobs/FitScoreExplain";
 import { EmployerApplicationStatusSelect } from "@/components/employer/EmployerApplicationStatusSelect";
 import { EmployerApplicationInternalNotes } from "@/components/employer/EmployerApplicationInternalNotes";
 import { EmployerApplicationStatusHistory } from "@/components/employer/EmployerApplicationStatusHistory";
-import { parseMatchBreakdown } from "@/lib/employer/parseMatchBreakdown";
-import { buildMatchExplanationFromSharedProfile } from "@/lib/matching/matchExplanation";
 import {
   formatAvailabilityStartDisplay,
   formatInterviewPreferencesDisplay,
@@ -108,24 +106,6 @@ export function EmployerApplicantDetailDrawer({
   const scan = row ? scanApplicantRow(row) : null;
   const seeker = row ? seekerFromApplicantRow(row) : {};
   const answers = row ? answersFromApplicantRow(row) : null;
-  const jobSnap = (row?.shared_profile as { job?: Record<string, unknown> } | null)?.job ?? {};
-  const bd = row ? parseMatchBreakdown(row.match_breakdown) : null;
-  const explanation = row
-    ? buildMatchExplanationFromSharedProfile({
-        breakdown: bd,
-        sharedProfile: {
-          seeker: {
-            ...seeker,
-            languages: scan?.languages ?? [],
-            experience_duration_years: scan?.years ?? null,
-            seeking_first_job: scan?.firstJob ?? false,
-          },
-          job: jobSnap,
-          answers,
-        },
-        applicationAnswers: answers,
-      })
-    : null;
 
   const salaryScan = answers
     ? formatSalaryExpectationScan(answers, {
@@ -179,7 +159,7 @@ export function EmployerApplicantDetailDrawer({
             {scan?.profileTitle || t("applicantsNoTitle")}
           </SheetDescription>
 
-          {row && scan && explanation ? (
+          {row && scan ? (
             <div className="mt-5 space-y-5">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
@@ -213,7 +193,7 @@ export function EmployerApplicantDetailDrawer({
               <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
                 <FitScoreExplain
                   score={scan.score}
-                  explanation={explanation}
+                  lazySource={{ applicationId: row.id }}
                   label={t("applicantsSuitabilityPercent")}
                   defaultOpen
                   showCountsWhenCollapsed

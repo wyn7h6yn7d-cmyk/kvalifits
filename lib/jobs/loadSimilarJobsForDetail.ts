@@ -8,13 +8,8 @@ import {
   isJobSalaryTax,
 } from "@/lib/jobs/jobSalary";
 import { pickSimilarJobs, type SimilarJobSource } from "@/lib/jobs/similarJobs";
-import { seekerCanUseMatchRanking } from "@/lib/jobs/seekerMatchRanking";
-import { buildJobMatchInput } from "@/lib/jobs/enrichJobsWithSeekerMatch";
-import {
-  calculateJobMatch,
-  type SeekerCertificateInput,
-  type SeekerMatchInput,
-} from "@/lib/matching/calculateJobMatch";
+import { getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
+import type { SeekerMatchContext } from "@/lib/matching/seekerMatchContext";
 
 export type SimilarJobCardData = {
   id: string;
@@ -28,7 +23,7 @@ export type SimilarJobCardData = {
 };
 
 const SELECT_FULL =
-  "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,salary_min,salary_max,salary_currency,salary_tax,salary_period";
+  "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,requirement_lines,job_requirements,requirements,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,salary_min,salary_max,salary_currency,salary_tax,salary_period,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work";
 const SELECT_MID =
   "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,employer_profile_id,status,created_at,salary_min,salary_max,salary_currency,salary_tax,salary_period";
 const SELECT_LEGACY =
@@ -61,8 +56,8 @@ export async function loadSimilarJobsForDetail(opts: {
   locale: string;
   workTypeLabel: (raw: string) => string;
   tJobs: (key: string) => string;
-  seeker: SeekerMatchInput | null;
-  certs: SeekerCertificateInput[];
+  userId?: string | null;
+  context?: SeekerMatchContext;
 }): Promise<SimilarJobCardData[]> {
   const currentId = String(opts.currentJob.id ?? "");
   if (!currentId) return [];
@@ -129,7 +124,24 @@ export async function loadSimilarJobsForDetail(opts: {
     }
   }
 
-  const canScore = seekerCanUseMatchRanking(opts.seeker) && Boolean(opts.seeker);
+  const canScore = Boolean(opts.userId && opts.context?.seeker);
+  const hasCompactMatchFields = pickedRows.every(
+    (row) => "job_requirements" in row || "requirement_lines" in row,
+  );
+  const matchById =
+    canScore && opts.userId
+      ? (
+          await getJobMatchesForSeeker({
+            supabase: opts.supabase,
+            userId: opts.userId,
+            jobIds: pickedRows.map((row) => String(row.id)),
+            context: opts.context,
+            jobInputs: hasCompactMatchFields
+              ? new Map(pickedRows.map((row) => [String(row.id), row]))
+              : undefined,
+          })
+        ).byId
+      : new Map();
 
   return pickedRows.map((row) => {
     const empName = employerById.get(String(row.employer_profile_id ?? ""));
@@ -149,11 +161,7 @@ export async function loadSimilarJobsForDetail(opts: {
       taxLabel: tax ? opts.tJobs(`jobSalaryTaxShort.${tax}`) : "",
       periodLabel: period ? opts.tJobs(`jobSalaryPeriodOption.${period}`) : "",
     });
-    let matchScore: number | undefined;
-    if (canScore && opts.seeker) {
-      const { score } = calculateJobMatch(opts.seeker, opts.certs, buildJobMatchInput(row));
-      matchScore = score;
-    }
+    const matchScore = matchById.get(String(row.id))?.matchScore;
     return {
       id: String(row.id),
       title: (row.title ?? "").toString().trim() || "—",

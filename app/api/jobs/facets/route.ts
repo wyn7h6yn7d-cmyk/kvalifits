@@ -9,7 +9,6 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const facet = (url.searchParams.get("facet") ?? "").trim() as JobFilterFacet;
   const q = (url.searchParams.get("q") ?? "").trim();
-  const query = (url.searchParams.get("query") ?? "").trim();
 
   if (!isSearchableFacet(facet)) {
     return NextResponse.json({ error: "invalid_facet" }, { status: 400 });
@@ -18,6 +17,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ options: [] });
   }
 
-  const options = await searchPublishedFacetValues(facet, q, query);
+  const options = await searchPublishedFacetValues(facet, q, url.searchParams);
   return NextResponse.json({ options });
 }

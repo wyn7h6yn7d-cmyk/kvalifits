@@ -23,15 +23,20 @@ export type Job = {
   /** Matched structured requirements, only when matchScore is present. */
   matchReqsFilled?: number | null;
   matchReqsTotal?: number | null;
-  /** Why the score is what it is — never a bare percentage. */
+  /** Detailed why-criteria. Lists omit this; job/employer detail may include it. */
   matchExplanation?: MatchExplanation | null;
   /** Card display tags (may mix skills + keywords). Not used as skill facets. */
   tags: string[];
   /** Structured required skills from the job post. */
   skills?: string[];
+  skillIds?: string[];
   requiredCerts: string[];
+  certificateIds?: string[];
   domains?: string[];
+  industryId?: string | null;
+  professionId?: string | null;
   languages?: string[];
+  languageIds?: string[];
   /** Raw experience_level_required key (e.g. mid, not_required). */
   experienceLevel?: string | null;
   /** When employer set experience to not_required. */

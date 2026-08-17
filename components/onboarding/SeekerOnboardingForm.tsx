@@ -22,6 +22,8 @@ import {
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
+import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import {
   CertificateStatusBlock,
   certificateViewLabelsFromT,
@@ -51,6 +53,9 @@ import {
   workCapacityToDbPayload,
   type WorkCapacityStatus,
 } from "@/lib/seeker/workCapacity";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { mergeLegacyText, suggestedSkillIds } from "@/lib/taxonomy/resolve";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 
 type Props = {
   locale: string;
@@ -74,6 +79,11 @@ export function SeekerOnboardingForm({ locale }: Props) {
   const [about, setAbout] = useState("");
   const [experienceLevel, setExperienceLevel] = useState<(typeof EXPERIENCE_LEVEL_VALUES)[number] | "">("");
   const [skillsCsv, setSkillsCsv] = useState("");
+  const [professionId, setProfessionId] = useState("");
+  const [skillIds, setSkillIds] = useState<string[]>([]);
+  const [skillLeftover, setSkillLeftover] = useState<string[]>([]);
+  const [languageIds, setLanguageIds] = useState<string[]>([]);
+  const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
   const [preferredJobTypesCsv, setPreferredJobTypesCsv] = useState("");
   const [preferredLocationsCsv, setPreferredLocationsCsv] = useState("");
   const [salaryExpectation, setSalaryExpectation] = useState("");
@@ -320,7 +330,9 @@ export function SeekerOnboardingForm({ locale }: Props) {
       });
       if (avatarErr) throw avatarErr;
 
-      const skills = parseCommaList(skillsCsv);
+      const skills = taxonomyAvailable
+        ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+        : parseCommaList(skillsCsv);
       const preferredJobTypes = parseCommaList(preferredJobTypesCsv);
       const preferredLocations = parseCommaList(preferredLocationsCsv);
       const fullName = `${firstName} ${lastName}`.trim().replace(/\s+/g, " ");
@@ -386,7 +398,10 @@ export function SeekerOnboardingForm({ locale }: Props) {
         certRowsWithImage: 0,
       });
 
-      const { error: seekerErr } = await supabase.from("seeker_profiles").upsert({
+      const languages = taxonomyAvailable
+        ? mergeLegacyText(catalog, "language", languageIds, [], "et")
+        : undefined;
+      const seekerPayload = {
         user_id: user.id,
         full_name: fullName,
         profile_title: title,
@@ -409,7 +424,17 @@ export function SeekerOnboardingForm({ locale }: Props) {
         // Privacy-by-default: keep profile hidden until seeker explicitly enables visibility in their account.
         profile_visible: false,
         has_b_category_drivers_license: hasBCategoryDriversLicense,
-      });
+        profession_id: taxonomyAvailable ? professionId || null : undefined,
+        skill_ids: taxonomyAvailable ? skillIds : undefined,
+        language_ids: taxonomyAvailable ? languageIds : undefined,
+        languages,
+      };
+      let { error: seekerErr } = await supabase.from("seeker_profiles").upsert(seekerPayload);
+      if (seekerErr && isTaxonomyColumnError(seekerErr.message)) {
+        const { profession_id: _p, skill_ids: _s, language_ids: _l, languages: _lang, ...rest } = seekerPayload;
+        const retry = await supabase.from("seeker_profiles").upsert(rest);
+        seekerErr = retry.error;
+      }
       if (seekerErr) throw seekerErr;
 
       const { error: needsErr } = await supabase.from("seeker_workplace_needs").upsert({
@@ -583,6 +608,19 @@ export function SeekerOnboardingForm({ locale }: Props) {
           />
           <div className="text-xs text-white/45">{t("profileTitleHelp")}</div>
         </div>
+        {taxonomyAvailable ? (
+          <div className="space-y-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("profession")}</label>
+            <TaxonomySelect
+              value={professionId}
+              terms={catalog.professions}
+              locale={locale}
+              placeholder={t("taxonomyPlaceholder")}
+              onChange={setProfessionId}
+            />
+            <div className="text-xs text-white/45">{t("professionHint")}</div>
+          </div>
+        ) : null}
       </div>
 
       <SeekerBirthDateFields
@@ -626,15 +664,40 @@ export function SeekerOnboardingForm({ locale }: Props) {
             ))}
           </select>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
-          <Input
-            value={skillsCsv}
-            onChange={(e) => setSkillsCsv(e.target.value)}
-            required
-            placeholder={t("csvHint")}
-          />
+          {taxonomyAvailable ? (
+            <TaxonomyChipField
+              terms={catalog.skills}
+              selectedIds={skillIds}
+              leftover={skillLeftover}
+              onChangeIds={setSkillIds}
+              onChangeLeftover={setSkillLeftover}
+              locale={locale}
+              suggestedIds={suggestedSkillIds(catalog, professionId)}
+            />
+          ) : (
+            <Input
+              value={skillsCsv}
+              onChange={(e) => setSkillsCsv(e.target.value)}
+              required
+              placeholder={t("csvHint")}
+            />
+          )}
         </div>
+        {taxonomyAvailable ? (
+          <div className="space-y-2 sm:col-span-2">
+            <label className="text-xs font-medium tracking-wide text-white/65">{t("languages")}</label>
+            <TaxonomyChipField
+              terms={catalog.languages}
+              selectedIds={languageIds}
+              leftover={[]}
+              onChangeIds={setLanguageIds}
+              onChangeLeftover={() => undefined}
+              locale={locale}
+            />
+          </div>
+        ) : null}
         <SeekerExperienceBackgroundFields value={experienceBackground} onChange={setExperienceBackground} />
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">

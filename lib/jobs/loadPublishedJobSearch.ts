@@ -3,7 +3,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Job } from "@/components/jobs/types";
 import type { FacetOption, JobFilterFacet, JobFilterSelection } from "@/lib/jobs/jobSearchFacets";
 import { ALL_JOB_FILTER_FACETS, SALARY_BUCKETS } from "@/lib/jobs/jobSearchFacets";
-import { enrichJobsWithSeekerMatch } from "@/lib/jobs/enrichJobsWithSeekerMatch";
 import { parseJobSearchParams } from "@/lib/jobs/jobSearchUrl";
 import { selectionsFromSearchParams, sortFromParams } from "@/lib/jobs/jobSearchState";
 import { sortJobs, type JobSearchSort } from "@/lib/jobs/jobSearchSort";
@@ -17,8 +16,10 @@ import {
 } from "@/lib/jobs/mapPublishedJobToCard";
 import { fetchSavedJobIdsForUser } from "@/lib/jobs/savedJobs";
 import { seekerCanUseMatchRanking } from "@/lib/jobs/seekerMatchRanking";
-import { experienceBackgroundFromDb } from "@/lib/seeker/experienceBackground";
-import type { SeekerCertificateInput, SeekerMatchInput } from "@/lib/matching/calculateJobMatch";
+import { applyCompactJobMatches, getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
+import { emptySeekerMatchContext, loadSeekerMatchContext } from "@/lib/matching/seekerMatchContext";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 
 export const JOB_SEARCH_PAGE_SIZE = 20;
 export const JOB_SEARCH_MATCH_CANDIDATE_CAP = 200;
@@ -127,39 +128,71 @@ function emptyFacets(): Record<JobFilterFacet, FacetOption[]> {
   return map;
 }
 
+function parseFacetOption(
+  item: unknown,
+  facet: JobFilterFacet,
+  tJobs: (key: string) => string,
+): FacetOption | null {
+  if (!item || typeof item !== "object") return null;
+  const value = ((item as { value?: unknown }).value ?? "").toString().trim();
+  const count = Number((item as { count?: unknown }).count) || 0;
+  if (!value) return null;
+  if (facet === "jobType") {
+    const label = mapJobType(value, tJobs) ?? value;
+    return { value: label, count };
+  }
+  if (facet === "workType") {
+    const label = mapWorkType(value, tJobs) ?? value;
+    return { value: label, count };
+  }
+  return { value, count };
+}
+
 function parseFacetsPayload(
   raw: unknown,
   tJobs: (key: string) => string,
+  selections: JobFilterSelection[],
 ): Record<JobFilterFacet, FacetOption[]> {
   const out = emptyFacets();
-  if (!raw || typeof raw !== "object") return out;
+  if (!raw || typeof raw !== "object") return mergeSelectedFacetOptions(out, selections);
   const o = raw as Record<string, unknown>;
+  const selected = new Map<JobFilterFacet, Set<string>>();
+  for (const s of selections) {
+    const set = selected.get(s.facet) ?? new Set<string>();
+    set.add(s.value);
+    selected.set(s.facet, set);
+  }
   for (const facet of ALL_JOB_FILTER_FACETS) {
     const list = o[facet];
-    if (!Array.isArray(list)) continue;
-    out[facet] = list
-      .map((item) => {
-        if (!item || typeof item !== "object") return null;
-        const value = ((item as { value?: unknown }).value ?? "").toString().trim();
-        const count = Number((item as { count?: unknown }).count) || 0;
-        if (!value) return null;
-        if (facet === "jobType") {
-          const label = mapJobType(value, tJobs) ?? value;
-          return { value: label, count };
-        }
-        if (facet === "workType") {
-          const label = mapWorkType(value, tJobs) ?? value;
-          return { value: label, count };
-        }
-        return { value, count };
-      })
-      .filter((x): x is FacetOption => Boolean(x));
+    const keep = selected.get(facet) ?? new Set<string>();
+    const parsed = Array.isArray(list)
+      ? list
+          .map((item) => parseFacetOption(item, facet, tJobs))
+          .filter((x): x is FacetOption => Boolean(x))
+          .filter((x) => x.count > 0 || keep.has(x.value))
+      : [];
+    out[facet] = parsed;
   }
-  return out;
+  return mergeSelectedFacetOptions(out, selections);
+}
+
+function mergeSelectedFacetOptions(
+  facets: Record<JobFilterFacet, FacetOption[]>,
+  selections: JobFilterSelection[],
+): Record<JobFilterFacet, FacetOption[]> {
+  for (const s of selections) {
+    const list = facets[s.facet];
+    if (!list) continue;
+    if (list.some((o) => o.value === s.value)) continue;
+    list.push({ value: s.value, count: 0 });
+  }
+  return facets;
 }
 
 function rpcMissing(message: string | undefined) {
-  return /function|schema cache|does not exist|search_published_jobs/i.test(message ?? "");
+  return /function|schema cache|does not exist|search_published_jobs|published_job_facet/i.test(
+    message ?? "",
+  );
 }
 
 async function callSearchRpc(supabase: SupabaseClient, args: RpcArgs) {
@@ -181,62 +214,14 @@ export async function loadPublishedJobSearch(input: {
   const parsed = parseJobSearchParams(searchParams);
   const selections = selectionsFromSearchParams(parsed, tJobs);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let role: string | null = null;
-  if (user) {
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-    role = (profile?.role ?? user.user_metadata?.role ?? null) as string | null;
-  }
+  const auth = await getCurrentAuth();
+  const userId = auth.userId;
+  const role = auth.role;
   const canSaveJobs = !role || role === "seeker";
 
-  let seekerInput: SeekerMatchInput | null = null;
-  let certs: SeekerCertificateInput[] = [];
-  if (user && role === "seeker") {
-    const { data: seekerRow } = await supabase
-      .from("seeker_profiles")
-      .select(
-        "full_name,profile_title,location,about,skills,experience_level,preferred_job_types,preferred_locations,has_b_category_drivers_license,pref_full_time,pref_part_time,pref_remote_work,pref_hybrid_work,pref_on_site_work,pref_desired_weekly_hours,pref_min_weekly_hours,pref_max_weekly_hours,exp_seeking_first_job,exp_is_student,exp_has_internship,exp_has_volunteer,exp_has_project,exp_has_prior_work,experience_duration_years,languages",
-      )
-      .eq("user_id", user.id)
-      .maybeSingle();
-    seekerInput = seekerRow
-      ? {
-          profile_title: (seekerRow.profile_title ?? null) as string | null,
-          full_name: (seekerRow.full_name ?? null) as string | null,
-          location: (seekerRow.location ?? null) as string | null,
-          about: (seekerRow.about ?? null) as string | null,
-          skills: (seekerRow.skills as string[] | null) ?? null,
-          experience_level: (seekerRow.experience_level ?? null) as string | null,
-          preferred_job_types: (seekerRow.preferred_job_types as string[] | null) ?? null,
-          preferred_locations: (seekerRow.preferred_locations as string[] | null) ?? null,
-          has_b_category_drivers_license: seekerRow.has_b_category_drivers_license ?? null,
-          experience_background: experienceBackgroundFromDb(seekerRow),
-          languages: (seekerRow.languages as string[] | null) ?? null,
-          pref_desired_weekly_hours: seekerRow.pref_desired_weekly_hours ?? null,
-          pref_min_weekly_hours: seekerRow.pref_min_weekly_hours ?? null,
-          pref_max_weekly_hours: seekerRow.pref_max_weekly_hours ?? null,
-          pref_full_time: seekerRow.pref_full_time ?? null,
-          pref_part_time: seekerRow.pref_part_time ?? null,
-          pref_remote_work: seekerRow.pref_remote_work ?? null,
-          pref_hybrid_work: seekerRow.pref_hybrid_work ?? null,
-          pref_on_site_work: seekerRow.pref_on_site_work ?? null,
-        }
-      : null;
-    const { data: certRows } = await supabase
-      .from("seeker_certificates")
-      .select("certificate_name,certificate_issuer,certificate_valid_until")
-      .eq("user_id", user.id);
-    certs = (certRows ?? []).map((c) => ({
-      certificate_name: c.certificate_name ?? null,
-      certificate_issuer: c.certificate_issuer ?? null,
-      certificate_valid_until: c.certificate_valid_until ?? null,
-    }));
-  }
-
-  const matchSortAvailable = seekerCanUseMatchRanking(seekerInput);
+  const seekerContext =
+    userId && role === "seeker" ? await loadSeekerMatchContext(userId) : emptySeekerMatchContext;
+  const matchSortAvailable = seekerCanUseMatchRanking(seekerContext.seeker);
   const sort = sortFromParams(parsed, matchSortAvailable);
   const page = parsed.page ?? 1;
   const useMatchSort = sort === "match" && matchSortAvailable;
@@ -263,31 +248,14 @@ export async function loadPublishedJobSearch(input: {
     ? Math.max(1, Math.ceil(Math.min(totalCount, jobs.length) / JOB_SEARCH_PAGE_SIZE))
     : payload.total_pages;
 
-  const rawById = new Map<string, Record<string, unknown>>();
-  for (const row of payload.jobs) {
-    const id = (row.id ?? "").toString();
-    if (id) rawById.set(id, row as Record<string, unknown>);
-  }
-
-  if (seekerInput && jobs.length) {
-    const jobIds = jobs.map((j) => j.id).filter(Boolean);
-    const matchFull = await supabase
-      .from("job_posts")
-      .select("id,description,requirements,requirement_lines,job_requirements")
-      .in("id", jobIds);
-    const matchRows =
-      matchFull.error && /job_requirements|requirement_lines|column/i.test(matchFull.error.message ?? "")
-        ? await supabase.from("job_posts").select("id,description,requirements").in("id", jobIds)
-        : matchFull;
-    if (!matchRows.error) {
-      for (const row of matchRows.data ?? []) {
-        const id = (row as { id: string }).id;
-        const prev = rawById.get(id) ?? {};
-        rawById.set(id, { ...prev, ...(row as Record<string, unknown>) });
-      }
-    }
-    const enriched = enrichJobsWithSeekerMatch(jobs, rawById, seekerInput, certs);
-    jobs = enriched.jobs;
+  if (matchSortAvailable && jobs.length && userId) {
+    const matched = await getJobMatchesForSeeker({
+      supabase,
+      userId,
+      jobIds: jobs.map((j) => j.id).filter(Boolean),
+      context: seekerContext,
+    });
+    jobs = applyCompactJobMatches(jobs, matched.byId);
   }
 
   if (useMatchSort) {
@@ -315,11 +283,13 @@ export async function loadPublishedJobSearch(input: {
     p_has_salary: args.p_has_salary,
   });
   const facetOptions =
-    !facetErr && facetData ? parseFacetsPayload(facetData, tJobs) : emptyFacets();
+    !facetErr && facetData
+      ? parseFacetsPayload(facetData, tJobs, selections)
+      : mergeSelectedFacetOptions(emptyFacets(), selections);
 
   let savedJobIds: string[] = [];
-  if (user && role === "seeker") {
-    savedJobIds = await fetchSavedJobIdsForUser(supabase, user.id);
+  if (userId && role === "seeker") {
+    savedJobIds = await fetchSavedJobIdsForUser(supabase, userId);
   }
 
   return {
@@ -336,6 +306,19 @@ export async function loadPublishedJobSearch(input: {
   };
 }
 
+const FALLBACK_JOB_SELECTS = [
+  "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,salary_tax,salary_period,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work,languages",
+  "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required",
+  "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,employer_profile_id,status,created_at,published_at",
+  "id,title,location,job_type,work_type,short_summary,employer_profile_id,status,created_at",
+] as const;
+
+const FALLBACK_EMPLOYER_SELECTS = [
+  "id,company_name,logo_url,company_verified,verification_status,industry,public_slug",
+  "id,company_name,logo_url,industry",
+  "id,company_name,logo_url",
+] as const;
+
 async function fallbackPublishedSearch(
   supabase: SupabaseClient,
   args: RpcArgs,
@@ -345,38 +328,52 @@ async function fallbackPublishedSearch(
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  let q = supabase
-    .from("job_posts")
-    .select(
-      "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,salary_min,salary_max,salary_currency,salary_tax,salary_period,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work,languages",
-      { count: "exact" },
-    )
-    .eq("status", "published");
+  let rows: PublishedJobSearchRow[] = [];
+  let total = 0;
 
-  if (args.p_query) {
-    const needle = args.p_query;
-    q = q.or(`title.ilike.%${needle}%,location.ilike.%${needle}%,short_summary.ilike.%${needle}%`);
+  for (const select of FALLBACK_JOB_SELECTS) {
+    let q = supabase.from("job_posts").select(select, { count: "exact" }).eq("status", "published");
+
+    if (args.p_query) {
+      const needle = args.p_query;
+      q = q.or(`title.ilike.%${needle}%,location.ilike.%${needle}%,short_summary.ilike.%${needle}%`);
+    }
+    if (args.p_locations?.[0]) q = q.ilike("location", `%${args.p_locations[0]}%`);
+    if (args.p_job_types?.length) q = q.in("job_type", args.p_job_types);
+    if (args.p_work_types?.length) q = q.in("work_type", args.p_work_types);
+    if (args.p_experience?.length && select.includes("experience_level_required")) {
+      q = q.in("experience_level_required", args.p_experience);
+    }
+    if (args.p_has_salary) q = q.or("salary_min.not.is.null,salary_max.not.is.null");
+    if (args.p_sort === "salary") q = q.order("salary_max", { ascending: false, nullsFirst: false });
+    else if (args.p_sort === "deadline" && select.includes("application_deadline")) {
+      q = q.order("application_deadline", { ascending: true, nullsFirst: false });
+    } else if (select.includes("published_at")) {
+      q = q.order("published_at", { ascending: false, nullsFirst: false });
+    } else {
+      q = q.order("created_at", { ascending: false, nullsFirst: false });
+    }
+
+    const { data, count, error } = await q.range(from, to);
+    if (error && isTaxonomyColumnError(error.message)) continue;
+    if (error) break;
+    rows = (data ?? []) as PublishedJobSearchRow[];
+    total = count ?? rows.length;
+    break;
   }
-  if (args.p_locations?.[0]) q = q.ilike("location", `%${args.p_locations[0]}%`);
-  if (args.p_job_types?.length) q = q.in("job_type", args.p_job_types);
-  if (args.p_work_types?.length) q = q.in("work_type", args.p_work_types);
-  if (args.p_experience?.length) q = q.in("experience_level_required", args.p_experience);
-  if (args.p_has_salary) q = q.or("salary_min.not.is.null,salary_max.not.is.null");
-  if (args.p_sort === "salary") q = q.order("salary_max", { ascending: false, nullsFirst: false });
-  else if (args.p_sort === "deadline") q = q.order("application_deadline", { ascending: true, nullsFirst: false });
-  else q = q.order("published_at", { ascending: false, nullsFirst: false });
 
-  const { data, count } = await q.range(from, to);
-  let rows = (data ?? []) as PublishedJobSearchRow[];
   const employerIds = Array.from(
     new Set(rows.map((r) => (r.employer_profile_id ?? "").toString()).filter(Boolean)),
   );
   if (employerIds.length) {
-    const { data: employers } = await supabase
-      .from("employer_profiles")
-      .select("id,company_name,logo_url,company_verified,verification_status,industry,public_slug")
-      .in("id", employerIds);
-    const byId = new Map((employers ?? []).map((e) => [e.id as string, e]));
+    let employers: Record<string, unknown>[] = [];
+    for (const select of FALLBACK_EMPLOYER_SELECTS) {
+      const { data, error } = await supabase.from("employer_profiles").select(select).in("id", employerIds);
+      if (error && isTaxonomyColumnError(error.message)) continue;
+      if (!error) employers = (data ?? []) as Record<string, unknown>[];
+      break;
+    }
+    const byId = new Map(employers.map((e) => [String(e.id), e]));
     rows = rows.map((row) => {
       const emp = byId.get((row.employer_profile_id ?? "").toString());
       if (!emp) return row;
@@ -391,7 +388,6 @@ async function fallbackPublishedSearch(
       };
     });
   }
-  const total = count ?? rows.length;
   return {
     jobs: rows,
     total_count: total,

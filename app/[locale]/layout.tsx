@@ -7,6 +7,8 @@ import { LocaleHtml } from "@/components/i18n/LocaleHtml";
 import { ClipboardPlainCopy } from "@/components/site/ClipboardPlainCopy";
 import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import { CookieConsent } from "@/components/cookies/CookieConsent";
+import { CurrentAuthProvider } from "@/components/auth/CurrentAuthProvider";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 type Props = {
@@ -42,14 +44,17 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
   setRequestLocale(locale);
   const messages = await getMessages();
+  const auth = await getCurrentAuth();
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <LocaleHtml />
-      <ClipboardPlainCopy />
-      {children}
-      <CookieConsent />
-      <ScrollToTopButton />
+      <CurrentAuthProvider initialAuth={auth}>
+        <LocaleHtml />
+        <ClipboardPlainCopy />
+        {children}
+        <CookieConsent />
+        <ScrollToTopButton />
+      </CurrentAuthProvider>
     </NextIntlClientProvider>
   );
 }

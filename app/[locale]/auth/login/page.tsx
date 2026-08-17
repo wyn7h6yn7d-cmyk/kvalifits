@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { AlreadySignedIn } from "@/components/auth/AlreadySignedIn";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -15,10 +15,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const t = await getTranslations({ locale, namespace: "auth" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { authenticated } = await getCurrentAuth();
 
   const notice =
     sp.signup === "check-email"
@@ -36,7 +33,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
           {notice}
         </div>
       ) : null}
-      {user ? <AlreadySignedIn /> : <LoginForm locale={locale} />}
+      {authenticated ? <AlreadySignedIn /> : <LoginForm locale={locale} />}
     </AuthShell>
   );
 }

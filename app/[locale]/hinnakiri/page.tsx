@@ -5,7 +5,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { PageHero } from "@/components/site/PageHero";
 import { Container } from "@/components/ui/container";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -21,16 +21,9 @@ export default async function HinnakiriPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  const role = profile?.role ?? user.user_metadata?.role ?? null;
-  if (role !== "employer") redirect(`/${locale}/account`);
+  const auth = await getCurrentAuth();
+  if (!auth.authenticated) redirect(`/${locale}/auth/login`);
+  if (auth.role !== "employer") redirect(`/${locale}/account`);
 
   return (
     <div className="flex-1 bg-background">

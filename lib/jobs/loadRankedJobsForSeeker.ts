@@ -2,13 +2,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Job } from "@/components/jobs/types";
-import { enrichJobsWithSeekerMatch } from "@/lib/jobs/enrichJobsWithSeekerMatch";
+import { applyCompactJobMatches, getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
+import { loadSeekerMatchContext } from "@/lib/matching/seekerMatchContext";
 import { fetchSavedJobIdsForUser } from "@/lib/jobs/savedJobs";
 import { sortJobs } from "@/lib/jobs/jobSearchSort";
 import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 import { isEmployerCompanyVerified } from "@/lib/employer/companyVerification";
-import { experienceBackgroundFromDb } from "@/lib/seeker/experienceBackground";
-import type { SeekerCertificateInput, SeekerMatchInput } from "@/lib/matching/calculateJobMatch";
 
 const JOB_SELECT =
   "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,requirement_lines,job_requirements,requirements,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work";
@@ -107,58 +106,23 @@ export async function loadRankedJobsForSeeker(
     };
   });
 
-  const rawById = new Map(openJobs.map((j: any) => [j.id as string, j as Record<string, unknown>]));
-
-  const { data: seekerRow } = await supabase
-    .from("seeker_profiles")
-    .select(
-      "full_name,profile_title,location,about,skills,experience_level,preferred_job_types,preferred_locations,has_b_category_drivers_license,pref_full_time,pref_part_time,pref_remote_work,pref_hybrid_work,pref_on_site_work,pref_desired_weekly_hours,pref_min_weekly_hours,pref_max_weekly_hours,exp_seeking_first_job,exp_is_student,exp_has_internship,exp_has_volunteer,exp_has_project,exp_has_prior_work,experience_duration_years,languages",
-    )
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  const seekerInput: SeekerMatchInput | null = seekerRow
-    ? {
-        profile_title: (seekerRow.profile_title ?? null) as string | null,
-        full_name: (seekerRow.full_name ?? null) as string | null,
-        location: (seekerRow.location ?? null) as string | null,
-        about: (seekerRow.about ?? null) as string | null,
-        skills: (seekerRow.skills as string[] | null) ?? null,
-        experience_level: (seekerRow.experience_level ?? null) as string | null,
-        preferred_job_types: (seekerRow.preferred_job_types as string[] | null) ?? null,
-        preferred_locations: (seekerRow.preferred_locations as string[] | null) ?? null,
-        has_b_category_drivers_license: seekerRow.has_b_category_drivers_license ?? null,
-        experience_background: experienceBackgroundFromDb(seekerRow),
-        languages: (seekerRow.languages as string[] | null) ?? null,
-        pref_desired_weekly_hours: seekerRow.pref_desired_weekly_hours ?? null,
-        pref_min_weekly_hours: seekerRow.pref_min_weekly_hours ?? null,
-        pref_max_weekly_hours: seekerRow.pref_max_weekly_hours ?? null,
-        pref_full_time: seekerRow.pref_full_time ?? null,
-        pref_part_time: seekerRow.pref_part_time ?? null,
-        pref_remote_work: seekerRow.pref_remote_work ?? null,
-        pref_hybrid_work: seekerRow.pref_hybrid_work ?? null,
-        pref_on_site_work: seekerRow.pref_on_site_work ?? null,
-      }
-    : null;
-
-  const { data: certRows } = await supabase
-    .from("seeker_certificates")
-    .select("certificate_name,certificate_issuer,certificate_valid_until")
-    .eq("user_id", userId);
-
-  const certs: SeekerCertificateInput[] = (certRows ?? []).map((c) => ({
-    certificate_name: c.certificate_name ?? null,
-    certificate_issuer: c.certificate_issuer ?? null,
-    certificate_valid_until: c.certificate_valid_until ?? null,
-  }));
-
-  const enriched = enrichJobsWithSeekerMatch(mapped, rawById, seekerInput, certs);
-  const ranked = sortJobs(enriched.jobs, "match").filter((j) => typeof j.matchScore === "number");
+  const jobInputs = new Map(openJobs.map((j: any) => [j.id as string, j as Record<string, unknown>]));
+  const context = await loadSeekerMatchContext(userId);
+  const matched = await getJobMatchesForSeeker({
+    supabase,
+    userId,
+    jobIds: mapped.map((j) => j.id),
+    context,
+    jobInputs,
+  });
+  const ranked = sortJobs(applyCompactJobMatches(mapped, matched.byId), "match").filter(
+    (j) => typeof j.matchScore === "number",
+  );
   const savedJobIds = await fetchSavedJobIdsForUser(supabase, userId);
 
   return {
     jobs: ranked,
-    matchSortAvailable: enriched.matchSortAvailable,
+    matchSortAvailable: matched.matchSortAvailable,
     savedJobIds,
   };
 }

@@ -35,11 +35,16 @@ export type PublishedJobSearchRow = {
   includes_night_work?: unknown;
   is_hazardous_work?: unknown;
   languages?: unknown;
+  industry?: unknown;
+  industry_id?: unknown;
+  profession_id?: unknown;
+  skill_ids?: unknown;
+  certificate_ids?: unknown;
+  language_ids?: unknown;
   company_name?: unknown;
   logo_url?: unknown;
   company_verified?: unknown;
   verification_status?: unknown;
-  industry?: unknown;
   public_slug?: unknown;
   description?: unknown;
 };
@@ -196,6 +201,11 @@ export function mapPublishedJobToCard(
   const languages = ((j.languages as string[] | null) ?? [])
     .map((x) => normFacetValue(String(x)))
     .filter(Boolean);
+  const skillIds = ((j.skill_ids as string[] | null) ?? []).map((x) => String(x).trim()).filter(Boolean);
+  const certificateIds = ((j.certificate_ids as string[] | null) ?? []).map((x) => String(x).trim()).filter(Boolean);
+  const languageIds = ((j.language_ids as string[] | null) ?? []).map((x) => String(x).trim()).filter(Boolean);
+  const industryId = (j.industry_id ?? "").toString().trim() || null;
+  const professionId = (j.profession_id ?? "").toString().trim() || null;
 
   return {
     id: (j.id ?? "").toString(),
@@ -220,9 +230,14 @@ export function mapPublishedJobToCard(
     applicationDeadline: (j.application_deadline as string | null) ?? null,
     tags,
     skills,
+    skillIds,
     requiredCerts,
-    domains: industry ? [industry] : [],
+    certificateIds,
+    domains: industry ? [industry] : industryId ? [industryId] : [],
+    industryId,
+    professionId,
     languages,
+    languageIds,
     experienceLevel,
     openToFirstJob: experienceLevel === "not_required",
     suitableForYoungSeeker: jobPassesYoungSeekerAutoEligibility(

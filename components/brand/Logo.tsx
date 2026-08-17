@@ -36,9 +36,9 @@ export function Logo({
             : "/brand/kvalifits-wordmark-transparent.png"
         }
         alt="Kvalifits"
-        width={isIcon ? 52 : 200}
-        height={isIcon ? 52 : 42}
-        sizes={isIcon ? "52px" : "(max-width: 640px) 112px, 168px"}
+        width={isIcon ? 52 : 240}
+        height={isIcon ? 52 : 50}
+        sizes={isIcon ? "52px" : "(max-width: 640px) 168px, 220px"}
         quality={75}
         priority={priority}
       />

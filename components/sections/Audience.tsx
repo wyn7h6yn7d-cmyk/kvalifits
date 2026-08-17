@@ -9,7 +9,6 @@ import {
   Users,
 } from "lucide-react";
 
-import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
@@ -182,17 +181,9 @@ export async function Audience() {
                       {t("employerPricingDuration")}
                     </div>
                   </div>
-                  <div className="mt-5 flex items-end justify-between gap-4">
-                    <p className="max-w-[14rem] text-[12.5px] leading-relaxed text-body">
-                      {t("employerPricingHint")}
-                    </p>
-                    <GradientAccentText
-                      variant="price"
-                      wrapClassName="shrink-0 text-right text-3xl font-semibold tracking-tight tabular-nums sm:text-[2rem]"
-                    >
-                      {t("employerPricingPrice")}
-                    </GradientAccentText>
-                  </div>
+                  <p className="mt-5 text-[12.5px] leading-relaxed text-body">
+                    {t("employerPricingHint")}
+                  </p>
                 </div>
 
                 <p className="mt-6 text-[15px] leading-relaxed text-body">{t("employerTagline")}</p>

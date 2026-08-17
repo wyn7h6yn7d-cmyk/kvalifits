@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { JobApplyForm } from "@/components/jobs/JobApplyForm";
 import { JobPostingJsonLd } from "@/components/jobs/JobPostingJsonLd";
 import { resolveJobRequirements } from "@/lib/jobs/jobRequirements";
@@ -32,21 +33,17 @@ import {
 } from "@/lib/jobs/jobSeo";
 import { loadPublishedJobForSeo } from "@/lib/jobs/loadPublishedJobForSeo";
 import { NOINDEX_FOLLOW, NOINDEX_ROBOTS } from "@/lib/seo/site";
-import { deactivateJobIfExpired } from "@/lib/jobs/deactivateExpiredJobs";
 import {
   formatApplyUntilLabel,
   jobAcceptsApplications,
 } from "@/lib/jobs/jobLifecycle";
-import { calculateJobMatch, type SeekerCertificateInput, type SeekerMatchInput } from "@/lib/matching/calculateJobMatch";
-import { buildMatchExplanation } from "@/lib/matching/matchExplanation";
-import { buildJobMatchInput } from "@/lib/jobs/enrichJobsWithSeekerMatch";
-import { seekerCanUseMatchRanking } from "@/lib/jobs/seekerMatchRanking";
-import { experienceBackgroundFromDb } from "@/lib/seeker/experienceBackground";
 import { MapPin } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { SimilarJobsSection } from "@/components/jobs/SimilarJobsSection";
 import { loadSimilarJobsForDetail } from "@/lib/jobs/loadSimilarJobsForDetail";
 import { CompanyVerifiedBadge } from "@/components/employer/CompanyVerificationBadge";
+import { getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
+import { loadSeekerMatchContext } from "@/lib/matching/seekerMatchContext";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -151,13 +148,6 @@ export default async function JobDetailPage({ params }: Props) {
   const job = jobRaw as any;
   if (!job) redirect(`/${locale}/tood`);
 
-  const expiredNow = await deactivateJobIfExpired({
-    id: job.id,
-    status: job.status,
-    expires_at: job.expires_at ?? null,
-  });
-  if (expiredNow) job.status = "archived";
-
   const isPublicListing = job.status === "published";
   const isArchivedPublicHistory = job.status === "archived" && Boolean(job.published_at);
   if (!isPublicListing && !isArchivedPublicHistory) redirect(`/${locale}/tood`);
@@ -176,88 +166,48 @@ export default async function JobDetailPage({ params }: Props) {
   let match: JobDetailMatchStats | null = null;
   let showCreateProfileCta = true;
   let isSeeker = false;
-  let seekerInput: SeekerMatchInput | null = null;
-  let seekerCerts: SeekerCertificateInput[] = [];
+  let seekerUserId: string | null = null;
+  let seekerContext: Awaited<ReturnType<typeof loadSeekerMatchContext>> | undefined;
   {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-      const role = (profile?.role ?? null) as string | null;
+    const auth = await getCurrentAuth();
+    if (auth.authenticated && auth.userId) {
+      const role = auth.role;
       if (role && role !== "seeker") {
         canSaveJobs = false;
         showCreateProfileCta = false;
       }
       if (role === "seeker") {
         isSeeker = true;
+        seekerUserId = auth.userId;
         const { data: savedRow, error: savedErr } = await supabase
           .from("saved_jobs")
           .select("id")
-          .eq("seeker_user_id", user.id)
+          .eq("seeker_user_id", auth.userId)
           .eq("job_post_id", job.id)
           .maybeSingle();
         if (!savedErr) initialSaved = Boolean(savedRow);
 
-        const { data: seekerRow } = await supabase
-          .from("seeker_profiles")
-          .select(
-            "full_name,profile_title,location,about,skills,experience_level,preferred_job_types,preferred_locations,has_b_category_drivers_license,pref_full_time,pref_part_time,pref_remote_work,pref_hybrid_work,pref_on_site_work,pref_desired_weekly_hours,pref_min_weekly_hours,pref_max_weekly_hours,exp_seeking_first_job,exp_is_student,exp_has_internship,exp_has_volunteer,exp_has_project,exp_has_prior_work,experience_duration_years,languages",
-          )
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        seekerInput = seekerRow
-          ? {
-              profile_title: (seekerRow.profile_title ?? null) as string | null,
-              full_name: (seekerRow.full_name ?? null) as string | null,
-              location: (seekerRow.location ?? null) as string | null,
-              about: (seekerRow.about ?? null) as string | null,
-              skills: (seekerRow.skills as string[] | null) ?? null,
-              experience_level: (seekerRow.experience_level ?? null) as string | null,
-              preferred_job_types: (seekerRow.preferred_job_types as string[] | null) ?? null,
-              preferred_locations: (seekerRow.preferred_locations as string[] | null) ?? null,
-              has_b_category_drivers_license: seekerRow.has_b_category_drivers_license ?? null,
-              experience_background: experienceBackgroundFromDb(seekerRow),
-              languages: (seekerRow.languages as string[] | null) ?? null,
-              pref_desired_weekly_hours: seekerRow.pref_desired_weekly_hours ?? null,
-              pref_min_weekly_hours: seekerRow.pref_min_weekly_hours ?? null,
-              pref_max_weekly_hours: seekerRow.pref_max_weekly_hours ?? null,
-              pref_full_time: seekerRow.pref_full_time ?? null,
-              pref_part_time: seekerRow.pref_part_time ?? null,
-              pref_remote_work: seekerRow.pref_remote_work ?? null,
-              pref_hybrid_work: seekerRow.pref_hybrid_work ?? null,
-              pref_on_site_work: seekerRow.pref_on_site_work ?? null,
-            }
-          : null;
-
-        const { data: certRows } = await supabase
-          .from("seeker_certificates")
-          .select("certificate_name,certificate_issuer,certificate_valid_until")
-          .eq("user_id", user.id);
-
-        seekerCerts = (certRows ?? []).map((c) => ({
-          certificate_name: c.certificate_name ?? null,
-          certificate_issuer: c.certificate_issuer ?? null,
-          certificate_valid_until: c.certificate_valid_until ?? null,
-        }));
-
-        if (seekerInput && seekerCanUseMatchRanking(seekerInput)) {
-          const { score, breakdown } = calculateJobMatch(seekerInput, seekerCerts, buildJobMatchInput(job));
+        seekerContext = await loadSeekerMatchContext(auth.userId);
+        const compact = await getJobMatchesForSeeker({
+          supabase,
+          userId: auth.userId,
+          jobIds: [String(job.id)],
+          context: seekerContext,
+          jobInputs: new Map([[String(job.id), job as Record<string, unknown>]]),
+          includeExplanation: true,
+          maxCriteria: null,
+        });
+        const m = compact.byId.get(String(job.id));
+        if (m) {
           match = {
-            score,
-            reqsFilled: breakdown.requirementsTotal > 0 ? breakdown.requirementsMatched : null,
-            reqsTotal: breakdown.requirementsTotal > 0 ? breakdown.requirementsTotal : null,
-            mandFilled: breakdown.requirementsMandatoryTotal > 0 ? breakdown.requirementsMandatoryMatched : null,
-            mandTotal: breakdown.requirementsMandatoryTotal > 0 ? breakdown.requirementsMandatoryTotal : null,
-            recFilled: breakdown.requirementsRecommendedTotal > 0 ? breakdown.requirementsRecommendedMatched : null,
-            recTotal: breakdown.requirementsRecommendedTotal > 0 ? breakdown.requirementsRecommendedTotal : null,
-            explanation: buildMatchExplanation({
-              breakdown,
-              job: buildJobMatchInput(job),
-              seeker: seekerInput,
-              certs: seekerCerts,
-            }),
+            score: m.matchScore,
+            reqsFilled: m.reqsTotal > 0 ? m.reqsMet : null,
+            reqsTotal: m.reqsTotal > 0 ? m.reqsTotal : null,
+            mandFilled: m.mandatoryTotal > 0 ? m.mandatoryMet : null,
+            mandTotal: m.mandatoryTotal > 0 ? m.mandatoryTotal : null,
+            recFilled: m.preferredTotal > 0 ? m.preferredMet : null,
+            recTotal: m.preferredTotal > 0 ? m.preferredTotal : null,
+            explanation: m.explanation ?? null,
           };
           showCreateProfileCta = false;
         }
@@ -465,8 +415,8 @@ export default async function JobDetailPage({ params }: Props) {
     locale,
     workTypeLabel: (raw) => mapWorkTypeLabel(raw, tJobs),
     tJobs: (key) => tJobs(key as never),
-    seeker: seekerInput,
-    certs: seekerCerts,
+    userId: seekerUserId,
+    context: seekerContext,
   });
 
   return (

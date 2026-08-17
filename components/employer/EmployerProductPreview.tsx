@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Briefcase, Building2, CalendarDays, MapPin } from "lucide-react";
 
@@ -11,24 +11,81 @@ import { cn } from "@/lib/utils";
 
 type ApplicantId = 0 | 1 | 2;
 
-function PreviewScoreRing({ label, sampleLabel }: { label: string; sampleLabel: string }) {
+const DEMO_SCORES: Record<ApplicantId, number> = { 0: 87, 1: 64, 2: 31 };
+
+const RING_R = 52;
+const RING_C = 2 * Math.PI * RING_R;
+const RING_STROKE = 10;
+
+function PreviewScoreRing({
+  score,
+  label,
+  sampleLabel,
+}: {
+  score: number;
+  label: string;
+  sampleLabel: string;
+}) {
+  const gradId = `previewFitGrad-${useId().replace(/:/g, "")}`;
+  const offset = RING_C * (1 - Math.min(100, Math.max(0, score)) / 100);
+
   return (
-    <div className="relative flex flex-col items-center justify-center rounded-3xl border border-white/[0.14] bg-gradient-to-b from-white/[0.10] to-black/40 px-6 py-6 shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset] sm:px-8 sm:py-8">
-      <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">
-        {label}
-      </span>
-      <span className="mt-3 text-sm font-medium uppercase tracking-wide text-white/55">{sampleLabel}</span>
-      <div className="mt-4 h-1.5 w-full max-w-[10rem] overflow-hidden rounded-full bg-white/[0.08]" aria-hidden>
-        <div className="h-full w-3/5 rounded-full bg-gradient-to-r from-violet-400/45 to-fuchsia-400/35" />
+    <div className="relative flex h-full min-h-[11rem] w-full flex-col items-center justify-center rounded-2xl border border-white/[0.10] bg-black/25 px-4 py-5">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-white/52">{label}</span>
+      <div className="relative mt-3 flex h-[128px] w-[128px] items-center justify-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-[-12%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg"
+        />
+        <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
+          <circle
+            cx="66"
+            cy="66"
+            r={RING_R}
+            fill="none"
+            stroke="rgba(255,255,255,0.14)"
+            strokeWidth={RING_STROKE}
+          />
+          <circle
+            cx="66"
+            cy="66"
+            r={RING_R}
+            fill="none"
+            stroke={`url(#${gradId})`}
+            strokeWidth={RING_STROKE}
+            strokeLinecap="round"
+            strokeDasharray={RING_C}
+            strokeDashoffset={offset}
+            style={{ filter: "drop-shadow(0 0 10px rgba(217,70,239,0.55))" }}
+          />
+          <defs>
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgb(139,92,246)" />
+              <stop offset="55%" stopColor="rgb(217,70,239)" />
+              <stop offset="100%" stopColor="rgba(227,31,141,0.95)" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="relative px-1 text-center">
+          <div className="text-[26px] font-semibold tabular-nums leading-none tracking-tight text-white">
+            {score}%
+          </div>
+        </div>
       </div>
+      <span className="mt-3 rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/40">
+        {sampleLabel}
+      </span>
     </div>
   );
 }
 
-function ListScore({ sampleLabel }: { sampleLabel: string }) {
+function ListScore({ score, sampleLabel }: { score: number; sampleLabel: string }) {
   return (
-    <div className="flex shrink-0 flex-col items-end rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.08] to-black/35 px-3 py-2 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-white/48">{sampleLabel}</span>
+    <div className="flex shrink-0 flex-col items-end gap-1">
+      <span className="bg-gradient-to-r from-violet-300 via-fuchsia-300 to-[rgba(227,31,141,0.95)] bg-clip-text text-[1.05rem] font-semibold tabular-nums leading-none text-transparent">
+        {score}%
+      </span>
+      <span className="text-[10px] font-medium uppercase tracking-wide text-white/40">{sampleLabel}</span>
     </div>
   );
 }
@@ -173,7 +230,7 @@ export function EmployerProductPreview() {
                               {t(`previewDemoApp${a.id}Clue` as "previewDemoApp0Clue")}
                             </p>
                           </div>
-                          <ListScore sampleLabel={sampleLabel} />
+                          <ListScore score={DEMO_SCORES[a.id]} sampleLabel={sampleLabel} />
                         </button>
                       );
                     })}
@@ -203,8 +260,8 @@ export function EmployerProductPreview() {
                   </ul>
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,11rem)_1fr] lg:items-stretch lg:gap-5 xl:gap-8">
-                  <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(12.5rem,14rem)_minmax(0,1fr)] lg:items-stretch lg:gap-5 xl:gap-8">
+                  <div className="flex min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
                     <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                       {t("previewSeekerColumnTitle")}
                     </div>
@@ -213,11 +270,13 @@ export function EmployerProductPreview() {
                     </div>
                   </div>
 
-                  <div className="flex h-full min-h-0 justify-center lg:items-center">
-                    <PreviewScoreRing label={suitabilityLabel} sampleLabel={sampleLabel} />
-                  </div>
+                  <PreviewScoreRing
+                    score={DEMO_SCORES[selected]}
+                    label={suitabilityLabel}
+                    sampleLabel={sampleLabel}
+                  />
 
-                  <div className="flex h-full min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
+                  <div className="flex min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
                     <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                       {t("previewJobColumnTitle")}
                     </div>

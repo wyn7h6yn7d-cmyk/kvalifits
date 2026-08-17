@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { MapPin, Search, SlidersHorizontal, X } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
@@ -28,6 +28,8 @@ import {
   sortFromParams,
 } from "@/lib/jobs/jobSearchState";
 import { type JobSearchSort } from "@/lib/jobs/jobSearchSort";
+import { taxonomyFacetLabel } from "@/lib/taxonomy/facetLabel";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 import { useRouter, Link } from "@/i18n/routing";
 import { JobFiltersBody, selectionKeyOf } from "@/components/jobs/JobFilterPanel";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -75,6 +77,8 @@ export function JobsSearch({
   const tf = useTranslations("jobsFacets");
   const tExp = useTranslations("onboarding.experienceLevelOption");
   const tJobs = useTranslations("jobs");
+  const locale = useLocale();
+  const { catalog } = useTaxonomyCatalog();
   const searchParams = useSearchParams();
   const router = useRouter();
   const paramsKey = searchParams.toString();
@@ -138,9 +142,19 @@ export function JobsSearch({
       if (facet === "salary") {
         return t(`salaryBucket.${value}` as Parameters<typeof t>[0]);
       }
-      return value;
+      if (facet === "language") {
+        const labeled = taxonomyFacetLabel(catalog, facet, value, locale, (id) => {
+          try {
+            return tJobs(`matchLangName.${id}` as Parameters<typeof tJobs>[0]);
+          } catch {
+            return id;
+          }
+        });
+        return labeled;
+      }
+      return taxonomyFacetLabel(catalog, facet, value, locale);
     };
-  }, [t, tExp]);
+  }, [t, tExp, catalog, tJobs, locale]);
 
   const results = jobs;
   const savedSet = useMemo(() => new Set(savedJobIds), [savedJobIds]);
@@ -400,6 +414,7 @@ export function JobsSearch({
                 onToggle={onToggle}
                 onClear={clearAll}
                 keywordQuery={query}
+                listSearchParams={paramsKey}
               />
             </div>
           </aside>
@@ -563,6 +578,7 @@ export function JobsSearch({
                 onClear={clearAll}
                 showHeader={false}
                 keywordQuery={query}
+                listSearchParams={paramsKey}
               />
             </div>
 

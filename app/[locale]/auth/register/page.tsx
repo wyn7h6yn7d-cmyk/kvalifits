@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 import { AlreadySignedIn } from "@/components/auth/AlreadySignedIn";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 
 type RegisterRole = "seeker" | "employer";
 
@@ -31,14 +31,11 @@ export default async function RegisterPage({ params, searchParams }: Props) {
         ? t("registerSubtitleSeeker")
         : t("registerSubtitle");
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { authenticated } = await getCurrentAuth();
 
   return (
     <AuthShell title={t("registerTitle")} subtitle={subtitle}>
-      {user ? <AlreadySignedIn /> : <RegisterForm locale={locale} defaultRole={defaultRole} />}
+      {authenticated ? <AlreadySignedIn /> : <RegisterForm locale={locale} defaultRole={defaultRole} />}
     </AuthShell>
   );
 }

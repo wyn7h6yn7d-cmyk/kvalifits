@@ -5,7 +5,6 @@ import { JobsSearch } from "@/components/jobs/JobsSearch";
 import { JobSearchSkeleton } from "@/components/skeletons/JobSearchSkeleton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { NOINDEX_FOLLOW, publicPageMetadata, searchParamsIndicateDuplicateLanding } from "@/lib/seo/site";
-import { deactivateExpiredJobPosts } from "@/lib/jobs/deactivateExpiredJobs";
 import { loadPublishedJobSearch } from "@/lib/jobs/loadPublishedJobSearch";
 
 type Props = {
@@ -33,7 +32,6 @@ export default async function ToodPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const t = await getTranslations("pages.jobs");
   const tJobs = await getTranslations({ locale, namespace: "jobs" });
-  await deactivateExpiredJobPosts();
   const supabase = await createSupabaseServerClient();
 
   const result = await loadPublishedJobSearch({

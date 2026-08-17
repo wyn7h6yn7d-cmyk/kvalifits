@@ -23,8 +23,11 @@ function LocaleFlag({ locale }: { locale: string }) {
     return (
       <svg viewBox="0 0 18 12" className={box} aria-hidden>
         <rect width="18" height="12" fill="#FFFFFF" />
-        <rect x="7" width="4" height="12" fill="#C8102E" />
-        <rect y="4" width="18" height="4" fill="#C8102E" />
+        <rect y="0" width="18" height="1.714" fill="#B22234" />
+        <rect y="3.428" width="18" height="1.714" fill="#B22234" />
+        <rect y="6.856" width="18" height="1.714" fill="#B22234" />
+        <rect y="10.284" width="18" height="1.714" fill="#B22234" />
+        <rect width="7.2" height="6.5" fill="#3C3B6E" />
       </svg>
     );
   }

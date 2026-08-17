@@ -60,17 +60,17 @@ function CompanyLogo({ url, company }: { url?: string | null; company: string })
 }
 
 function MatchPanel({
+  jobId,
   score,
-  explanation,
   compact,
 }: {
+  jobId: string;
   score: number;
-  explanation: Job["matchExplanation"];
   compact?: boolean;
 }) {
   return (
     <div className={cn("relative min-w-0", compact ? "" : "w-full text-right")}>
-      <FitScoreExplain score={score} explanation={explanation} compact={compact} />
+      <FitScoreExplain score={score} lazySource={{ jobId }} compact={compact} />
     </div>
   );
 }
@@ -155,7 +155,7 @@ function JobCardComponent({
 
           {hasMatch ? (
             <div className="mt-3 lg:hidden">
-              <MatchPanel score={job.matchScore!} explanation={job.matchExplanation} compact />
+              <MatchPanel jobId={job.id} score={job.matchScore!} compact />
             </div>
           ) : null}
 
@@ -236,7 +236,7 @@ function JobCardComponent({
         <div className="hidden w-[12.75rem] shrink-0 flex-col items-end justify-between gap-4 border-l border-white/[0.06] pl-6 lg:flex">
           <div className="flex w-full items-start justify-between gap-2">
             {hasMatch ? (
-              <MatchPanel score={job.matchScore!} explanation={job.matchExplanation} compact />
+              <MatchPanel jobId={job.id} score={job.matchScore!} compact />
             ) : (
               <span />
             )}

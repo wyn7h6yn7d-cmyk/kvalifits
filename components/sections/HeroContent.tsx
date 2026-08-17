@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Check, Circle } from "lucide-react";
 
@@ -13,8 +13,9 @@ import { cn } from "@/lib/utils";
 const DEMO_SCORE = 87;
 const DEMO_FILLED = 8;
 const DEMO_TOTAL = 10;
-const RING_R = 54;
+const RING_R = 52;
 const RING_C = 2 * Math.PI * RING_R;
+const RING_STROKE = 10;
 
 function usePrefersReducedMotion() {
   const [reduce, setReduce] = useState(false);
@@ -89,6 +90,7 @@ function SideCard({
 function MatchScoreRing({ active }: { active: boolean }) {
   const t = useTranslations("heroMockup");
   const reduce = usePrefersReducedMotion();
+  const gradId = `heroMatchGrad-${useId().replace(/:/g, "")}`;
   const [score, setScore] = useState(reduce ? DEMO_SCORE : 0);
 
   useEffect(() => {
@@ -113,11 +115,11 @@ function MatchScoreRing({ active }: { active: boolean }) {
   const offset = RING_C * (1 - score / 100);
 
   return (
-    <div className="relative z-[1] mx-auto flex w-full max-w-[9.5rem] flex-col items-center">
-      <div className="relative flex h-[112px] w-[112px] items-center justify-center sm:h-[120px] sm:w-[120px]">
+    <div className="relative z-[1] mx-auto flex w-full max-w-[10rem] flex-col items-center">
+      <div className="relative flex h-[128px] w-[128px] items-center justify-center sm:h-[136px] sm:w-[136px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-8%] hidden rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.22),transparent_68%)] blur-md lg:block"
+          className="pointer-events-none absolute inset-[-12%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg"
         />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
           <circle
@@ -125,26 +127,26 @@ function MatchScoreRing({ active }: { active: boolean }) {
             cy="66"
             r={RING_R}
             fill="none"
-            stroke="rgba(255,255,255,0.08)"
-            strokeWidth="7"
+            stroke="rgba(255,255,255,0.14)"
+            strokeWidth={RING_STROKE}
           />
           <circle
             cx="66"
             cy="66"
             r={RING_R}
             fill="none"
-            stroke="url(#heroMatchGrad)"
-            strokeWidth="7"
+            stroke={`url(#${gradId})`}
+            strokeWidth={RING_STROKE}
             strokeLinecap="round"
             strokeDasharray={RING_C}
             strokeDashoffset={offset}
             className="transition-[stroke-dashoffset] duration-75 ease-out"
             style={{
-              filter: "drop-shadow(0 0 8px rgba(168,85,247,0.45))",
+              filter: "drop-shadow(0 0 10px rgba(217,70,239,0.55))",
             }}
           />
           <defs>
-            <linearGradient id="heroMatchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="rgb(139,92,246)" />
               <stop offset="55%" stopColor="rgb(217,70,239)" />
               <stop offset="100%" stopColor="rgba(227,31,141,0.95)" />
@@ -217,7 +219,7 @@ function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
             </span>
           </div>
 
-          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_7.75rem_minmax(0,1fr)] xl:items-center xl:gap-4">
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_9rem_minmax(0,1fr)] xl:items-center xl:gap-4">
             {!compact ? (
               <div className="order-2 min-w-0 sm:order-1 xl:order-1">
                 <SideCard
@@ -236,15 +238,6 @@ function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
                 compact ? "sm:col-span-2" : "sm:col-span-2 sm:order-first xl:col-span-1 xl:order-2",
               )}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute left-0 right-0 top-1/2 hidden h-px -translate-y-1/2 xl:block"
-              >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-violet-400/25 via-fuchsia-400/35 to-violet-400/25" />
-                {!reduce ? (
-                  <div className="kf-hero-scan absolute top-0 h-px w-16 bg-gradient-to-r from-transparent via-white/70 to-transparent" />
-                ) : null}
-              </div>
               <MatchScoreRing active={inView} />
             </div>
 

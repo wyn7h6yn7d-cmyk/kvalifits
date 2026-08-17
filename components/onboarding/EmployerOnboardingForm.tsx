@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import {
   EMPLOYER_COMPANY_SIZE_DB_ENABLED,
   employerCompanySizeField,
@@ -17,6 +18,9 @@ import { formatEmployerProfileSaveError } from "@/lib/employer/employerProfileSa
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { errorMessageFromUnknown } from "@/lib/utils";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { findTerm, taxonomyLabel } from "@/lib/taxonomy/labels";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 
 const SIMPLE_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -39,6 +43,8 @@ export function EmployerOnboardingForm({ locale }: Props) {
   const [website, setWebsite] = useState("");
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
+  const [industryId, setIndustryId] = useState("");
+  const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
   const [companySize, setCompanySize] = useState("");
   const [companyDescription, setCompanyDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
@@ -74,6 +80,8 @@ export function EmployerOnboardingForm({ locale }: Props) {
         setWebsite((prev) => prev || (employer.website ?? "").toString());
         setLocation((prev) => prev || (employer.location ?? "").toString());
         setIndustry((prev) => prev || (employer.industry ?? "").toString());
+        const mappedIndustry = (employer.industry_id ?? "").toString();
+        if (mappedIndustry) setIndustryId((prev) => prev || mappedIndustry);
         if (EMPLOYER_COMPANY_SIZE_DB_ENABLED) {
           setCompanySize((prev) => prev || (employer.company_size ?? "").toString());
         }
@@ -130,7 +138,9 @@ export function EmployerOnboardingForm({ locale }: Props) {
       if (!contactEmail.trim()) throw new Error(t("errContactEmailRequired"));
       if (!SIMPLE_EMAIL_RE.test(contactEmail.trim())) throw new Error(t("errContactEmailFormat"));
       if (!location.trim()) throw new Error(t("errLocationRequired"));
-      if (industry.trim().length < 2) {
+      if (taxonomyAvailable) {
+        if (!industryId) throw new Error(t("errIndustryRequired"));
+      } else if (industry.trim().length < 2) {
         throw new Error(t("errIndustryRequired"));
       }
       if (companyDescription.trim().length < 40) {
@@ -150,8 +160,9 @@ export function EmployerOnboardingForm({ locale }: Props) {
 
       // Registration already inserts a placeholder row (unique on owner_user_id). Use upsert so we
       // never hit duplicate-key if a prior select returned no row (RLS/race).
-      const { error } = await supabase.from("employer_profiles").upsert(
-        {
+      const selectedIndustry = findTerm(catalog, "industry", industryId);
+      const industryLabel = selectedIndustry ? taxonomyLabel(selectedIndustry, "et") : industry;
+      const payload = {
           owner_user_id: user.id,
           company_name: companyName,
           registry_code: registryCode || null,
@@ -160,12 +171,17 @@ export function EmployerOnboardingForm({ locale }: Props) {
           website: website || null,
           company_description: companyDescription,
           location,
-          industry: industry || null,
+          industry: industryLabel || null,
+          industry_id: taxonomyAvailable ? industryId || null : undefined,
           logo_url: logoUrl.trim() || null,
           ...sizeFields,
-        },
-        { onConflict: "owner_user_id" }
-      );
+        };
+      let { error } = await supabase.from("employer_profiles").upsert(payload, { onConflict: "owner_user_id" });
+      if (error && isTaxonomyColumnError(error.message)) {
+        const { industry_id: _id, ...rest } = payload;
+        const retry = await supabase.from("employer_profiles").upsert(rest, { onConflict: "owner_user_id" });
+        error = retry.error;
+      }
       if (error) throw error;
 
       router.push(`/${locale}/onboarding`);
@@ -252,13 +268,28 @@ export function EmployerOnboardingForm({ locale }: Props) {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("industry")}</label>
-          <Input
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-            required
-            minLength={2}
-            placeholder={t("industryHint")}
-          />
+          {taxonomyAvailable ? (
+            <TaxonomySelect
+              value={industryId}
+              required
+              terms={catalog.industries}
+              locale={locale}
+              placeholder={t("taxonomyPlaceholder")}
+              onChange={(id) => {
+                setIndustryId(id);
+                const term = findTerm(catalog, "industry", id);
+                if (term) setIndustry(taxonomyLabel(term, "et"));
+              }}
+            />
+          ) : (
+            <Input
+              value={industry}
+              onChange={(e) => setIndustry(e.target.value)}
+              required
+              minLength={2}
+              placeholder={t("industryHint")}
+            />
+          )}
         </div>
         {EMPLOYER_COMPANY_SIZE_DB_ENABLED ? (
           <div className="space-y-2 sm:col-span-2">

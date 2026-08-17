@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
@@ -22,6 +22,8 @@ import {
   type JobWorkConditionsFormValue,
 } from "@/components/jobs/JobWorkConditionsFields";
 import { JobYoungSeekerAutoHint } from "@/components/jobs/JobYoungSeekerAutoHint";
+import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
+import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { jobPassesYoungSeekerAutoEligibility } from "@/lib/employmentRules";
 import { JobRequirementsEditor } from "@/components/jobs/JobRequirementsEditor";
 import {
@@ -29,6 +31,11 @@ import {
   endOfDayTallinnIso,
   toCalendarDate,
 } from "@/lib/jobs/jobLifecycle";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { findTerm } from "@/lib/taxonomy/labels";
+import { jobTaxonomyWriteColumns, stripTaxonomyWriteColumns } from "@/lib/taxonomy/jobWrite";
+import { mergeLegacyText, partitionTaxonomyValues, splitCsv, suggestedSkillIds } from "@/lib/taxonomy/resolve";
+import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 
 type Job = {
   id: string;
@@ -45,6 +52,12 @@ type Job = {
   keywords: string[] | null;
   experience_level_required: string | null;
   certificate_requirements: string | null;
+  languages?: string[] | null;
+  industry_id?: string | null;
+  profession_id?: string | null;
+  skill_ids?: string[] | null;
+  certificate_ids?: string[] | null;
+  language_ids?: string[] | null;
   salary_min: number | null;
   salary_max: number | null;
   salary_currency: string;
@@ -84,6 +97,8 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
+
   const [title, setTitle] = useState(initialJob.title);
   const [location, setLocation] = useState(initialJob.location);
   const [workType, setWorkType] = useState(initialJob.work_type);
@@ -109,6 +124,14 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
     (initialJob.required_skills ?? []).filter(Boolean).join(", ")
   );
   const [keywordsCsv, setKeywordsCsv] = useState((initialJob.keywords ?? []).filter(Boolean).join(", "));
+  const [industryId, setIndustryId] = useState(initialJob.industry_id ?? "");
+  const [professionId, setProfessionId] = useState(initialJob.profession_id ?? "");
+  const [skillIds, setSkillIds] = useState<string[]>(initialJob.skill_ids ?? []);
+  const [skillLeftover, setSkillLeftover] = useState<string[]>([]);
+  const [certificateIds, setCertificateIds] = useState<string[]>(initialJob.certificate_ids ?? []);
+  const [certificateLeftover, setCertificateLeftover] = useState<string[]>([]);
+  const [languageIds, setLanguageIds] = useState<string[]>(initialJob.language_ids ?? []);
+  const [hydratedTaxonomy, setHydratedTaxonomy] = useState(false);
   const [experienceLevelRequired, setExperienceLevelRequired] = useState<
     (typeof JOB_EXPERIENCE_LEVEL_VALUES)[number] | ""
   >(() => {
@@ -136,6 +159,40 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
   );
   const [expiresOn, setExpiresOn] = useState(() => toCalendarDate(initialJob.expires_at) ?? "");
 
+  useEffect(() => {
+    if (!taxonomyAvailable || hydratedTaxonomy) return;
+    const skills = partitionTaxonomyValues(
+      catalog,
+      "skill",
+      initialJob.skill_ids,
+      initialJob.required_skills,
+    );
+    const certs = partitionTaxonomyValues(
+      catalog,
+      "certificate",
+      initialJob.certificate_ids,
+      splitCsv(initialJob.certificate_requirements),
+    );
+    const langs = partitionTaxonomyValues(
+      catalog,
+      "language",
+      initialJob.language_ids,
+      initialJob.languages,
+    );
+    setSkillIds(skills.ids);
+    setSkillLeftover(skills.leftover);
+    setCertificateIds(certs.ids);
+    setCertificateLeftover(certs.leftover);
+    setLanguageIds(langs.ids);
+    if (!professionId && initialJob.title) {
+      const mapped = catalog.aliases.find(
+        (a) => a.kind === "profession" && a.alias_norm === initialJob.title.trim().toLowerCase(),
+      );
+      if (mapped) setProfessionId(mapped.term_id);
+    }
+    setHydratedTaxonomy(true);
+  }, [taxonomyAvailable, hydratedTaxonomy, catalog, initialJob, professionId]);
+
   function validate(): string | null {
     if (!title.trim()) return t("errTitleRequired");
     if (!location.trim()) return t("errLocationRequired");
@@ -146,8 +203,11 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
     const synced = syncRequirementLinesFromStructured(requirementItems);
     const lines = synced.requirement_lines;
     if (lines.length < 2) return t("errRequirementLines");
-    const requiredSkills = parseCommaList(requiredSkillsCsv);
+    const requiredSkills = taxonomyAvailable
+      ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+      : parseCommaList(requiredSkillsCsv);
     if (requiredSkills.length < 1) return t("errRequiredSkills");
+    if (taxonomyAvailable && !professionId) return t("errProfessionRequired");
     const keywords = parseCommaList(keywordsCsv);
     if (keywords.length < 1) return t("errKeywords");
     if (!experienceLevelRequired) return t("errExperienceRequired");
@@ -187,11 +247,20 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       const max = salaryMax.trim() ? Number(salaryMax) : null;
       const synced = syncRequirementLinesFromStructured(requirementItems);
       const lines = synced.requirement_lines;
-      const requiredSkills = parseCommaList(requiredSkillsCsv);
+      const tax = taxonomyAvailable
+        ? jobTaxonomyWriteColumns(catalog, {
+            industryId,
+            professionId,
+            skillIds,
+            skillLeftover,
+            certificateIds,
+            certificateLeftover,
+            languageIds,
+          })
+        : null;
+      const requiredSkills = tax?.required_skills ?? parseCommaList(requiredSkillsCsv);
       const keywords = parseCommaList(keywordsCsv);
-      const { error } = await supabase
-        .from("job_posts")
-        .update({
+      const payload = {
           title: title.trim(),
           location: location.trim(),
           work_type: workType,
@@ -204,7 +273,8 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           required_skills: requiredSkills,
           keywords,
           experience_level_required: experienceLevelRequired,
-          certificate_requirements: certificateRequirements.trim() || null,
+          certificate_requirements: tax?.certificate_requirements ?? (certificateRequirements.trim() || null),
+          languages: tax?.languages,
           weekly_hours: parseOptionalHours(workConditions.weeklyHours),
           daily_hours: parseOptionalHours(workConditions.dailyHours),
           shift_start: timeOrNull(workConditions.shiftStart),
@@ -227,8 +297,24 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           application_url: null,
           application_deadline: applicationDeadline.trim(),
           expires_at: endOfDayTallinnIso(expiresOn.trim()),
-        })
-        .eq("id", initialJob.id);
+          ...(tax
+            ? {
+                industry_id: tax.industry_id,
+                profession_id: tax.profession_id,
+                skill_ids: tax.skill_ids,
+                certificate_ids: tax.certificate_ids,
+                language_ids: tax.language_ids,
+              }
+            : {}),
+        };
+      let { error } = await supabase.from("job_posts").update(payload).eq("id", initialJob.id);
+      if (error && isTaxonomyColumnError(error.message)) {
+        const retry = await supabase
+          .from("job_posts")
+          .update(stripTaxonomyWriteColumns(payload))
+          .eq("id", initialJob.id);
+        error = retry.error;
+      }
       if (error) throw error;
 
       // If expiry is already past, mark inactive (do not delete).
@@ -263,6 +349,44 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           <label className="text-xs font-medium tracking-wide text-white/65">{t("title")}</label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
+        {taxonomyAvailable ? (
+          <>
+            <div className="space-y-2">
+              <label className="text-xs font-medium tracking-wide text-white/65">{t("jobIndustry")}</label>
+              <TaxonomySelect
+                value={industryId}
+                terms={catalog.industries}
+                locale={locale}
+                placeholder={t("taxonomyPlaceholder")}
+                onChange={(id) => {
+                  setIndustryId(id);
+                  const current = findTerm(catalog, "profession", professionId);
+                  if (id && current?.industry_id && current.industry_id !== id) setProfessionId("");
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium tracking-wide text-white/65">{t("jobProfession")}</label>
+              <TaxonomySelect
+                value={professionId}
+                required
+                terms={
+                  industryId
+                    ? catalog.professions.filter((p) => p.industry_id === industryId)
+                    : catalog.professions
+                }
+                locale={locale}
+                placeholder={t("taxonomyPlaceholder")}
+                onChange={(id) => {
+                  setProfessionId(id);
+                  const prof = findTerm(catalog, "profession", id);
+                  if (prof?.industry_id) setIndustryId(prof.industry_id);
+                }}
+              />
+              <div className="text-xs text-white/45">{t("jobProfessionHint")}</div>
+            </div>
+          </>
+        ) : null}
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("location")}</label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
@@ -326,10 +450,27 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       <JobRequirementsEditor value={requirementItems} onChange={setRequirementItems} disabled={loading} />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobRequiredSkills")}</label>
-          <Input value={requiredSkillsCsv} onChange={(e) => setRequiredSkillsCsv(e.target.value)} required />
-          <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
+          {taxonomyAvailable ? (
+            <>
+              <TaxonomyChipField
+                terms={catalog.skills}
+                selectedIds={skillIds}
+                leftover={skillLeftover}
+                onChangeIds={setSkillIds}
+                onChangeLeftover={setSkillLeftover}
+                locale={locale}
+                suggestedIds={suggestedSkillIds(catalog, professionId)}
+              />
+              {skillLeftover.length ? <div className="text-xs text-white/45">{t("leftoverTaxonomyHint")}</div> : null}
+            </>
+          ) : (
+            <>
+              <Input value={requiredSkillsCsv} onChange={(e) => setRequiredSkillsCsv(e.target.value)} required />
+              <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
+            </>
+          )}
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("jobKeywords")}</label>
@@ -364,15 +505,39 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
 
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("jobCertRequirements")}</label>
-        <textarea
-          value={certificateRequirements}
-          onChange={(e) => setCertificateRequirements(e.target.value)}
-          rows={2}
-          placeholder={t("jobCertRequirementsPlaceholder")}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
-        />
+        {taxonomyAvailable ? (
+          <TaxonomyChipField
+            terms={catalog.certificates}
+            selectedIds={certificateIds}
+            leftover={certificateLeftover}
+            onChangeIds={setCertificateIds}
+            onChangeLeftover={setCertificateLeftover}
+            locale={locale}
+          />
+        ) : (
+          <textarea
+            value={certificateRequirements}
+            onChange={(e) => setCertificateRequirements(e.target.value)}
+            rows={2}
+            placeholder={t("jobCertRequirementsPlaceholder")}
+            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          />
+        )}
         <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
       </div>
+      {taxonomyAvailable ? (
+        <div className="space-y-2">
+          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobLanguages")}</label>
+          <TaxonomyChipField
+            terms={catalog.languages}
+            selectedIds={languageIds}
+            leftover={[]}
+            onChangeIds={setLanguageIds}
+            onChangeLeftover={() => undefined}
+            locale={locale}
+          />
+        </div>
+      ) : null}
 
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
         <div className="text-sm font-medium text-white/85">{t("applicationKvalifitsOnlyTitle")}</div>

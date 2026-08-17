@@ -77,6 +77,9 @@ export type SeekerMatchInput = {
   has_b_category_drivers_license?: boolean | null;
   experience_background?: ExperienceBackgroundMatchInput | null;
   languages?: string[] | null;
+  language_ids?: string[] | null;
+  skill_ids?: string[] | null;
+  profession_id?: string | null;
   pref_desired_weekly_hours?: number | null;
   pref_min_weekly_hours?: number | null;
   pref_max_weekly_hours?: number | null;
@@ -90,6 +93,7 @@ export type SeekerMatchInput = {
 export type SeekerCertificateInput = {
   certificate_name: string | null;
   certificate_issuer: string | null;
+  certificate_id?: string | null;
   /** When set and in the past, certificate is ignored for requirement matching. */
   certificate_valid_until?: string | null;
 };
@@ -108,6 +112,11 @@ export type JobMatchInput = {
   keywords: string[] | null;
   experience_level_required: string | null;
   certificate_requirements: string | null;
+  industry_id?: string | null;
+  profession_id?: string | null;
+  skill_ids?: string[] | null;
+  certificate_ids?: string[] | null;
+  language_ids?: string[] | null;
   weekly_hours?: number | null;
   daily_hours?: number | null;
   shift_start?: string | null;
@@ -249,7 +258,9 @@ function lineEvidence(line: string, seekerTokenSet: Set<string>): boolean {
 function skillsRaw(
   job: JobMatchInput,
   seekerSkills: string[],
-  profileTitle: string | null
+  profileTitle: string | null,
+  seekerSkillIds?: string[] | null,
+  seekerProfessionId?: string | null,
 ): {
   raw: number;
   tag_total: number;
@@ -273,10 +284,22 @@ function skillsRaw(
     if (m >= 1) full++;
     else if (m > 0) partial++;
   }
-  const role = roleTitleRaw(profileTitle, job.title);
+  const role = roleTitleRaw(profileTitle, job.title, seekerProfessionId, job.profession_id);
   const tagPart = tags.length ? tagSum / tags.length : 0.12;
   // Light role blend into skills axis (no separate weight).
-  const raw = tags.length ? clamp01(0.85 * tagPart + 0.15 * role) : clamp01(0.55 * role + 0.12);
+  let raw = tags.length ? clamp01(0.85 * tagPart + 0.15 * role) : clamp01(0.55 * role + 0.12);
+
+  const jobSkillIds = (job.skill_ids ?? []).map(String).filter(Boolean);
+  const seekerIds = new Set((seekerSkillIds ?? []).map(String).filter(Boolean));
+  if (jobSkillIds.length && seekerIds.size) {
+    const idMatched = jobSkillIds.filter((id) => seekerIds.has(id)).length;
+    const idPart = idMatched / jobSkillIds.length;
+    raw = clamp01(Math.max(raw, 0.85 * idPart + 0.15 * role));
+    full = Math.max(full, idMatched);
+    if (jobSkillIds.length > tags.length) {
+      return { raw, tag_total: jobSkillIds.length, tag_matched_full: full, tag_matched_partial: partial };
+    }
+  }
   return { raw, tag_total: tags.length, tag_matched_full: full, tag_matched_partial: partial };
 }
 
@@ -336,6 +359,7 @@ function certificateRaw(
   certs: SeekerCertificateInput[],
   jobCertText: string | null,
   jobKeywords: string[] | null,
+  jobCertificateIds?: string[] | null,
   asOf: Date = new Date()
 ): { raw: number; slots: number; matched: number } {
   // Expired certificates must not fulfil required certificate slots.
@@ -376,7 +400,16 @@ function certificateRaw(
     const j = overlapJaccard(tokenizeToCanonSet([slot]), seekerCertSet);
     if (j >= 0.34) matched++;
   }
-  return { raw: clamp01(matched / slots.length), slots: slots.length, matched };
+  let raw = slots.length ? clamp01(matched / slots.length) : 0;
+  const jobIds = (jobCertificateIds ?? []).map(String).filter(Boolean);
+  if (jobIds.length) {
+    const seekerIds = new Set(active.map((c) => (c.certificate_id ?? "").trim()).filter(Boolean));
+    const idMatched = jobIds.filter((id) => seekerIds.has(id)).length;
+    raw = clamp01(Math.max(raw, idMatched / jobIds.length));
+    matched = Math.max(matched, idMatched);
+    return { raw, slots: Math.max(slots.length, jobIds.length), matched };
+  }
+  return { raw, slots: slots.length, matched };
 }
 
 function experienceRaw(
@@ -429,7 +462,13 @@ function experienceRaw(
   return 0.16;
 }
 
-function roleTitleRaw(seekerTitle: string | null, jobTitle: string | null): number {
+function roleTitleRaw(
+  seekerTitle: string | null,
+  jobTitle: string | null,
+  seekerProfessionId?: string | null,
+  jobProfessionId?: string | null,
+): number {
+  if (seekerProfessionId && jobProfessionId && seekerProfessionId === jobProfessionId) return 1;
   const a = tokenizeToCanonSet([seekerTitle]);
   const b = tokenizeToCanonSet([jobTitle]);
   if (!a.size && !b.size) return 0.18;
@@ -460,7 +499,27 @@ function locationRaw(
   return 0.08;
 }
 
-function languagesRaw(job: JobMatchInput, seekerLangs: string[] | null | undefined): number {
+function languagesRaw(
+  job: JobMatchInput,
+  seekerLangs: string[] | null | undefined,
+  seekerLangIds?: string[] | null,
+): number {
+  const jobIds = (job.language_ids ?? []).map((x) => String(x).trim()).filter(Boolean);
+  if (jobIds.length) {
+    const seekerIds = new Set((seekerLangIds ?? []).map((x) => String(x).trim()).filter(Boolean));
+    const langs = (seekerLangs ?? []).map((x) => String(x).trim()).filter(Boolean);
+    if (!seekerIds.size && !langs.length) return 0.12;
+    let hits = 0;
+    for (const id of jobIds) {
+      if (seekerIds.has(id)) {
+        hits++;
+        continue;
+      }
+      if (langs.some((l) => l.toLowerCase() === id || l.toLowerCase().includes(id))) hits++;
+    }
+    if (hits === 0) return 0.18;
+    return clamp01(hits / jobIds.length);
+  }
   const hints = [
     ...(job.requirement_lines ?? []).map(String),
     ...(job.required_skills ?? []).map(String),
@@ -839,7 +898,7 @@ export function calculateJobMatch(
     requirements: job.requirements,
   });
 
-  const sk = skillsRaw(job, seekerSkills, seeker.profile_title);
+  const sk = skillsRaw(job, seekerSkills, seeker.profile_title, seeker.skill_ids, seeker.profession_id);
   const req = requirementsScored(reqItems, seekerTokenSet);
 
   const certInputs: SeekerCertificateInput[] = [...certs];
@@ -847,13 +906,14 @@ export function calculateJobMatch(
     certInputs.push({
       certificate_name: "B-kategooria juhiluba",
       certificate_issuer: "juhiluba",
+      certificate_id: "category-b-license",
     });
   }
-  const cert = certificateRaw(certInputs, job.certificate_requirements, job.keywords ?? []);
+  const cert = certificateRaw(certInputs, job.certificate_requirements, job.keywords ?? [], job.certificate_ids);
   const ex = experienceRaw(seeker.experience_level, job.experience_level_required, seeker.experience_background);
-  const role = roleTitleRaw(seeker.profile_title, job.title);
+  const role = roleTitleRaw(seeker.profile_title, job.title, seeker.profession_id, job.profession_id);
   const loc = locationRaw(job.location, job.work_type, seeker.location, seeker.preferred_locations);
-  const languages = languagesRaw(job, seeker.languages);
+  const languages = languagesRaw(job, seeker.languages, seeker.language_ids);
   const workMode = workModeRaw(job.work_type, seeker);
   const arrangement = arrangementRaw(
     job.job_type,

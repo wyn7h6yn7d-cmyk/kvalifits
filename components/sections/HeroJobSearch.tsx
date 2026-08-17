@@ -5,7 +5,6 @@ import { useState } from "react";
 import { MapPin, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useRouter } from "@/i18n/routing";
 import {
@@ -49,8 +48,8 @@ export function HeroJobSearch({ quickFilters }: Props) {
         onSubmit={onSubmit}
         className="overflow-hidden rounded-2xl border border-white/[0.12] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.06)] lg:bg-[#121216]"
       >
-        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
-          <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+        <div className="grid min-h-14 items-stretch gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
+          <label className="relative flex min-h-14 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
             <span className="sr-only">{t("searchQueryPlaceholder")}</span>
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -64,7 +63,7 @@ export function HeroJobSearch({ quickFilters }: Props) {
             />
           </label>
 
-          <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+          <label className="relative flex min-h-14 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
             <span className="sr-only">{t("searchLocationPlaceholder")}</span>
             <MapPin
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -78,13 +77,12 @@ export function HeroJobSearch({ quickFilters }: Props) {
             />
           </label>
 
-          <Button
+          <button
             type="submit"
-            variant="primary"
-            className="h-14 w-full rounded-none px-6 text-[15px] font-medium lg:min-w-[148px]"
+            className="inline-flex h-14 w-full items-center justify-center bg-gradient-to-r from-violet-500/90 via-fuchsia-500/80 to-[rgba(227,31,141,0.70)] px-6 text-[15px] font-medium text-white transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset lg:h-full lg:min-w-[148px]"
           >
             {t("searchSubmit")}
-          </Button>
+          </button>
         </div>
       </form>
 

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAuthUser } from "@/lib/auth/currentAuth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { emailVerificationBlockReason } from "@/lib/auth/emailVerification";
 import { employerCoreComplete, seekerCoreComplete } from "@/lib/matching/profileRules";
@@ -8,9 +9,7 @@ type Role = "seeker" | "employer" | "admin";
 
 export async function getRoleAndNextPath(locale: string) {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
 
   if (!user) {
     return { user: null, role: null, nextPath: `/${locale}/auth/login` };

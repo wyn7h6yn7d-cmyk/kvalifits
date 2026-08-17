@@ -42,6 +42,7 @@ function useRemoteFacetSearch(
   facet: JobFilterFacet,
   query: string,
   keywordQuery: string,
+  listSearchParams: string,
   enabled: boolean,
 ) {
   const debounced = useDebouncedValue(query.trim(), 280);
@@ -57,8 +58,12 @@ function useRemoteFacetSearch(
 
     const ac = new AbortController();
     setLoading(true);
-    const params = new URLSearchParams({ facet, q: debounced });
+    const params = new URLSearchParams(listSearchParams);
+    params.set("facet", facet);
+    params.set("q", debounced);
     if (keywordQuery.trim()) params.set("query", keywordQuery.trim());
+    else params.delete("query");
+    params.delete("page");
 
     void fetch(`/api/jobs/facets?${params.toString()}`, { signal: ac.signal })
       .then((res) => (res.ok ? res.json() : { options: [] }))
@@ -74,7 +79,7 @@ function useRemoteFacetSearch(
       });
 
     return () => ac.abort();
-  }, [enabled, facet, debounced, keywordQuery]);
+  }, [enabled, facet, debounced, keywordQuery, listSearchParams]);
 
   return { options, loading, debouncedQuery: debounced };
 }
@@ -185,10 +190,12 @@ export function FacetFilterGroup({
   searchPlaceholder,
   formatLabel,
   keywordQuery = "",
+  listSearchParams = "",
 }: FilterGroupConfig & {
   selections: readonly JobFilterSelection[];
   onToggle: (facet: JobFilterFacet, value: string) => void;
   keywordQuery?: string;
+  listSearchParams?: string;
 }) {
   const t = useTranslations("jobsSearch");
   const [expanded, setExpanded] = useState(false);
@@ -198,6 +205,7 @@ export function FacetFilterGroup({
     facet,
     search,
     keywordQuery,
+    listSearchParams,
     remoteEnabled,
   );
 
@@ -301,6 +309,7 @@ export function JobFiltersBody({
   onClear,
   showHeader = true,
   keywordQuery = "",
+  listSearchParams = "",
 }: {
   groups: FilterGroupConfig[];
   moreGroups?: FilterGroupConfig[];
@@ -309,6 +318,7 @@ export function JobFiltersBody({
   onClear: () => void;
   showHeader?: boolean;
   keywordQuery?: string;
+  listSearchParams?: string;
 }) {
   const t = useTranslations("jobsSearch");
   const activeCount = selections.length;
@@ -337,6 +347,7 @@ export function JobFiltersBody({
           selections={selections}
           onToggle={onToggle}
           keywordQuery={keywordQuery}
+          listSearchParams={listSearchParams}
         />
       ))}
 
@@ -352,6 +363,7 @@ export function JobFiltersBody({
               selections={selections}
               onToggle={onToggle}
               keywordQuery={keywordQuery}
+              listSearchParams={listSearchParams}
             />
           ))}
         </div>

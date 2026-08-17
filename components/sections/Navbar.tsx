@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Menu } from "lucide-react";
 
@@ -19,9 +19,7 @@ import {
   type NavItem,
 } from "@/lib/navigation/navConfig";
 import { cn } from "@/lib/utils";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-
-type Role = "seeker" | "employer" | "admin";
+import { useCurrentAuth } from "@/components/auth/CurrentAuthProvider";
 
 const langTriggerNavbar =
   "h-11 min-h-11 w-auto shrink-0 rounded-md border-0 bg-transparent px-2.5 py-0 text-[13px] leading-none shadow-none ring-0 hover:!bg-white/[0.06] lg:!h-8 lg:!min-h-0 lg:px-2 lg:text-[12px]";
@@ -111,12 +109,9 @@ export function Navbar() {
   const tLang = useTranslations("language");
   const locale = useLocale();
   const pathname = usePathname();
+  const { authenticated, role } = useCurrentAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [role, setRole] = useState<Role | null>(null);
-  const [authed, setAuthed] = useState(false);
-  const [authResolved, setAuthResolved] = useState(false);
-  const supabaseRef = useRef<ReturnType<typeof createSupabaseBrowserClient> | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -126,48 +121,9 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function load() {
-      const supabase = (supabaseRef.current ??= createSupabaseBrowserClient());
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!mounted) return;
-      setAuthed(Boolean(user));
-      setAuthResolved(true);
-
-      if (!user) {
-        setRole(null);
-        return;
-      }
-
-      const { data: profile, error: profileErr } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!mounted) return;
-      const metaRole = user.user_metadata?.role;
-      const r = (profileErr ? metaRole : profile?.role) ?? metaRole ?? null;
-      setRole(r === "seeker" || r === "employer" || r === "admin" ? r : null);
-    }
-
-    void load();
-    const supabase = (supabaseRef.current ??= createSupabaseBrowserClient());
-    const { data: sub } = supabase.auth.onAuthStateChange(() => void load());
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
-
-  useEffect(() => {
     const syncBottomOffset = () => {
       const mobile = window.matchMedia("(max-width: 1023px)").matches;
-      const show = authResolved && authed && role === "seeker" && mobile;
+      const show = authenticated && role === "seeker" && mobile;
       document.documentElement.style.setProperty(
         "--site-bottom-nav-offset",
         show ? "calc(var(--site-bottom-nav-height) + env(safe-area-inset-bottom, 0px))" : "0px",
@@ -180,20 +136,19 @@ export function Navbar() {
       window.removeEventListener("resize", syncBottomOffset);
       document.documentElement.style.setProperty("--site-bottom-nav-offset", "0px");
     };
-  }, [authResolved, authed, role]);
+  }, [authenticated, role]);
 
-  const navPaths: NavItem[] =
-    authResolved && authed
-      ? role === "employer"
-        ? EMPLOYER_NAV
-        : role === "seeker"
-          ? SEEKER_NAV
-          : role === "admin"
-            ? ADMIN_NAV
-            : GUEST_NAV
-      : GUEST_NAV;
+  const navPaths: NavItem[] = authenticated
+    ? role === "employer"
+      ? EMPLOYER_NAV
+      : role === "seeker"
+        ? SEEKER_NAV
+        : role === "admin"
+          ? ADMIN_NAV
+          : GUEST_NAV
+    : GUEST_NAV;
 
-  const showSeekerBottomNav = authResolved && authed && role === "seeker";
+  const showSeekerBottomNav = authenticated && role === "seeker";
 
   const headerBar = cn(
     "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b px-3 sm:gap-3 sm:px-4 lg:px-5",
@@ -208,8 +163,8 @@ export function Navbar() {
           <div className={headerBar}>
             <div className="flex min-w-0 shrink-0 items-center">
               <Logo
-                className="inline-flex h-8 max-h-8 items-center leading-none"
-                imageClassName="h-7 w-auto max-w-[112px] sm:max-w-[168px]"
+                className="inline-flex h-10 max-h-10 items-center leading-none"
+                imageClassName="h-9 w-auto max-w-[168px] sm:h-10 sm:max-w-[220px]"
                 priority
               />
             </div>
@@ -220,7 +175,7 @@ export function Navbar() {
               <div className="hidden items-center gap-1.5 lg:flex">
                 <LanguageSwitcher triggerClassName={langTriggerNavbar} />
 
-                {authResolved && authed ? (
+                {authenticated ? (
                   <>
                     {role === "employer" ? (
                       <Button asChild variant="primary" size="sm" className="h-8 rounded-md px-3 text-[13px]">
@@ -244,7 +199,7 @@ export function Navbar() {
                       </button>
                     </form>
                   </>
-                ) : authResolved ? (
+                ) : (
                   <>
                     <Link
                       href="/auth/login"
@@ -256,8 +211,6 @@ export function Navbar() {
                       <Link href="/auth/register">{t("signup")}</Link>
                     </Button>
                   </>
-                ) : (
-                  <div className="h-8 w-40" aria-hidden />
                 )}
               </div>
 
@@ -292,7 +245,7 @@ export function Navbar() {
                       </div>
 
                       <div className="flex flex-col gap-2 border-t border-white/[0.08] pt-4">
-                        {authResolved && authed ? (
+                        {authenticated ? (
                           <>
                             {role === "employer" ? (
                               <Button asChild variant="primary" className="w-full">
@@ -307,7 +260,7 @@ export function Navbar() {
                               </Button>
                             </form>
                           </>
-                        ) : authResolved ? (
+                        ) : (
                           <>
                             <Button asChild variant="ghost" className="w-full">
                               <Link href="/auth/login" onClick={() => setMenuOpen(false)}>
@@ -320,7 +273,7 @@ export function Navbar() {
                               </Link>
                             </Button>
                           </>
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   </SheetContent>

@@ -244,15 +244,6 @@ input:-webkit-autofill:focus-visible {
   }
 }
 
-@keyframes kf-hero-scan {
-  from {
-    left: 0;
-  }
-  to {
-    left: calc(100% - 4rem);
-  }
-}
-
 @keyframes kf-hero-bar {
   from {
     width: 0;
@@ -292,10 +283,6 @@ input:-webkit-autofill:focus-visible {
 
 .kf-enter-d1 {
   animation-delay: 0.12s;
-}
-
-.kf-hero-scan {
-  animation: kf-hero-scan 2.6s ease-in-out infinite;
 }
 
 .kf-hero-bar {
@@ -339,7 +326,6 @@ input:-webkit-autofill:focus-visible {
 
   .kf-enter,
   .kf-enter-slow,
-  .kf-hero-scan,
   .kf-hero-bar,
   .kf-ambient-orb,
   .kf-ambient-orb-b,

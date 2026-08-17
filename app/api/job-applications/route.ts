@@ -26,8 +26,7 @@ import {
 } from "@/lib/jobs/applicationAnswers";
 import { getTranslations } from "next-intl/server";
 import { routing, type AppLocale } from "@/i18n/routing";
-import { deactivateJobIfExpired } from "@/lib/jobs/deactivateExpiredJobs";
-import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
+import { isListingExpired, jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 
 type Body = {
   jobPostId?: string;
@@ -202,23 +201,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "job_not_found" }, { status: 404 });
     }
 
-    const becameInactive = await deactivateJobIfExpired({
-      id: job.id,
+    const lifecycle = {
       status: job.status,
+      published_at: job.published_at ?? null,
+      application_deadline: job.application_deadline ?? null,
       expires_at: job.expires_at ?? null,
-    });
-    if (becameInactive) {
+    };
+    if (isListingExpired(lifecycle)) {
       return NextResponse.json({ error: "job_expired" }, { status: 410 });
     }
-
-    if (
-      !jobAcceptsApplications({
-        status: job.status,
-        published_at: job.published_at ?? null,
-        application_deadline: job.application_deadline ?? null,
-        expires_at: job.expires_at ?? null,
-      })
-    ) {
+    if (!jobAcceptsApplications(lifecycle)) {
       return NextResponse.json({ error: "job_closed_for_applications" }, { status: 410 });
     }
 
