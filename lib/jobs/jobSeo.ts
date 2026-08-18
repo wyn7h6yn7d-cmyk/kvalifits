@@ -79,7 +79,9 @@ export function buildJobSeoTitle(opts: {
   location: string;
   companyName: string;
 }): string {
-  const title = opts.title.trim() || "Töökuulutus";
+  const fallbackTitle =
+    opts.locale === "en" ? "Job" : opts.locale === "ru" ? "Вакансия" : "Tööpakkumine";
+  const title = opts.title.trim() || fallbackTitle;
   const company = opts.companyName.trim() || "Kvalifits";
   const loc = opts.location.trim();
   const locale = opts.locale;
@@ -109,7 +111,7 @@ export function buildJobSeoDescription(opts: {
   }
 
   const parts = [opts.title.trim(), opts.companyName.trim(), opts.location.trim()].filter(Boolean);
-  return parts.join(" · ").slice(0, 160) || "Töökuulutus Kvalifitsis";
+  return parts.join(" · ").slice(0, 160) || "Tööpakkumine Kvalifitsis";
 }
 
 export function jobCanonicalUrl(locale: string, jobId: string): string {

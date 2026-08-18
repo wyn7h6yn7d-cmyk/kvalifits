@@ -15,7 +15,7 @@ import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { formatJobDateDdMmYyyy } from "@/lib/jobs/jobLifecycle";
 
-function formatPosted(iso: string | undefined | null, locale: string) {
+function formatDate(iso: string | undefined | null, locale: string) {
   if (!iso) return null;
   const formatted = formatJobDateDdMmYyyy(iso);
   if (formatted) return formatted;
@@ -23,6 +23,24 @@ function formatPosted(iso: string | undefined | null, locale: string) {
   if (Number.isNaN(d.getTime())) return null;
   const tag = locale === "en" ? "en-GB" : locale === "ru" ? "ru-RU" : "et-EE";
   return d.toLocaleDateString(tag, { year: "numeric", month: "2-digit", day: "2-digit" });
+}
+
+function formatPostedRelative(
+  iso: string | undefined | null,
+  t: (key: string, values?: Record<string, string | number>) => string,
+) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startThat = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startToday - startThat) / 86_400_000);
+  if (days <= 0) return t("postedToday");
+  if (days === 1) return t("postedYesterday");
+  if (days < 14) return t("postedDaysAgo", { days });
+  const formatted = formatJobDateDdMmYyyy(iso);
+  return formatted ? t("postedOn", { date: formatted }) : t("postedToday");
 }
 
 function CompanyLogo({ url, company }: { url?: string | null; company: string }) {
@@ -87,8 +105,11 @@ function JobCardComponent({
   const locale = useLocale();
   const t = useTranslations("jobCard");
   const href = `/tood/${job.id}`;
-  const posted = formatPosted(job.publishedAt ?? job.createdAt, locale);
-  const deadline = formatPosted(job.applicationDeadline, locale);
+  const posted = formatPostedRelative(
+    job.publishedAt ?? job.createdAt,
+    t as unknown as (key: string, values?: Record<string, string | number>) => string,
+  );
+  const deadline = formatDate(job.applicationDeadline, locale);
   const hasMatch = typeof job.matchScore === "number";
 
   const badges = [job.jobType, job.workType, ...(job.domains ?? []).slice(0, 1)].filter(
@@ -186,11 +207,7 @@ function JobCardComponent({
 
           {(posted || deadline) && (
             <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-white/45">
-              {posted ? (
-                <span>
-                  {t("labelPosted")} {posted}
-                </span>
-              ) : null}
+              {posted ? <span>{posted}</span> : null}
               {deadline ? (
                 <span>
                   {t("labelDeadline")} {deadline}

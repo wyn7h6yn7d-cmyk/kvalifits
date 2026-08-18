@@ -1,87 +1,84 @@
 export const landingET = {
   nav: {
     home: "Avaleht",
-    jobs: "Töökohad",
-    employers: "Tööandjatele",
-    seekers: "Tööotsijatele",
+    jobs: "Tööpakkumised",
+    employers: "Tööandjale",
+    seekers: "Tööotsijale",
     how: "Kuidas toimib",
-    pricing: "Hinnastus",
+    pricing: "Hinnakiri",
     login: "Logi sisse",
     signup: "Registreeru",
   },
   hero: {
-    badge: "Verifitseeritud oskused. Usaldusväärsed sobivused.",
-    headline: "Tunnustatud tööandjad.\nKvalifitseeritud töötajad.",
+    badge: "Kontrollitud oskused. Selgemad valikud.",
+    headline: "Leia töö, mis sobib sinu oskustega.",
     subheadline:
-      "Kvalifits viib omavahel kokku tunnustatud tööandjad ja kvalifitseeritud töötajad.",
-    primaryCta: "Otsin tööd",
-    secondaryCta: "Pakun tööd",
+      "Kvalifits aitab võrrelda sinu oskusi ja eelistusi tööandja nõuetega — ning näitab, miks töö sulle sobib.",
+    primaryCta: "Otsi tööpakkumisi",
+    secondaryCta: "Olen tööandja",
   },
   roleSplit: {
-    title: "Vali oma tee",
-    subtitle:
-      "Kõik algab kontrollitud pädevusest — nii tööotsija kui ka tööandja jaoks.",
+    title: "Tööotsijale ja tööandjale",
+    subtitle: "Üks profiil, selged nõuded ja nähtav sobivus.",
     seeker: {
       title: "Tööotsija",
       points: [
-        "Loo profiil ja lisa kogemus",
-        "Laadi sertifikaadid üles",
-        "Saa sobivaid töösoovitusi",
-        "Näe, miks sa positsioonile sobid",
+        "Lisa oskused ja kogemus üks kord",
+        "Lisa sertifikaadid ja load",
+        "Näe, millised tööd sulle sobivad",
+        "Kandideeri kiirelt",
       ],
-      cta: "Alustan tööotsijana",
+      cta: "Loo profiil",
     },
     employer: {
       title: "Tööandja",
       points: [
         "Lisa tööpakkumine ja nõuded",
         "Määra vajalikud oskused ja sertifikaadid",
-        "Leia kontrollitud kandidaadid",
-        "Saa kiiremad ja kvaliteetsemad sobivused",
-        "Jäta tagasisidet",
+        "Näe esmalt sobivamaid kandidaate",
+        "Vähem ebasobivaid kandideerimisi",
       ],
-      cta: "Alustan tööandjana",
+      cta: "Olen tööandja",
     },
   },
   trust: {
-    title: "Mitte lihtsalt tööportaal. Kontrollitud pädevusega töövahendus.",
+    title: "Tööportaal, kus oskused on võrreldavad.",
     subtitle:
-      "Tööandjad näevad tõendatud oskusi, tööotsijad saavad esile tõsta päris pädevust — platvorm aitab sobitada kiiremini ja kindlamalt.",
+      "Tööandja näeb kontrollitud pädevusi. Tööotsija näeb, miks töö talle sobib.",
     cards: [
       {
-        title: "Verifitseeritud sertifikaadid",
-        desc: "Lisa dokumendid ja tee need tööandjale arusaadavalt nähtavaks — vähem ebaselgust, rohkem kindlust.",
+        title: "Kontrollitud sertifikaadid",
+        desc: "Lisa dokumendid profiilile. Tööandja näeb staatust enne vestlust.",
       },
       {
-        title: "Kvalifikatsioonipõhine sobitamine",
-        desc: "Sobitame nõuded, kogemuse ja tõendid — mitte ainult märksõnad CV-s.",
+        title: "Sobivus nõuete järgi",
+        desc: "Võrdleme oskusi, kogemust ja sertifikaate — mitte ainult märksõnu CV-s.",
       },
       {
-        title: "Tööandjate tagasiside süsteem",
-        desc: "Tagasiside loob usaldust ja parandab sobitusi ajas — professionaalne, läbipaistev, õiglane.",
+        title: "Selged põhjused",
+        desc: "Näed, mis klapib, mis on osaline ja mis puudub.",
       },
       {
-        title: "Usaldusväärsem värbamine",
-        desc: "Vähem valesobivusi, rohkem kvaliteetseid kontakte üle erinevate ametite ja sektorite.",
+        title: "Vähem oletamist",
+        desc: "Esmalt kandidaadid ja tööd, mis nõuetele vastavad.",
       },
     ],
   },
   howItWorks: {
     title: "Kuidas Kvalifits toimib",
-    subtitle: "Lihtne voog, mis skaleerub tõenduspõhiseks värbamiseks.",
+    subtitle: "Lisa andmed üks kord. Võrdlus käib nõuete järgi.",
     seeker: {
-      title: "Tööotsijatele",
-      steps: ["Loo konto", "Lisa oskused ja sertifikaadid", "Saa sobivad töövõimalused", "Kandideeri kiirelt"],
+      title: "Tööotsijale",
+      steps: ["Loo konto", "Lisa oskused ja sertifikaadid", "Näe sobivaid töid", "Kandideeri"],
     },
     employer: {
-      title: "Tööandjatele",
-      steps: ["Lisa tööpakkumine", "Määra nõutud kvalifikatsioonid", "Saa sobivad kandidaadid", "Värba kindlamalt"],
+      title: "Tööandjale",
+      steps: ["Lisa tööpakkumine", "Määra nõuded", "Vaata sobivamaid kandidaate", "Kutsu vestlusele"],
     },
   },
   industries: {
-    title: "Kõigi erialade jaoks",
-    subtitle:
-      "Kvalifits on loodud nii kontoritööde kui ka praktiliste oskuste jaoks — IT-st ehituseni, tervishoiust logistikani.",
+    title: "Erinevatele ametitele",
+    subtitle: "Kontoritööst praktikaoskusteni — IT-st ehituseni, tervishoiust logistikani.",
     items: [
       "IT ja arendus",
       "Elektritööd",
@@ -94,51 +91,48 @@ export const landingET = {
     ],
   },
   matching: {
-    title: "Nutikad sobitused ja teavitused",
-    subtitle:
-      "Kvalifits kuvab selgelt, miks sobid — või miks kandidaat sobib — ning aitab tegutseda kiiremini.",
+    title: "Näe, miks töö sulle sobib",
+    subtitle: "Sobivus näitab, mis klapib tööandja nõuetega — ja mis veel puudub.",
     notifications: [
-      "Oled sobilik sellele positsioonile vastavalt oma sertifikaadile.",
-      "See töö sobib sinu varasema kogemuse põhjal.",
-      "Selle kandidaadi oskused vastavad teie tööpakkumisele.",
+      "Vajalik sertifikaat on olemas.",
+      "See töö sobib sinu kogemusega.",
+      "Selle kandidaadi oskused vastavad tööpakkumisele.",
     ],
   },
   dashboards: {
-    title: "Mõlemale poolele selge vaade",
-    subtitle: "MVP eelvaade: puhas, praktiline ja usaldust loov töölaud.",
+    title: "Selge vaade mõlemale poolele",
+    subtitle: "Profiil, tööpakkumised, kandideerimised ja sobivus ühes kohas.",
     seeker: {
-      title: "Tööotsija vaade",
-      items: ["Minu profiil", "Sertifikaadid", "Sobivad tööd", "Kandideerimised", "Soovitused"],
+      title: "Tööotsija",
+      items: ["Minu profiil", "Sertifikaadid", "Minu sobivused", "Kandideerimised", "Teavitused"],
     },
     employer: {
-      title: "Tööandja vaade",
-      items: ["Minu tööpakkumised", "Kandidaadid", "Filtrid", "Tagasiside", "Sobivusprotsent"],
+      title: "Tööandja",
+      items: ["Tööpakkumised", "Kandidaadid", "Sobivus", "Sõnumid", "Ettevõte"],
     },
   },
   filters: {
-    title: "Filtreeri päris nõuete järgi",
-    subtitle:
-      "Sertifikaadid, kvalifikatsioonid ja kogemus ei ole “nice to have” — need on sobituse tuum.",
+    title: "Filtreeri tegelike nõuete järgi",
+    subtitle: "Asukoht, töökoormus, oskused, sertifikaadid ja keeled.",
     pills: ["Elektrik", "A-pädevus", "Tallinn", "5+ aastat", "Eesti keel"],
-    facets: ["sertifikaat", "kvalifikatsioon", "ametipositsioon", "ettevõte", "asukoht", "kogemus", "keeled"],
+    facets: ["sertifikaat", "kvalifikatsioon", "amet", "ettevõte", "asukoht", "kogemus", "keeled"],
   },
   trustSignals: {
-    title: "Usaldus signaalides, mitte loosungites",
-    subtitle: "Varajase etapi fookus: kontrollitav pädevus ja selge sobivus — ilma fiktiivsete mõõdikuteta.",
+    title: "Faktid, mitte loosungid",
+    subtitle: "Fookus: kontrollitud oskused ja selge sobivus. Ilma väljamõeldud mõõdikuteta.",
     stats: [],
   },
   cta: {
-    title: "Leia töö või töötaja, kelle oskused on päriselt kontrollitud.",
-    primary: "Otsin tööd",
-    secondary: "Pakun tööd",
+    title: "Leia töö, mis sobib sinu oskustega.",
+    primary: "Otsi tööpakkumisi",
+    secondary: "Olen tööandja",
   },
   footer: {
-    blurb:
-      "Kvalifits on verifitseeritud pädevusele ja usaldusele ehitatud töövahendusplatvorm Eesti turule.",
+    blurb: "Kvalifits on Eesti tööportaal, kus oskused ja nõuded on selgelt võrreldavad.",
     links: {
-      jobs: "Töökohad",
-      employers: "Tööandjatele",
-      seekers: "Tööotsijatele",
+      jobs: "Tööpakkumised",
+      employers: "Tööandjale",
+      seekers: "Tööotsijale",
       contact: "Kontakt",
       privacy: "Privaatsus",
       terms: "Tingimused",
@@ -148,4 +142,3 @@ export const landingET = {
     en: "EN",
   },
 } as const;
-

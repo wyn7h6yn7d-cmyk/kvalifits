@@ -46,7 +46,7 @@ export const termsET: LegalDocument = {
       title: "Tööandja ja tööotsija rollid",
       paragraphs: [
         "Tööotsija rollis saad luua profiili, esitleda oskusi ja tõendeid ning taotleda või vastata võimalustele vastavalt platvormi funktsioonidele.",
-        "Tööandja rollis saad avaldada töökuulutusi, määratleda nõudeid ja vaadata kandidaate vastavalt funktsioonidele.",
+        "Tööandja rollis saad avaldada tööpakkumisi, määratleda nõudeid ja vaadata kandidaate vastavalt funktsioonidele.",
         "Sama kasutaja võib olla mõlemas rollis, kui platvorm seda võimaldab; iga rolliga kaasnevad vastavuses olevad kohustused.",
       ],
     },

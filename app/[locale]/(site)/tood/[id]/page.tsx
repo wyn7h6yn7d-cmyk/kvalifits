@@ -55,7 +55,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
   const loaded = await loadPublishedJobForSeo(id);
   if (!loaded) {
-    return { title: "Töökuulutus | Kvalifits", robots: NOINDEX_ROBOTS };
+    const fallbackTitle =
+      locale === "en" ? "Job | Kvalifits" : locale === "ru" ? "Вакансия | Kvalifits" : "Tööpakkumine | Kvalifits";
+    return { title: fallbackTitle, robots: NOINDEX_ROBOTS };
   }
 
   const titleText = (loaded.job.title ?? "").toString().trim();

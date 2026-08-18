@@ -1,49 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { Check, ChevronDown, Globe2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { routing } from "@/i18n/routing";
 import { usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-/** Simple flat flag chips (no emoji) */
-function LocaleFlag({ locale }: { locale: string }) {
-  const box = "block h-2.5 w-[18px] shrink-0 overflow-hidden rounded-[2px] border border-white/[0.12]";
-  if (locale === "et") {
-    return (
-      <svg viewBox="0 0 18 12" className={box} aria-hidden>
-        <rect width="18" height="4" fill="#1291FF" />
-        <rect y="4" width="18" height="4" fill="#000000" />
-        <rect y="8" width="18" height="4" fill="#FFFFFF" />
-      </svg>
-    );
-  }
-  if (locale === "en") {
-    return (
-      <svg viewBox="0 0 18 12" className={box} aria-hidden>
-        <rect width="18" height="12" fill="#FFFFFF" />
-        <rect y="0" width="18" height="1.714" fill="#B22234" />
-        <rect y="3.428" width="18" height="1.714" fill="#B22234" />
-        <rect y="6.856" width="18" height="1.714" fill="#B22234" />
-        <rect y="10.284" width="18" height="1.714" fill="#B22234" />
-        <rect width="7.2" height="6.5" fill="#3C3B6E" />
-      </svg>
-    );
-  }
-  if (locale === "ru") {
-    return (
-      <svg viewBox="0 0 18 12" className={box} aria-hidden>
-        <rect width="18" height="4" fill="#FFFFFF" />
-        <rect y="4" width="18" height="4" fill="#0039A6" />
-        <rect y="8" width="18" height="4" fill="#D52B1E" />
-      </svg>
-    );
-  }
-  return null;
-}
-
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+const LOCALES = [
+  { code: "et", nativeName: "Eesti" },
+  { code: "en", nativeName: "English" },
+  { code: "ru", nativeName: "Русский" },
+] as const;
+
+type LocaleCode = (typeof LOCALES)[number]["code"];
 
 function persistLocalePreference(next: string) {
   try {
@@ -54,24 +26,6 @@ function persistLocalePreference(next: string) {
   } catch {
     /* ignore */
   }
-}
-
-const triggerClass =
-  "flex min-h-11 w-full items-center justify-center gap-1.5 rounded-md border border-white/[0.10] bg-white/[0.05] px-3 py-2 text-[13px] font-medium uppercase tracking-wide text-white/90 transition-colors lg:min-h-0 lg:px-2 lg:py-0.5 lg:text-[11px]";
-
-const itemClass =
-  "flex min-h-11 w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-[14px] font-medium uppercase tracking-wide transition-colors lg:min-h-0 lg:px-2 lg:py-1.5 lg:text-[11px]";
-
-function useLgHover() {
-  const [lg, setLg] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const sync = () => setLg(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
-  return lg;
 }
 
 export function LanguageSwitcher({
@@ -86,84 +40,167 @@ export function LanguageSwitcher({
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("language");
-  const lgHover = useLgHover();
-  const [hovered, setHovered] = useState(false);
-  const [touchOpen, setTouchOpen] = useState(false);
+  const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const [open, setOpen] = useState(false);
+
+  const current = (LOCALES.find((l) => l.code === locale) ?? LOCALES[0]).code;
+  const currentIndex = LOCALES.findIndex((l) => l.code === current);
+
+  const close = useCallback((restoreFocus = false) => {
+    setOpen(false);
+    if (restoreFocus) triggerRef.current?.focus();
+  }, []);
 
   const switchLocale = useCallback(
     (next: string) => {
       persistLocalePreference(next);
+      setOpen(false);
+      if (next === locale) return;
       router.replace(pathname, { locale: next });
-      setTouchOpen(false);
-      setHovered(false);
     },
-    [pathname, router],
+    [locale, pathname, router],
   );
 
-  const others = routing.locales.filter((l) => l !== locale);
-  const menuOpen = lgHover ? hovered : touchOpen;
+  useEffect(() => {
+    if (!open) return;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) close();
+    };
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        close(true);
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open, close]);
 
   useEffect(() => {
-    if (!touchOpen || lgHover) return;
-    const onDoc = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setTouchOpen(false);
-    };
-    document.addEventListener("click", onDoc, true);
-    return () => document.removeEventListener("click", onDoc, true);
-  }, [touchOpen, lgHover]);
+    if (!open) return;
+    const target = itemRefs.current[currentIndex] ?? itemRefs.current[0];
+    target?.focus();
+  }, [open, currentIndex]);
+
+  function onTriggerKeyDown(e: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      setOpen(true);
+    }
+  }
+
+  function onMenuKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
+    const count = LOCALES.length;
+    const active = itemRefs.current.findIndex((el) => el === document.activeElement);
+    const from = active >= 0 ? active : currentIndex;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      itemRefs.current[(from + 1) % count]?.focus();
+      return;
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      itemRefs.current[(from - 1 + count) % count]?.focus();
+      return;
+    }
+    if (e.key === "Home") {
+      e.preventDefault();
+      itemRefs.current[0]?.focus();
+      return;
+    }
+    if (e.key === "End") {
+      e.preventDefault();
+      itemRefs.current[count - 1]?.focus();
+      return;
+    }
+    if (e.key === "Tab") {
+      close();
+    }
+  }
 
   return (
-    <div
-      ref={rootRef}
-      className={cn("relative inline-block", className)}
-      onMouseEnter={() => lgHover && setHovered(true)}
-      onMouseLeave={() => lgHover && setHovered(false)}
-    >
+    <div ref={rootRef} className={cn("relative inline-flex", className)}>
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => {
-          if (!lgHover) setTouchOpen((o) => !o);
-        }}
-        aria-expanded={menuOpen}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={onTriggerKeyDown}
+        aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={t(locale as "et" | "en" | "ru")}
-        className={cn(triggerClass, menuOpen && "border-white/[0.14] bg-white/[0.07]", triggerClassName)}
-      >
-        <LocaleFlag locale={locale} />
-        <span>{t(locale as "et" | "en" | "ru")}</span>
-      </button>
-
-      {/* pt-1 = hiire sild nupu ja menüü vahel (hover ei kao vahesse) */}
-      <div
+        aria-controls={menuId}
+        aria-label={t("switchTo")}
         className={cn(
-          "absolute right-0 top-full z-[70] min-w-full pt-1 transition-[opacity,transform,visibility] duration-200 ease-out",
-          menuOpen
-            ? "visible translate-y-0 opacity-100"
-            : "invisible pointer-events-none -translate-y-1 opacity-0",
+          "inline-flex items-center gap-1.5 rounded-md bg-transparent px-2 font-medium tracking-[0.04em] text-white/62 transition-colors",
+          "hover:bg-white/[0.06] hover:text-white/88",
+          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-400/35",
+          open && "bg-white/[0.06] text-white/88",
+          triggerClassName,
         )}
       >
+        <Globe2 className="h-3.5 w-3.5 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
+        <span className="uppercase">{t(current as LocaleCode)}</span>
+        <ChevronDown
+          className={cn("h-3 w-3 shrink-0 opacity-70 transition-transform duration-150", open && "rotate-180")}
+          strokeWidth={2}
+          aria-hidden
+        />
+      </button>
+
+      <div
+        className={cn(
+          "absolute right-0 top-full z-[70] pt-1.5 transition-[opacity,transform,visibility] duration-150 ease-out",
+          open ? "visible translate-y-0 opacity-100" : "invisible pointer-events-none -translate-y-0.5 opacity-0",
+        )}
+        aria-hidden={!open}
+        inert={!open ? true : undefined}
+      >
         <div
+          id={menuId}
           role="menu"
           aria-label={t("switchTo")}
-          className="flex flex-col gap-0.5 rounded-md border border-white/[0.10] bg-[#111116] p-1 shadow-lg"
+          onKeyDown={onMenuKeyDown}
+          className="w-[160px] rounded-xl border border-white/[0.10] bg-[#141418] p-2 shadow-[0_16px_40px_-18px_rgba(0,0,0,0.72)]"
         >
-          {others.map((loc) => (
-            <button
-              key={loc}
-              type="button"
-              role="menuitem"
-              onClick={() => switchLocale(loc)}
-              aria-label={t(loc as "et" | "en" | "ru")}
-              className={cn(
-                itemClass,
-                "text-white/55 hover:bg-white/[0.08] hover:text-white/95",
-              )}
-            >
-              <LocaleFlag locale={loc} />
-              <span>{t(loc as "et" | "en" | "ru")}</span>
-            </button>
-          ))}
+          {LOCALES.map((item, index) => {
+            const active = item.code === current;
+            return (
+              <button
+                key={item.code}
+                ref={(el) => {
+                  itemRefs.current[index] = el;
+                }}
+                type="button"
+                role="menuitem"
+                tabIndex={-1}
+                aria-current={active ? "true" : undefined}
+                onClick={() => switchLocale(item.code)}
+                className={cn(
+                  "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-[13px] leading-none transition-colors",
+                  "text-white/68 hover:bg-white/[0.06] hover:text-white",
+                  "focus-visible:bg-white/[0.06] focus-visible:text-white focus-visible:outline-none",
+                  active && "text-white/92",
+                )}
+              >
+                <span className="min-w-0 flex-1 truncate">{item.nativeName}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-white/32">
+                  {t(item.code)}
+                </span>
+                <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center">
+                  {active ? <Check className="h-3.5 w-3.5 text-white/80" strokeWidth={2} aria-hidden /> : null}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
