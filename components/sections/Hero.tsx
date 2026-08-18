@@ -12,14 +12,14 @@ export function Hero({ quickFilters }: { quickFilters: HeroQuickFilterId[] }) {
       className="relative overflow-hidden scroll-mt-[var(--site-header-offset)] bg-surface-deep pb-12 sm:pb-16 lg:pb-20"
     >
       <AmbientBackground intensity={heroPortal.ambientIntensity} />
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 hidden lg:block">
         <PortalBackgroundVariantA intensity={heroPortal.intensity} />
       </div>
 
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_130%_90%_at_50%_-15%,rgba(168,85,247,0.28),transparent_55%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#09090D]/35 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(9,9,13,0.28)_100%)] opacity-70" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-10%,rgba(168,85,247,0.16),transparent_58%)] lg:bg-[radial-gradient(ellipse_130%_90%_at_50%_-15%,rgba(168,85,247,0.28),transparent_55%)]" />
+        <div className="absolute inset-0 hidden bg-gradient-to-b from-[#09090D]/35 via-transparent to-transparent lg:block" />
+        <div className="absolute inset-0 hidden bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(9,9,13,0.28)_100%)] opacity-70 lg:block" />
       </div>
 
       <div

@@ -12,7 +12,7 @@ export async function FinalCTA() {
   return (
     <section
       id="registreeru"
-      className="relative scroll-mt-[var(--site-header-offset)] overflow-hidden bg-surface py-28 sm:py-36 lg:py-40"
+      className="relative scroll-mt-[var(--site-header-offset)] overflow-hidden bg-surface py-16 sm:py-24 lg:py-40"
     >
       <div
         aria-hidden="true"
@@ -20,22 +20,22 @@ export async function FinalCTA() {
       />
 
       <Container className="relative z-10">
-        <div className="kf-enter grid items-center gap-12 lg:grid-cols-[1.4fr_0.6fr] lg:gap-16">
+        <div className="kf-enter grid items-center gap-8 lg:grid-cols-[1.4fr_0.6fr] lg:gap-16">
           <div>
-            <h3 className="text-balance text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.75rem]">
+            <h3 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-[2.75rem]">
               {t("titleBefore")}{" "}
               <GradientAccentText>{t("titleAccent")}</GradientAccentText>.
             </h3>
-            <p className="mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-body sm:text-lg sm:leading-relaxed">
+            <p className="mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-body sm:mt-6 sm:text-lg sm:leading-relaxed">
               {t("subtitle")}
             </p>
-            <RegistrationConsentText className="mt-10 max-w-xl" />
+            <RegistrationConsentText className="mt-6 max-w-xl sm:mt-10" />
           </div>
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
-            <Button asChild variant="primary" size="lg" className="h-12 justify-center">
+            <Button asChild variant="primary" size="lg" className="h-12 w-full justify-center sm:flex-1 lg:w-full">
               <Link href="#toootsijatele">{t("ctaSeeker")}</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 justify-center">
+            <Button asChild variant="outline" size="lg" className="h-12 w-full justify-center sm:flex-1 lg:w-full">
               <Link href="/tooandjatele">{t("ctaEmployer")}</Link>
             </Button>
           </div>

@@ -42,6 +42,16 @@ export const SEEKER_NAV: NavItem[] = [
   { href: "/account/seeker/certificates", key: "seekerCertificates" },
 ];
 
+/** Compact sheet list — desktop seeker nav stays unchanged. */
+export const SEEKER_MOBILE_NAV: NavItem[] = [
+  { href: "/tood", key: "jobs" },
+  { href: "/account/seeker/matches", key: "seekerMatches" },
+  { href: "/account/seeker/applications", key: "seekerApplications" },
+  { href: "/account/seeker/saved", key: "seekerSaved" },
+  { href: "/account/seeker/notifications", key: "seekerNotifications" },
+  { href: "/account/seeker/profile", key: "seekerProfile" },
+];
+
 export const SEEKER_BOTTOM_NAV: NavItem[] = [
   { href: "/tood", key: "jobsShort" },
   { href: "/account/seeker/matches", key: "seekerMatchesShort" },

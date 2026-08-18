@@ -24,7 +24,7 @@ export async function Audience() {
   ] as const;
 
   return (
-    <section className="relative overflow-hidden bg-surface py-28 sm:py-36 lg:py-40">
+    <section className="relative overflow-hidden bg-surface py-16 sm:py-24 lg:py-40">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_85%_20%,rgba(168,85,247,0.08),transparent_55%)]"
@@ -35,16 +35,16 @@ export async function Audience() {
           <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2 sm:text-sm">
             {t("eyebrow")}
           </div>
-          <h2 className="mt-5 text-balance text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem]">
+          <h2 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight text-foreground sm:mt-5 sm:text-3xl lg:text-[2.65rem]">
             {t("title")}
             <span className="block text-muted-2"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-6 text-base leading-relaxed text-body sm:text-lg sm:leading-relaxed">
+          <p className="mt-4 text-base leading-relaxed text-body sm:mt-6 sm:text-lg sm:leading-relaxed">
             {t("subtitle")}
           </p>
         </div>
 
-        <div className="mt-20 grid gap-20 lg:mt-28 lg:grid-cols-12 lg:items-start lg:gap-16 xl:gap-20">
+        <div className="mt-10 grid gap-10 lg:mt-28 lg:grid-cols-12 lg:items-start lg:gap-16 xl:gap-20">
           <div id="toootsijatele" className="kf-enter scroll-mt-28 lg:col-span-6">
             <div className="flex items-center gap-3">
               <UserRound className="h-5 w-5 text-accent-pink/85" strokeWidth={1.6} />
@@ -56,12 +56,12 @@ export async function Audience() {
               {t("seekerSublabel")}
             </p>
 
-            <h3 className="mt-8 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+            <h3 className="mt-6 text-xl font-semibold tracking-tight text-foreground sm:mt-8 sm:text-3xl">
               {t("seekerTitle")}
               <span className="block text-muted-2"> {t("seekerTitleMuted")}</span>
             </h3>
 
-            <ol className="mt-12 space-y-11">
+            <ol className="mt-8 space-y-8 sm:mt-12 sm:space-y-11">
               {seekerSteps.map((s, i) => (
                 <li
                   key={s.n}
@@ -83,7 +83,7 @@ export async function Audience() {
               ))}
             </ol>
 
-            <div className="mt-14">
+            <div className="mt-8 sm:mt-14">
               <Button
                 asChild
                 variant="primary"

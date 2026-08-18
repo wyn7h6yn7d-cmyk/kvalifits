@@ -58,7 +58,7 @@ export function LegalDocumentView({
   return (
     <div className="relative overflow-hidden border-b border-white/[0.06]">
       <AmbientBackground intensity="soft" />
-      <Container className="relative max-w-3xl py-16 sm:py-20">
+      <Container className="relative max-w-3xl py-10 sm:py-20">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs text-white/40">
             {t("updated")}{" "}
@@ -75,7 +75,7 @@ export function LegalDocumentView({
           </Link>
         </div>
 
-        <h1 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+        <h1 className="text-balance text-[1.75rem] font-semibold leading-tight tracking-tight text-white sm:text-4xl">
           {doc.h1}
         </h1>
         {doc.lead ? (

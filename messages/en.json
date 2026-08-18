@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "Kvalifits — jobs in Estonia",
+    "title": "Kvalifits",
     "description": "Find jobs that match your skills. Compare your profile with employer requirements and see why a job is a match."
   },
   "nav": {
@@ -1850,7 +1850,7 @@
     "profileSignals": "Popular profile signals",
     "profileSignalsHint": "Skills and profile markers most often added (top {count}). Soon you’ll see suggestions based on your profile too.",
     "active": "Active",
-    "clearAll": "Clear all",
+    "clearAll": "Remove filters",
     "publicSalaryChip": "Salary shown",
     "removeFilter": "Remove filter: {label}",
     "searchTitle": "Job search",

@@ -88,7 +88,7 @@ function MatchPanel({
 }) {
   return (
     <div className={cn("relative min-w-0", compact ? "" : "w-full text-right")}>
-      <FitScoreExplain score={score} lazySource={{ jobId }} compact={compact} />
+      <FitScoreExplain score={score} lazySource={{ jobId }} compact={compact} showCountsWhenCollapsed={compact} />
     </div>
   );
 }
@@ -134,7 +134,7 @@ function JobCardComponent({
         aria-label={`${job.title} — ${job.company}`}
       />
 
-      <div className="relative z-[1] flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6">
+      <div className="relative z-[1] flex flex-col gap-3.5 lg:flex-row lg:items-stretch lg:gap-6">
         <div className="min-w-0 flex-1">
           <div className="flex gap-3 sm:gap-3.5">
             <CompanyLogo url={job.companyLogoUrl} company={job.company} />
@@ -166,18 +166,12 @@ function JobCardComponent({
                 </span>
               </div>
             </div>
-
-            {canSave ? (
-              <div className="flex shrink-0 items-start lg:hidden">
-                <JobSaveButton jobId={job.id} initialSaved={saved} />
-              </div>
-            ) : null}
           </div>
 
-          {hasMatch ? (
-            <div className="mt-3 lg:hidden">
-              <MatchPanel jobId={job.id} score={job.matchScore!} compact />
-            </div>
+          {job.salary ? (
+            <p className="mt-3 text-[1.05rem] font-semibold tabular-nums tracking-tight text-white">
+              {job.salary}
+            </p>
           ) : null}
 
           {badges.length || job.openToFirstJob || job.suitableForYoungSeeker ? (
@@ -199,14 +193,14 @@ function JobCardComponent({
             </div>
           ) : null}
 
-          {job.salary ? (
-            <p className="mt-3 text-[1.05rem] font-semibold tabular-nums tracking-tight text-white">
-              {job.salary}
-            </p>
+          {hasMatch ? (
+            <div className="mt-3 lg:hidden">
+              <MatchPanel jobId={job.id} score={job.matchScore!} compact />
+            </div>
           ) : null}
 
           {(posted || deadline) && (
-            <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-white/45">
+            <p className="mt-2.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-white/45">
               {posted ? <span>{posted}</span> : null}
               {deadline ? (
                 <span>
@@ -217,13 +211,13 @@ function JobCardComponent({
           )}
 
           {job.summary ? (
-            <p className="mt-2.5 line-clamp-2 max-w-2xl text-[13px] leading-snug text-white/50">
+            <p className="mt-2.5 hidden line-clamp-2 max-w-2xl text-[13px] leading-snug text-white/50 lg:block">
               {job.summary}
             </p>
           ) : null}
 
           {visibleTags.length ? (
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+            <div className="mt-2.5 hidden flex-wrap items-center gap-1.5 lg:flex">
               {visibleTags.map((tag) => (
                 <span
                   key={tag}
@@ -238,12 +232,13 @@ function JobCardComponent({
             </div>
           ) : null}
 
-          <div className="mt-3 lg:hidden">
+          <div className="mt-3 flex items-center gap-2 lg:hidden">
+            {canSave ? <JobSaveButton jobId={job.id} initialSaved={saved} /> : null}
             <Button
               asChild
               variant="outline"
               size="sm"
-              className="relative z-[1] h-11 w-full rounded-xl px-3.5 text-[14px]"
+              className="relative z-[1] h-11 min-w-0 flex-1 rounded-xl px-3.5 text-[14px]"
             >
               <Link href={href}>{t("openJob")}</Link>
             </Button>

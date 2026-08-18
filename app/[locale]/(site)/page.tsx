@@ -7,24 +7,23 @@ import { WhyKvalifits } from "@/components/sections/WhyKvalifits";
 import { Audience } from "@/components/sections/Audience";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { getHeroQuickFilters } from "@/lib/jobs/getHeroQuickFilters";
-import { publicPageMetadata } from "@/lib/seo/site";
+import { publicPageMetadata, SITE_NAME } from "@/lib/seo/site";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const title = t("title");
   const description = t("description");
   return {
     ...publicPageMetadata({
       locale,
       path: "",
-      title,
+      title: SITE_NAME,
       description,
     }),
     // Avoid layout template appending " · Kvalifits" onto the brand title.
-    title: { absolute: title },
+    title: { absolute: SITE_NAME },
   };
 }
 

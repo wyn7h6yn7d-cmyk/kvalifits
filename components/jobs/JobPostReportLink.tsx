@@ -98,14 +98,14 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
 
       {open ? (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center"
+          className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="job-report-title"
           onClick={close}
         >
           <div
-            className="w-full max-w-md rounded-3xl border border-white/[0.12] bg-zinc-950 p-5 shadow-xl sm:p-6"
+            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-3xl border border-white/[0.12] bg-zinc-950 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:max-h-[min(90dvh,36rem)] sm:max-w-md sm:rounded-3xl sm:p-6 sm:pb-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div id="job-report-title" className="text-sm font-semibold text-white/90">
@@ -129,7 +129,7 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
                   {reasons.map((code) => (
                     <label
                       key={code}
-                      className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-2.5"
+                      className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-2.5"
                     >
                       <input
                         type="radio"

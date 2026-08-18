@@ -11,17 +11,17 @@
   --surface: #0f0f16;
   --surface-elevated: #15151f;
 
-  /* Fixed navbar — keep Navbar.tsx bar height + shell padding in sync */
-  --site-header-top: 0.875rem;
-  --site-header-tail: 0.5rem;
-  --site-header-bar: 3.875rem;
+  /* Fixed navbar — flush on phones; floating bar restored from lg */
+  --site-header-top: 0px;
+  --site-header-tail: 0px;
+  --site-header-bar: 3.5rem;
   --site-header-offset: calc(
     var(--site-header-top) + var(--site-header-bar) + var(--site-header-tail)
   );
   --site-bottom-nav-height: 3.75rem;
   --site-bottom-nav-offset: 0px;
   /* Hero: offset below fixed navbar + extra gap */
-  --site-hero-content-top: calc(var(--site-header-offset) + 3.25rem);
+  --site-hero-content-top: calc(var(--site-header-offset) + 1.25rem);
 
   /* Surfaces */
   --card: rgba(255, 255, 255, 0.045);
@@ -40,15 +40,11 @@
   --violet-3: rgba(236, 72, 153, 0.12);
 }
 
-@media (min-width: 640px) {
-  :root {
-    --site-header-top: 1.25rem;
-    --site-hero-content-top: calc(var(--site-header-offset) + 4rem);
-  }
-}
-
 @media (min-width: 1024px) {
   :root {
+    --site-header-top: 1.25rem;
+    --site-header-tail: 0.5rem;
+    --site-header-bar: 3.875rem;
     --site-hero-content-top: calc(var(--site-header-offset) + 5rem);
   }
 }

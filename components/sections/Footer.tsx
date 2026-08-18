@@ -28,7 +28,7 @@ export async function Footer() {
               <div className="self-start leading-none">
                 <Logo
                   className="flex items-start opacity-95"
-                  imageClassName="h-12 w-[16rem] object-cover object-left"
+                  imageClassName="h-10 w-[12.5rem] object-cover object-left sm:h-12 sm:w-[16rem]"
                 />
               </div>
               <div className="flex max-w-md flex-col gap-3">

@@ -309,7 +309,7 @@ export function JobsSearch({
     ) : null;
 
   return (
-    <section className="pb-16 sm:pb-20">
+    <section className="pb-[calc(4rem+var(--site-bottom-nav-offset,0px))] sm:pb-20">
       <Container className="max-w-[1240px]">
         <div className="border-b border-white/[0.08] pb-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -365,6 +365,9 @@ export function JobsSearch({
         </div>
 
         <div className="sticky top-[var(--site-header-offset)] z-30 -mx-4 mb-3 space-y-2 border-b border-white/[0.08] bg-[#0f0f16] px-4 py-2.5 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 lg:hidden">
+          <p className="text-[13px] text-white/55" aria-live="polite">
+            {resultsLabel}
+          </p>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -582,7 +585,17 @@ export function JobsSearch({
               />
             </div>
 
-            <div className="border-t border-white/[0.08] p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="border-t border-white/[0.08] space-y-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              {activeFilterCount ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-12 w-full rounded-xl"
+                  onClick={clearAll}
+                >
+                  {t("clearAll")}
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 variant="primary"

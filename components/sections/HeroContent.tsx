@@ -119,7 +119,7 @@ function MatchScoreRing({ active }: { active: boolean }) {
       <div className="relative flex h-[128px] w-[128px] items-center justify-center sm:h-[136px] sm:w-[136px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-12%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg"
+          className="pointer-events-none absolute inset-[-12%] hidden rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg lg:block"
         />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
           <circle
@@ -140,10 +140,7 @@ function MatchScoreRing({ active }: { active: boolean }) {
             strokeLinecap="round"
             strokeDasharray={RING_C}
             strokeDashoffset={offset}
-            className="transition-[stroke-dashoffset] duration-75 ease-out"
-            style={{
-              filter: "drop-shadow(0 0 10px rgba(217,70,239,0.55))",
-            }}
+            className="transition-[stroke-dashoffset] duration-75 ease-out max-lg:[filter:none] lg:[filter:drop-shadow(0_0_10px_rgba(217,70,239,0.55))]"
           />
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -219,8 +216,28 @@ function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
             </span>
           </div>
 
-          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_9rem_minmax(0,1fr)] xl:items-center xl:gap-4">
-            {!compact ? (
+          {compact ? (
+            <div className="flex min-w-0 flex-col gap-3">
+              <SideCard
+                eyebrow={t("seeker")}
+                title={t("roleSample")}
+                subtitle={t("seekerName")}
+                location={t("seekerLocation")}
+                tags={seekerTags}
+              />
+              <div className="relative flex min-w-0 justify-center py-1">
+                <MatchScoreRing active={inView} />
+              </div>
+              <SideCard
+                eyebrow={t("employer")}
+                title={t("positionSample")}
+                subtitle={t("jobCompany")}
+                location={t("jobLocation")}
+                tags={jobTags}
+              />
+            </div>
+          ) : (
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_9rem_minmax(0,1fr)] xl:items-center xl:gap-4">
               <div className="order-2 min-w-0 sm:order-1 xl:order-1">
                 <SideCard
                   eyebrow={t("seeker")}
@@ -230,18 +247,11 @@ function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
                   tags={seekerTags}
                 />
               </div>
-            ) : null}
 
-            <div
-              className={cn(
-                "relative order-1 flex min-w-0 justify-center py-1 xl:py-0",
-                compact ? "sm:col-span-2" : "sm:col-span-2 sm:order-first xl:col-span-1 xl:order-2",
-              )}
-            >
-              <MatchScoreRing active={inView} />
-            </div>
+              <div className="relative order-1 flex min-w-0 justify-center py-1 sm:col-span-2 sm:order-first xl:col-span-1 xl:order-2 xl:py-0">
+                <MatchScoreRing active={inView} />
+              </div>
 
-            {!compact ? (
               <div className="order-3 min-w-0 sm:order-2 xl:order-3">
                 <SideCard
                   eyebrow={t("employer")}
@@ -251,8 +261,8 @@ function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
                   tags={jobTags}
                 />
               </div>
-            ) : null}
-          </div>
+            </div>
+          )}
 
           {!compact ? (
             <>
@@ -337,11 +347,11 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
   const locale = useLocale();
   const headlineClamp =
     locale === "ru"
-      ? "text-[clamp(1.62rem,4.2vw+0.55rem,3.55rem)] sm:leading-[1.05] md:text-[clamp(1.9rem,3.45vw+0.85rem,3.35rem)] lg:text-[clamp(2.25rem,2.75vw+0.95rem,3.55rem)]"
-      : "text-[clamp(1.85rem,5.2vw+0.65rem,4.35rem)] sm:leading-[1.03] md:text-[clamp(2.25rem,4vw+1rem,4rem)] lg:text-[clamp(2.65rem,3.4vw+1.1rem,4.35rem)]";
+      ? "text-[1.5rem] leading-[1.18] sm:text-[1.75rem] lg:text-[clamp(2.25rem,2.75vw+0.95rem,3.55rem)] lg:leading-[1.05]"
+      : "text-[1.625rem] leading-[1.16] sm:text-[1.85rem] lg:text-[clamp(2.65rem,3.4vw+1.1rem,4.35rem)] lg:leading-[1.03]";
 
   return (
-    <div className="grid min-w-0 items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 xl:gap-16">
+    <div className="grid min-w-0 items-start gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 xl:gap-16">
       <div className="kf-enter-slow min-w-0 max-w-[42rem]">
         <h1
           className={cn(
@@ -353,13 +363,13 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
           <GradientAccentText wrapClassName="font-semibold">{t("headlineAccent")}</GradientAccentText>
           {t("headlineAfter").trim() ? (
             <>
-              <br className="hidden sm:block" />
+              <br className="hidden lg:block" />
               <span className="text-white/[0.96]">{t("headlineAfter")}</span>
             </>
           ) : null}
         </h1>
 
-        <p className="mt-4 max-w-xl text-pretty text-base leading-relaxed text-body sm:mt-5 sm:text-lg">
+        <p className="mt-3 max-w-xl text-pretty text-[15px] leading-relaxed text-body sm:mt-5 sm:text-lg">
           {t("subheadline")}
         </p>
 

@@ -185,7 +185,7 @@ export function LanguageSwitcher({
                 aria-current={active ? "true" : undefined}
                 onClick={() => switchLocale(item.code)}
                 className={cn(
-                  "flex h-9 w-full items-center gap-2 rounded-md px-2.5 text-left text-[13px] leading-none transition-colors",
+                  "flex h-11 w-full items-center gap-2 rounded-md px-2.5 text-left text-[13px] leading-none transition-colors lg:h-9",
                   "text-white/68 hover:bg-white/[0.06] hover:text-white",
                   "focus-visible:bg-white/[0.06] focus-visible:text-white focus-visible:outline-none",
                   active && "text-white/92",

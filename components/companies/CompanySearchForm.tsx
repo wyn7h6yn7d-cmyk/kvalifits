@@ -71,7 +71,7 @@ export function CompanySearchForm({
           ))}
         </select>
       </label>
-      <div className="flex w-full min-w-0 items-end gap-2 sm:w-auto">
+      <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:w-auto sm:items-end">
         <Button type="submit" variant="primary" className={actionClass}>
           {labels.submit}
         </Button>

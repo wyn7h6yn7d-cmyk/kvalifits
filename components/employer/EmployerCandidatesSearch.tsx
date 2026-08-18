@@ -402,7 +402,12 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props
           </div>
           </div>
           {mobileOpen ? (
-            <div className="border-t border-white/[0.08] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden">
+            <div className="border-t border-white/[0.08] space-y-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden">
+              {activeCount > 0 ? (
+                <Button type="button" variant="outline" className="h-12 w-full rounded-xl" onClick={clearAll}>
+                  {t("clearAll")}
+                </Button>
+              ) : null}
               <Button
                 type="button"
                 variant="primary"

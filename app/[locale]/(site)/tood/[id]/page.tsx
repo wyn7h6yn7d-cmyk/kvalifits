@@ -424,13 +424,13 @@ export default async function JobDetailPage({ params }: Props) {
   return (
     <>
       <JobPostingJsonLd data={jobPostingLd} />
-      <div className="mx-auto w-full max-w-6xl px-4 pb-[calc(5.75rem+var(--site-bottom-nav-offset,0px))] pt-8 sm:px-6 lg:pb-16 lg:pt-10">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-[calc(5.75rem+var(--site-bottom-nav-offset,0px)+env(safe-area-inset-bottom,0px))] pt-6 sm:px-6 lg:pb-16 lg:pt-10">
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_19.5rem] lg:items-start lg:gap-10">
           <div className="min-w-0">
             <header>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <h1 className="min-w-0 text-2xl font-semibold tracking-tight text-white/94 sm:text-3xl">{job.title}</h1>
-                <div className="flex shrink-0 items-center gap-2">
+                <h1 className="min-w-0 text-[1.65rem] font-semibold leading-tight tracking-tight text-white/94 sm:text-3xl">{job.title}</h1>
+                <div className="hidden shrink-0 items-center gap-2 lg:flex">
                   {canSaveJobs ? (
                     <JobSaveButton jobId={job.id} initialSaved={initialSaved} variant="labeled" />
                   ) : null}
@@ -469,6 +469,14 @@ export default async function JobDetailPage({ params }: Props) {
                     </div>
                   ) : null}
                 </div>
+              </div>
+              {salary ? (
+                <p className="mt-4 text-[1.15rem] font-semibold tabular-nums tracking-tight text-white lg:hidden">
+                  {salary}
+                </p>
+              ) : null}
+              <div className="mt-3 lg:hidden">
+                <JobPostReportLink jobPostId={job.id} variant="toolbar" />
               </div>
             </header>
 

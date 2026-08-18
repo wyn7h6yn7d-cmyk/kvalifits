@@ -100,7 +100,7 @@ export function CookieConsent() {
     <>
       {bannerOpen ? (
         <div
-          className="fixed inset-x-0 z-[60] p-4 sm:p-6"
+          className="fixed inset-x-0 z-[60] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6"
           style={{ bottom: "var(--site-bottom-nav-offset, 0px)" }}
           role="dialog"
           aria-modal="false"
@@ -138,14 +138,14 @@ export function CookieConsent() {
 
       {settingsOpen ? (
         <div
-          className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60 p-4 sm:items-center"
+          className="fixed inset-0 z-[80] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="cookie-settings-title"
           onClick={() => setSettingsOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-3xl border border-white/[0.12] bg-zinc-950 p-5 shadow-xl sm:p-6"
+            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-3xl border border-white/[0.12] bg-zinc-950 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:max-h-none sm:max-w-md sm:rounded-3xl sm:p-6 sm:pb-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div id="cookie-settings-title" className="text-sm font-semibold text-white/90">
@@ -214,13 +214,13 @@ function CategoryRow({
   return (
     <label
       className={cn(
-        "flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-3",
+        "flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-3",
         disabled && "cursor-default opacity-80"
       )}
     >
       <input
         type="checkbox"
-        className="mt-1 h-4 w-4 shrink-0 border-white/[0.20] bg-white/[0.03]"
+        className="mt-1 h-5 w-5 shrink-0 border-white/[0.20] bg-white/[0.03]"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}

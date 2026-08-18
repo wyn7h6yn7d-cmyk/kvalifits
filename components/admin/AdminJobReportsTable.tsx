@@ -172,7 +172,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
             <Button
               type="button"
               size="sm"
-              className="h-9 rounded-xl px-4 text-[13px]"
+              className="h-11 w-full rounded-xl px-4 text-[13px] sm:h-9 sm:w-auto"
               disabled={busyId === r.id}
               onClick={() => void save(r.id)}
             >

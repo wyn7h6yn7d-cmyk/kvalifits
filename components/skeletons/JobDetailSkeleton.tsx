@@ -5,7 +5,7 @@ export function JobDetailSkeleton({ label }: { label?: string }) {
   return (
     <SkeletonRegion
       label={label}
-      className="mx-auto w-full max-w-6xl px-4 pb-[calc(5.75rem+var(--site-bottom-nav-offset,0px))] pt-8 sm:px-6 lg:pb-16 lg:pt-10"
+      className="mx-auto w-full max-w-6xl px-4 pb-[calc(5.75rem+var(--site-bottom-nav-offset,0px)+env(safe-area-inset-bottom,0px))] pt-6 sm:px-6 lg:pb-16 lg:pt-10"
     >
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_19.5rem] lg:items-start lg:gap-10">
         <div className="min-w-0">
@@ -17,6 +17,7 @@ export function JobDetailSkeleton({ label }: { label?: string }) {
               <Bone className="mt-2 h-3.5 w-52" />
             </div>
           </div>
+          <Bone className="mt-4 h-6 w-40 lg:hidden" />
           <div className="mt-5 flex flex-wrap gap-2">
             <Bone className="h-7 w-24 rounded-md" />
             <Bone className="h-7 w-28 rounded-md" />

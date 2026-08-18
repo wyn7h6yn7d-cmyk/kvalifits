@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "Kvalifits — tööportaal",
+    "title": "Kvalifits",
     "description": "Leia töö, mis sobib sinu oskustega. Võrdle profiili tööandja nõuetega ja näe, miks töö sulle sobib."
   },
   "nav": {
@@ -1850,7 +1850,7 @@
     "profileSignals": "Populaarsed profiilimärgid",
     "profileSignalsHint": "Enim profiilides lisatavad oskused ja märgid (tipp {count}). Hiljem ilmuvad siia ka sinu profiili põhjal soovitatud valikud.",
     "active": "Aktiivsed",
-    "clearAll": "Eemalda kõik",
+    "clearAll": "Eemalda filtrid",
     "publicSalaryChip": "Avaliku palgaga",
     "removeFilter": "Eemalda filter: {label}",
     "searchTitle": "Tööotsing",

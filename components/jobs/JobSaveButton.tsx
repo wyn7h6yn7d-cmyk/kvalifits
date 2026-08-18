@@ -85,7 +85,9 @@ export function JobSaveButton({
       disabled={busy}
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.03] text-white/55 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white/85 disabled:opacity-60",
-        variant === "labeled" ? "h-11 gap-2 px-3.5 text-[13px] font-medium lg:h-9" : "h-11 w-11 lg:h-9 lg:w-9",
+        variant === "labeled"
+          ? "h-11 min-w-0 gap-2 whitespace-normal px-3.5 text-center text-[13px] font-medium lg:h-9 lg:whitespace-nowrap"
+          : "h-11 w-11 lg:h-9 lg:w-9",
         saved && "border-white/[0.16] bg-white/[0.07] text-white/90",
         className,
       )}

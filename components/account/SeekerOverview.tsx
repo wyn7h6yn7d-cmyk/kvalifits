@@ -47,7 +47,7 @@ const GAP_HREF: Record<ProfileGapKey, string> = {
 };
 
 function surfaceClass() {
-  return "rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5";
+  return "rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5";
 }
 
 function fmtDate(locale: string, iso: string | null) {
@@ -87,7 +87,7 @@ export async function SeekerOverview({
   return (
     <div className="space-y-4">
       <section className={surfaceClass()}>
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0">
             {firstName ? (
               <p className="text-xs text-white/45">{t("greeting", { name: firstName })}</p>
@@ -98,7 +98,7 @@ export async function SeekerOverview({
           </div>
           <Link
             href="/account/seeker/profile"
-            className="shrink-0 text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+            className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline sm:min-h-0"
           >
             {t("profileCta")}
           </Link>

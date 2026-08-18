@@ -12,7 +12,7 @@ export function AccountCalmLoadingFrame({
   maxWidthClassName?: string;
 }) {
   return (
-    <div className={cn("mx-auto w-full px-4 pb-16 pt-8 sm:px-6 sm:pt-10", maxWidthClassName ?? "max-w-3xl")}>
+    <div className={cn("mx-auto w-full px-4 pb-10 pt-6 sm:px-6 sm:pb-16 sm:pt-10", maxWidthClassName ?? "max-w-3xl")}>
       <Bone className="h-8 w-48 rounded-lg" />
       <Bone className="mt-3 h-4 w-72 max-w-full" />
       <div className="mt-8">{children}</div>
@@ -29,9 +29,9 @@ export function AccountAuthLoadingFrame({
   maxWidthClassName?: string;
 }) {
   return (
-    <div className="relative flex min-h-[calc(100dvh-var(--site-header-offset))] items-start justify-center pt-16 pb-24">
-      <div className={cn("relative w-full px-6", maxWidthClassName ?? "max-w-md")}>
-        <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-7 sm:p-8">
+    <div className="relative flex min-h-[100dvh] items-start justify-center pt-10 pb-16 lg:min-h-[calc(100dvh-var(--site-header-offset))] lg:pt-16 lg:pb-24">
+      <div className={cn("relative w-full px-4 sm:px-6", maxWidthClassName ?? "max-w-md")}>
+        <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-8">
           <Bone className="h-8 w-44 rounded-lg" />
           <Bone className="mt-3 h-4 w-64 max-w-full" />
           <div className="mt-7">{children}</div>

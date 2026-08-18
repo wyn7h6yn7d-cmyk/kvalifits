@@ -134,21 +134,21 @@ export function JobSearchAlertsButton({
         type="button"
         variant={variant}
         className={cn(
-          "h-10 gap-2 rounded-xl px-3 text-[13px]",
+          "h-11 gap-2 rounded-xl px-3 text-[13px] lg:h-10",
           variant === "outline" && "border-white/[0.12] bg-white/[0.03]",
           className,
         )}
         onClick={onCtaClick}
       >
         <Bell className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
-        <span className="max-w-[12.5rem] truncate sm:max-w-none">{label ?? t("alertsCta")}</span>
+        <span className="min-w-0 max-lg:whitespace-normal lg:max-w-[12.5rem] lg:truncate">{label ?? t("alertsCta")}</span>
       </Button>
 
       <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
         <DialogPrimitive.Portal>
           <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-black/70" />
           <DialogPrimitive.Content
-            className="fixed left-1/2 top-1/2 z-[90] w-[min(28rem,calc(100vw-1.5rem))] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-white/[0.10] bg-[#121214] p-5 shadow-2xl"
+            className="fixed inset-x-0 bottom-0 z-[90] max-h-[min(90dvh,36rem)] w-full overflow-y-auto rounded-t-2xl border border-white/[0.10] bg-[#121214] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[min(90dvh,36rem)] sm:w-[min(28rem,calc(100vw-1.5rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-5"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
             <DialogPrimitive.Title className="text-[16px] font-semibold text-white/92">

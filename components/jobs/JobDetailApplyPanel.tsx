@@ -73,23 +73,26 @@ export function JobDetailApplyPanel({
     return (
       <div
         className={cn(
-          "fixed inset-x-0 z-40 border-t border-white/[0.10] bg-[#0c0c10] px-4 py-3 lg:hidden",
+          "fixed inset-x-0 z-40 border-t border-white/[0.10] bg-[#0c0c10] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
           className,
         )}
         style={{ bottom: "var(--site-bottom-nav-offset, 0px)" }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-stretch gap-2">
           {canSave ? (
             <JobSaveButton
               jobId={jobId}
               initialSaved={initialSaved}
-              className="h-12 w-12"
+              variant="labeled"
+              unsavedLabel={t("jobDetailSaveCta")}
+              savedLabel={t("jobDetailSavedCta")}
+              className="h-12 min-w-0 flex-1 whitespace-normal px-3 text-center"
             />
           ) : null}
           <a
             href={applyHref}
             onClick={applyClick}
-            className="flex h-12 min-w-0 flex-1 items-center justify-center rounded-xl bg-white text-[15px] font-semibold text-black transition hover:bg-white/90"
+            className="flex h-12 min-w-0 flex-[1.15] items-center justify-center rounded-xl bg-white px-3 text-center text-[15px] font-semibold leading-tight text-black transition hover:bg-white/90"
           >
             {t("jobDetailApplyTopCta")}
           </a>

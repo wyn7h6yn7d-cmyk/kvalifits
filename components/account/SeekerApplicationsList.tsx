@@ -224,11 +224,11 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                   </div>
                 </dl>
 
-                <div className="mt-5 flex flex-wrap items-center gap-2">
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                   {meta.jobId ? (
                     <Link
                       href={`/tood/${meta.jobId}`}
-                      className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05] lg:h-9"
+                      className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05] sm:w-auto lg:h-9"
                     >
                       {t("seekerViewJob")} <ChevronRight className="h-4 w-4" aria-hidden />
                     </Link>
@@ -239,7 +239,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                       type="button"
                       onClick={() => void withdraw(r.id)}
                       className={cn(
-                        "h-11 rounded-xl px-3 text-[13px] font-medium transition-colors lg:h-9",
+                        "h-11 w-full rounded-xl px-3 text-[13px] font-medium transition-colors sm:w-auto lg:h-9",
                         "border-white/[0.10] bg-white/[0.03] text-rose-100/75 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-100/90",
                         busyId === r.id && "opacity-60"
                       )}

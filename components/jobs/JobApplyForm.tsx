@@ -480,10 +480,18 @@ export function JobApplyForm({
     function lock() {
       document.body.style.overflow = mq.matches ? "hidden" : prev;
     }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeApply();
+      }
+    }
     lock();
     mq.addEventListener("change", lock);
+    document.addEventListener("keydown", onKey);
     return () => {
       mq.removeEventListener("change", lock);
+      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
   }, [panel]);
@@ -715,7 +723,7 @@ export function JobApplyForm({
               </ChoiceButton>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {SALARY_BASIS_VALUES.map((v) => (
               <ChoiceButton key={v} selected={salaryBasis === v} onClick={() => setSalaryBasis(v)}>
                 {t(`applySalaryBasisChip.${v}`)}
@@ -764,7 +772,7 @@ export function JobApplyForm({
           <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
             {t("quickApplyStart")}
           </legend>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {AVAILABILITY_START_VALUES.map((v) => (
               <ChoiceButton
                 key={v}
@@ -822,7 +830,7 @@ export function JobApplyForm({
           />
           <div className="text-xs text-white/55">{t("applyScheduleFit")}</div>
           {scheduleHint ? <p className="text-xs text-white/45">{scheduleHint}</p> : null}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {SCHEDULE_FIT_VALUES.map((v) => (
               <ChoiceButton key={v} selected={scheduleFits === v} onClick={() => setScheduleFits(v)}>
                 {t(`applyScheduleFitOption.${v}`)}
@@ -1010,7 +1018,7 @@ export function JobApplyForm({
           <button
             type="button"
             aria-label={t("applySheetClose")}
-            className="fixed inset-0 z-50 bg-black/70 lg:hidden"
+            className="fixed inset-0 z-[80] bg-black/70 lg:hidden"
             onClick={closeApply}
           />
           <div
@@ -1018,8 +1026,8 @@ export function JobApplyForm({
             aria-modal="true"
             aria-labelledby="quick-apply-title"
             className={cn(
-              "z-50 flex flex-col border border-white/[0.10] bg-[#121216]",
-              "fixed inset-0 h-dvh lg:static lg:h-auto lg:max-h-none lg:rounded-3xl",
+              "z-[80] flex flex-col border border-white/[0.10] bg-[#121216]",
+              "fixed inset-0 h-dvh lg:static lg:z-auto lg:h-auto lg:max-h-none lg:rounded-3xl",
             )}
           >
             <div className="flex shrink-0 items-start justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 lg:pt-3">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import { ConsentedAnalytics } from "@/components/cookies/ConsentedAnalytics";
-import { SEO_DEFAULT_LOCALE } from "@/lib/seo/site";
+import { SEO_DEFAULT_LOCALE, SITE_NAME } from "@/lib/seo/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,6 +13,10 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://kvalifits.ee"),
+  applicationName: SITE_NAME,
+  appleWebApp: {
+    title: SITE_NAME,
+  },
   icons: {
     icon: [
       { url: "/favicon-v4.ico", type: "image/x-icon" },

@@ -11,7 +11,9 @@ export function JobSearchSkeleton({ label, count = 4 }: { label?: string; count?
           <Bone className="mt-2 h-4 w-28" />
           <Bone className="mt-5 h-12 w-full rounded-2xl lg:h-[52px]" />
         </div>
-        <div className="mt-3 lg:hidden">
+        <div className="mt-3 space-y-2 lg:hidden">
+          <Bone className="h-4 w-32" />
+          <Bone className="h-11 w-full rounded-xl" />
           <Bone className="h-11 w-full rounded-xl" />
         </div>
         <div className="grid gap-6 lg:mt-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">

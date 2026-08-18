@@ -10,6 +10,7 @@ import { CookieConsent } from "@/components/cookies/CookieConsent";
 import { CurrentAuthProvider } from "@/components/auth/CurrentAuthProvider";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { SITE_NAME } from "@/lib/seo/site";
 
 type Props = {
   children: ReactNode;
@@ -29,9 +30,13 @@ export async function generateMetadata({ params }: Props) {
   // Canonical / hreflang are set per page (see publicPageMetadata). Layout only
   // provides defaults so nested routes do not inherit the homepage canonical.
   return {
+    applicationName: SITE_NAME,
+    appleWebApp: {
+      title: SITE_NAME,
+    },
     title: {
-      default: t("title"),
-      template: "%s · Kvalifits",
+      default: SITE_NAME,
+      template: `%s · ${SITE_NAME}`,
     },
     description: t("description"),
   };

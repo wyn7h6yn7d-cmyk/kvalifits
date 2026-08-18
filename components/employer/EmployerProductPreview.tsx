@@ -35,7 +35,7 @@ function PreviewScoreRing({
       <div className="relative mt-3 flex h-[128px] w-[128px] items-center justify-center">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-12%] rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg"
+          className="pointer-events-none absolute inset-[-12%] hidden rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg lg:block"
         />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
           <circle
@@ -56,7 +56,7 @@ function PreviewScoreRing({
             strokeLinecap="round"
             strokeDasharray={RING_C}
             strokeDashoffset={offset}
-            style={{ filter: "drop-shadow(0 0 10px rgba(217,70,239,0.55))" }}
+            className="max-lg:[filter:none] lg:[filter:drop-shadow(0_0_10px_rgba(217,70,239,0.55))]"
           />
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -127,7 +127,7 @@ export function EmployerProductPreview() {
     [1, 2, 3, 4].map((n) => t(detailKey(id, `FitBullet${n}`)));
 
   return (
-    <section className="border-t border-white/[0.06] pt-16 pb-14 sm:pt-20 sm:pb-20 lg:pt-24">
+    <section className="border-t border-white/[0.06] pt-10 pb-12 sm:pt-20 sm:pb-20 lg:pt-24">
       <Container>
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/42 sm:text-xs sm:tracking-wide">
@@ -181,7 +181,7 @@ export function EmployerProductPreview() {
 
             <div className="grid min-h-0 lg:grid-cols-[minmax(0,300px)_1fr] lg:items-stretch">
               <div className="flex min-h-0 flex-col border-b border-white/[0.08] lg:h-full lg:border-b-0 lg:border-r lg:border-white/[0.08]">
-                <div className="sticky top-20 space-y-1 p-4 sm:p-5 lg:static lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
+                <div className="space-y-1 p-4 sm:p-5 lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
                   <div className="px-1 pb-3 text-[12px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewApplicantsTitle")}
                   </div>
@@ -289,8 +289,8 @@ export function EmployerProductPreview() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Button asChild variant="primary" size="lg" className="h-12 rounded-2xl px-8">
+          <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
+            <Button asChild variant="primary" size="lg" className="h-12 w-full rounded-2xl px-8 sm:w-auto">
               <Link href="/auth/register?role=employer">{t("previewCtaRegister")}</Link>
             </Button>
           </div>

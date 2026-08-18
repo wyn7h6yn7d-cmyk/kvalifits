@@ -77,7 +77,7 @@ export default async function ToootsijatelePage({ params }: Props) {
                   asChild
                   variant="primary"
                   size="lg"
-                  className="h-12 rounded-2xl px-7"
+                  className="h-12 w-full rounded-2xl px-7 sm:w-auto"
                 >
                   <Link href="/auth/register?role=seeker">
                     <UserPlus className="h-4 w-4" />
@@ -89,7 +89,7 @@ export default async function ToootsijatelePage({ params }: Props) {
           </>
         </PageHero>
 
-        <section className="border-t border-white/[0.06] py-14 sm:py-20">
+        <section className="border-t border-white/[0.06] py-10 sm:py-20">
           <Container>
             <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-16">
               <div>
@@ -121,7 +121,7 @@ export default async function ToootsijatelePage({ params }: Props) {
           </Container>
         </section>
 
-        <section className="py-16 sm:py-20">
+        <section className="py-10 sm:py-20">
           <Container>
             <h2 className="text-center text-[13px] font-medium uppercase tracking-wide text-white/52">
               {t("pillarsTitle")}

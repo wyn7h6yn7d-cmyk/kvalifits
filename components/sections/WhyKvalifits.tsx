@@ -15,7 +15,7 @@ export async function WhyKvalifits() {
   ] as const;
 
   return (
-    <section id="miks" className="relative scroll-mt-24 overflow-hidden bg-surface py-28 sm:py-36 lg:py-40">
+    <section id="miks" className="relative scroll-mt-24 overflow-hidden bg-surface py-16 sm:py-24 lg:py-40">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_10%_0%,rgba(255,255,255,0.03),transparent_55%)]"
@@ -26,20 +26,20 @@ export async function WhyKvalifits() {
           <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2 sm:text-sm">
             {t("eyebrow")}
           </div>
-          <h2 className="mt-5 text-balance text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem]">
+          <h2 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight text-foreground sm:mt-5 sm:text-3xl lg:text-[2.65rem]">
             {t("title")}
             <span className="block text-muted-2"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-6 text-base leading-relaxed text-body sm:text-lg sm:leading-relaxed">
+          <p className="mt-4 text-base leading-relaxed text-body sm:mt-6 sm:text-lg sm:leading-relaxed">
             {t("subtitle")}
           </p>
         </div>
 
-        <div className="mt-20 max-w-4xl space-y-0 lg:mt-24">
+        <div className="mt-10 max-w-4xl space-y-0 lg:mt-24">
           {blocks.map((b, idx) => (
             <div
               key={b.title}
-              className="kf-enter group grid gap-4 border-t border-white/[0.07] py-10 first:border-t-0 first:pt-0 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-8 sm:py-12"
+              className="kf-enter group grid gap-4 border-t border-white/[0.07] py-7 first:border-t-0 first:pt-0 sm:grid-cols-[auto_1fr] sm:items-start sm:gap-8 sm:py-12"
               style={{ animationDelay: `${idx * 0.05}s` }}
             >
               <div className="flex h-10 w-10 items-center justify-center text-muted">

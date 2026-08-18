@@ -287,7 +287,7 @@ export function FacetFilterGroup({
       {canShowMore ? (
         <button
           type="button"
-          className="mt-2 px-1 text-[12px] font-medium text-fuchsia-300/80 transition-colors hover:text-fuchsia-200"
+          className="mt-2 inline-flex min-h-11 items-center px-1 text-[13px] font-medium text-fuchsia-300/80 transition-colors hover:text-fuchsia-200"
           onClick={() => setExpanded(true)}
         >
           {t("showMore")}

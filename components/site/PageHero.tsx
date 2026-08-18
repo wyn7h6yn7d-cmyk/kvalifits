@@ -29,24 +29,24 @@ export function PageHero({
       <Container className="relative">
         <div
           className={cn(
-            "pt-20 sm:pt-24 lg:pt-28",
-            ambient ? "pb-16 sm:pb-20" : "pb-20 sm:pb-24 lg:pb-[6.5rem]",
+            "pt-10 sm:pt-20 lg:pt-28",
+            ambient ? "pb-12 sm:pb-16 lg:pb-20" : "pb-14 sm:pb-20 lg:pb-[6.5rem]",
           )}
         >
           <div className="kf-enter">
-            {prepend ? <div className="mb-10 w-full sm:mb-12">{prepend}</div> : null}
+            {prepend ? <div className="mb-6 w-full sm:mb-12">{prepend}</div> : null}
             <div className="mx-auto max-w-3xl">
               <div className="text-[13px] font-medium uppercase tracking-wide text-white/60 sm:text-sm">
                 {eyebrow}
               </div>
-              <h1 className="mt-5 text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+              <h1 className="mt-3 text-balance text-[1.75rem] font-semibold leading-tight tracking-tight text-white sm:mt-5 sm:text-4xl lg:text-5xl">
                 {title}
               </h1>
-              <p className="mt-5 text-base leading-[1.65] text-white/68 sm:text-[1.0625rem] sm:leading-relaxed">
+              <p className="mt-3 text-base leading-[1.65] text-white/68 sm:mt-5 sm:text-[1.0625rem] sm:leading-relaxed">
                 {subtitle}
               </p>
             </div>
-            {children ? <div className="mt-10 w-full">{children}</div> : null}
+            {children ? <div className="mt-8 w-full sm:mt-10">{children}</div> : null}
           </div>
         </div>
       </Container>

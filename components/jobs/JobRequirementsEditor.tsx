@@ -106,7 +106,7 @@ export function JobRequirementsEditor({ value, onChange, disabled }: Props) {
                       disabled={disabled}
                       onClick={() => updateAt(index, { priority: p as JobRequirementPriority })}
                       className={cn(
-                        "rounded-xl border px-3 py-2 text-center text-xs font-semibold tracking-wide transition-colors",
+                        "min-h-11 rounded-xl border px-3 py-2 text-center text-xs font-semibold tracking-wide transition-colors",
                         p === "mandatory" &&
                           active &&
                           "border-rose-400/45 bg-rose-500/20 text-rose-50",

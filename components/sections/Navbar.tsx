@@ -8,13 +8,13 @@ import { SeekerBottomNav } from "@/components/navigation/SeekerBottomNav";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link, usePathname } from "@/i18n/routing";
 import {
   ADMIN_NAV,
   EMPLOYER_NAV,
   GUEST_NAV,
+  SEEKER_MOBILE_NAV,
   SEEKER_NAV,
   type NavItem,
 } from "@/lib/navigation/navConfig";
@@ -138,7 +138,7 @@ export function Navbar() {
     };
   }, [authenticated, role]);
 
-  const navPaths: NavItem[] = authenticated
+  const desktopNavPaths: NavItem[] = authenticated
     ? role === "employer"
       ? EMPLOYER_NAV
       : role === "seeker"
@@ -148,28 +148,32 @@ export function Navbar() {
           : GUEST_NAV
     : GUEST_NAV;
 
+  const mobileNavPaths: NavItem[] =
+    authenticated && role === "seeker" ? SEEKER_MOBILE_NAV : desktopNavPaths;
+
   const showSeekerBottomNav = authenticated && role === "seeker";
 
   const headerBar = cn(
-    "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b px-3 sm:gap-3 sm:px-4 lg:px-5",
-    "border-white/[0.08] bg-[#09090d] lg:bg-[rgba(9,9,13,0.92)] lg:backdrop-blur-md",
-    scrolled && "border-white/[0.10] bg-[rgba(9,9,13,0.96)]",
+    "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b px-4 sm:gap-3 lg:px-5",
+    "border-white/[0.08] bg-[#09090d]",
+    "lg:overflow-hidden lg:rounded-[18px] lg:border lg:border-white/[0.10] lg:bg-[#111116] lg:shadow-[0_10px_28px_-18px_rgba(0,0,0,0.62)]",
+    scrolled && "border-white/[0.10] lg:border-white/[0.12] lg:bg-[#131318]",
   );
 
   return (
     <>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
-        <Container className="pointer-events-auto w-full max-w-[1320px]">
+        <div className="pointer-events-auto mx-auto w-full lg:max-w-[1280px] lg:px-10">
           <div className={headerBar}>
-            <div className="flex h-full shrink-0 items-center">
+            <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden lg:flex-none lg:shrink-0">
               <Logo
-                className="inline-flex h-full items-center"
-                imageClassName="h-[3.15rem] w-[15.25rem] object-cover object-center sm:h-[3.35rem] sm:w-[16.5rem]"
+                className="inline-flex h-full max-w-full items-center"
+                imageClassName="h-8 w-[7.75rem] object-cover object-left sm:h-9 sm:w-[10.5rem] lg:h-[3.35rem] lg:w-[16.5rem] lg:object-center"
                 priority
               />
             </div>
 
-            <DesktopNav items={navPaths} pathname={pathname} t={t} />
+            <DesktopNav items={desktopNavPaths} pathname={pathname} t={t} />
 
             <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
               <div className="hidden items-center gap-1.5 lg:flex">
@@ -231,7 +235,7 @@ export function Navbar() {
                     <SheetTitle className="pr-12">{t("menu")}</SheetTitle>
                     <div className="mt-6 space-y-6">
                       <MobileNavLinks
-                        items={navPaths}
+                        items={mobileNavPaths}
                         pathname={pathname}
                         t={t}
                         onNavigate={() => setMenuOpen(false)}
@@ -281,7 +285,7 @@ export function Navbar() {
               </div>
             </div>
           </div>
-        </Container>
+        </div>
       </header>
 
       {showSeekerBottomNav ? <SeekerBottomNav /> : null}
