@@ -23,9 +23,12 @@ Legend:
   - `tests 221 | suites 60 | pass 221 | fail 0 | skipped 0`
 - `npm run build`: ✅ pass
 - `npm run test:security` (RLS security suite):
-  - `Total 62 | PASS 42 | FAIL 20`
+  - **After remote migration apply:** `Total 86 | PASS 75 | FAIL 11`
+  - Baseline before apply: `Total 62 | PASS 42 | FAIL 20`
 - `node scripts/remote-db-audit.mjs` (remote DB audit):
-  - ❌ NOT VERIFIED (fails fast: `SUPABASE_SERVICE_ROLE_KEY required`)
+  - 🟡 PARTIAL (runs; critical tables/buckets/RPCs verified; migration history not readable via PostgREST)
+- `pg_cron` remote enablement probe (linked DB):
+  - ✅ DONE (`pg_cron` 1.6.4; `cron.job` exists; 2 scheduled jobs active)
 - `npm run test:e2e` (Playwright):
   - `29 passed | 0 failed | 8 skipped`
   - Some WebServer fetch failures occurred due to an unreachable Supabase hostname (`ENOTFOUND example.invalid.supabase.co`), which is why several “live/auth” scenarios were skipped.
@@ -72,25 +75,33 @@ Expected core artifacts (examples; derived from repo content and documented runb
   - `public.notifications` and related dedupe/ledger tables
 
 ### 2.2 Remote verified state (what was actually checked)
+
+**Migration apply (2026-08-19):** 77/77 repository migrations applied to linked remote via `supabase db push --linked` (no `--include-all`). Pending = 0.
+
 Remote DB audit status:
-- `node scripts/remote-db-audit.mjs`: ❌ NOT VERIFIED
-  - Fails fast with: `SUPABASE_SERVICE_ROLE_KEY required`
+- `node scripts/remote-db-audit.mjs`: 🟡 PARTIAL
+  - Critical tables present including `notifications`, `seeker_education`, `seeker_work_capacity`, `seeker_workplace_needs`
+  - Storage: `resumes` (private), `certificates` (private), `avatars` (public)
+  - Migration history table not accessible via PostgREST (CLI authoritative)
 
-RLS security suite status (remote-checked, but failing):
-- Ran successfully *against a Supabase project URL printed by the suite*.
-- Outcome: `Total 62 | PASS 42 | FAIL 20`
-- Representative remote FAIL causes:
-  - Storage buckets missing in remote schema:
-    - “Bucket not found” for resumes (multiple FAILs)
-  - Missing schema objects in remote schema cache:
-    - `public.seeker_work_capacity` not found
-    - `public.seeker_education` not found
-    - `public.notifications` not found
-    - `public.search_discoverable_candidates(...)` missing
-  - Unexpected data exposure / RLS mismatch:
-    - `Anon cannot SELECT employer contact_email` FAIL: unexpected non-null `contact_email`
+- Additional remote schema checks (linked DB):
+  - `pg_cron` extension:
+    - ✅ installed (`1.6.4`)
+  - `cron` schema / jobs:
+    - ✅ `archive-expired-job-posts`, `notify-saved-jobs-near-deadline` scheduled
 
-**Remote readiness conclusion:** 🔴 Not verified to the expected state. Remote security/storage/missing-schema blockers remain.
+RLS security suite status (remote-checked, post-migration):
+- Ran against `https://svqdycsticovpudcgqvq.supabase.co`
+- Outcome: **`Total 86 | PASS 75 | FAIL 11`**
+- Fixed since baseline: resumes bucket, notifications, seeker_education, work_capacity, draft jobs, saved-search cursors, most storage flows
+- Remaining FAIL causes:
+  - `employer_profiles` private columns readable by anon/seeker/other employer (`contact_email`, `registry_code`, `owner_user_id`, `search_tsv`)
+  - `seeker_profiles` owner SELECT/UPDATE: duplicate row / `.single()` coercion
+  - `search_discoverable_candidates`: anon count > 0; pagination overlap
+
+**Remote readiness conclusion:** 🟡 Schema largely aligned; **11 RLS failures remain** — not ready for closed beta until employer column security and discovery RPC issues are resolved.
+
+See also: `docs/remote-beta-readiness.md`
 
 ## 3) AUTH
 
@@ -354,6 +365,18 @@ Status:
 - Complexity:
   - Medium-High
 
+4) Cron-dependent notifications / search alerts cannot be verified or scheduled remotely
+- Component/table:
+  - `cron.job` / `cron.job_run_details` (missing because `pg_cron` extension is absent)
+- Current state:
+  - Remote schema checks show `pg_cron` is not installed; therefore cron relations do not exist and cron-dependent suite paths cannot validate against live job runs.
+- Risk:
+  - 🔴 Functional failure / missing reminders + notification delivery windows.
+- Recommended action:
+  - Apply the repo migrations that wire cron jobs, then verify `pg_cron` exists (`pg_extension`) before re-running `npm run test:security`.
+- Complexity:
+  - High
+
 ### P1 — BEFORE PUBLIC BETA
 
 1) Live end-to-end auth scenarios skipped (environment connectivity / live credentials)
@@ -431,5 +454,9 @@ Legend for TESTED/STATUS:
 
 **NOT READY**
 
-Primary blocker: **REMOTE INFRASTRUCTURE** (Supabase schema/storage/RLS is not verified and the RLS security suite shows multiple remote failures including missing buckets/tables/RPC).
+Primary blocker: **REMOTE INFRASTRUCTURE** — migrations are now fully applied (77/77, pending 0) and most schema/storage gaps are closed, but the RLS security suite still reports **11 failures** (employer private column exposure, seeker profile row integrity, discovery RPC authorization).
+
+Secondary blocker: **CODE** — E2E suite regressed (3 pass / 26 fail) due to WebServer JSON parse errors unrelated to migration apply.
+
+Detailed remote report: `docs/remote-beta-readiness.md`
 

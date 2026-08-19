@@ -80,6 +80,19 @@ node scripts/rls-security-suite.mjs
 node --env-file=.env.local scripts/rls-security-suite.mjs
 ```
 
+## Remote DB Audit (read-only)
+
+The remote DB audit is read-only and uses `SUPABASE_SERVICE_ROLE_KEY` to query schema state via PostgREST.
+
+It will also attempt to read `.env.local` from the repo root automatically (so you typically do not need to pass `--env-file`).
+
+```bash
+node scripts/remote-db-audit.mjs
+```
+
+If `SUPABASE_SERVICE_ROLE_KEY` is missing locally, the script will fail with:
+`SUPABASE_SERVICE_ROLE_KEY required`.
+
 ## pg_cron
 
 pg_cron is not available in local Supabase by default. Migrations that
