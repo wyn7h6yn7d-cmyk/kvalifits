@@ -19,6 +19,7 @@ import { seekerCanUseMatchRanking } from "@/lib/jobs/seekerMatchRanking";
 import { applyCompactJobMatches, getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
 import { emptySeekerMatchContext, loadSeekerMatchContext } from "@/lib/matching/seekerMatchContext";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
+import { isE2eOfflineSupabase } from "@/lib/e2e/offlineHarness";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
 import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
@@ -223,6 +224,25 @@ async function callSearchRpc(supabase: SupabaseClient, args: RpcArgs) {
   return { payload: parseRpcPayload(data), error: null };
 }
 
+function emptyJobSearchPageResult(sort: JobSearchSort): JobSearchPageResult {
+  const facetOptions = Object.fromEntries(ALL_JOB_FILTER_FACETS.map((facet) => [facet, []])) as Record<
+    JobFilterFacet,
+    FacetOption[]
+  >;
+  return {
+    jobs: [],
+    totalCount: 0,
+    currentPage: 1,
+    totalPages: 1,
+    pageSize: JOB_SEARCH_PAGE_SIZE,
+    facetOptions,
+    matchSortAvailable: false,
+    savedJobIds: [],
+    canSaveJobs: true,
+    sort,
+  };
+}
+
 export async function loadPublishedJobSearch(input: {
   supabase: SupabaseClient;
   locale: string;
@@ -232,6 +252,10 @@ export async function loadPublishedJobSearch(input: {
   const { supabase, locale, searchParams, tJobs } = input;
   const parsed = parseJobSearchParams(searchParams);
   const selections = selectionsFromSearchParams(parsed, tJobs);
+
+  if (isE2eOfflineSupabase()) {
+    return emptyJobSearchPageResult(sortFromParams(parsed, false));
+  }
 
   const auth = await getCurrentAuth();
   const userId = auth.userId;

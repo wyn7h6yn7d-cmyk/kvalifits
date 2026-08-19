@@ -26,6 +26,10 @@ export async function loadProfileSecurity(
 
 /** One profiles.role + is_blocked read per user id per request. */
 export const getProfileSecurity = cache(async (userId: string): Promise<ProfileSecurity> => {
-  const supabase = await createSupabaseServerClient();
-  return loadProfileSecurity(supabase, userId);
+  try {
+    const supabase = await createSupabaseServerClient();
+    return loadProfileSecurity(supabase, userId);
+  } catch {
+    return profileLookupFailed();
+  }
 });
