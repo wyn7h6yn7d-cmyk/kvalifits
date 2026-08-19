@@ -24,4 +24,21 @@ describe("buildApiRateLimitBucketKey", () => {
     });
     assert.notEqual(a, b);
   });
+
+  it("isolates storage upload actions per kind", () => {
+    const cv = buildApiRateLimitBucketKey({ action: "storage_cv", ip: "1.2.3.4", userId: "u1" });
+    const cert = buildApiRateLimitBucketKey({
+      action: "storage_certificate",
+      ip: "1.2.3.4",
+      userId: "u1",
+    });
+    const avatar = buildApiRateLimitBucketKey({
+      action: "storage_avatar",
+      ip: "1.2.3.4",
+      userId: "u1",
+    });
+    assert.notEqual(cv, cert);
+    assert.notEqual(cert, avatar);
+    assert.match(cv, /^api:storage_cv:/);
+  });
 });

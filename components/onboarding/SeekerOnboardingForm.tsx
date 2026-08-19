@@ -20,6 +20,7 @@ import {
   type LegalRepresentativeConsentStatus,
 } from "@/lib/seeker/age";
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
+import { consumeUploadRateLimit } from "@/lib/uploads/consumeUploadRateLimit";
 import { persistCvStorageRef } from "@/lib/seeker/cvStorage";
 import { removeCvStorageObject, uploadOwnCvPdf } from "@/lib/seeker/cvUpload";
 import { reportStorageUploadFailure } from "@/lib/monitoring/report";
@@ -242,6 +243,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const ext = (uploadFile.name.split(".").pop() || "jpg").toLowerCase();
       // Private bucket — store object path only (never a permanent public URL).
       const path = buildCertificateObjectPath(user.id, idx, ext);
+      await consumeUploadRateLimit("certificate");
       const { error: uploadErr } = await supabase.storage
         .from(CERTIFICATES_BUCKET)
         .upload(path, uploadFile, {

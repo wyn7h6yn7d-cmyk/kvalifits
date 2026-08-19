@@ -7,12 +7,18 @@ import { clientIpFromHeaders, type RateLimitResult } from "./rateLimit";
 export type ApiRateLimitAction =
   | "job_application"
   | "job_report"
-  | "saved_search_create";
+  | "saved_search_create"
+  | "storage_cv"
+  | "storage_certificate"
+  | "storage_avatar";
 
 const API_RATE_LIMITS: Record<ApiRateLimitAction, { windowSeconds: number; maxHits: number }> = {
   job_application: { windowSeconds: 60 * 60, maxHits: 40 },
   job_report: { windowSeconds: 60 * 60, maxHits: 12 },
   saved_search_create: { windowSeconds: 60 * 60, maxHits: 20 },
+  storage_cv: { windowSeconds: 15 * 60, maxHits: 12 },
+  storage_certificate: { windowSeconds: 15 * 60, maxHits: 20 },
+  storage_avatar: { windowSeconds: 15 * 60, maxHits: 24 },
 };
 
 function hashPart(value: string): string {

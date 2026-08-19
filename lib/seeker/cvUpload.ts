@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { reportStorageUploadFailure } from "@/lib/monitoring/report";
+import { consumeUploadRateLimit } from "@/lib/uploads/consumeUploadRateLimit";
 
 import { MAX_CV_BYTES } from "@/lib/uploads/prepareUploadFile";
 import {
@@ -35,6 +36,8 @@ export async function uploadOwnCvPdf(opts: {
   if (ext !== "pdf" && file.type !== "application/pdf") {
     throw new Error("cv_not_pdf");
   }
+
+  await consumeUploadRateLimit("cv");
 
   const path = buildCvObjectPath(userId, file.name);
   const { error: uploadErr } = await supabase.storage.from(RESUMES_BUCKET).upload(path, file, {
