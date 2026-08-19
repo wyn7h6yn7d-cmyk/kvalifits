@@ -10,6 +10,7 @@ import {
 } from "@/lib/seo/site";
 import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { expandCompanySlugsToSitemapEntries, expandJobsToSitemapEntries } from "@/lib/seo/sitemapEntries";
 
 function staticEntry(
   pathWithoutLocale: string,
@@ -58,7 +59,7 @@ async function publishedJobEntries(): Promise<MetadataRoute.Sitemap> {
           .order("created_at", { ascending: false })
           .limit(5000);
         if (legacy.error || !legacy.data?.length) return [];
-        return expandJobs(
+        return expandJobsToSitemapEntries(
           legacy.data.map((j) => ({
             id: String(j.id),
             lastMod: (j.created_at as string | null) ?? undefined,
@@ -68,7 +69,7 @@ async function publishedJobEntries(): Promise<MetadataRoute.Sitemap> {
       return [];
     }
 
-    return expandJobs(
+    return expandJobsToSitemapEntries(
       data
         .filter((j) =>
           jobAcceptsApplications({
@@ -91,27 +92,6 @@ async function publishedJobEntries(): Promise<MetadataRoute.Sitemap> {
   }
 }
 
-function expandJobs(
-  jobs: { id: string; lastMod?: string }[],
-): MetadataRoute.Sitemap {
-  const out: MetadataRoute.Sitemap = [];
-  for (const job of jobs) {
-    const path = `/tood/${job.id}`;
-    const languages = hreflangLanguages(path);
-    const lastModified = job.lastMod ? new Date(job.lastMod) : new Date();
-    for (const locale of SEO_LOCALES) {
-      out.push({
-        url: absoluteUrl(locale, path),
-        lastModified,
-        changeFrequency: "daily",
-        priority: 0.7,
-        alternates: { languages },
-      });
-    }
-  }
-  return out;
-}
-
 async function publicCompanyEntries(): Promise<MetadataRoute.Sitemap> {
   const supabase = createPublicSupabase();
   if (!supabase) return [];
@@ -132,20 +112,7 @@ async function publicCompanyEntries(): Promise<MetadataRoute.Sitemap> {
       return [];
     }
 
-    const out: MetadataRoute.Sitemap = [];
-    for (const slug of slugs) {
-      const languages = hreflangLanguages(`/ettevotted/${slug}`);
-      for (const locale of SEO_LOCALES) {
-        out.push({
-          url: absoluteUrl(locale, `/ettevotted/${slug}`),
-          lastModified: new Date(),
-          changeFrequency: "weekly",
-          priority: 0.6,
-          alternates: { languages },
-        });
-      }
-    }
-    return out;
+    return expandCompanySlugsToSitemapEntries(slugs);
   } catch {
     return [];
   }

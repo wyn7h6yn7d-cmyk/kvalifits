@@ -21,9 +21,27 @@ import { emptySeekerMatchContext, loadSeekerMatchContext } from "@/lib/matching/
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
+import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 
 export const JOB_SEARCH_PAGE_SIZE = 20;
 export const JOB_SEARCH_MATCH_CANDIDATE_CAP = 200;
+
+export function filterPublishedJobsAcceptingApplicationsForSearch(
+  rows: PublishedJobSearchRow[],
+  asOf: Date = new Date(),
+): PublishedJobSearchRow[] {
+  return rows.filter((row) =>
+    jobAcceptsApplications(
+      {
+        status: (row.status ?? null) as string | null,
+        published_at: (row.published_at ?? null) as string | null,
+        application_deadline: (row.application_deadline ?? null) as string | null,
+        expires_at: (row.expires_at ?? null) as string | null,
+      },
+      asOf,
+    ),
+  );
+}
 
 export type JobSearchPageResult = {
   jobs: Job[];
@@ -356,6 +374,11 @@ async function fallbackPublishedSearch(
     total = count ?? rows.length;
     break;
   }
+
+  // When the RPC isn't available (schema cache, function missing, etc.), we still
+  // must exclude expired/closed listings so the "active jobs" page doesn't
+  // accidentally surface jobs that can't be applied for.
+  rows = filterPublishedJobsAcceptingApplicationsForSearch(rows);
 
   const employerIds = Array.from(
     new Set(rows.map((r) => (r.employer_profile_id ?? "").toString()).filter(Boolean)),
