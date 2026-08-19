@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -15,6 +14,8 @@ import {
   notificationMarkReadPatch,
   type NotificationRow,
 } from "@/lib/notifications/types";
+import { dedupeNotificationsById, sortNotificationsByCreatedAtDesc } from "@/lib/notifications/mergeNotifications";
+import { subscribeToUserNotificationsRealtime } from "@/lib/notifications/realtime";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn, errorMessageFromUnknown } from "@/lib/utils";
 
@@ -26,19 +27,49 @@ function formatWhen(iso: string, locale: string) {
 
 export function NotificationsInbox({
   locale,
+  userId,
   initialRows,
 }: {
   locale: string;
+  userId: string;
   initialRows: NotificationRow[];
 }) {
   const t = useTranslations("notifications");
-  const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [rows, setRows] = useState(initialRows);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const reloadTimerRef = useRef<number | null>(null);
 
   const unread = rows.filter(isNotificationUnread).length;
+
+  const loadRows = useCallback(async () => {
+    const { data, error: loadErr } = await supabase
+      .from("notifications")
+      .select("id,user_id,type,entity_type,entity_id,payload,created_at,read_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (loadErr) throw loadErr;
+
+    const nextRows = ((data ?? []) as NotificationRow[]).map((row) => ({
+      ...row,
+      payload: row.payload && typeof row.payload === "object" ? (row.payload as Record<string, unknown>) : {},
+    }));
+
+    setRows(sortNotificationsByCreatedAtDesc(dedupeNotificationsById(nextRows)));
+  }, [supabase, userId]);
+
+  const scheduleReload = useCallback(() => {
+    if (reloadTimerRef.current) window.clearTimeout(reloadTimerRef.current);
+    reloadTimerRef.current = window.setTimeout(() => {
+      reloadTimerRef.current = null;
+      void loadRows().catch((err) => {
+        setError(errorMessageFromUnknown(err, t("unknownError")));
+      });
+    }, 200);
+  }, [loadRows, t]);
 
   async function markRead(ids: string[]) {
     if (!ids.length) return;
@@ -49,7 +80,6 @@ export function NotificationsInbox({
       const { error: updErr } = await supabase.from("notifications").update(patch).in("id", ids);
       if (updErr) throw updErr;
       setRows((prev) => prev.map((row) => (ids.includes(row.id) ? { ...row, read_at: patch.read_at } : row)));
-      router.refresh();
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
@@ -62,6 +92,28 @@ export function NotificationsInbox({
       await markRead([row.id]);
     }
   }
+
+  useEffect(() => {
+    void loadRows().catch((err) => {
+      setError(errorMessageFromUnknown(err, t("unknownError")));
+    });
+
+    const onFocus = () => scheduleReload();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      if (reloadTimerRef.current) window.clearTimeout(reloadTimerRef.current);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [loadRows, scheduleReload, t]);
+
+  useEffect(() => {
+    const cleanup = subscribeToUserNotificationsRealtime({
+      supabase,
+      userId,
+      onEvent: () => scheduleReload(),
+    });
+    return cleanup;
+  }, [scheduleReload, supabase, userId]);
 
   if (!rows.length) {
     return (

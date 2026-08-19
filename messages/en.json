@@ -18,7 +18,8 @@
     "retry": "Try again",
     "notFoundTitle": "Page not found",
     "notFoundBody": "The page you requested is not available.",
-    "notFoundHome": "Back to home"
+    "notFoundHome": "Back to home",
+    "accountHome": "Back to account home"
   },
   "nav": {
     "brandHome": "Kvalifits home",
@@ -272,6 +273,9 @@
     "auditPagePrev": "Previous",
     "auditPageNext": "Next",
     "auditPageStatus": "{page} / {pages}",
+    "paginationPrev": "Previous",
+    "paginationNext": "Next",
+    "paginationStatus": "Page {page}/{totalPages} ({totalCount})",
     "auditTargets": {
       "certificate": "Certificate",
       "employer": "Company",
@@ -1841,7 +1845,10 @@
     "salaryMin": "Salary min (optional)",
     "salaryMax": "Salary max (optional)",
     "salaryCurrency": "Currency",
-    "applicationUrl": "Application URL"
+    "applicationUrl": "Application URL",
+    "paginationPrev": "Previous",
+    "paginationNext": "Next",
+    "paginationStatus": "Page {page}/{totalPages} ({totalCount})"
   },
   "jobsFacets": {
     "sertifikaat": "Certifications & licences",
@@ -1867,7 +1874,10 @@
     "aboutTitle": "About the company",
     "activeJobsTitle": "Open jobs",
     "activeJobsEmpty": "There are no open jobs right now.",
-    "openJob": "View job"
+    "openJob": "View job",
+    "paginationPrev": "Previous",
+    "paginationNext": "Next",
+    "paginationStatus": "Page {page}/{totalPages} ({totalCount})"
   },
   "jobCard": {
     "labelLocation": "Location",
@@ -1900,7 +1910,10 @@
     "emptyCta": "Browse jobs",
     "inactive": "Inactive",
     "deadline": "Apply until",
-    "deadlineUnknown": "No deadline listed"
+    "deadlineUnknown": "No deadline listed",
+    "paginationPrev": "Previous",
+    "paginationNext": "Next",
+    "paginationStatus": "Page {page}/{totalPages} ({totalCount})"
   },
   "notifications": {
     "title": "Notifications",

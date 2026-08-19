@@ -19,11 +19,18 @@ export function isAppRole(value: unknown): value is AppRole {
 
 /** One Auth getUser() per server request. */
 export const getAuthUser = cache(async () => {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) return null;
+    return user;
+  } catch {
+    // Placeholder/offline Supabase hosts (e.g. Playwright) must not crash public pages.
+    return null;
+  }
 });
 
 /** Session + profiles.role for shared UI. Not an authorization check for mutations. */

@@ -9,13 +9,16 @@ import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
 import { loadEmployerInboxJobOptions } from "@/lib/employer/loadEmployerInboxJobOptions";
 import type { ApplicantApplicationRow } from "@/lib/employer/applicantScan";
 import { firstCvStorageRef } from "@/lib/seeker/cvStorage";
+import { parsePaginationParams, paginationRange, buildPaginatedResult } from "@/lib/pagination/serverPagination";
 
-type Props = { params: Promise<{ locale: string; id: string }> };
+type Props = { params: Promise<{ locale: string; id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export const dynamic = "force-dynamic";
 
-export default async function EmployerJobApplicantsPage({ params }: Props) {
+export default async function EmployerJobApplicantsPage({ params, searchParams }: Props) {
   const { locale, id } = await params;
+  const sp = await searchParams;
+  const pagination = parsePaginationParams(sp, 25);
   const t = await getTranslations({ locale, namespace: "jobs" });
 
   const { user, role, nextPath } = await getRoleAndNextPath(locale);
@@ -30,36 +33,47 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
 
   const jobs = await loadEmployerInboxJobOptions(supabase, user.id);
 
-  let { data: applications, error: appErr } = await supabase
+  const { from, to } = paginationRange(pagination);
+
+  let { data: applications, error: appErr, count: totalCount } = await supabase
     .from("job_applications")
     .select(
       "id,seeker_user_id,created_at,status,status_updated_at,cover_letter,match_score,match_breakdown,shared_profile,application_answers",
+      { count: "exact" },
     )
     .eq("job_post_id", id)
-    .limit(200);
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (appErr && /status_updated_at/i.test(appErr.message ?? "")) {
     const fallback = await supabase
       .from("job_applications")
       .select(
         "id,seeker_user_id,created_at,status,cover_letter,match_score,match_breakdown,shared_profile,application_answers",
+        { count: "exact" },
       )
       .eq("job_post_id", id)
-      .limit(200);
+      .order("created_at", { ascending: false })
+      .range(from, to);
     applications = fallback.data as typeof applications;
     appErr = fallback.error;
+    totalCount = fallback.count;
   }
 
   if (appErr && /application_answers|cover_letter|column/i.test(appErr.message ?? "")) {
     const fallback = await supabase
       .from("job_applications")
-      .select("id,seeker_user_id,created_at,status,match_score,match_breakdown,shared_profile")
+      .select("id,seeker_user_id,created_at,status,match_score,match_breakdown,shared_profile", { count: "exact" })
       .eq("job_post_id", id)
-      .limit(200);
+      .order("created_at", { ascending: false })
+      .range(from, to);
     applications = fallback.data as typeof applications;
     appErr = fallback.error;
+    totalCount = fallback.count;
   }
   if (appErr) throw appErr;
+
+  const paginatedMeta = buildPaginatedResult([], totalCount ?? 0, pagination);
 
   const apps = applications ?? [];
   const seekerIds = [...new Set(apps.map((a) => a.seeker_user_id).filter(Boolean))] as string[];
@@ -124,6 +138,29 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
   return (
     <AccountCalmShell title={t("applicantsTitle")} subtitle={t("inboxSubtitle")} maxWidthClassName="max-w-7xl">
           <EmployerApplicantList locale={locale} jobPostId={id} applications={enriched} jobs={jobs} />
+          {paginatedMeta.totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between text-sm">
+              {paginatedMeta.page > 1 ? (
+                <a
+                  href={`/${locale}/account/employer/jobs/${id}/applicants?page=${paginatedMeta.page - 1}`}
+                  className="text-white/70 hover:text-white"
+                >
+                  ← {t("paginationPrev")}
+                </a>
+              ) : <span />}
+              <span className="text-white/50 tabular-nums">
+                {t("paginationStatus", { page: paginatedMeta.page, totalPages: paginatedMeta.totalPages, totalCount: paginatedMeta.totalCount })}
+              </span>
+              {paginatedMeta.page < paginatedMeta.totalPages ? (
+                <a
+                  href={`/${locale}/account/employer/jobs/${id}/applicants?page=${paginatedMeta.page + 1}`}
+                  className="text-white/70 hover:text-white"
+                >
+                  {t("paginationNext")} →
+                </a>
+              ) : <span />}
+            </div>
+          )}
         </AccountCalmShell>
   );
 }

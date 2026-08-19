@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { useCurrentAuth } from "@/components/auth/CurrentAuthProvider";
 import { Link } from "@/i18n/routing";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { subscribeToUserNotificationsRealtime } from "@/lib/notifications/realtime";
 import { cn } from "@/lib/utils";
 
 function isMissingNotificationsTable(message: string | undefined) {
@@ -16,18 +17,20 @@ function isMissingNotificationsTable(message: string | undefined) {
 
 export function NotificationBell() {
   const t = useTranslations("notifications");
-  const { authenticated } = useCurrentAuth();
+  const { authenticated, userId } = useCurrentAuth();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [unread, setUnread] = useState(0);
+  const reloadTimerRef = useRef<number | null>(null);
 
   const load = useCallback(async () => {
-    if (!authenticated) {
+    if (!authenticated || !userId) {
       setUnread(0);
       return;
     }
     const { count, error } = await supabase
       .from("notifications")
       .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
       .is("read_at", null);
     if (error) {
       if (!isMissingNotificationsTable(error.message)) {
@@ -36,19 +39,41 @@ export function NotificationBell() {
       return;
     }
     setUnread(count ?? 0);
-  }, [authenticated, supabase]);
+  }, [authenticated, supabase, userId]);
+
+  const scheduleReload = useCallback(() => {
+    if (reloadTimerRef.current) window.clearTimeout(reloadTimerRef.current);
+    reloadTimerRef.current = window.setTimeout(() => {
+      reloadTimerRef.current = null;
+      void load();
+    }, 200);
+  }, [load]);
 
   useEffect(() => {
+    if (!authenticated || !userId) return;
     const timer = window.setTimeout(() => {
       void load();
     }, 0);
-    const onFocus = () => void load();
+    const onFocus = () => scheduleReload();
     window.addEventListener("focus", onFocus);
     return () => {
       window.clearTimeout(timer);
+      if (reloadTimerRef.current) window.clearTimeout(reloadTimerRef.current);
       window.removeEventListener("focus", onFocus);
     };
-  }, [load]);
+  }, [authenticated, scheduleReload, userId, load]);
+
+  useEffect(() => {
+    if (!authenticated || !userId) return;
+    const cleanup = subscribeToUserNotificationsRealtime({
+      supabase,
+      userId,
+      onEvent: () => {
+        scheduleReload();
+      },
+    });
+    return cleanup;
+  }, [authenticated, supabase, scheduleReload, userId]);
 
   if (!authenticated) return null;
 

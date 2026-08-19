@@ -16,8 +16,6 @@ export type NavKey =
   | "employerOverview"
   | "employerJobPosts"
   | "candidates"
-  | "employerMessages"
-  | "employerCompany"
   | "admin"
   | "adminModeration";
 

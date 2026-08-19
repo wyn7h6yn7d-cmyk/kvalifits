@@ -12,7 +12,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string; industry?: string; location?: string }>;
+  searchParams: Promise<{ q?: string; industry?: string; location?: string; page?: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -35,6 +35,16 @@ function firstString(v: string | string[] | undefined): string {
   return (v ?? "").toString();
 }
 
+function buildCompanyPageUrl(q: string, industry: string, location: string, page: number): string {
+  const sp = new URLSearchParams();
+  if (q) sp.set("q", q);
+  if (industry) sp.set("industry", industry);
+  if (location) sp.set("location", location);
+  if (page > 1) sp.set("page", String(page));
+  const qs = sp.toString();
+  return qs ? `?${qs}` : "?";
+}
+
 export default async function EttevottedPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
@@ -45,11 +55,15 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
   const industry = firstString(sp.industry).trim();
   const location = firstString(sp.location).trim();
 
+  const rawPage = parseInt(firstString(sp.page) || "1", 10);
+  const page = Number.isFinite(rawPage) && rawPage >= 1 ? rawPage : 1;
+
   const supabase = await createSupabaseServerClient();
-  const { companies, industries, locations } = await loadPublicCompanies(supabase, {
+  const { companies, industries, locations, totalCount, totalPages, page: currentPage } = await loadPublicCompanies(supabase, {
     q,
     industry,
     location,
+    page,
   });
 
   return (
@@ -80,13 +94,28 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
               title={q || industry || location ? tUi("emptyFiltered") : tUi("empty")}
             />
           ) : (
-            <ul className="mx-auto grid max-w-4xl list-none gap-3 p-0 sm:gap-4">
-              {companies.map((company) => (
-                <li key={company.id}>
-                  <CompanyCard company={company} verifiedLabel={tUi("verifiedBadge")} />
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul className="mx-auto grid max-w-4xl list-none gap-3 p-0 sm:gap-4">
+                {companies.map((company) => (
+                  <li key={company.id}>
+                    <CompanyCard company={company} verifiedLabel={tUi("verifiedBadge")} />
+                  </li>
+                ))}
+              </ul>
+              {totalPages > 1 && (
+                <div className="mx-auto mt-6 flex max-w-4xl items-center justify-between text-sm">
+                  {currentPage > 1 ? (
+                    <a href={buildCompanyPageUrl(q, industry, location, currentPage - 1)} className="text-white/70 hover:text-white">← {tUi("paginationPrev")}</a>
+                  ) : <span />}
+                  <span className="text-white/50 tabular-nums">
+                    {tUi("paginationStatus", { page: currentPage, totalPages, totalCount })}
+                  </span>
+                  {currentPage < totalPages ? (
+                    <a href={buildCompanyPageUrl(q, industry, location, currentPage + 1)} className="text-white/70 hover:text-white">{tUi("paginationNext")} →</a>
+                  ) : <span />}
+                </div>
+              )}
+            </>
           )}
         </Container>
       </section>

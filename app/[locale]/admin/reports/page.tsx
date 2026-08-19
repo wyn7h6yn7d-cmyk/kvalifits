@@ -4,19 +4,23 @@ import { getTranslations } from "next-intl/server";
 import { AdminJobReportsTable } from "@/components/admin/AdminJobReportsTable";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
+import { parsePaginationParams, paginationRange, buildPaginatedResult } from "@/lib/pagination/serverPagination";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function AdminJobReportsPage({ params }: Props) {
+export default async function AdminJobReportsPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const sp = await searchParams;
+  const pagination = parsePaginationParams(sp, 30);
+  const { from, to } = paginationRange(pagination);
   const { supabase } = await requireAdmin(locale);
   const t = await getTranslations({ locale, namespace: "admin" });
 
-  const { data: reports } = await supabase
+  const { data: reports, count: totalCount } = await supabase
     .from("job_post_reports")
-    .select("id,job_post_id,reason,details,status,admin_notes,created_at")
+    .select("id,job_post_id,reason,details,status,admin_notes,created_at", { count: "exact" })
     .order("created_at", { ascending: false })
-    .limit(200);
+    .range(from, to);
 
   const jobIds = Array.from(
     new Set((reports ?? []).map((r) => (r as { job_post_id: string }).job_post_id).filter(Boolean))
@@ -47,6 +51,8 @@ export default async function AdminJobReportsPage({ params }: Props) {
     ])
   );
 
+  const paginated = buildPaginatedResult([], totalCount ?? 0, pagination);
+
   return (
     <AdminShell title={t("reportsTitle")} subtitle={t("reportsSubtitle")} maxWidthClassName="max-w-3xl">
       <AdminJobReportsTable
@@ -59,6 +65,19 @@ export default async function AdminJobReportsPage({ params }: Props) {
           };
         })}
       />
+      {paginated.totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm">
+          {paginated.page > 1 ? (
+            <a href={`/${locale}/admin/reports?page=${paginated.page - 1}`} className="text-white/70 hover:text-white">← {t("paginationPrev")}</a>
+          ) : <span />}
+          <span className="text-white/50 tabular-nums">
+            {t("paginationStatus", { page: paginated.page, totalPages: paginated.totalPages, totalCount: paginated.totalCount })}
+          </span>
+          {paginated.page < paginated.totalPages ? (
+            <a href={`/${locale}/admin/reports?page=${paginated.page + 1}`} className="text-white/70 hover:text-white">{t("paginationNext")} →</a>
+          ) : <span />}
+        </div>
+      )}
     </AdminShell>
   );
 }

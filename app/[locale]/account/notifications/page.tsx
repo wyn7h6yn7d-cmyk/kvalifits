@@ -37,7 +37,7 @@ export default async function NotificationsPage({ params }: Props) {
 
   return (
     <AuthShell title={t("title")} subtitle={t("subtitle")} maxWidthClassName="max-w-3xl">
-      <NotificationsInbox locale={locale} initialRows={rows} />
+      <NotificationsInbox locale={locale} userId={user.id} initialRows={rows} />
     </AuthShell>
   );
 }

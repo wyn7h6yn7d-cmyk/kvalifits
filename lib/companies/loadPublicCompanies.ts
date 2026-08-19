@@ -4,7 +4,6 @@ import { isE2eOfflineSupabase } from "@/lib/e2e/offlineHarness";
 import {
   PUBLIC_COMPANY_SELECT,
   PUBLIC_COMPANY_SELECT_LEGACY,
-  foldSearchText,
   isMissingDbObjectError,
   mapPublicCompanyRow,
   uniqueSorted,
@@ -20,33 +19,66 @@ export type PublicCompanyFilters = {
 };
 
 const DEFAULT_COMPANY_PAGE_SIZE = 30;
+const FACET_SCAN_LIMIT = 2000;
 
-async function fetchPublicCompanyRows(supabase: SupabaseClient): Promise<Record<string, unknown>[]> {
+function sanitizeIlike(raw: string): string {
+  return raw.trim().slice(0, 120).replace(/[%_\\]/g, " ");
+}
+
+async function queryCompanyPage(
+  supabase: SupabaseClient,
+  tableOrView: "employer_public_profiles" | "employer_profiles",
+  select: string,
+  filters: PublicCompanyFilters,
+  page: number,
+  pageSize: number,
+): Promise<{ rows: Record<string, unknown>[]; totalCount: number } | null> {
+  const q = sanitizeIlike(filters.q ?? "");
+  const industry = (filters.industry ?? "").trim();
+  const location = (filters.location ?? "").trim();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase.from(tableOrView).select(select, { count: "exact" });
+  if (industry) query = query.eq("industry", industry);
+  if (location) query = query.eq("location", location);
+  if (q) query = query.ilike("company_name", `%${q}%`);
+
+  const { data, error, count } = await query.order("company_name", { ascending: true }).range(from, to);
+  if (error) return null;
+  return { rows: (data ?? []) as unknown as Record<string, unknown>[], totalCount: count ?? 0 };
+}
+
+async function fetchFacetValues(supabase: SupabaseClient): Promise<{ industries: string[]; locations: string[] }> {
   const fromView = await supabase
     .from("employer_public_profiles")
-    .select(PUBLIC_COMPANY_SELECT)
+    .select("industry,location")
     .order("company_name", { ascending: true })
-    .limit(1000);
+    .limit(FACET_SCAN_LIMIT);
 
-  if (!fromView.error) return (fromView.data ?? []) as Record<string, unknown>[];
-  if (!isMissingDbObjectError(fromView.error.message)) throw fromView.error;
+  if (!fromView.error && fromView.data) {
+    const rows = fromView.data as { industry?: string | null; location?: string | null }[];
+    return {
+      industries: uniqueSorted(rows.map((r) => r.industry)),
+      locations: uniqueSorted(rows.map((r) => r.location)),
+    };
+  }
+
+  if (!isMissingDbObjectError(fromView.error?.message ?? "")) {
+    throw fromView.error;
+  }
 
   const fromTable = await supabase
     .from("employer_profiles")
-    .select(PUBLIC_COMPANY_SELECT)
+    .select("industry,location")
     .order("company_name", { ascending: true })
-    .limit(1000);
-
-  if (!fromTable.error) return (fromTable.data ?? []) as Record<string, unknown>[];
-  if (!isMissingDbObjectError(fromTable.error.message)) throw fromTable.error;
-
-  const legacy = await supabase
-    .from("employer_profiles")
-    .select(PUBLIC_COMPANY_SELECT_LEGACY)
-    .order("company_name", { ascending: true })
-    .limit(1000);
-  if (legacy.error) throw legacy.error;
-  return (legacy.data ?? []) as Record<string, unknown>[];
+    .limit(FACET_SCAN_LIMIT);
+  if (fromTable.error) throw fromTable.error;
+  const rows = (fromTable.data ?? []) as { industry?: string | null; location?: string | null }[];
+  return {
+    industries: uniqueSorted(rows.map((r) => r.industry)),
+    locations: uniqueSorted(rows.map((r) => r.location)),
+  };
 }
 
 export async function loadPublicCompanies(
@@ -64,28 +96,40 @@ export async function loadPublicCompanies(
     return { companies: [], industries: [], locations: [], totalCount: 0, page: 1, totalPages: 1 };
   }
 
-  const rows = await fetchPublicCompanyRows(supabase);
-  const all = rows.map(mapPublicCompanyRow).filter((c): c is PublicCompany => Boolean(c));
-  const industries = uniqueSorted(all.map((c) => c.industry));
-  const locations = uniqueSorted(all.map((c) => c.location));
-
-  const q = foldSearchText(filters.q ?? "");
-  const industry = (filters.industry ?? "").trim();
-  const location = (filters.location ?? "").trim();
-
-  const filtered = all.filter((c) => {
-    if (q && !foldSearchText(c.name).includes(q)) return false;
-    if (industry && (c.industry ?? "") !== industry) return false;
-    if (location && (c.location ?? "") !== location) return false;
-    return true;
-  });
-
   const pageSize = filters.pageSize ?? DEFAULT_COMPANY_PAGE_SIZE;
-  const totalCount = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-  const page = Math.min(Math.max(1, filters.page ?? 1), totalPages);
-  const start = (page - 1) * pageSize;
-  const companies = filtered.slice(start, start + pageSize);
+  const requestedPage = Math.max(1, filters.page ?? 1);
 
-  return { companies, industries, locations, totalCount, page, totalPages };
+  let pageResult =
+    (await queryCompanyPage(supabase, "employer_public_profiles", PUBLIC_COMPANY_SELECT, filters, requestedPage, pageSize)) ??
+    (await queryCompanyPage(supabase, "employer_profiles", PUBLIC_COMPANY_SELECT, filters, requestedPage, pageSize));
+
+  if (!pageResult) {
+    pageResult = await queryCompanyPage(
+      supabase,
+      "employer_profiles",
+      PUBLIC_COMPANY_SELECT_LEGACY,
+      filters,
+      requestedPage,
+      pageSize,
+    );
+  }
+
+  if (!pageResult) {
+    throw new Error("public_companies_query_failed");
+  }
+
+  const totalCount = pageResult.totalCount;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const page = Math.min(requestedPage, totalPages);
+  const companies = pageResult.rows.map(mapPublicCompanyRow).filter((c): c is PublicCompany => Boolean(c));
+  const { industries, locations } = await fetchFacetValues(supabase);
+
+  return {
+    companies,
+    industries,
+    locations,
+    totalCount,
+    page,
+    totalPages,
+  };
 }

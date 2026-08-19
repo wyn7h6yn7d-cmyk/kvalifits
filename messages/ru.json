@@ -18,7 +18,8 @@
     "retry": "Попробовать снова",
     "notFoundTitle": "Страница не найдена",
     "notFoundBody": "Запрошенная страница недоступна.",
-    "notFoundHome": "На главную"
+    "notFoundHome": "На главную",
+    "accountHome": "На главную аккаунта"
   },
   "nav": {
     "brandHome": "Kvalifits — главная",
@@ -272,6 +273,9 @@
     "auditPagePrev": "Назад",
     "auditPageNext": "Далее",
     "auditPageStatus": "{page} / {pages}",
+    "paginationPrev": "Назад",
+    "paginationNext": "Далее",
+    "paginationStatus": "Стр. {page}/{totalPages} ({totalCount})",
     "auditTargets": {
       "certificate": "Сертификат",
       "employer": "Компания",
@@ -1841,7 +1845,10 @@
     "salaryMin": "Зарплата от (необязательно)",
     "salaryMax": "Зарплата до (необязательно)",
     "salaryCurrency": "Валюта",
-    "applicationUrl": "Ссылка для отклика"
+    "applicationUrl": "Ссылка для отклика",
+    "paginationPrev": "Назад",
+    "paginationNext": "Далее",
+    "paginationStatus": "Стр. {page}/{totalPages} ({totalCount})"
   },
   "jobsFacets": {
     "sertifikaat": "Сертификаты и допуски",
@@ -1867,7 +1874,10 @@
     "aboutTitle": "О компании",
     "activeJobsTitle": "Актуальные вакансии",
     "activeJobsEmpty": "Сейчас нет актуальных вакансий.",
-    "openJob": "Открыть вакансию"
+    "openJob": "Открыть вакансию",
+    "paginationPrev": "Назад",
+    "paginationNext": "Далее",
+    "paginationStatus": "Стр. {page}/{totalPages} ({totalCount})"
   },
   "jobCard": {
     "labelLocation": "Локация",
@@ -1900,7 +1910,10 @@
     "emptyCta": "Смотреть вакансии",
     "inactive": "Неактивна",
     "deadline": "Подать до",
-    "deadlineUnknown": "Срок не указан"
+    "deadlineUnknown": "Срок не указан",
+    "paginationPrev": "Назад",
+    "paginationNext": "Далее",
+    "paginationStatus": "Стр. {page}/{totalPages} ({totalCount})"
   },
   "notifications": {
     "title": "Уведомления",

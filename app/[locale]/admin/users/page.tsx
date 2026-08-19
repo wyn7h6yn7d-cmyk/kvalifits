@@ -4,8 +4,9 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminUsersTable } from "@/components/admin/AdminUsersTable";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { parsePaginationParams } from "@/lib/pagination/serverPagination";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 type ProfileRow = {
   id: string;
@@ -18,8 +19,10 @@ type ProfileRow = {
 type SeekerRow = { user_id: string; profile_visible: boolean | null; is_complete: boolean | null };
 type EmployerRow = { owner_user_id: string };
 
-export default async function AdminUsersPage({ params }: Props) {
+export default async function AdminUsersPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const sp = await searchParams;
+  const pagination = parsePaginationParams(sp, 30);
   const t = await getTranslations({ locale, namespace: "admin" });
   const { supabase, user } = await requireAdmin(locale);
 
@@ -32,7 +35,7 @@ export default async function AdminUsersPage({ params }: Props) {
   const metaRoleById = new Map<string, string>();
 
   if (admin) {
-    const { data, error } = await admin.auth.admin.listUsers({ perPage: 300 });
+    const { data, error } = await admin.auth.admin.listUsers({ page: pagination.page, perPage: pagination.pageSize });
     if (error) throw error;
     for (const u of data.users) {
       ids.push(u.id);
@@ -43,11 +46,13 @@ export default async function AdminUsersPage({ params }: Props) {
     }
   } else {
     // Fallback: without service-role we can't list auth users, so use profiles table (RLS applies).
+    const from = (pagination.page - 1) * pagination.pageSize;
+    const to = from + pagination.pageSize - 1;
     const { data: fallbackProfiles } = await supabase
       .from("profiles")
       .select("id,email,role,created_at,is_blocked")
       .order("created_at", { ascending: false })
-      .limit(300);
+      .range(from, to);
     ids = (fallbackProfiles ?? []).map((p) => p.id);
     for (const p of fallbackProfiles ?? []) {
       if (p.email) emailById.set(p.id, p.email);
@@ -87,6 +92,15 @@ export default async function AdminUsersPage({ params }: Props) {
           <div className="mt-1">{t("limitedViewBody")}</div>
         </div>
       ) : null}
+      <div className="mb-4 flex items-center justify-between text-sm">
+        {pagination.page > 1 ? (
+          <a href={`/${locale}/admin/users?page=${pagination.page - 1}`} className="text-white/70 hover:text-white">← {t("paginationPrev")}</a>
+        ) : <span />}
+        <span className="text-white/50 tabular-nums">{t("paginationStatus", { page: pagination.page, totalPages: "?", totalCount: ids.length })}</span>
+        {ids.length >= pagination.pageSize ? (
+          <a href={`/${locale}/admin/users?page=${pagination.page + 1}`} className="text-white/70 hover:text-white">{t("paginationNext")} →</a>
+        ) : <span />}
+      </div>
       <AdminUsersTable
             locale={locale}
             actorId={user.id}

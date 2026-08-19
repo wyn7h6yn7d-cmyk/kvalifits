@@ -18,7 +18,8 @@
     "retry": "Proovi uuesti",
     "notFoundTitle": "Lehte ei leitud",
     "notFoundBody": "Otsitud lehte ei ole.",
-    "notFoundHome": "Avalehele"
+    "notFoundHome": "Avalehele",
+    "accountHome": "Tagasi konto avalehele"
   },
   "nav": {
     "brandHome": "Kvalifits avaleht",
@@ -272,6 +273,9 @@
     "auditPagePrev": "Eelmine",
     "auditPageNext": "Järgmine",
     "auditPageStatus": "{page} / {pages}",
+    "paginationPrev": "Eelmine",
+    "paginationNext": "Järgmine",
+    "paginationStatus": "Leht {page}/{totalPages} ({totalCount})",
     "auditTargets": {
       "certificate": "Sertifikaat",
       "employer": "Ettevõte",
@@ -1841,7 +1845,10 @@
     "salaryMin": "Palk alates",
     "salaryMax": "Palk kuni",
     "salaryCurrency": "Valuuta",
-    "applicationUrl": "Kandideerimise link"
+    "applicationUrl": "Kandideerimise link",
+    "paginationPrev": "Eelmine",
+    "paginationNext": "Järgmine",
+    "paginationStatus": "Leht {page}/{totalPages} ({totalCount})"
   },
   "jobsFacets": {
     "sertifikaat": "Sertifikaadid ja load",
@@ -1867,7 +1874,10 @@
     "aboutTitle": "Ettevõttest",
     "activeJobsTitle": "Aktiivsed tööpakkumised",
     "activeJobsEmpty": "Hetkel pole aktiivseid tööpakkumisi.",
-    "openJob": "Vaata tööpakkumist"
+    "openJob": "Vaata tööpakkumist",
+    "paginationPrev": "Eelmine",
+    "paginationNext": "Järgmine",
+    "paginationStatus": "Leht {page}/{totalPages} ({totalCount})"
   },
   "jobCard": {
     "labelLocation": "Asukoht",
@@ -1900,7 +1910,10 @@
     "emptyCta": "Vaata tööpakkumisi",
     "inactive": "Mitteaktiivne",
     "deadline": "Kandideeri kuni",
-    "deadlineUnknown": "Tähtaeg pole märgitud"
+    "deadlineUnknown": "Tähtaeg pole märgitud",
+    "paginationPrev": "Eelmine",
+    "paginationNext": "Järgmine",
+    "paginationStatus": "Leht {page}/{totalPages} ({totalCount})"
   },
   "notifications": {
     "title": "Teavitused",

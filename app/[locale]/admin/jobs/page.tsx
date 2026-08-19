@@ -5,20 +5,24 @@ import { AdminJobsTable } from "@/components/admin/AdminJobsTable";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { parsePaginationParams, paginationRange, buildPaginatedResult } from "@/lib/pagination/serverPagination";
 
-type Props = { params: Promise<{ locale: string }> };
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function AdminJobsPage({ params }: Props) {
+export default async function AdminJobsPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const sp = await searchParams;
+  const pagination = parsePaginationParams(sp, 30);
+  const { from, to } = paginationRange(pagination);
   const { supabase } = await requireAdmin(locale);
   const t = await getTranslations({ locale, namespace: "admin" });
   const db = createSupabaseAdminClient() ?? supabase;
 
-  const { data: jobs } = await db
+  const { data: jobs, count: totalCount } = await db
     .from("job_posts")
-    .select("id,title,status,location,created_at,updated_at,employer_profile_id")
+    .select("id,title,status,location,created_at,updated_at,employer_profile_id", { count: "exact" })
     .order("created_at", { ascending: false })
-    .limit(200);
+    .range(from, to);
 
   const employerIds = Array.from(
     new Set((jobs ?? []).map((j) => (j as { employer_profile_id?: string | null }).employer_profile_id).filter(Boolean))
@@ -30,6 +34,8 @@ export default async function AdminJobsPage({ params }: Props) {
 
   const employerNameById = new Map((employers ?? []).map((e) => [e.id, e.company_name ?? "—"]));
 
+  const paginated = buildPaginatedResult([], totalCount ?? 0, pagination);
+
   return (
     <AdminShell title={t("jobsTitle")} subtitle={t("jobsSubtitle")}>
       <AdminJobsTable
@@ -38,6 +44,19 @@ export default async function AdminJobsPage({ params }: Props) {
           employer_name: employerNameById.get((j as any).employer_profile_id) ?? "—",
         }))}
       />
+      {paginated.totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm">
+          {paginated.page > 1 ? (
+            <a href={`/${locale}/admin/jobs?page=${paginated.page - 1}`} className="text-white/70 hover:text-white">← {t("paginationPrev")}</a>
+          ) : <span />}
+          <span className="text-white/50 tabular-nums">
+            {t("paginationStatus", { page: paginated.page, totalPages: paginated.totalPages, totalCount: paginated.totalCount })}
+          </span>
+          {paginated.page < paginated.totalPages ? (
+            <a href={`/${locale}/admin/jobs?page=${paginated.page + 1}`} className="text-white/70 hover:text-white">{t("paginationNext")} →</a>
+          ) : <span />}
+        </div>
+      )}
     </AdminShell>
   );
 }

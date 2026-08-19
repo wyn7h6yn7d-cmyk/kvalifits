@@ -23,19 +23,13 @@ export async function loadEmployerInboxJobOptions(
   const list = jobs ?? [];
   if (!list.length) return [];
 
-  const ids = list.map((j) => j.id);
-  const { data: apps, error: appErr } = await supabase
-    .from("job_applications")
-    .select("job_post_id")
-    .in("job_post_id", ids)
-    .limit(2000);
-  if (appErr) throw appErr;
-
   const counts = new Map<string, number>();
-  for (const row of apps ?? []) {
-    const id = (row.job_post_id ?? "").toString();
-    if (!id) continue;
-    counts.set(id, (counts.get(id) ?? 0) + 1);
+  for (const job of list) {
+    const { count, error: cErr } = await supabase
+      .from("job_applications")
+      .select("id", { count: "exact", head: true })
+      .eq("job_post_id", job.id);
+    if (!cErr) counts.set(job.id, count ?? 0);
   }
 
   return list.map((j) => ({
