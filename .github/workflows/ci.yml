@@ -5,14 +5,13 @@ on:
     branches: [main]
   pull_request:
 
-# Ordinary CI does not use production secrets. Dummy NEXT_PUBLIC_* values let
-# Next build and Playwright start without a live Supabase project.
+# Ordinary CI does not use production secrets.
+# Playwright config provides non-production placeholders and live tests are skipped
+# unless real E2E credentials + Supabase keys are configured.
 # Sentry DSN / auth token are intentionally unset (SDK no-op, no source-map upload).
 # Live RLS: npm run test:security (workflow rls-security.yml, manual).
 
-env:
-  NEXT_PUBLIC_SUPABASE_URL: https://example.invalid.supabase.co
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJub25lIn0.e30.
+env: {}
 
 jobs:
   ci:

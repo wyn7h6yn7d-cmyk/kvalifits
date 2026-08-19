@@ -3,18 +3,60 @@
  * Read-only remote Supabase database audit.
  * Uses service_role key via PostgREST RPC to inspect schema state.
  */
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const url =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  "https://svqdycsticovpudcgqvq.supabase.co";
+function loadEnvFile(path) {
+  try {
+    const text = readFileSync(path, "utf8");
+    for (const line of text.split("\n")) {
+      const s = line.trim();
+      if (!s || s.startsWith("#") || !s.includes("=")) continue;
+      const i = s.indexOf("=");
+      const k = s.slice(0, i).trim();
+      let v = s.slice(i + 1).trim();
+      if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+        v = v.slice(1, -1);
+      }
+      if (!(k in process.env)) process.env[k] = v;
+    }
+  } catch {
+    // optional
+  }
+}
+
+function decodeJwtPayload(jwt) {
+  const part = jwt.split(".")[1];
+  const pad = "=".repeat((4 - (part.length % 4)) % 4);
+  return JSON.parse(Buffer.from(part + pad, "base64url").toString("utf8"));
+}
+
+// Load `.env.local` automatically so local runs don't need manual exports.
+loadEnvFile(join(process.cwd(), ".env.local"));
+
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!key) {
   console.error("SUPABASE_SERVICE_ROLE_KEY required");
+  process.exit(1);
+}
+
+// Prefer an explicit NEXT_PUBLIC_SUPABASE_URL.
+// Else derive project host from the service-role JWT `ref`.
+let url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/$/, "");
+if (!url) {
+  try {
+    const ref = decodeJwtPayload(key).ref;
+    if (ref) url = `https://${ref}.supabase.co`;
+  } catch {
+    // keep empty; will fail later if url is required
+  }
+}
+
+if (!url) {
+  console.error("NEXT_PUBLIC_SUPABASE_URL required (or derivable from SUPABASE_SERVICE_ROLE_KEY)");
   process.exit(1);
 }
 
@@ -40,23 +82,22 @@ const results = {};
 // 1. Check migration history
 console.log("1. Checking supabase_migrations.schema_migrations...");
 try {
-  const res = await fetch(
-    `${url}/rest/v1/schema_migrations?select=version,name&order=version`,
-    {
+  const paths = ["schema_migrations", "supabase_migrations.schema_migrations"];
+  results.migrations = [];
+  for (const tablePath of paths) {
+    const res = await fetch(`${url}/rest/v1/${tablePath}?select=version,name&order=version`, {
       headers: {
         apikey: key,
         Authorization: `Bearer ${key}`,
         Accept: "application/json",
-        "Accept-Profile": "supabase_migrations",
       },
+    });
+    if (res.ok) {
+      results.migrations = await res.json();
+      console.log(`  Found ${results.migrations.length} applied migrations (${tablePath})`);
+      break;
     }
-  );
-  if (res.ok) {
-    results.migrations = await res.json();
-    console.log(`  Found ${results.migrations.length} applied migrations`);
-  } else {
-    console.log(`  Migration table not accessible: ${res.status}`);
-    results.migrations = [];
+    console.log(`  Migration table not accessible (${tablePath}): ${res.status}`);
   }
 } catch (e) {
   console.log(`  Error: ${e.message}`);
