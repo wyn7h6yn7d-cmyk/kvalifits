@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 
+import { ACCOUNT_BLOCKED_ERROR, loginSessionAllowed } from "@/lib/auth/accountBlocked";
 import { emailVerificationBlockReason, isEmailVerified } from "@/lib/auth/emailVerification";
 import { clientIpFromHeaders, consumeAuthRateLimit } from "@/lib/auth/rateLimit";
+import { loadProfileSecurity } from "@/lib/auth/profileSecurity";
+import { revokeUserSessions, signOutAuthSession } from "@/lib/auth/revokeUserSessions";
+import { reportMessage } from "@/lib/monitoring/report";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -25,6 +30,9 @@ export async function POST(req: Request) {
   const ip = clientIpFromHeaders(req.headers);
   const limit = await consumeAuthRateLimit({ action: "login", ip, email });
   if (!limit.ok) {
+    if (limit.error === "missing_rate_limit_table") {
+      reportMessage("missing_rate_limit_table", { area: "auth", code: "missing_rate_limit_table" });
+    }
     return NextResponse.json(
       {
         error: limit.error === "missing_rate_limit_table" ? "missing_rate_limit_table" : "rate_limited",
@@ -48,8 +56,23 @@ export async function POST(req: Request) {
 
   const user = data.user;
   if (emailVerificationBlockReason(user) === "unverified") {
-    await supabase.auth.signOut({ scope: "local" });
+    await signOutAuthSession(supabase);
     return NextResponse.json({ error: "email_not_confirmed" }, { status: 403 });
+  }
+
+  if (user) {
+    const db = createSupabaseAdminClient() ?? supabase;
+    const security = await loadProfileSecurity(db, user.id);
+    if (security.lookupFailed) {
+      await signOutAuthSession(supabase);
+      reportMessage("login_unavailable", { area: "auth", code: "login_unavailable" });
+      return NextResponse.json({ error: "login_unavailable" }, { status: 500 });
+    }
+    if (!loginSessionAllowed(security)) {
+      await signOutAuthSession(supabase);
+      await revokeUserSessions(user.id);
+      return NextResponse.json({ error: ACCOUNT_BLOCKED_ERROR }, { status: 403 });
+    }
   }
 
   return NextResponse.json({

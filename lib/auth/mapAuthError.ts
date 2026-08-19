@@ -46,6 +46,10 @@ export function mapAuthError(err: unknown, t: Translator): string {
     return t("errorEmailNotConfirmed");
   }
 
+  if (lower.includes("account_blocked") || lower.includes("account blocked")) {
+    return t("errorAccountBlocked");
+  }
+
   // Rate limiting / abuse protection
   if (lower.includes("too many requests") || lower.includes("rate limit") || lower.includes("over_email_send_rate_limit")) {
     return t("errorRateLimited");
