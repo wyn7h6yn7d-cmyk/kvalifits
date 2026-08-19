@@ -45,12 +45,12 @@ Complete these in order. Code and automated gates are otherwise ready pending de
 
 ---
 
-## Vercel cron (BLOCKING if email alerts enabled)
+## Vercel cron (verify after secret added)
 
-- [ ] **Add `CRON_SECRET` to Production**  
-  Where: Vercel → kvalifits → Settings → Environment Variables  
-  Needed: Strong random secret  
-  Verify: Redeploy; Cron Jobs tab shows successful runs (not 401)
+- [x] **`CRON_SECRET` added to Production** (2026-08-19)  
+- [ ] **Confirm first successful cron run**  
+  Where: Vercel → Cron Jobs  
+  Verify: Last run status **not 401**; optional authenticated curl with dashboard secret
 
 - [ ] **Optional: enable email alerts**  
   Where: Vercel Production env  
@@ -59,11 +59,10 @@ Complete these in order. Code and automated gates are otherwise ready pending de
 
 ---
 
-## Deploy latest code (BLOCKING)
+## Deploy latest code
 
-- [ ] **Deploy `main` to production**  
-  Where: Vercel  
-  Verify: `curl https://www.kvalifits.ee/api/health` → `{"ok":true}`
+- [x] **Deploy `main` to production** (2026-08-19, commit `a748d83`)  
+  Verify: `curl https://www.kvalifits.ee/api/health` → `{"ok":true}` ✓
 
 ---
 

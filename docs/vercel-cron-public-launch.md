@@ -1,11 +1,10 @@
 # Vercel Cron — Public Launch
 
-Date: 2026-08-19  
-Production: `https://www.kvalifits.ee`
+Date: 2026-08-19 (updated after deploy)
 
 ## Verdict
 
-**HUMAN VERCEL CHECK REQUIRED** — schedule **VERIFIED DEPLOYED**; **`CRON_SECRET` missing from production env list**
+**PASS** (configuration) — **HUMAN VERCEL CHECK REQUIRED** for first successful scheduled run log
 
 ---
 
@@ -14,27 +13,22 @@ Production: `https://www.kvalifits.ee`
 | Check | Result |
 |-------|--------|
 | `vercel.json` schedule | `/api/cron/saved-search-alerts` → `0 8 * * *` |
-| `vercel crons ls` | **1 cron job** on project `kvalifits` — same path/schedule |
-| Unauthorized GET | **401** `{"error":"unauthorized"}` on production URL |
-| Idempotency | Delivery ledger + Resend idempotency key (code) |
+| `vercel crons ls` | **1 cron job** deployed |
+| Unauthorized GET/POST | **401** `{"error":"unauthorized"}` |
+| `CRON_SECRET` in Production env | **Yes** (added 2026-08-19; Sensitive) |
+| Production redeploy after secret | **Yes** — release `kvalifits@a748d83…` |
+| Idempotency (code) | Delivery ledger + Resend idempotency key |
 
 ---
 
-## Critical gap: `CRON_SECRET`
+## Authenticated invocation
 
-`vercel env ls production` shows **no `CRON_SECRET`**.
+Vercel CLI `env pull` does **not** export sensitive values locally. Authenticated cron smoke test must be verified by operator:
 
-Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` when the variable is set. **Without it, scheduled invocations likely receive 401** and saved-search email delivery will not run.
+1. Vercel → Project → Cron Jobs → confirm next run **not 401**
+2. Or: `curl -H "Authorization: Bearer <CRON_SECRET>" https://www.kvalifits.ee/api/cron/saved-search-alerts` using secret from Vercel dashboard (do not log secret)
 
-**Human action:** Vercel → Settings → Environment Variables → add `CRON_SECRET` (Production) → redeploy.
-
----
-
-## Verify after setting secret
-
-1. Vercel → Cron Jobs → confirm last run status (not 401)
-2. Optional manual invoke with Bearer token (operator only, do not log secret)
-3. Confirm `saved_search_alert_deliveries` rows on test data
+Expected success body shape: `{"ok":true,...}` with delivery summary counts.
 
 ---
 
@@ -45,12 +39,8 @@ Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` when the variable is set
 | `archive-expired-job-posts` | `0 * * * *` |
 | `notify-saved-jobs-near-deadline` | `15 7 * * *` |
 
-These run in Supabase Postgres, not Vercel.
-
 ---
 
-## Product copy alignment
+## Email alerts note
 
-In-app saved-search alerts work without email. Email requires `SAVED_SEARCH_ALERTS_EMAIL=1` + Resend + working cron.
-
-UI note (`savedSearches.deliveryLiveNote`): emails not sent unless configured.
+Email delivery requires `SAVED_SEARCH_ALERTS_EMAIL=1` + Resend. In-app alerts work without email flag.

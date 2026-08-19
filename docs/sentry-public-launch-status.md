@@ -1,28 +1,19 @@
 # Sentry — Public Launch Status
 
-Date: 2026-08-19
+Date: 2026-08-19 (updated)
 
 ## Verdict
 
-**VERIFIED** (production runtime active) — **HUMAN DASHBOARD CHECK REQUIRED** for alerting rules
+**VERIFIED** (production ingestion) — **HUMAN DASHBOARD CHECK REQUIRED** for alert rules
 
 ---
 
 ## Production evidence
 
-Live HTML from `https://www.kvalifits.ee` includes Sentry meta tags:
+Live HTML from `https://www.kvalifits.ee`:
 
 - `sentry-environment=production`
-- `sentry-release=kvalifits@<git-sha>`
-- `sentry-trace` / `baggage` headers on responses
-
-This confirms Sentry SDK is initialized in the **currently deployed** production build.
-
----
-
-## Vercel env listing
-
-`NEXT_PUBLIC_SENTRY_DSN` does **not** appear in `vercel env ls` output — may be injected via Sentry–Vercel integration or build-time secret not shown in CLI summary. Runtime behavior confirms DSN is effective.
+- `sentry-release=kvalifits@a748d83…` (matches deployed commit)
 
 ---
 
@@ -31,28 +22,28 @@ This confirms Sentry SDK is initialized in the **currently deployed** production
 | Control | Status |
 |---------|--------|
 | `sendDefaultPii: false` | **PASS** |
-| `lib/monitoring/scrub.ts` | **PASS** — tokens, CV, certificates, application answers, work capacity |
-| Unit tests | `lib/monitoring/scrub.test.ts` |
-| Tunnel route | `/monitoring-tunnel` in `next.config.ts` |
+| `lib/monitoring/scrub.ts` | **PASS** |
+| Unit tests | **PASS** |
 
 ---
 
-## Operator dashboard checks
+## Alerting (operator — exact steps)
 
-1. Open Sentry project for Kvalifits
-2. Confirm events from `environment:production`
-3. Create alert: error rate spike
-4. Optional: verify source maps if `SENTRY_AUTH_TOKEN` configured in CI
+1. Open Sentry project → **Alerts** → Create Alert
+2. **Error rate spike:** When event count > N in 1h for `environment:production` → email/Slack
+3. **New issue:** First seen in production → notify on-call
+4. Optional: **Application API failures** — filter `transaction:/api/job-applications` if volume warrants
 
----
-
-## Safe test error
-
-Use **Preview** deployment only — do not intentionally crash production user flows.
+Do not create noisy per-event alerts.
 
 ---
 
-## Not verified here
+## Source maps
 
-- Alert rules configured
-- On-call notification routing
+Verify in Sentry release view if `SENTRY_AUTH_TOKEN` configured in CI. Not required for error capture.
+
+---
+
+## Safe test
+
+Use **Preview** deployment only — do not crash production user flows.

@@ -1,9 +1,11 @@
 # Live Flow — Production Results
 
-Date: 2026-08-19  
-Target: `https://www.kvalifits.ee`
+Date: 2026-08-19 (final pass)
 
-Automated live registration/admin flows were **not executed** — no operator test credentials in environment.
+Target: `https://www.kvalifits.ee`  
+Deployment: `main` @ `a748d83`
+
+No launch-test credentials (`E2E_SEEKER_*`, `E2E_EMPLOYER_*`, admin) configured in environment. **Full live walkthrough not executed.**
 
 ---
 
@@ -11,13 +13,14 @@ Automated live registration/admin flows were **not executed** — no operator te
 
 | Step | Status |
 |------|--------|
-| Registration | **HUMAN ACTION REQUIRED** |
-| Email verification | **HUMAN ACTION REQUIRED** |
-| Login | **HUMAN ACTION REQUIRED** |
-| Profile / location / skills / education / certificate | **HUMAN ACTION REQUIRED** |
-| Search / filters / match / save | Public search UI **PASS** (E2E offline); logged-in match **HUMAN** |
-| Quick Apply | **HUMAN ACTION REQUIRED** (live seeker creds) |
-| Application / notification / withdraw | **HUMAN ACTION REQUIRED** |
+| 1 Register | **HUMAN ACTION REQUIRED** |
+| 2 Verification email | **HUMAN ACTION REQUIRED** |
+| 3 Login | **HUMAN ACTION REQUIRED** |
+| 4–9 Profile / location / skills / education / certificate / preferences | **HUMAN ACTION REQUIRED** |
+| 10–13 Search / filter / match / explanation | Public UI **PASS** (offline E2E); logged-in match **HUMAN** |
+| 14 Save job | **HUMAN ACTION REQUIRED** |
+| 15 Quick Apply | **HUMAN ACTION REQUIRED** |
+| 16–19 Application / notification / withdraw | **HUMAN ACTION REQUIRED** |
 
 ---
 
@@ -25,7 +28,9 @@ Automated live registration/admin flows were **not executed** — no operator te
 
 | Step | Status |
 |------|--------|
-| Full pipeline register → publish → applicants | **HUMAN ACTION REQUIRED** |
+| 1–18 Full pipeline | **HUMAN ACTION REQUIRED** |
+
+Coordinate test job with seeker account; archive after test.
 
 ---
 
@@ -33,15 +38,12 @@ Automated live registration/admin flows were **not executed** — no operator te
 
 | Step | Status |
 |------|--------|
-| Login / verify / moderate / block / audit | **HUMAN ACTION REQUIRED** |
+| 1–10 Full admin ops | **HUMAN ACTION REQUIRED** |
+
+Blocked-user fixture E2E available with `E2E_TEST_FIXTURES=1` + project ref guard (not full admin suite).
 
 ---
 
-## Recommended test procedure
+## Procedure
 
-1. Create `launch-seeker-*` and `launch-employer-*` test accounts on production
-2. Walk through steps in `docs/live-beta-walkthrough.md`
-3. Delete/archive test job and accounts when complete
-4. Enable `E2E_*` env on staging for CI regression
-
-Blocked-user fixture E2E available with `E2E_TEST_FIXTURES=1` + project ref.
+See `docs/live-beta-walkthrough.md` and `docs/HUMAN-ACTIONS-BEFORE-LAUNCH.md`.
