@@ -5,6 +5,7 @@ import {
   JOB_POST_REPORT_DETAILS_MAX,
 } from "@/lib/jobs/jobPostReport";
 import { authGateBody, evaluateAuthGate } from "@/lib/auth/accountBlocked";
+import { clientIpFromHeaders, consumeApiRateLimit, rateLimitResponse } from "@/lib/auth/apiRateLimit";
 import { getAuthUser } from "@/lib/auth/currentAuth";
 import { getProfileSecurity } from "@/lib/auth/profileSecurity";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -23,6 +24,10 @@ type Body = {
  * Response never includes admin_notes.
  */
 export async function POST(req: Request) {
+  const ip = clientIpFromHeaders(req.headers);
+  const rate = await consumeApiRateLimit({ action: "job_report", ip });
+  if (!rate.ok) return rateLimitResponse(rate.retryAfterSeconds);
+
   let body: Body;
   try {
     body = (await req.json()) as Body;

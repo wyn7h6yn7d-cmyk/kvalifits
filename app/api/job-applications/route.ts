@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 
 import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
+import { clientIpFromHeaders, consumeApiRateLimit, rateLimitResponse } from "@/lib/auth/apiRateLimit";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendEmailViaResend } from "@/lib/email/resend";
 import {
@@ -57,6 +58,14 @@ export async function POST(req: Request) {
     const gate = await requireAuthenticatedUser();
     if (!gate.ok) return authGateJson(gate, { unauthenticatedError: "not_authed" });
     const { user } = gate;
+
+    const ip = clientIpFromHeaders(req.headers);
+    const rate = await consumeApiRateLimit({
+      action: "job_application",
+      ip,
+      userId: user.id,
+    });
+    if (!rate.ok) return rateLimitResponse(rate.retryAfterSeconds);
 
     const body = (await req.json()) as Body;
     const jobPostId = (body.jobPostId ?? "").toString().trim();
