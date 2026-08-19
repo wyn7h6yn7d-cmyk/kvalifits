@@ -1,0 +1,274 @@
+{
+  "migrations": [],
+  "tables": [
+    "admin_audit_log",
+    "auth_rate_limit_buckets",
+    "employer_profiles",
+    "employer_public_profiles",
+    "job_application_status_events",
+    "job_applications",
+    "job_posts",
+    "profiles",
+    "saved_job_searches",
+    "saved_jobs",
+    "seeker_certificates",
+    "seeker_certificates_verification_stash",
+    "seeker_profiles"
+  ],
+  "tableStatus": {
+    "profiles": {
+      "exists": true,
+      "status": 206,
+      "count": "*/1"
+    },
+    "seeker_profiles": {
+      "exists": true,
+      "status": 206,
+      "count": "*/1"
+    },
+    "employer_profiles": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "seeker_certificates": {
+      "exists": true,
+      "status": 206,
+      "count": "*/1"
+    },
+    "job_posts": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "job_applications": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "job_application_internal_notes": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "job_application_status_events": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "job_post_reports": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "saved_jobs": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "saved_job_searches": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "admin_audit_log": {
+      "exists": true,
+      "status": 206,
+      "count": "*/9"
+    },
+    "auth_rate_limit_buckets": {
+      "exists": true,
+      "status": 206,
+      "count": "*/5"
+    },
+    "account_deletion_events": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "legal_retention_records": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "seeker_workplace_needs": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "seeker_work_capacity": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "seeker_certificates_verification_stash": {
+      "exists": true,
+      "status": 200,
+      "count": "*/0"
+    },
+    "taxonomy_industries": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "taxonomy_professions": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "taxonomy_skills": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "taxonomy_profession_skills": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "taxonomy_certificates": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "taxonomy_languages": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "taxonomy_aliases": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "notifications": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "saved_search_alert_deliveries": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    },
+    "seeker_education": {
+      "exists": false,
+      "status": 404,
+      "count": "unknown"
+    }
+  },
+  "buckets": [
+    {
+      "id": "company-logos",
+      "name": "company-logos",
+      "owner": "",
+      "public": true,
+      "type": "STANDARD",
+      "file_size_limit": null,
+      "allowed_mime_types": null,
+      "created_at": "2026-04-08T12:41:59.186Z",
+      "updated_at": "2026-04-08T12:41:59.186Z"
+    },
+    {
+      "id": "cvs",
+      "name": "cvs",
+      "owner": "",
+      "public": false,
+      "type": "STANDARD",
+      "file_size_limit": null,
+      "allowed_mime_types": null,
+      "created_at": "2026-04-08T12:42:08.661Z",
+      "updated_at": "2026-04-08T12:42:08.661Z"
+    },
+    {
+      "id": "avatars",
+      "name": "avatars",
+      "owner": "",
+      "public": true,
+      "type": "STANDARD",
+      "file_size_limit": null,
+      "allowed_mime_types": null,
+      "created_at": "2026-04-08T14:43:12.196Z",
+      "updated_at": "2026-04-08T14:43:12.196Z"
+    },
+    {
+      "id": "certificate-images",
+      "name": "certificate-images",
+      "owner": "",
+      "public": true,
+      "type": "STANDARD",
+      "file_size_limit": null,
+      "allowed_mime_types": null,
+      "created_at": "2026-04-08T12:42:18.291Z",
+      "updated_at": "2026-04-08T12:42:18.291Z"
+    },
+    {
+      "id": "certificates",
+      "name": "certificates",
+      "owner": "",
+      "public": false,
+      "type": "STANDARD",
+      "file_size_limit": 10485760,
+      "allowed_mime_types": [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+        "application/pdf"
+      ],
+      "created_at": "2026-08-16T18:06:54.163Z",
+      "updated_at": "2026-08-16T18:06:54.163Z"
+    }
+  ],
+  "rpcs": {
+    "search_published_jobs": {
+      "accessible": false,
+      "status": 404
+    },
+    "published_job_search_facets": {
+      "accessible": false,
+      "status": 404
+    },
+    "published_job_facet_values": {
+      "accessible": false,
+      "status": 404
+    },
+    "get_job_match_inputs": {
+      "accessible": false,
+      "status": 404
+    }
+  },
+  "employer_columns": [
+    "company_description",
+    "company_name",
+    "company_size",
+    "company_verified",
+    "contact_email",
+    "contact_phone",
+    "created_at",
+    "id",
+    "industry",
+    "location",
+    "logo_url",
+    "owner_user_id",
+    "public_slug",
+    "registry_code",
+    "search_text",
+    "search_tsv",
+    "updated_at",
+    "verification_source",
+    "verification_status",
+    "verified_at",
+    "website"
+  ],
+  "employer_owner_uniqueness": {
+    "total": 0,
+    "with_owner": 0,
+    "duplicates": []
+  },
+  "job_types": [],
+  "view_employer_public_profiles": {
+    "exists": true,
+    "status": 200
+  }
+}
