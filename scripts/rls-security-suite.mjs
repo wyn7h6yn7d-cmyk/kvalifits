@@ -9,6 +9,7 @@
  * NEXT_PUBLIC_SUPABASE_URL is unset.
  */
 import { createClient } from "@supabase/supabase-js";
+import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -50,7 +51,33 @@ const ref = decodeJwtPayload(serviceKey).ref;
 const url =
   (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/$/, "") ||
   `https://${ref}.supabase.co`;
-const anonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim() || serviceKey;
+
+function resolveAnonKey() {
+  const fromEnv = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (fromEnv) return fromEnv;
+  try {
+    const out = execSync(`supabase projects api-keys --project-ref ${ref}`, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const parsed = JSON.parse(out);
+    const anon = (parsed.keys ?? []).find((k) => k.id === "anon" || k.name === "anon");
+    if (anon?.api_key) return anon.api_key;
+  } catch {
+    // fall through
+  }
+  console.error(
+    "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY and could not resolve anon key via Supabase CLI. " +
+      "Anon RLS tests require the real anon apikey (not the service role key).",
+  );
+  process.exit(1);
+}
+
+const anonKey = resolveAnonKey();
+if (anonKey === serviceKey) {
+  console.error("Refusing to run anon RLS tests with the service role key as apikey.");
+  process.exit(1);
+}
 
 const admin = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
@@ -129,7 +156,10 @@ async function createUser(email, role) {
 }
 
 async function signIn(email) {
-  const { data, error } = await anon.auth.signInWithPassword({ email, password });
+  const authClient = createClient(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data, error } = await authClient.auth.signInWithPassword({ email, password });
   if (error) {
     // Fallback: password grant via service apikey
     const res = await fetch(`${url}/auth/v1/token?grant_type=password`, {
@@ -175,7 +205,7 @@ async function cleanupUser(userId) {
   await admin.auth.admin.deleteUser(userId);
 }
 
-const ids = { seekerA: null, seekerB: null, employerA: null, employerB: null };
+const ids = { seekerA: null, seekerB: null, employerA: null, employerB: null, admin: null };
 
 try {
   console.log(`RLS suite → ${url}`);
@@ -184,15 +214,18 @@ try {
   const emailB = `rls-seeker-b-${stamp}@example.com`;
   const emailE = `rls-employer-a-${stamp}@example.com`;
   const emailE2 = `rls-employer-b-${stamp}@example.com`;
+  const emailAdmin = `rls-admin-${stamp}@example.com`;
 
   const uA = await createUser(emailA, "seeker");
   const uB = await createUser(emailB, "seeker");
   const uE = await createUser(emailE, "employer");
   const uE2 = await createUser(emailE2, "employer");
+  const uAdmin = await createUser(emailAdmin, "admin");
   ids.seekerA = uA.id;
   ids.seekerB = uB.id;
   ids.employerA = uE.id;
   ids.employerB = uE2.id;
+  ids.admin = uAdmin.id;
 
   // Seed profiles (triggers / registration may already insert — upsert)
   for (const [id, role, email] of [
@@ -200,11 +233,16 @@ try {
     [uB.id, "seeker", emailB],
     [uE.id, "employer", emailE],
     [uE2.id, "employer", emailE2],
+    [uAdmin.id, "admin", emailAdmin],
   ]) {
     await admin.from("profiles").upsert({ id, email, role, is_blocked: false });
   }
 
-  await admin.from("seeker_profiles").upsert({
+  const seekerProfileSeed = {
+    experience_level: "entry",
+    skills: ["testing"],
+  };
+  const { error: seekerAProfileErr } = await admin.from("seeker_profiles").upsert({
     user_id: uA.id,
     full_name: "Seeker A",
     profile_title: "A",
@@ -214,8 +252,10 @@ try {
     profile_visible: false,
     is_complete: true,
     completion_percent: 100,
+    ...seekerProfileSeed,
   });
-  await admin.from("seeker_profiles").upsert({
+  if (seekerAProfileErr) throw new Error(`seeker A profile seed: ${seekerAProfileErr.message}`);
+  const { error: seekerBProfileErr } = await admin.from("seeker_profiles").upsert({
     user_id: uB.id,
     full_name: "Seeker B Secret",
     profile_title: "B private",
@@ -225,7 +265,9 @@ try {
     profile_visible: false,
     is_complete: true,
     completion_percent: 100,
+    ...seekerProfileSeed,
   });
+  if (seekerBProfileErr) throw new Error(`seeker B profile seed: ${seekerBProfileErr.message}`);
 
   await admin.from("seeker_work_capacity").upsert({
     user_id: uB.id,
@@ -415,10 +457,12 @@ try {
   const tokenB = await signIn(emailB);
   const tokenE = await signIn(emailE);
   const tokenE2 = await signIn(emailE2);
+  const tokenAdmin = await signIn(emailAdmin);
   const seekerA = clientForToken(tokenA);
   const seekerB = clientForToken(tokenB);
   const employerA = clientForToken(tokenE);
   const employerB = clientForToken(tokenE2);
+  const adminUser = clientForToken(tokenAdmin);
 
   const cvPath = `${uA.id}/cv/rls-test.pdf`;
   const pdfBytes = Buffer.from("%PDF-1.1\n%%EOF\n");
@@ -447,6 +491,86 @@ try {
     seekerA.storage.from("avatars").upload(avatarPath, gifBytes, { contentType: "image/gif", upsert: true })
   );
   await expectOk("Anon can read public avatar image", async () => anon.storage.from("avatars").download(avatarPath));
+
+  async function employerVerificationSnapshot(epId) {
+    const { data } = await admin
+      .from("employer_profiles")
+      .select("company_verified,verification_status,verification_source,verified_at")
+      .eq("id", epId)
+      .single();
+    return data;
+  }
+
+  console.log("\n--- Employer company verification ---");
+  {
+    const before = await employerVerificationSnapshot(epA.id);
+    const { error } = await employerA
+      .from("employer_profiles")
+      .update({
+        verification_status: "verified",
+        company_verified: true,
+        verification_source: "manual",
+        verified_at: new Date().toISOString(),
+      })
+      .eq("id", epA.id)
+      .select("verification_status,company_verified");
+    const after = await employerVerificationSnapshot(epA.id);
+    const unchanged =
+      after?.verification_status === before?.verification_status &&
+      after?.company_verified === before?.company_verified &&
+      after?.verification_source === before?.verification_source;
+    record(
+      "Employer A cannot self-verify company",
+      unchanged,
+      error?.message || `status=${after?.verification_status} verified=${after?.company_verified}`,
+    );
+
+    const beforeB = await employerVerificationSnapshot(epB.id);
+    await expectDenied("Employer B cannot verify Employer A company", async () =>
+      employerB
+        .from("employer_profiles")
+        .update({ verification_status: "verified", company_verified: true })
+        .eq("id", epA.id)
+        .select("id,verification_status"),
+    );
+    const afterAFromB = await employerVerificationSnapshot(epA.id);
+    record(
+      "Employer A verification unchanged after Employer B attempt",
+      afterAFromB?.verification_status === before?.verification_status,
+      `status=${afterAFromB?.verification_status}`,
+    );
+    record(
+      "Employer B verification unchanged after cross-company attempt",
+      (await employerVerificationSnapshot(epB.id))?.verification_status === beforeB?.verification_status,
+    );
+
+    await expectDenied("Seeker cannot verify employer company", async () =>
+      seekerA
+        .from("employer_profiles")
+        .update({ verification_status: "verified", company_verified: true })
+        .eq("id", epA.id)
+        .select("id,verification_status"),
+    );
+    await expectDenied("Anon cannot verify employer company", async () =>
+      anon
+        .from("employer_profiles")
+        .update({ verification_status: "verified", company_verified: true })
+        .eq("id", epA.id)
+        .select("id,verification_status"),
+    );
+
+    const { data: verified, error: adminErr } = await adminUser
+      .from("employer_profiles")
+      .update({ verification_status: "verified" })
+      .eq("id", epA.id)
+      .select("verification_status,company_verified,verification_source,verified_at")
+      .single();
+    record(
+      "Admin can verify employer company",
+      !adminErr && verified?.verification_status === "verified" && verified?.company_verified === true,
+      adminErr?.message || `status=${verified?.verification_status}`,
+    );
+  }
 
   console.log("\n--- Negative: Seeker A ---");
   await expectDenied("Seeker A cannot SELECT Seeker B private seeker_profiles", async () =>
@@ -617,14 +741,6 @@ try {
       .update({ certificate_name: "Cert A Renamed" })
       .eq("id", certA.id)
       .select("certificate_name")
-      .single()
-  );
-  await expectOk("Seeker A can withdraw own application (status→withdrawn)", async () =>
-    seekerA
-      .from("job_applications")
-      .update({ status: "withdrawn", updated_at: new Date().toISOString() })
-      .eq("id", appA.id)
-      .select("status")
       .single()
   );
   await expectOk("Employer A can SELECT own employer_profiles", async () =>
@@ -798,6 +914,15 @@ try {
       );
     }
   }
+
+  await expectOk("Seeker A can withdraw own application (status→withdrawn)", async () =>
+    seekerA
+      .from("job_applications")
+      .update({ status: "withdrawn", updated_at: new Date().toISOString() })
+      .eq("id", appA.id)
+      .select("status")
+      .single()
+  );
 
   console.log("\n--- In-app notifications ---");
   {
@@ -1065,7 +1190,7 @@ try {
   record("Suite setup/execution", false, e?.message || String(e));
 } finally {
   console.log("\n--- Cleanup ---");
-  for (const id of [ids.seekerA, ids.seekerB, ids.employerA, ids.employerB]) {
+  for (const id of [ids.seekerA, ids.seekerB, ids.employerA, ids.employerB, ids.admin]) {
     try {
       await cleanupUser(id);
     } catch (e) {
