@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type EmployerJobRow = {
   id: string;
@@ -17,23 +17,32 @@ export type EmployerJobRow = {
   certificate_requirements: string | null;
 };
 
-export type EmployerSupabase = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+export type EmployerSupabase = SupabaseClient;
+
+const DEFAULT_SELECT =
+  "id,title,employer_profile_id,location,work_type,job_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements";
+
+function selectWithEmployerProfileId(select: string): string {
+  if (/(^|,)\s*employer_profile_id\s*(,|$)/.test(select)) return select;
+  return `${select},employer_profile_id`;
+}
 
 /** Returns the job row only if `userId` owns the linked employer profile (matches job_applications RLS). */
 export async function getEmployerJobIfOwned(
   supabase: EmployerSupabase,
   userId: string,
-  jobId: string
+  jobId: string,
+  select: string = DEFAULT_SELECT,
 ): Promise<EmployerJobRow | null> {
-  const { data: job, error } = await supabase
+  const { data: jobRaw, error } = await supabase
     .from("job_posts")
-    .select(
-      "id,title,employer_profile_id,location,work_type,job_type,short_summary,description,requirements,requirement_lines,required_skills,keywords,experience_level_required,certificate_requirements"
-    )
+    .select(selectWithEmployerProfileId(select))
     .eq("id", jobId)
     .maybeSingle();
 
-  if (error || !job) return null;
+  if (error || !jobRaw) return null;
+  const job = jobRaw as unknown as EmployerJobRow;
+  if (!job.employer_profile_id) return null;
 
   const { data: ep, error: epErr } = await supabase
     .from("employer_profiles")

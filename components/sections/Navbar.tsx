@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Menu } from "lucide-react";
 
 import { SeekerBottomNav } from "@/components/navigation/SeekerBottomNav";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
@@ -176,6 +177,7 @@ export function Navbar() {
             <DesktopNav items={desktopNavPaths} pathname={pathname} t={t} />
 
             <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
+              <NotificationBell />
               <div className="hidden items-center gap-1.5 lg:flex">
                 <LanguageSwitcher triggerClassName={langTriggerNavbar} />
 

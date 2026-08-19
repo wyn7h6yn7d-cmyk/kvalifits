@@ -18,10 +18,11 @@ import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificat
 import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
+import { reportStorageUploadFailure } from "@/lib/monitoring/report";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import { errorMessageFromUnknown, omitKeys } from "@/lib/utils";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { taxonomyLabel, findTerm } from "@/lib/taxonomy/labels";
 import { resolveTaxonomyId } from "@/lib/taxonomy/resolve";
@@ -129,7 +130,10 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         upsert: true,
         contentType: prepared.type || undefined,
       });
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        reportStorageUploadFailure(uploadErr, "avatar");
+        throw uploadErr;
+      }
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
       setLogoPreviewUrl(URL.createObjectURL(prepared));
@@ -230,9 +234,8 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         { onConflict: "owner_user_id" }
       );
       if (error && isTaxonomyColumnError(error.message)) {
-        const { industry_id: _id, ...rest } = payload;
         const retry = await supabase.from("employer_profiles").upsert(
-          { owner_user_id: user.id, ...rest },
+          { owner_user_id: user.id, ...omitKeys(payload, ["industry_id"]) },
           { onConflict: "owner_user_id" }
         );
         error = retry.error;

@@ -8,6 +8,7 @@ import {
   isJobSalaryTax,
 } from "@/lib/jobs/jobSalary";
 import { pickSimilarJobs, type SimilarJobSource } from "@/lib/jobs/similarJobs";
+import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
 import { getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
 import type { SeekerMatchContext } from "@/lib/matching/seekerMatchContext";
 
@@ -115,12 +116,9 @@ export async function loadSimilarJobsForDetail(opts: {
   ];
   const employerById = new Map<string, string>();
   if (employerIds.length) {
-    const { data: employers } = await opts.supabase
-      .from("employer_profiles")
-      .select("id,company_name")
-      .in("id", employerIds);
-    for (const e of employers ?? []) {
-      employerById.set(String(e.id), (e.company_name ?? "—").toString().trim() || "—");
+    const employerRows = await loadEmployerPublicRowsByIds(opts.supabase, employerIds);
+    for (const [id, e] of employerRows) {
+      employerById.set(id, (e.company_name ?? "—").toString().trim() || "—");
     }
   }
 

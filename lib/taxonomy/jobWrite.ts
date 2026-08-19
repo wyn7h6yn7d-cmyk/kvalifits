@@ -1,5 +1,6 @@
 import { joinLegacyText, mergeLegacyText } from "@/lib/taxonomy/resolve";
 import type { TaxonomyCatalog } from "@/lib/taxonomy/types";
+import { omitKeys } from "@/lib/utils";
 
 export type JobTaxonomyFormValue = {
   industryId: string;
@@ -43,13 +44,11 @@ export function stripTaxonomyWriteColumns<T extends Record<string, unknown>>(pay
   T,
   "industry_id" | "profession_id" | "skill_ids" | "certificate_ids" | "language_ids"
 > {
-  const {
-    industry_id: _i,
-    profession_id: _p,
-    skill_ids: _s,
-    certificate_ids: _c,
-    language_ids: _l,
-    ...rest
-  } = payload;
-  return rest;
+  return omitKeys(payload, [
+    "industry_id",
+    "profession_id",
+    "skill_ids",
+    "certificate_ids",
+    "language_ids",
+  ]);
 }

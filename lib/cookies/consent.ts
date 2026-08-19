@@ -57,6 +57,9 @@ export function readCookieConsent(): CookieConsentState | null {
   }
 }
 
+let cachedConsentRaw: string | null | undefined;
+let cachedConsent: CookieConsentState | null = null;
+
 export function writeCookieConsent(state: CookieConsentState): void {
   if (typeof window === "undefined") return;
   const next: CookieConsentState = {
@@ -71,7 +74,27 @@ export function writeCookieConsent(state: CookieConsentState): void {
   if (!optional.includes("marketing")) next.marketing = false;
 
   window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(next));
+  cachedConsentRaw = undefined;
   window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_CHANGED_EVENT, { detail: next }));
+}
+
+/** Stable snapshot for useSyncExternalStore — same reference when storage is unchanged. */
+export function getCookieConsentSnapshot(): CookieConsentState | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
+  if (cachedConsentRaw === raw) return cachedConsent;
+  cachedConsentRaw = raw;
+  cachedConsent = readCookieConsent();
+  return cachedConsent;
+}
+
+export function subscribeCookieConsent(onStoreChange: () => void): () => void {
+  const onChange = () => {
+    cachedConsentRaw = undefined;
+    onStoreChange();
+  };
+  window.addEventListener(COOKIE_CONSENT_CHANGED_EVENT, onChange);
+  return () => window.removeEventListener(COOKIE_CONSENT_CHANGED_EVENT, onChange);
 }
 
 export function openCookieSettings(): void {

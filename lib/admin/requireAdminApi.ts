@@ -3,8 +3,8 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
 import { getAdminMfaStatus } from "@/lib/auth/adminMfa";
+import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const ADMIN_API_NO_STORE = { "Cache-Control": "private, no-store" } as const;
 
@@ -20,18 +20,10 @@ export async function requireAdminApiActor(): Promise<
   | { ok: true; supabase: SupabaseClient; user: User; admin: SupabaseClient }
   | { ok: false; response: NextResponse }
 > {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, response: adminApiJson({ error: "not_authenticated" }, 401) };
+  const gate = await requireAuthenticatedUser();
+  if (!gate.ok) return { ok: false, response: authGateJson(gate) };
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  const role =
-    ((profile as { role?: string | null } | null)?.role ??
-      (user.user_metadata as { role?: string } | undefined)?.role ??
-      null) ||
-    null;
+  const { supabase, user, role } = gate;
   if (role !== "admin") return { ok: false, response: adminApiJson({ error: "forbidden" }, 403) };
 
   const mfa = await getAdminMfaStatus(supabase);

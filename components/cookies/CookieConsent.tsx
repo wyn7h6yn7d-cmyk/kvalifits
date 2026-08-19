@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
+import { useCookieConsent, useIsClient } from "@/lib/cookies/useCookieConsent";
+
 import {
   COOKIE_CATEGORY_META,
   activeOptionalCategories,
@@ -29,20 +31,21 @@ export function CookieConsent() {
   const locale = useLocale() as "et" | "en" | "ru";
   const needsUi = cookieConsentUiRequired();
   const optionalCats = useMemo(() => activeOptionalCategories(), []);
+  const isClient = useIsClient();
+  const consent = useCookieConsent();
 
-  const [hydrated, setHydrated] = useState(false);
-  const [consent, setConsent] = useState<CookieConsentState | null>(null);
   const [bannerOpen, setBannerOpen] = useState(false);
+  const [bannerSeeded, setBannerSeeded] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [draftAnalytics, setDraftAnalytics] = useState(false);
   const [draftMarketing, setDraftMarketing] = useState(false);
 
-  useEffect(() => {
-    const existing = readCookieConsent();
-    setConsent(existing);
-    setBannerOpen(needsUi && !existing);
-    setHydrated(true);
+  if (isClient && !bannerSeeded) {
+    setBannerSeeded(true);
+    setBannerOpen(needsUi && !consent);
+  }
 
+  useEffect(() => {
     const onOpenSettings = () => {
       if (!needsUi) return;
       const current = readCookieConsent() ?? defaultConsentDenied();
@@ -55,11 +58,10 @@ export function CookieConsent() {
     return () => window.removeEventListener(COOKIE_OPEN_SETTINGS_EVENT, onOpenSettings);
   }, [needsUi]);
 
-  if (!needsUi || !hydrated) return null;
+  if (!needsUi || !isClient) return null;
 
   function persist(next: CookieConsentState) {
     writeCookieConsent(next);
-    setConsent(next);
     setBannerOpen(false);
     setSettingsOpen(false);
   }

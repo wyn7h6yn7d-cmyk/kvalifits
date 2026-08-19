@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
-  EXPERIENCE_LEVEL_VALUES,
   JOB_EXPERIENCE_LEVEL_VALUES,
+  employerCoreComplete,
   jobMatchingReady,
   parseCommaList,
 } from "@/lib/matching/profileRules";
@@ -26,11 +26,23 @@ import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
 import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { jobPassesYoungSeekerAutoEligibility } from "@/lib/employmentRules";
 import { JobRequirementsEditor } from "@/components/jobs/JobRequirementsEditor";
+import { JobLinesEditor } from "@/components/jobs/JobLinesEditor";
+import {
+  isJobContentLinesColumnError,
+  jobContentLinesI18nError,
+  parseJobContentLines,
+  sanitizeJobContentLines,
+  stripJobContentLineColumns,
+  validateJobContentLines,
+} from "@/lib/jobs/jobContentLines";
 import {
   calendarDateInTallinn,
   endOfDayTallinnIso,
+  inferListingPackageDays,
   toCalendarDate,
+  buildPublishLifecycleDates,
 } from "@/lib/jobs/jobLifecycle";
+import { validateDraftSave, validateJobForPublish } from "@/lib/jobs/jobPublishValidation";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { findTerm } from "@/lib/taxonomy/labels";
 import { jobTaxonomyWriteColumns, stripTaxonomyWriteColumns } from "@/lib/taxonomy/jobWrite";
@@ -45,6 +57,8 @@ type Job = {
   job_type: string;
   short_summary: string | null;
   description: string;
+  duty_lines?: string[] | null;
+  benefit_lines?: string[] | null;
   requirements: string;
   requirement_lines: string[] | null;
   job_requirements?: unknown;
@@ -78,6 +92,7 @@ type Job = {
 type Props = {
   locale: string;
   initialJob: Job;
+  publishAttempted?: boolean;
 };
 
 function extractSummary(description: string | null | undefined) {
@@ -88,14 +103,16 @@ function extractSummary(description: string | null | undefined) {
   return cleaned || "";
 }
 
-export function EmployerEditJobForm({ locale, initialJob }: Props) {
+export function EmployerEditJobForm({ locale, initialJob, publishAttempted = false }: Props) {
   const t = useTranslations("jobs");
   const tOnb = useTranslations("onboarding");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    publishAttempted ? t("publishValidationNeeded") : null,
+  );
 
   const { catalog, available: taxonomyAvailable } = useTaxonomyCatalog();
 
@@ -107,6 +124,11 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
     (initialJob.short_summary ?? "").trim() || extractSummary(initialJob.description)
   );
   const [description, setDescription] = useState(initialJob.description);
+  const [dutyLines, setDutyLines] = useState<string[]>(() => {
+    const lines = parseJobContentLines(initialJob.duty_lines);
+    return lines.length ? lines : [""];
+  });
+  const [benefitLines, setBenefitLines] = useState<string[]>(() => parseJobContentLines(initialJob.benefit_lines));
   const [requirementItems, setRequirementItems] = useState<JobRequirementItem[]>(() => {
     const resolved = resolveJobRequirements({
       job_requirements: initialJob.job_requirements,
@@ -233,16 +255,99 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
     return null;
   }
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    const v = validate();
-    if (v) {
-      setError(v);
-      return;
+  async function persist(intent: "save" | "draft" | "preview" | "publish") {
+    const isDraft = initialJob.status !== "published";
+    const needsFullValidation =
+      intent === "publish" || (!isDraft && (intent === "save" || intent === "preview"));
+    if (needsFullValidation) {
+      const v = validate();
+      if (v) {
+        setError(v);
+        return;
+      }
+      const duties = validateJobContentLines(dutyLines);
+      if (!duties.ok) {
+        setError(t(jobContentLinesI18nError(duties.error)));
+        return;
+      }
+      const benefits = validateJobContentLines(benefitLines);
+      if (!benefits.ok) {
+        setError(t(jobContentLinesI18nError(benefits.error)));
+        return;
+      }
+    } else {
+      const draft = validateDraftSave(title);
+      if (!draft.ok) {
+        setError(t(draft.error as "errTitleRequired"));
+        return;
+      }
     }
     setLoading(true);
     setError(null);
     try {
+      if (intent === "publish") {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error(t("notAuthed"));
+        const { data: employer, error: employerErr } = await supabase
+          .from("employer_profiles")
+          .select("company_name,contact_email,company_description,location,industry")
+          .eq("owner_user_id", user.id)
+          .maybeSingle();
+        if (employerErr) throw employerErr;
+        const syncedPub = syncRequirementLinesFromStructured(requirementItems);
+        const requiredSkillsPub = taxonomyAvailable
+          ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+          : parseCommaList(requiredSkillsCsv);
+        const keywordsPub = parseCommaList(keywordsCsv);
+        const pub = validateJobForPublish({
+          employerProfileComplete: employerCoreComplete(employer ?? null),
+          companyName: (employer?.company_name ?? "").toString(),
+          title,
+          location,
+          workType,
+          jobType,
+          summary: shortSummary,
+          description,
+          requirementLines: syncedPub.requirement_lines,
+          requiredSkills: requiredSkillsPub,
+          keywords: keywordsPub,
+          experienceLevelRequired,
+          applicationDeadline,
+          professionRequired: taxonomyAvailable,
+          professionId,
+          salary: {
+            mode: salaryMin && salaryMax && salaryMin !== salaryMax ? "range" : salaryMin || salaryMax ? "fixed" : "",
+            min: salaryMin,
+            max: salaryMax || salaryMin,
+            tax: "bruto",
+            period: "month",
+            currency: salaryCurrency,
+          },
+          matching: {
+            title: title.trim(),
+            location: location.trim(),
+            work_type: workType,
+            job_type: jobType,
+            short_summary: shortSummary.trim(),
+            description: description.trim(),
+            requirement_lines: syncedPub.requirement_lines,
+            required_skills: requiredSkillsPub,
+            keywords: keywordsPub,
+            experience_level_required: experienceLevelRequired,
+            certificate_requirements: certificateRequirements.trim() || null,
+            application_type: "in_app",
+            application_url: null,
+          },
+        });
+        if (!pub.ok) {
+          setError(t(pub.error as "errTitleRequired"));
+          setLoading(false);
+          return;
+        }
+      }
+
       const min = salaryMin.trim() ? Number(salaryMin) : null;
       const max = salaryMax.trim() ? Number(salaryMax) : null;
       const synced = syncRequirementLinesFromStructured(requirementItems);
@@ -260,19 +365,28 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
         : null;
       const requiredSkills = tax?.required_skills ?? parseCommaList(requiredSkillsCsv);
       const keywords = parseCommaList(keywordsCsv);
+      const lifecycle =
+        intent === "publish"
+          ? buildPublishLifecycleDates({
+              packageDays: inferListingPackageDays(applicationDeadline),
+              applicationDeadline,
+            })
+          : null;
       const payload = {
           title: title.trim(),
-          location: location.trim(),
+          location: location.trim() || null,
           work_type: workType,
           job_type: jobType,
-          short_summary: shortSummary.trim(),
+          short_summary: shortSummary.trim() || null,
           description: description.trim(),
+          duty_lines: sanitizeJobContentLines(dutyLines),
+          benefit_lines: sanitizeJobContentLines(benefitLines),
           requirements: synced.requirements,
           requirement_lines: lines,
           job_requirements: synced.job_requirements,
           required_skills: requiredSkills,
           keywords,
-          experience_level_required: experienceLevelRequired,
+          experience_level_required: experienceLevelRequired || null,
           certificate_requirements: tax?.certificate_requirements ?? (certificateRequirements.trim() || null),
           languages: tax?.languages,
           weekly_hours: parseOptionalHours(workConditions.weeklyHours),
@@ -295,8 +409,13 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
           salary_currency: salaryCurrency,
           application_type: "in_app",
           application_url: null,
-          application_deadline: applicationDeadline.trim(),
-          expires_at: endOfDayTallinnIso(expiresOn.trim()),
+          application_deadline: lifecycle?.application_deadline ?? (applicationDeadline.trim() || null),
+          expires_at: lifecycle?.expires_at ?? (expiresOn.trim() ? endOfDayTallinnIso(expiresOn.trim()) : null),
+          ...(intent === "publish"
+            ? { status: "published", published_at: lifecycle?.published_at }
+            : initialJob.status === "draft"
+              ? { status: "draft" }
+              : {}),
           ...(tax
             ? {
                 industry_id: tax.industry_id,
@@ -307,29 +426,56 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
               }
             : {}),
         };
-      let { error } = await supabase.from("job_posts").update(payload).eq("id", initialJob.id);
+      let writePayload: Record<string, unknown> = payload;
+      let { error } = await supabase.from("job_posts").update(writePayload).eq("id", initialJob.id);
       if (error && isTaxonomyColumnError(error.message)) {
+        writePayload = stripTaxonomyWriteColumns(writePayload);
         const retry = await supabase
           .from("job_posts")
-          .update(stripTaxonomyWriteColumns(payload))
+          .update(writePayload)
+          .eq("id", initialJob.id);
+        error = retry.error;
+      }
+      if (error && isJobContentLinesColumnError(error.message)) {
+        writePayload = stripJobContentLineColumns(writePayload);
+        const retry = await supabase
+          .from("job_posts")
+          .update(writePayload)
           .eq("id", initialJob.id);
         error = retry.error;
       }
       if (error) throw error;
 
+      if (intent === "preview") {
+        router.push(`/${locale}/account/employer/jobs/${initialJob.id}/preview`);
+        router.refresh();
+        return;
+      }
+
       // If expiry is already past, mark inactive (do not delete).
-      if (expiresOn.trim() < calendarDateInTallinn() && initialJob.status === "published") {
+      if (
+        intent !== "publish" &&
+        expiresOn.trim() &&
+        expiresOn.trim() < calendarDateInTallinn() &&
+        initialJob.status === "published"
+      ) {
         await supabase.from("job_posts").update({ status: "archived" }).eq("id", initialJob.id);
       }
 
-      router.push(`/${locale}/account/employer`);
+      if (intent === "publish") {
+        router.push(`/${locale}/account/employer/jobs`);
+      } else if (intent === "draft") {
+        router.refresh();
+      } else {
+        router.push(`/${locale}/account/employer/jobs`);
+      }
       router.refresh();
     } catch (err) {
       const raw = errorMessageFromUnknown(err, t("unknownError"));
       const lower = raw.toLowerCase();
       const withHint =
         lower.includes("schema cache") || lower.includes("column of 'job_posts'")
-          ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}\n\n${t("jobWorkConditionsFixHint")}\n\n${t("youngSeekerAutoFixHint")}\n\n${t("jobRequirementsPriorityFixHint")}`
+          ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}\n\n${t("jobWorkConditionsFixHint")}\n\n${t("youngSeekerAutoFixHint")}\n\n${t("jobRequirementsPriorityFixHint")}\n\n${t("jobDutyBenefitFixHint")}`
           : lower.includes("enum application_type")
             ? `${raw}\n\n${t("jobApplicationTypeEnumFixHint")}`
             : raw;
@@ -340,9 +486,16 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        void persist(initialJob.status === "published" ? "save" : "draft");
+      }}
+      className="space-y-6"
+    >
       <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-xs leading-relaxed text-white/50">
         {t("jobFieldGuideEditLead")}
+        {initialJob.status !== "published" ? <div className="mt-2 text-white/55">{t("draftHint")}</div> : null}
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
@@ -436,7 +589,7 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("description")}</label>
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("jobSectionDescription")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -446,6 +599,30 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
         />
         <div className="text-xs text-white/45">{t("jobFieldGuideDescription")}</div>
       </div>
+
+      <JobLinesEditor
+        title={t("jobSectionDuties")}
+        help={t("jobFieldGuideDuties")}
+        addLabel={t("jobDutyAdd")}
+        addFirstLabel={t("jobDutyAddFirst")}
+        placeholder={t("jobDutyPlaceholder")}
+        itemLabel={(n) => t("jobDutyItemLabel", { n })}
+        value={dutyLines}
+        onChange={setDutyLines}
+        disabled={loading}
+      />
+
+      <JobLinesEditor
+        title={t("jobSectionBenefits")}
+        help={t("jobFieldGuideBenefits")}
+        addLabel={t("jobBenefitAdd")}
+        addFirstLabel={t("jobBenefitAddFirst")}
+        placeholder={t("jobBenefitPlaceholder")}
+        itemLabel={(n) => t("jobBenefitItemLabel", { n })}
+        value={benefitLines}
+        onChange={setBenefitLines}
+        disabled={loading}
+      />
 
       <JobRequirementsEditor value={requirementItems} onChange={setRequirementItems} disabled={loading} />
 
@@ -595,16 +772,37 @@ export function EmployerEditJobForm({ locale, initialJob }: Props) {
         </div>
       ) : null}
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        className="w-full"
-        loading={loading}
-        loadingText={t("saving")}
-      >
-        {t("save")}
-      </Button>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Button type="submit" variant="outline" size="lg" className="w-full" loading={loading} loadingText={t("saving")}>
+          {initialJob.status === "published" ? t("save") : t("saveDraft")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full"
+          loading={loading}
+          loadingText={t("saving")}
+          onClick={() => void persist("preview")}
+        >
+          {t("previewJob")}
+        </Button>
+        {initialJob.status !== "published" ? (
+          <Button
+            type="button"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            loading={loading}
+            loadingText={t("saving")}
+            onClick={() => void persist("publish")}
+          >
+            {t("publishNow")}
+          </Button>
+        ) : (
+          <div />
+        )}
+      </div>
     </form>
   );
 }

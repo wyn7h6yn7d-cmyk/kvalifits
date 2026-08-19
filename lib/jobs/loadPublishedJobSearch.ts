@@ -20,6 +20,7 @@ import { applyCompactJobMatches, getJobMatchesForSeeker } from "@/lib/matching/g
 import { emptySeekerMatchContext, loadSeekerMatchContext } from "@/lib/matching/seekerMatchContext";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
 
 export const JOB_SEARCH_PAGE_SIZE = 20;
 export const JOB_SEARCH_MATCH_CANDIDATE_CAP = 200;
@@ -313,12 +314,6 @@ const FALLBACK_JOB_SELECTS: string[] = [
   "id,title,location,job_type,work_type,short_summary,employer_profile_id,status,created_at",
 ];
 
-const FALLBACK_EMPLOYER_SELECTS: string[] = [
-  "id,company_name,logo_url,company_verified,verification_status,industry,public_slug",
-  "id,company_name,logo_url,industry",
-  "id,company_name,logo_url",
-];
-
 async function fallbackPublishedSearch(
   supabase: SupabaseClient,
   args: RpcArgs,
@@ -366,14 +361,7 @@ async function fallbackPublishedSearch(
     new Set(rows.map((r) => (r.employer_profile_id ?? "").toString()).filter(Boolean)),
   );
   if (employerIds.length) {
-    let employers: Record<string, unknown>[] = [];
-    for (const select of FALLBACK_EMPLOYER_SELECTS) {
-      const { data, error } = await supabase.from("employer_profiles").select(select).in("id", employerIds);
-      if (error && isTaxonomyColumnError(error.message)) continue;
-      if (!error) employers = ((data ?? []) as unknown) as Record<string, unknown>[];
-      break;
-    }
-    const byId = new Map(employers.map((e) => [String(e.id), e]));
+    const byId = await loadEmployerPublicRowsByIds(supabase, employerIds);
     rows = rows.map((row) => {
       const emp = byId.get((row.employer_profile_id ?? "").toString());
       if (!emp) return row;

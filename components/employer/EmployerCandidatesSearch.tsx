@@ -1,6 +1,7 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Search, SlidersHorizontal, Users, X } from "lucide-react";
 
@@ -16,16 +17,25 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/utils";
 import {
   activeFilterCount,
-  buildCandidateFacetOptions,
-  candidateMatchesFilters,
   emptyCandidateFilterState,
   toggleFilterValue,
+  type CandidateFacetOptions,
   type CandidateFilterState,
   type DiscoverableCandidate,
 } from "@/lib/employer/candidateFilters";
+import {
+  buildCandidateDiscoveryUrl,
+  parseCandidateDiscoveryParams,
+} from "@/lib/employer/candidateDiscoveryUrl";
+import { Link, useRouter } from "@/i18n/routing";
 
 type Props = {
   candidates: DiscoverableCandidate[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  facets: CandidateFacetOptions;
   certificateLabel: string;
   validUntilLabel: string;
 };
@@ -77,38 +87,61 @@ function FacetGroup({
   );
 }
 
-export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props) {
+export function EmployerCandidatesSearch({
+  candidates,
+  totalCount,
+  currentPage,
+  totalPages,
+  pageSize,
+  facets,
+  certificateLabel,
+}: Props) {
   const t = useTranslations("employerCandidates");
   const tOnb = useTranslations("onboarding");
   const locale = useLocale();
-  const [filters, setFilters] = useState<CandidateFilterState>(() => emptyCandidateFilterState());
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const paramsKey = searchParams.toString();
+  const parsed = parseCandidateDiscoveryParams(searchParams);
+  const filters = parsed.filters;
+  const [query, setQuery] = useState(filters.query);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const deferredQuery = useDeferredValue(filters.query);
 
-  const facets = useMemo(() => buildCandidateFacetOptions(candidates), [candidates]);
+  useEffect(() => {
+    setQuery(parseCandidateDiscoveryParams(searchParams).filters.query);
+  }, [paramsKey, searchParams]);
 
-  const deferredFilters = useMemo(
-    () => ({ ...filters, query: deferredQuery }),
-    [filters, deferredQuery]
-  );
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      const current = parseCandidateDiscoveryParams(searchParams).filters;
+      if (current.query === query) return;
+      router.replace(buildCandidateDiscoveryUrl({ filters: { ...current, query }, page: 1 }), {
+        scroll: false,
+      });
+    }, 180);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- debounce query into the URL for server search
+  }, [query, paramsKey]);
 
-  const results = useMemo(
-    () => candidates.filter((c) => candidateMatchesFilters(c, deferredFilters)),
-    [candidates, deferredFilters]
-  );
+  const activeCount = activeFilterCount({ ...filters, query });
 
-  const activeCount = activeFilterCount(filters);
+  function commit(next: CandidateFilterState, page = 1) {
+    router.replace(buildCandidateDiscoveryUrl({ filters: next, page }), { scroll: false });
+  }
 
   function patch(partial: Partial<CandidateFilterState>) {
-    setFilters((prev) => ({ ...prev, ...partial }));
+    commit({ ...filters, query, ...partial });
   }
 
   function toggleBool(key: keyof CandidateFilterState) {
-    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+    const current = filters[key];
+    if (typeof current !== "boolean") return;
+    commit({ ...filters, query, [key]: !current });
   }
 
   function clearAll() {
-    setFilters(emptyCandidateFilterState());
+    setQuery("");
+    commit(emptyCandidateFilterState());
   }
 
   useEffect(() => {
@@ -128,7 +161,7 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props
             <div className="text-[15px] font-medium text-white/88">{t("searchTitle")}</div>
             <div className="mt-1.5 text-sm leading-snug text-white/55">{t("searchSubtitle")}</div>
             <p className="mt-2.5 text-sm text-white/58" aria-live="polite">
-              <span className="text-white/75">{t("foundCount", { count: results.length })}</span>
+              <span className="text-white/75">{t("foundCount", { count: totalCount })}</span>
               {activeCount > 0 ? (
                 <span className="text-white/45"> · {t("activeCount", { count: activeCount })}</span>
               ) : null}
@@ -137,8 +170,8 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props
           <div className="relative w-full sm:max-w-md">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
             <Input
-              value={filters.query}
-              onChange={(e) => patch({ query: e.target.value })}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder={t("searchPlaceholder")}
               className="pl-11"
             />
@@ -355,34 +388,34 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props
                   title={t("location")}
                   values={facets.locations}
                   selected={filters.locations}
-                  onToggle={(v) => setFilters((prev) => toggleFilterValue(prev, "locations", v))}
+                  onToggle={(v) => commit(toggleFilterValue({ ...filters, query }, "locations", v))}
                   emptyHint={t("facetEmpty")}
                 />
                 <FacetGroup
                   title={t("languages")}
                   values={facets.languages}
                   selected={filters.languages}
-                  onToggle={(v) => setFilters((prev) => toggleFilterValue(prev, "languages", v))}
+                  onToggle={(v) => commit(toggleFilterValue({ ...filters, query }, "languages", v))}
                 />
                 <FacetGroup
                   title={t("certificates")}
                   values={facets.certificates}
                   selected={filters.certificates}
-                  onToggle={(v) => setFilters((prev) => toggleFilterValue(prev, "certificates", v))}
+                  onToggle={(v) => commit(toggleFilterValue({ ...filters, query }, "certificates", v))}
                   emptyHint={t("facetEmpty")}
                 />
                 <FacetGroup
                   title={t("skills")}
                   values={facets.skills}
                   selected={filters.skills}
-                  onToggle={(v) => setFilters((prev) => toggleFilterValue(prev, "skills", v))}
+                  onToggle={(v) => commit(toggleFilterValue({ ...filters, query }, "skills", v))}
                   emptyHint={t("facetEmpty")}
                 />
                 <FacetGroup
                   title={t("availability")}
                   values={facets.availability}
                   selected={filters.availability}
-                  onToggle={(v) => setFilters((prev) => toggleFilterValue(prev, "availability", v))}
+                  onToggle={(v) => commit(toggleFilterValue({ ...filters, query }, "availability", v))}
                   emptyHint={t("availabilityEmpty")}
                 />
               </div>
@@ -414,14 +447,14 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props
                 className="h-12 w-full rounded-xl"
                 onClick={() => setMobileOpen(false)}
               >
-                {t("showResults", { count: results.length })}
+                {t("showResults", { count: totalCount })}
               </Button>
             </div>
           ) : null}
         </div>
 
         <div className="space-y-3">
-          {results.map((c) => {
+          {candidates.map((c) => {
             return (
               <div key={c.id} className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
@@ -481,11 +514,37 @@ export function EmployerCandidatesSearch({ candidates, certificateLabel }: Props
             );
           })}
 
-          {!results.length ? (
+          {!candidates.length ? (
             <EmptyState
               icon={Users}
-              title={candidates.length ? t("noResults") : t("noCandidates")}
+              title={activeCount ? t("noResults") : t("noCandidates")}
             />
+          ) : null}
+
+          {totalPages > 1 ? (
+            <div className="mt-6 flex items-center justify-between gap-3">
+              {currentPage > 1 ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link href={buildCandidateDiscoveryUrl({ filters: { ...filters, query }, page: currentPage - 1 })}>
+                    {t("pagePrev")}
+                  </Link>
+                </Button>
+              ) : (
+                <span />
+              )}
+              <p className="text-[13px] text-white/50">
+                {t("pageStatus", { page: currentPage, pages: totalPages, size: pageSize })}
+              </p>
+              {currentPage < totalPages ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link href={buildCandidateDiscoveryUrl({ filters: { ...filters, query }, page: currentPage + 1 })}>
+                    {t("pageNext")}
+                  </Link>
+                </Button>
+              ) : (
+                <span />
+              )}
+            </div>
           ) : null}
         </div>
       </div>

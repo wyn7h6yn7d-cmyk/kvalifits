@@ -63,6 +63,7 @@ export default async function AdminIndex({ params }: Props) {
         <section>
           <h2 className="text-xs font-medium uppercase tracking-wide text-white/45">{t("hubSettings")}</h2>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <HubCard href="/admin/audit" title={t("auditTitle")} body={t("auditSubtitle")} />
             <HubCard href="/admin/security" title={t("securityTitle")} body={t("securitySubtitle")} />
           </div>
         </section>

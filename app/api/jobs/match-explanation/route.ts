@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getCurrentAuth } from "@/lib/auth/currentAuth";
+import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
 import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
 import { parseMatchBreakdown } from "@/lib/employer/parseMatchBreakdown";
 import { getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
@@ -8,7 +8,6 @@ import {
   MATCH_EXPLANATION_CRITERIA_CAP,
   buildMatchExplanationFromSharedProfile,
 } from "@/lib/matching/matchExplanation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,14 +44,14 @@ export async function GET(request: Request) {
 }
 
 async function seekerJobExplanation(jobId: string) {
-  const auth = await getCurrentAuth();
-  if (!auth.authenticated || !auth.userId) return json({ error: "unauthorized" }, 401);
-  if (auth.role !== "seeker") return json({ error: "forbidden" }, 403);
+  const gate = await requireAuthenticatedUser();
+  if (!gate.ok) return authGateJson(gate, { unauthenticatedError: "unauthorized" });
+  if (gate.role !== "seeker") return json({ error: "forbidden" }, 403);
 
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = gate;
   const result = await getJobMatchesForSeeker({
     supabase,
-    userId: auth.userId,
+    userId: user.id,
     jobIds: [jobId],
     includeExplanation: true,
     maxCriteria: MATCH_EXPLANATION_CRITERIA_CAP,
@@ -68,11 +67,11 @@ async function seekerJobExplanation(jobId: string) {
 }
 
 async function employerApplicationExplanation(applicationId: string) {
-  const auth = await getCurrentAuth();
-  if (!auth.authenticated || !auth.userId) return json({ error: "unauthorized" }, 401);
-  if (auth.role !== "employer") return json({ error: "forbidden" }, 403);
+  const gate = await requireAuthenticatedUser();
+  if (!gate.ok) return authGateJson(gate, { unauthenticatedError: "unauthorized" });
+  if (gate.role !== "employer") return json({ error: "forbidden" }, 403);
 
-  const supabase = await createSupabaseServerClient();
+  const { supabase, user } = gate;
   const { data: app, error } = await supabase
     .from("job_applications")
     .select("id,job_post_id,match_score,match_breakdown,shared_profile,application_answers")
@@ -80,7 +79,7 @@ async function employerApplicationExplanation(applicationId: string) {
     .maybeSingle();
   if (error || !app?.job_post_id) return json({ error: "not_found" }, 404);
 
-  const owned = await getEmployerJobIfOwned(supabase, auth.userId, String(app.job_post_id));
+  const owned = await getEmployerJobIfOwned(supabase, user.id, String(app.job_post_id));
   if (!owned) return json({ error: "forbidden" }, 403);
 
   const explanation = buildMatchExplanationFromSharedProfile({

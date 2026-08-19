@@ -380,17 +380,3 @@ export function toggleSelection(
 export function isSearchableFacet(facet: JobFilterFacet): boolean {
   return SEARCHABLE_FACETS.includes(facet);
 }
-
-/** Legacy flat-chip matcher kept for any residual callers. */
-export function chipMatchesJob(job: Job, chip: string): boolean {
-  if (job.workType === chip) return true;
-  if (job.jobType === chip) return true;
-  if (job.type === chip) return true;
-  if ((job.skills ?? []).includes(chip)) return true;
-  if (job.requiredCerts.includes(chip)) return true;
-  if (job.domains?.includes(chip)) return true;
-  if (job.languages?.includes(chip)) return true;
-  if (job.experienceLevel === chip) return true;
-  if (jobMatchesLocation(job, chip)) return true;
-  return false;
-}

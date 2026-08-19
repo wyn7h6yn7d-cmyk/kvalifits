@@ -16,15 +16,11 @@ export default async function SeekerApplicationsPage({ params }: Props) {
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tJobs = await getTranslations({ locale, namespace: "jobs" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { role } = await getRoleAndNextPath(locale);
+  const { user, role, nextPath } = await getRoleAndNextPath(locale);
+  if (!user) redirect(nextPath);
   if (role !== "seeker") redirect(`/${locale}/account`);
+
+  const supabase = await createSupabaseServerClient();
 
   const { data: applications, error } = await supabase
     .from("job_applications")

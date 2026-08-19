@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { AuthShell } from "@/components/auth/AuthShell";
@@ -15,7 +16,8 @@ export default async function LoginPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const t = await getTranslations({ locale, namespace: "auth" });
 
-  const { authenticated } = await getCurrentAuth();
+  const auth = await getCurrentAuth();
+  if (auth.isBlocked) redirect(`/${locale}/blocked`);
 
   const notice =
     sp.signup === "check-email"
@@ -24,7 +26,9 @@ export default async function LoginPage({ params, searchParams }: Props) {
         ? t("resetSuccessNotice")
         : sp.error === "email_not_confirmed"
           ? t("errorEmailNotConfirmed")
-          : null;
+          : sp.error === "account_blocked"
+            ? t("errorAccountBlocked")
+            : null;
 
   return (
     <AuthShell title={t("loginTitle")} subtitle={t("loginSubtitle")}>
@@ -33,7 +37,14 @@ export default async function LoginPage({ params, searchParams }: Props) {
           {notice}
         </div>
       ) : null}
-      {authenticated ? <AlreadySignedIn /> : <LoginForm locale={locale} />}
+      {auth.authenticated ? (
+        <AlreadySignedIn />
+      ) : (
+        <LoginForm
+          locale={locale}
+          promptResend={sp.signup === "check-email" || sp.error === "email_not_confirmed"}
+        />
+      )}
     </AuthShell>
   );
 }

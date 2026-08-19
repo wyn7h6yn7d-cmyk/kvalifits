@@ -13,6 +13,7 @@ export const ACCOUNT_ERASE_CATEGORIES = [
   "applications_personal",
   "saved_jobs",
   "saved_job_searches",
+  "notifications",
   "employer_company",
   "job_posts_personal",
 ] as const;

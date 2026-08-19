@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { ADMIN_AUDIT_ACTIONS, writeAdminAuditLog } from "@/lib/admin/auditLog";
 import type { AdminModerationAction, ModerationQueue } from "@/lib/admin/moderationTypes";
+import { revokeUserSessions } from "@/lib/auth/revokeUserSessions";
 
 export type { ModerationQueue } from "@/lib/admin/moderationTypes";
 
@@ -68,6 +69,9 @@ async function setUserBlocked(
     .update({ is_blocked: blocked })
     .eq("id", userId);
   if (error) throw error;
+  if (blocked) {
+    await revokeUserSessions(userId);
+  }
 }
 
 async function setJobStatus(

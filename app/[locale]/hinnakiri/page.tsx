@@ -23,6 +23,7 @@ export default async function HinnakiriPage({ params }: Props) {
 
   const auth = await getCurrentAuth();
   if (!auth.authenticated) redirect(`/${locale}/auth/login`);
+  if (auth.isBlocked) redirect(`/${locale}/blocked`);
   if (auth.role !== "employer") redirect(`/${locale}/account`);
 
   return (

@@ -10,6 +10,9 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Link } from "@/i18n/routing";
+import { buildDuplicatedJobPost, loadOwnedJobForDuplicate } from "@/lib/jobs/duplicateJobPost";
+import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
+import { stripTaxonomyWriteColumns } from "@/lib/taxonomy/jobWrite";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
 type Job = {
@@ -32,6 +35,52 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  async function duplicateJob(jobId: string) {
+    setBusyId(jobId);
+    setError(null);
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error(t("notAuthed"));
+
+      const source = await loadOwnedJobForDuplicate(supabase, user.id, jobId);
+      if (!source) throw new Error(t("duplicateForbidden"));
+
+      const insertCopy = async (payload: Record<string, unknown>) => {
+        let { data, error } = await supabase.from("job_posts").insert(payload).select("id,title,status").maybeSingle();
+        if (error && isTaxonomyColumnError(error.message)) {
+          const retry = await supabase
+            .from("job_posts")
+            .insert(stripTaxonomyWriteColumns(payload))
+            .select("id,title,status")
+            .maybeSingle();
+          data = retry.data;
+          error = retry.error;
+        }
+        return { data, error };
+      };
+
+      let payload = buildDuplicatedJobPost({ source, createdBy: user.id });
+      let { data, error } = await insertCopy(payload);
+      if (error && /duplicate key|unique/i.test(error.message ?? "")) {
+        payload = buildDuplicatedJobPost({ source, createdBy: user.id });
+        ({ data, error } = await insertCopy(payload));
+      }
+      if (error) throw error;
+      const inserted = data as { id: string; title: string; status: string };
+      if (!inserted?.id) throw new Error(t("saveFailed"));
+
+      setJobs((prev) => [{ id: inserted.id, title: inserted.title, status: inserted.status }, ...prev]);
+      router.push(`/${locale}/account/employer/jobs/${inserted.id}/edit`);
+      router.refresh();
+    } catch (err) {
+      setError(errorMessageFromUnknown(err, t("unknownError")));
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   async function deleteJob(jobId: string, title: string) {
     const ok = window.confirm(t("deleteJobConfirm", { title: title || "—" }));
@@ -115,19 +164,27 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
             </Button>
 
             <Button asChild variant="outline" size="sm" className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto">
+              <Link href={`/account/employer/jobs/${job.id}/preview`}>{t("previewJob")}</Link>
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto"
+              onClick={() => void duplicateJob(job.id)}
+              disabled={busyId === job.id}
+            >
+              {t("duplicateJob")}
+            </Button>
+
+            <Button asChild variant="outline" size="sm" className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto">
               <Link href={`/account/employer/jobs/${job.id}/applicants`}>{t("applicants")}</Link>
             </Button>
 
             {job.status !== "published" ? (
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto"
-                onClick={() => void setStatus(job.id, "published")}
-                disabled={busyId === job.id}
-              >
-                {t("publish")}
+              <Button asChild variant="primary" size="sm" className="h-11 w-full rounded-xl px-3 text-[13px] sm:h-9 sm:w-auto">
+                <Link href={`/account/employer/jobs/${job.id}/preview`}>{t("publish")}</Link>
               </Button>
             ) : (
               <Button

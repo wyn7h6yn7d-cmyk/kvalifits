@@ -32,30 +32,42 @@ export const SheetOverlay = React.forwardRef<
 ));
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+type SheetContentProps = React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+  side?: "right" | "full";
+  showCloseButton?: boolean;
+  overlayClassName?: string;
+};
+
 export const SheetContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => {
+  SheetContentProps
+>(({ className, children, side = "right", showCloseButton = true, overlayClassName, ...props }, ref) => {
   const t = useTranslations("nav");
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay className={overlayClassName} />
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed inset-y-0 right-0 z-[70] flex h-dvh w-full max-w-sm flex-col overflow-y-auto border-l border-white/[0.11] bg-[#0c0c10] p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+          "fixed z-[70] flex flex-col border-white/[0.11] bg-[#0c0c10] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          side === "right" &&
+            "inset-y-0 right-0 h-dvh w-full max-w-sm overflow-y-auto border-l p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+          side === "full" &&
+            "inset-0 h-dvh max-h-dvh w-full max-w-none overflow-hidden overscroll-contain p-0 max-lg:border-0 lg:inset-y-0 lg:left-auto lg:right-0 lg:w-full lg:max-w-xl lg:border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
           className
         )}
         {...props}
       >
         {children}
-        <DialogPrimitive.Close
-          className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.06] text-white/80 hover:bg-white/[0.10] focus-visible:outline-none"
-          aria-label={t("closeMenu")}
-        >
-          <X className="h-4 w-4" />
-        </DialogPrimitive.Close>
+        {showCloseButton ? (
+          <DialogPrimitive.Close
+            className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.06] text-white/80 hover:bg-white/[0.10] focus-visible:outline-none"
+            aria-label={t("closeMenu")}
+          >
+            <X className="h-4 w-4" />
+          </DialogPrimitive.Close>
+        ) : null}
       </DialogPrimitive.Content>
     </SheetPortal>
   );

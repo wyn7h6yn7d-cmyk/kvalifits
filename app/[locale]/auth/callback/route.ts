@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
 
+import { loginSessionAllowed } from "@/lib/auth/accountBlocked";
+import { loadProfileSecurity } from "@/lib/auth/profileSecurity";
+import { revokeUserSessions, signOutAuthSession } from "@/lib/auth/revokeUserSessions";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from "@/lib/legal/acceptanceVersions";
+import {
+  employerProfilePlaceholderRow,
+  resultFromEmployerOwnerInsert,
+} from "@/lib/employer/employerOwnerUniqueness";
+import { emptySeekerProfileCompletenessPersistence } from "@/lib/seeker/profileCompleteness";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -27,6 +36,18 @@ export async function GET(request: Request, { params }: Props) {
     } = await supabase.auth.getUser();
 
     if (user) {
+      const db = createSupabaseAdminClient() ?? supabase;
+      const security = await loadProfileSecurity(db, user.id);
+      if (security.lookupFailed) {
+        await signOutAuthSession(supabase);
+        return NextResponse.redirect(new URL(`/${locale}/auth/login`, url.origin));
+      }
+      if (!loginSessionAllowed(security)) {
+        await signOutAuthSession(supabase);
+        await revokeUserSessions(user.id);
+        return NextResponse.redirect(new URL(`/${locale}/blocked`, url.origin));
+      }
+
       const role = user.user_metadata?.role;
       const email = user.email ?? "";
       const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
@@ -64,26 +85,14 @@ export async function GET(request: Request, { params }: Props) {
               preferred_job_types: [],
               preferred_locations: [],
               profile_visible: false,
-              completion_percent: 0,
-              is_complete: false,
+              ...emptySeekerProfileCompletenessPersistence(),
             });
           }
         } else {
-          const { data: existing } = await supabase
+          const { error: employerErr } = await supabase
             .from("employer_profiles")
-            .select("id")
-            .eq("owner_user_id", user.id)
-            .maybeSingle();
-
-          if (!existing) {
-            await supabase.from("employer_profiles").insert({
-              owner_user_id: user.id,
-              company_name: "",
-              contact_email: email,
-              company_description: "",
-              location: "",
-            });
-          }
+            .insert(employerProfilePlaceholderRow(user.id, email));
+          void resultFromEmployerOwnerInsert(employerErr);
         }
       }
     }

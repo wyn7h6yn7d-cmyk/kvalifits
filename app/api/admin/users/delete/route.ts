@@ -2,6 +2,7 @@ import { ADMIN_AUDIT_ACTIONS, tryWriteAdminAuditLog } from "@/lib/admin/auditLog
 import { runAdminHardDeleteUser } from "@/lib/admin/hardDeleteUser";
 import { adminApiJson, adminConfirmWordOk, requireAdminApiActor } from "@/lib/admin/requireAdminApi";
 import { errorMessageFromUnknown } from "@/lib/utils";
+import { reportException } from "@/lib/monitoring/report";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,6 +43,9 @@ export async function POST(req: Request) {
   } catch (err) {
     const message = errorMessageFromUnknown(err, "delete_failed");
     const code = message === "cannot_delete_admin" || message === "user_not_found" ? message : "delete_failed";
+    if (code === "delete_failed") {
+      reportException(err, { area: "api", code });
+    }
     return adminApiJson({ error: code, message }, code === "delete_failed" ? 500 : 400);
   }
 }

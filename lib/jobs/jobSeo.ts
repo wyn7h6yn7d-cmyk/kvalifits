@@ -78,10 +78,9 @@ export function buildJobSeoTitle(opts: {
   title: string;
   location: string;
   companyName: string;
+  emptyTitle: string;
 }): string {
-  const fallbackTitle =
-    opts.locale === "en" ? "Job" : opts.locale === "ru" ? "Вакансия" : "Tööpakkumine";
-  const title = opts.title.trim() || fallbackTitle;
+  const title = opts.title.trim() || opts.emptyTitle;
   const company = opts.companyName.trim() || "Kvalifits";
   const loc = opts.location.trim();
   const locale = opts.locale;
@@ -102,6 +101,7 @@ export function buildJobSeoDescription(opts: {
   companyName: string;
   shortSummary: string;
   description: string;
+  emptyDescription: string;
 }): string {
   const summary = stripHtmlish(opts.shortSummary);
   const desc = stripHtmlish(opts.description);
@@ -111,7 +111,7 @@ export function buildJobSeoDescription(opts: {
   }
 
   const parts = [opts.title.trim(), opts.companyName.trim(), opts.location.trim()].filter(Boolean);
-  return parts.join(" · ").slice(0, 160) || "Tööpakkumine Kvalifitsis";
+  return parts.join(" · ").slice(0, 160) || opts.emptyDescription;
 }
 
 export function jobCanonicalUrl(locale: string, jobId: string): string {

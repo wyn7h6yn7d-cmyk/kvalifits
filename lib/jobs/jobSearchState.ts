@@ -1,6 +1,6 @@
-import type { JobFilterSelection } from "@/lib/jobs/jobSearchFacets";
-import { parseJobSearchSort, type JobSearchSort } from "@/lib/jobs/jobSearchSort";
-import { type JobSearchUrlParams } from "@/lib/jobs/jobSearchUrl";
+import type { JobFilterSelection } from "./jobSearchFacets";
+import { parseJobSearchSort, type JobSearchSort } from "./jobSearchSort";
+import { type JobSearchUrlParams } from "./jobSearchUrl";
 
 function workTypeLabel(raw: string, tJobs: (key: string) => string): string | null {
   const v = raw.trim().toLowerCase().replace(/-/g, "_");

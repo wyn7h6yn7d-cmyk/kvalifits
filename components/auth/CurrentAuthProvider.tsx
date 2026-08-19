@@ -10,10 +10,20 @@ const CurrentAuthContext = createContext<CurrentAuth>({
   authenticated: false,
   userId: null,
   role: null,
+  isBlocked: false,
 });
 
 export function useCurrentAuth(): CurrentAuth {
   return useContext(CurrentAuthContext);
+}
+
+function authChanged(a: CurrentAuth, b: CurrentAuth): boolean {
+  return (
+    a.authenticated !== b.authenticated ||
+    a.role !== b.role ||
+    a.userId !== b.userId ||
+    a.isBlocked !== b.isBlocked
+  );
 }
 
 export function CurrentAuthProvider({
@@ -25,17 +35,19 @@ export function CurrentAuthProvider({
 }) {
   const router = useRouter();
   const [auth, setAuth] = useState(initialAuth);
+  const [prevInitial, setPrevInitial] = useState(initialAuth);
 
-  useEffect(() => {
+  if (authChanged(prevInitial, initialAuth)) {
+    setPrevInitial(initialAuth);
     setAuth(initialAuth);
-  }, [initialAuth.authenticated, initialAuth.role, initialAuth.userId]);
+  }
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") return;
       if (event === "SIGNED_OUT") {
-        setAuth({ authenticated: false, userId: null, role: null });
+        setAuth({ authenticated: false, userId: null, role: null, isBlocked: false });
         router.refresh();
         return;
       }

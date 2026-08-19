@@ -33,14 +33,8 @@ create index if not exists job_applications_job_score_idx
 
 alter table public.job_applications enable row level security;
 
+-- INSERT is service_role / apply API only (20260818150000_job_applications_insert_field_lock.sql).
 drop policy if exists "seeker_insert_own_applications" on public.job_applications;
-create policy "seeker_insert_own_applications"
-on public.job_applications
-for insert
-to authenticated
-with check (
-  seeker_user_id = auth.uid()
-);
 
 drop policy if exists "seeker_select_own_applications" on public.job_applications;
 create policy "seeker_select_own_applications"

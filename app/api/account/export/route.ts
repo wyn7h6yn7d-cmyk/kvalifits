@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { exportAccountData } from "@/lib/account/exportAccountData";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
+import { reportException } from "@/lib/monitoring/report";
 
 export const runtime = "nodejs";
 
@@ -9,14 +10,9 @@ export const runtime = "nodejs";
  * Download a JSON copy of the authenticated user's personal data.
  */
 export async function GET() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "not_authenticated" }, { status: 401 });
-  }
+  const gate = await requireAuthenticatedUser();
+  if (!gate.ok) return authGateJson(gate);
+  const { supabase, user } = gate;
 
   try {
     const payload = await exportAccountData({ supabase, user });
@@ -31,6 +27,7 @@ export async function GET() {
       },
     });
   } catch (err) {
+    reportException(err, { area: "api", code: "export_failed" });
     const message = err instanceof Error ? err.message : "export_failed";
     return NextResponse.json({ error: "export_failed", message }, { status: 500 });
   }

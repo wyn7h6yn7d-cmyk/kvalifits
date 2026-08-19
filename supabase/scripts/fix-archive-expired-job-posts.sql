@@ -38,10 +38,26 @@ revoke all on function private.archive_expired_job_posts() from public;
 revoke all on function private.archive_expired_job_posts() from anon, authenticated;
 grant execute on function private.archive_expired_job_posts() to postgres;
 
-create extension if not exists pg_cron with schema pg_catalog;
+-- pg_cron is not always available (hosted privilege / extension not enabled).
+-- Install the archive function regardless; schedule only when cron exists.
+do $$
+begin
+  begin
+    execute 'create extension if not exists pg_cron with schema pg_catalog';
+  exception
+    when others then
+      raise notice 'pg_cron extension not available: %', sqlerrm;
+  end;
+end;
+$$;
 
 do $$
 begin
+  if not exists (select 1 from pg_extension where extname = 'pg_cron') then
+    raise notice 'Skipping archive-expired-job-posts schedule; enable pg_cron then re-run reconciliation.';
+    return;
+  end if;
+
   begin
     perform cron.unschedule('archive-expired-job-posts');
   exception
@@ -50,11 +66,11 @@ begin
     when others then
       null;
   end;
+
+  perform cron.schedule(
+    'archive-expired-job-posts',
+    '0 * * * *',
+    $job$select private.archive_expired_job_posts()$job$
+  );
 end;
 $$;
-
-select cron.schedule(
-  'archive-expired-job-posts',
-  '0 * * * *',
-  $job$select private.archive_expired_job_posts()$job$
-);

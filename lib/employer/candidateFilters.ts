@@ -12,6 +12,18 @@ export type CandidateCertificateSummary = {
   verification_source?: string | null;
 };
 
+/** Public discovery name: given name + last initial. Never send the full surname to the browser. */
+export function getPublicDisplayName(fullName: string | null | undefined): string {
+  const s = (fullName ?? "").trim();
+  if (!s) return "—";
+  const parts = s.split(/\s+/g).filter(Boolean);
+  if (parts.length === 1) return parts[0]!;
+  const first = parts.slice(0, -1).join(" ");
+  const last = parts[parts.length - 1] ?? "";
+  const initial = last.trim() ? `${last.trim()[0]!.toUpperCase()}.` : "";
+  return initial ? `${first} ${initial}` : first;
+}
+
 export type DiscoverableCandidate = {
   id: string;
   userId: string;
@@ -289,7 +301,25 @@ export function candidateMatchesFilters(
   return true;
 }
 
-export function buildCandidateFacetOptions(candidates: DiscoverableCandidate[]) {
+export type CandidateFacetOptions = {
+  locations: string[];
+  skills: string[];
+  certificates: string[];
+  availability: string[];
+  languages: string[];
+};
+
+export function emptyCandidateFacetOptions(): CandidateFacetOptions {
+  return {
+    locations: [],
+    skills: [],
+    certificates: [],
+    availability: [],
+    languages: [...COMMON_LANGUAGE_CHIPS],
+  };
+}
+
+export function buildCandidateFacetOptions(candidates: DiscoverableCandidate[]): CandidateFacetOptions {
   const uniq = (arr: string[]) =>
     Array.from(new Set(arr.map((x) => x.trim()).filter(Boolean))).sort((a, b) =>
       a.localeCompare(b, "et")

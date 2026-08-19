@@ -84,6 +84,35 @@ export const NOINDEX_ROBOTS: Metadata["robots"] = {
   googleBot: { index: false, follow: false },
 };
 
+/** Localized title/description/OG for missing public entities and 404s. No index, no invented canonical. */
+export function noindexLocalizedMetadata(opts: {
+  locale: string;
+  title: string;
+  description: string;
+  path?: string;
+}): Metadata {
+  const url = opts.path ? absoluteUrl(opts.locale, opts.path) : undefined;
+  return {
+    title: { absolute: opts.title },
+    description: opts.description,
+    robots: NOINDEX_ROBOTS,
+    openGraph: {
+      type: "website",
+      siteName: SITE_NAME,
+      locale: ogLocaleTag(opts.locale),
+      alternateLocale: ogAlternateLocales(opts.locale),
+      title: opts.title,
+      description: opts.description,
+      ...(url ? { url } : {}),
+    },
+    twitter: {
+      card: "summary",
+      title: opts.title,
+      description: opts.description,
+    },
+  };
+}
+
 /** Filter / search-query URLs: do not index duplicates; still follow links to jobs. */
 export const NOINDEX_FOLLOW: Metadata["robots"] = {
   index: false,

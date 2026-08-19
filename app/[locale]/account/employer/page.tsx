@@ -17,17 +17,12 @@ export default async function EmployerAccountPage({ params }: Props) {
   const tJobs = await getTranslations({ locale, namespace: "jobs" });
   const tEmployer = await getTranslations({ locale, namespace: "employer" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { role, nextPath } = await getRoleAndNextPath(locale);
-
+  const { user, role, nextPath } = await getRoleAndNextPath(locale);
+  if (!user) redirect(nextPath);
   if (role !== "employer") redirect(`/${locale}/account`);
   if (nextPath.includes("/onboarding/")) redirect(nextPath);
+
+  const supabase = await createSupabaseServerClient();
 
   const { data: employerRaw, error: employerSelectErr } = await supabase
     .from("employer_profiles")

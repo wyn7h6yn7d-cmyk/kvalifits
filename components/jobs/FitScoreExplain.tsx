@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { MatchExplanationSkeleton } from "@/components/skeletons/MatchPanelSkeleton";
@@ -75,43 +75,40 @@ export function FitScoreExplain({
   const tJobs = useTranslations("jobs");
   const t = tJobs as unknown as (key: string, values?: Record<string, string | number>) => string;
   const [open, setOpen] = useState(defaultOpen);
-  const [fetched, setFetched] = useState<MatchExplanation | null>(null);
-  const [loading, setLoading] = useState(() => Boolean(defaultOpen && lazySource && !explanation));
+  const jobId = lazySource && "jobId" in lazySource ? lazySource.jobId : null;
+  const applicationId = lazySource && "applicationId" in lazySource ? lazySource.applicationId : null;
+  const sourceKey = lazyKey(lazySource);
+  const [fetched, setFetched] = useState<{ key: string; data: MatchExplanation | null } | null>(null);
   const hasScore = score !== null;
-  const resolved = explanation ?? fetched;
+  const resolved = explanation ?? (fetched?.key === sourceKey ? fetched.data : null);
+  const loading = Boolean(open && !explanation && sourceKey && fetched?.key !== sourceKey);
   const criteria = resolved?.criteria ?? [];
   const mandTotal = resolved?.mandatoryTotal ?? 0;
   const recTotal = resolved?.recommendedTotal ?? 0;
   const whyLabel = t("fitWhyOpen", { score: score ?? 0 });
   const hideLabel = t("fitWhyHide");
-  const sourceKey = lazyKey(lazySource);
-  const sourceRef = useRef(lazySource);
-  sourceRef.current = lazySource;
 
   useEffect(() => {
-    setFetched(null);
-  }, [sourceKey]);
-
-  useEffect(() => {
-    const source = sourceRef.current;
+    const source = jobId
+      ? { jobId }
+      : applicationId
+        ? { applicationId }
+        : null;
     if (!open || explanation || !source) return;
+    const key = lazyKey(source);
+    if (!key) return;
     const ac = new AbortController();
-    setFetched(null);
-    setLoading(true);
     fetchExplanation(source, ac.signal)
       .then((data) => {
-        if (!ac.signal.aborted) setFetched(data);
+        if (!ac.signal.aborted) setFetched({ key, data });
       })
       .catch(() => {
-        if (!ac.signal.aborted) setFetched(null);
-      })
-      .finally(() => {
-        if (!ac.signal.aborted) setLoading(false);
+        if (!ac.signal.aborted) setFetched({ key, data: null });
       });
     return () => {
       ac.abort();
     };
-  }, [open, explanation, sourceKey]);
+  }, [open, explanation, jobId, applicationId]);
 
   const counts = (
     <ul className={cn("space-y-0.5 tabular-nums text-white/55", compact ? "text-[11px]" : "text-[13px]")}>

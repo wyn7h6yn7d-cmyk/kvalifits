@@ -1,7 +1,13 @@
 import { errorMessageFromUnknown } from "@/lib/utils";
+import { isEmployerOwnerUniqueViolation } from "@/lib/employer/employerOwnerUniqueness";
 
 /** Maps Supabase / RLS failures to onboarding strings; appends DB fix hints when useful. */
 export function formatEmployerProfileSaveError(err: unknown, t: (key: string) => string): string {
+  const code =
+    typeof err === "object" && err && "code" in err ? String((err as { code?: unknown }).code ?? "") : "";
+  if (isEmployerOwnerUniqueViolation({ code, message: errorMessageFromUnknown(err, "") })) {
+    return t("ownerUniqueError");
+  }
   const raw = errorMessageFromUnknown(err, t("unknownError"));
   const lower = raw.toLowerCase();
   if (

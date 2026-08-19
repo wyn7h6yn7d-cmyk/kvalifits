@@ -1,13 +1,17 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { AuthShell } from "@/components/auth/AuthShell";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { getCurrentAuth } from "@/lib/auth/currentAuth";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export default async function ResetPasswordPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
+  const auth = await getCurrentAuth();
+  if (auth.isBlocked) redirect(`/${locale}/blocked`);
 
   return (
     <AuthShell title={t("resetPasswordTitle")} subtitle={t("resetPasswordSubtitle")}>

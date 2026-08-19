@@ -12,6 +12,7 @@ const ITEMS: { href: string; key: string; exact?: boolean }[] = [
   { href: "/admin/employers", key: "navEmployers" },
   { href: "/admin/users", key: "navUsers" },
   { href: "/admin/reports", key: "navReports" },
+  { href: "/admin/audit", key: "navAudit" },
   { href: "/admin/security", key: "navSecurity" },
 ];
 

@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import type { Job } from "@/components/jobs/types";
-import type { ProfileGapKey } from "@/lib/seeker/profileCompleteness";
+import { PROFILE_GAP_HREF, type ProfileGapKey } from "@/lib/seeker/profileCompleteness";
 import { seekerApplicationStatusLabelKey } from "@/lib/applications/seekerFacingStatus";
 
 export type OverviewApplication = {
@@ -31,20 +31,7 @@ export type OverviewDeadline = {
   days: number;
 };
 
-const GAP_HREF: Record<ProfileGapKey, string> = {
-  avatar: "/account/seeker/profile",
-  name: "/account/seeker/profile",
-  title: "/account/seeker/profile",
-  phone: "/account/seeker/profile",
-  location: "/account/seeker/profile",
-  about: "/account/seeker/profile",
-  skills: "/account/seeker/profile",
-  experience: "/account/seeker/profile",
-  jobTypes: "/account/seeker/profile",
-  locations: "/account/seeker/profile",
-  dob: "/account/seeker/profile",
-  certificate: "/account/seeker/certificates",
-};
+const GAP_HREF = PROFILE_GAP_HREF;
 
 function surfaceClass() {
   return "rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5";
@@ -63,7 +50,7 @@ export async function SeekerOverview({
   locale,
   firstName,
   percent,
-  gaps,
+  missing,
   matches,
   matchSortAvailable,
   applications,
@@ -73,7 +60,7 @@ export async function SeekerOverview({
   locale: string;
   firstName: string;
   percent: number;
-  gaps: ProfileGapKey[];
+  missing: ProfileGapKey[];
   matches: Job[];
   matchSortAvailable: boolean;
   applications: OverviewApplication[];
@@ -82,7 +69,7 @@ export async function SeekerOverview({
 }) {
   const t = await getTranslations({ locale, namespace: "seekerDashboard" });
   const tJobs = await getTranslations({ locale, namespace: "jobs" });
-  const shownGaps = gaps.slice(0, 3);
+  const shownGaps = missing.slice(0, 3);
 
   return (
     <div className="space-y-4">

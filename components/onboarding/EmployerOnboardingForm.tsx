@@ -15,9 +15,11 @@ import {
   type EmployerOnboardingPrefill,
 } from "@/lib/employer/employerCompanySizeSync";
 import { formatEmployerProfileSaveError } from "@/lib/employer/employerProfileSaveError";
+import { isEmployerOwnerUniqueViolation } from "@/lib/employer/employerOwnerUniqueness";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import { reportStorageUploadFailure } from "@/lib/monitoring/report";
+import { errorMessageFromUnknown, omitKeys } from "@/lib/utils";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { findTerm, taxonomyLabel } from "@/lib/taxonomy/labels";
 import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
@@ -116,7 +118,10 @@ export function EmployerOnboardingForm({ locale }: Props) {
         upsert: true,
         contentType: prepared.type || undefined,
       });
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        reportStorageUploadFailure(uploadErr, "avatar");
+        throw uploadErr;
+      }
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
       setLogoPreviewUrl(URL.createObjectURL(prepared));
@@ -178,9 +183,16 @@ export function EmployerOnboardingForm({ locale }: Props) {
         };
       let { error } = await supabase.from("employer_profiles").upsert(payload, { onConflict: "owner_user_id" });
       if (error && isTaxonomyColumnError(error.message)) {
-        const { industry_id: _id, ...rest } = payload;
-        const retry = await supabase.from("employer_profiles").upsert(rest, { onConflict: "owner_user_id" });
+        const retry = await supabase.from("employer_profiles").upsert(
+          omitKeys(payload, ["industry_id"]),
+          { onConflict: "owner_user_id" },
+        );
         error = retry.error;
+      }
+      if (error && isEmployerOwnerUniqueViolation(error)) {
+        router.push(`/${locale}/onboarding`);
+        router.refresh();
+        return;
       }
       if (error) throw error;
 

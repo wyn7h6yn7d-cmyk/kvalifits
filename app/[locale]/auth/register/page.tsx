@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { AuthShell } from "@/components/auth/AuthShell";
@@ -31,11 +32,12 @@ export default async function RegisterPage({ params, searchParams }: Props) {
         ? t("registerSubtitleSeeker")
         : t("registerSubtitle");
 
-  const { authenticated } = await getCurrentAuth();
+  const auth = await getCurrentAuth();
+  if (auth.isBlocked) redirect(`/${locale}/blocked`);
 
   return (
     <AuthShell title={t("registerTitle")} subtitle={subtitle}>
-      {authenticated ? <AlreadySignedIn /> : <RegisterForm locale={locale} defaultRole={defaultRole} />}
+      {auth.authenticated ? <AlreadySignedIn /> : <RegisterForm locale={locale} defaultRole={defaultRole} />}
     </AuthShell>
   );
 }

@@ -15,7 +15,8 @@ import { EmployerApplicationStatusSelect } from "@/components/employer/EmployerA
 import { EmployerApplicationInternalNotes } from "@/components/employer/EmployerApplicationInternalNotes";
 import { EmployerApplicationStatusHistory } from "@/components/employer/EmployerApplicationStatusHistory";
 import { Link } from "@/i18n/routing";
-import { safeHttpUrl } from "@/lib/utils";
+import { firstCvStorageRef } from "@/lib/seeker/cvStorage";
+import { PrivateCvOpenLink } from "@/components/seeker/PrivateCvOpenLink";
 import {
   calculateAgeYears,
   isLegalRepresentativeConsentStatus,
@@ -31,6 +32,7 @@ import {
   CertificateStatusBlock,
   certificateViewLabelsFromT,
 } from "@/components/seeker/CertificateVerificationBadge";
+import { ApplicantEducationList } from "@/components/employer/ApplicantEducationList";
 
 type Props = { params: Promise<{ locale: string; id: string; applicationId: string }> };
 
@@ -116,16 +118,12 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tOnb = await getTranslations({ locale, namespace: "onboarding" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { role, nextPath } = await getRoleAndNextPath(locale);
+  const { user, role, nextPath } = await getRoleAndNextPath(locale);
+  if (!user) redirect(nextPath);
   if (role !== "employer") redirect(`/${locale}/account`);
   if (nextPath.includes("/onboarding/")) redirect(nextPath);
+
+  const supabase = await createSupabaseServerClient();
 
   const job = await getEmployerJobIfOwned(supabase, user.id, id);
   if (!job) redirect(`/${locale}/account/employer`);
@@ -278,7 +276,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
     }
     return out;
   })();
-  let cvUrl = safeHttpUrl(seeker.cv_url);
+  let cvUrl = firstCvStorageRef(typeof seeker.cv_url === "string" ? seeker.cv_url : null);
   const seekerUserId = (app as { seeker_user_id?: string }).seeker_user_id;
   let showLegalRepConsentNotice = Boolean(seeker.requires_legal_representative_consent);
   if (seekerUserId) {
@@ -287,7 +285,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
       .select("cv_url,is_minor,date_of_birth,legal_representative_consent_status")
       .eq("user_id", seekerUserId)
       .maybeSingle();
-    if (!cvUrl) cvUrl = safeHttpUrl(liveSeeker?.cv_url);
+    if (!cvUrl) cvUrl = firstCvStorageRef(liveSeeker?.cv_url);
     if (liveSeeker) {
       const dob = (liveSeeker.date_of_birth ?? "").toString();
       const age = dob ? calculateAgeYears(dob) : null;
@@ -407,14 +405,13 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                 <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantDetailCv")}</div>
                 {cvUrl ? (
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-                    <a
-                      href={cvUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex w-full items-center justify-center rounded-2xl border border-violet-400/35 bg-gradient-to-r from-violet-500/25 to-fuchsia-500/20 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset] transition-colors hover:border-violet-400/50 hover:from-violet-500/35 hover:to-fuchsia-500/28 sm:w-auto"
+                    <PrivateCvOpenLink
+                      cvRef={cvUrl}
+                      errorLabel={t("applicantCvOpenFailed")}
+                      className="inline-flex w-full items-center justify-center rounded-2xl border border-violet-400/35 bg-gradient-to-r from-violet-500/25 to-fuchsia-500/20 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset] transition-colors hover:border-violet-400/50 hover:from-violet-500/35 hover:to-fuchsia-500/28 disabled:opacity-60 sm:w-auto"
                     >
                       {t("applicantDetailDownloadCv")}
-                    </a>
+                    </PrivateCvOpenLink>
                     <p className="text-[12px] leading-relaxed text-white/45 sm:ml-1">{t("applicantDetailCvHint")}</p>
                   </div>
                 ) : (
@@ -522,6 +519,8 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                     </ul>
                   </div>
                 ) : null}
+
+                <ApplicantEducationList raw={seeker.education} />
 
                 {certs.filter((c) => (c.certificate_name ?? "").toString().trim()).length ? (
                   <div className="mt-5">

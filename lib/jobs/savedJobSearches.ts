@@ -13,10 +13,11 @@ export const SAVED_SEARCH_MATCH_THRESHOLDS = [60, 70, 80, 90] as const;
 export const DEFAULT_SAVED_SEARCH_MIN_MATCH = 80;
 
 /**
- * Email/cron delivery is not configured. Persistence and settings UI may run;
- * do not tell the user that messages are being sent.
+ * In-app saved-search alerts are delivered by the scheduled worker.
+ * Email is a separate channel (`savedSearchAlertsEmailEnabled`) and must not be
+ * claimed in UI copy unless that function is true on the server.
  */
-export const SAVED_SEARCH_ALERTS_DELIVERY_ENABLED = false;
+export const SAVED_SEARCH_ALERTS_DELIVERY_ENABLED = true;
 
 export type SavedSearchSnapshot = {
   query: string;
@@ -137,7 +138,7 @@ export function jobMatchesSavedSearch(
   return true;
 }
 
-/** Jobs published after `notifyAfter` that match the saved search. Used by a future worker. */
+/** Jobs published after `notifyAfter` that match the saved search. */
 export function newJobsForSavedSearch(
   jobs: readonly Job[],
   snapshot: SavedSearchSnapshot,

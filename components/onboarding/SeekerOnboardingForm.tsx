@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
+import { EXPERIENCE_LEVEL_VALUES, parseCommaList } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 import {
   buildCertificateObjectPath,
@@ -20,6 +20,10 @@ import {
   type LegalRepresentativeConsentStatus,
 } from "@/lib/seeker/age";
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
+import { persistCvStorageRef } from "@/lib/seeker/cvStorage";
+import { removeCvStorageObject, uploadOwnCvPdf } from "@/lib/seeker/cvUpload";
+import { reportStorageUploadFailure } from "@/lib/monitoring/report";
+import { PrivateCvOpenLink } from "@/components/seeker/PrivateCvOpenLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
@@ -56,6 +60,13 @@ import {
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { mergeLegacyText, suggestedSkillIds } from "@/lib/taxonomy/resolve";
 import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
+import { omitKeys } from "@/lib/utils";
+import { SeekerCompletenessPanel } from "@/components/account/SeekerCompletenessPanel";
+import {
+  computeSeekerProfileCompleteness,
+  namedCertificateCountFromRows,
+  seekerProfileCompletenessPersistence,
+} from "@/lib/seeker/profileCompleteness";
 
 type Props = {
   locale: string;
@@ -167,6 +178,49 @@ export function SeekerOnboardingForm({ locale }: Props) {
     }>
   >([]);
 
+  const completeness = useMemo(
+    () =>
+      computeSeekerProfileCompleteness({
+        avatarUrl,
+        fullName: `${firstName} ${lastName}`.trim().replace(/\s+/g, " "),
+        profileTitle,
+        phone,
+        location,
+        about,
+        skills: taxonomyAvailable
+          ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+          : parseCommaList(skillsCsv),
+        experienceLevel,
+        preferredJobTypes: parseCommaList(preferredJobTypesCsv),
+        preferredLocations: parseCommaList(preferredLocationsCsv),
+        dateOfBirth,
+        learningObligationStatus,
+        hasBCategoryDriversLicense,
+        namedCertificateCount: namedCertificateCountFromRows(certificates),
+      }),
+    [
+      about,
+      avatarUrl,
+      catalog,
+      certificates,
+      dateOfBirth,
+      experienceLevel,
+      firstName,
+      hasBCategoryDriversLicense,
+      lastName,
+      learningObligationStatus,
+      location,
+      phone,
+      preferredJobTypesCsv,
+      preferredLocationsCsv,
+      profileTitle,
+      skillIds,
+      skillLeftover,
+      skillsCsv,
+      taxonomyAvailable,
+    ],
+  );
+
   async function onCertificateFileChange(idx: number, file: File | null) {
     if (!file) return;
     setError(null);
@@ -194,7 +248,10 @@ export function SeekerOnboardingForm({ locale }: Props) {
           upsert: true,
           contentType: uploadFile.type || undefined,
         });
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        reportStorageUploadFailure(uploadErr, "certificate");
+        throw uploadErr;
+      }
       setCertificates((prev) =>
         prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: path } : x))
       );
@@ -231,7 +288,10 @@ export function SeekerOnboardingForm({ locale }: Props) {
           upsert: true,
           contentType: uploadFile.type || undefined,
         });
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        reportStorageUploadFailure(uploadErr, "avatar");
+        throw uploadErr;
+      }
 
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       const publicUrl = data.publicUrl;
@@ -277,23 +337,13 @@ export function SeekerOnboardingForm({ locale }: Props) {
       const ext = (file.name.split(".").pop() || "pdf").toLowerCase();
       if (ext !== "pdf" && file.type !== "application/pdf") throw new Error(t("unknownError"));
 
-      const safeBase = file.name
-        .replace(/\.[^.]+$/, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9-_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-        .slice(0, 48);
-      const path = `${user.id}/cv/${Date.now()}-${safeBase || "cv"}.pdf`;
-
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
-        upsert: true,
-        contentType: "application/pdf",
+      const path = await uploadOwnCvPdf({
+        supabase,
+        userId: user.id,
+        file,
+        previous: cvUrl,
       });
-      if (uploadErr) throw uploadErr;
-
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      setCvUrl(data.publicUrl);
+      setCvUrl(path);
     } catch (err) {
       const message = getErrorMessage(err);
       setError(message || t("unknownError"));
@@ -380,22 +430,21 @@ export function SeekerOnboardingForm({ locale }: Props) {
           certificate_image_url: persistCertificateImageRef(c.certificate_image_url) ?? "",
         }))
         .filter((c) => c.certificate_name && c.certificate_issuer);
-      const isComplete = seekerCoreComplete({
+      const completeness = computeSeekerProfileCompleteness({
         avatarOk: isSeekerAvatarFromStorageUpload(avatarUrl),
-        seeker: {
-          full_name: fullName,
-          profile_title: title,
-          phone,
-          location,
-          about,
-          skills,
-          experience_level: experienceLevel,
-          preferred_job_types: preferredJobTypes,
-          preferred_locations: preferredLocations,
-          date_of_birth: dateOfBirth,
-          learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
-        },
-        certRowsWithImage: 0,
+        fullName,
+        profileTitle: title,
+        phone,
+        location,
+        about,
+        skills,
+        experienceLevel,
+        preferredJobTypes,
+        preferredLocations,
+        dateOfBirth,
+        learningObligationStatus: isLearningObligationStatus(learningStatus) ? learningStatus : null,
+        hasBCategoryDriversLicense,
+        namedCertificateCount: validCerts.length,
       });
 
       const languages = taxonomyAvailable
@@ -414,13 +463,13 @@ export function SeekerOnboardingForm({ locale }: Props) {
         preferred_locations: preferredLocations,
         salary_expectation: salaryExpectation.trim() || null,
         work_authorization_notes: workAuthNotes.trim() || null,
-        cv_url: cvUrl.trim() || null,
+        cv_url: persistCvStorageRef(cvUrl),
         date_of_birth: dateOfBirth,
         learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
         legal_representative_consent_status: consentToSave,
         ...workPreferencesToDbPayload(sanitizedPrefs),
         ...experienceBackgroundToDbPayload(experienceBackground),
-        is_complete: isComplete,
+        ...seekerProfileCompletenessPersistence(completeness),
         // Privacy-by-default: keep profile hidden until seeker explicitly enables visibility in their account.
         profile_visible: false,
         has_b_category_drivers_license: hasBCategoryDriversLicense,
@@ -431,8 +480,9 @@ export function SeekerOnboardingForm({ locale }: Props) {
       };
       let { error: seekerErr } = await supabase.from("seeker_profiles").upsert(seekerPayload);
       if (seekerErr && isTaxonomyColumnError(seekerErr.message)) {
-        const { profession_id: _p, skill_ids: _s, language_ids: _l, languages: _lang, ...rest } = seekerPayload;
-        const retry = await supabase.from("seeker_profiles").upsert(rest);
+        const retry = await supabase
+          .from("seeker_profiles")
+          .upsert(omitKeys(seekerPayload, ["profession_id", "skill_ids", "language_ids", "languages"]));
         seekerErr = retry.error;
       }
       if (seekerErr) throw seekerErr;
@@ -518,6 +568,7 @@ export function SeekerOnboardingForm({ locale }: Props) {
 
   return (
     <form noValidate onSubmit={onSubmit} className="space-y-6">
+      <SeekerCompletenessPanel completeness={completeness} linkGaps={false} />
       <div className="space-y-2">
         <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
         <div className="text-xs leading-relaxed text-white/45">{t("avatarFileOnlyHint")}</div>
@@ -754,11 +805,29 @@ export function SeekerOnboardingForm({ locale }: Props) {
           <div className="text-xs text-white/45">{t("cvUrlHint")}</div>
           {cvUploading ? <div className="text-xs text-white/55">{t("cvUploading")}</div> : null}
           {!cvUploading && cvUrl ? (
-            <div className="text-xs text-white/55">
-              {cvFileName ? `${cvFileName} — ` : null}
-              <a href={cvUrl} target="_blank" rel="noreferrer" className="underline hover:text-white/80">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/55">
+              {cvFileName ? <span>{cvFileName}</span> : null}
+              <PrivateCvOpenLink
+                cvRef={cvUrl}
+                errorLabel={t("cvOpenFailed")}
+                className="underline hover:text-white/80 disabled:opacity-60"
+              >
                 {t("cvOpen")}
-              </a>
+              </PrivateCvOpenLink>
+              <button
+                type="button"
+                className="underline hover:text-white/80"
+                onClick={() => {
+                  void (async () => {
+                    const supabase = createSupabaseBrowserClient();
+                    await removeCvStorageObject(supabase, cvUrl);
+                    setCvUrl("");
+                    setCvFileName(null);
+                  })();
+                }}
+              >
+                {t("cvRemove")}
+              </button>
             </div>
           ) : null}
         </div>

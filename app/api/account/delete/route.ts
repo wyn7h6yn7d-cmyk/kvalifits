@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 
 import { runDeleteAccountWorkflow } from "@/lib/account/deleteAccountWorkflow";
 import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
+import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { reportException, reportMessage } from "@/lib/monitoring/report";
 
 export const runtime = "nodejs";
 
@@ -32,31 +33,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "acknowledgement_required" }, { status: 400 });
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "not_authenticated" }, { status: 401 });
-  }
+  const gate = await requireAuthenticatedUser();
+  if (!gate.ok) return authGateJson(gate);
+  const { supabase, user, role } = gate;
 
   const admin = createSupabaseAdminClient();
   if (!admin) {
+    reportMessage("missing_service_role_key", { area: "api", code: "missing_service_role_key" });
     return NextResponse.json({ error: "missing_service_role_key" }, { status: 500 });
   }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const role =
-    ((profile as { role?: string | null } | null)?.role ??
-      (user.user_metadata as { role?: string } | undefined)?.role ??
-      null) ||
-    null;
 
   if (role === "admin") {
     return NextResponse.json({ error: "admin_cannot_self_delete" }, { status: 403 });
@@ -84,8 +69,10 @@ export async function POST(req: Request) {
       lower.includes("schema cache") ||
       lower.includes("does not exist")
     ) {
+      reportException(err, { area: "api", code: "missing_privacy_tables" });
       return NextResponse.json({ error: "missing_privacy_tables", message }, { status: 500 });
     }
+    reportException(err, { area: "api", code: "delete_failed" });
     return NextResponse.json({ error: "delete_failed", message }, { status: 500 });
   }
 }

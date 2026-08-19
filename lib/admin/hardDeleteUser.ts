@@ -72,13 +72,18 @@ export async function runAdminHardDeleteUser(opts: {
   if (certPaths.length) {
     await admin.storage.from("certificates").remove(certPaths);
   }
+  await removeStorageFolder(admin, "certificates", targetUserId);
+  await removeStorageFolder(admin, "resumes", `${targetUserId}/cv`);
   await removeStorageFolder(admin, "avatars", targetUserId);
   await removeStorageFolder(admin, "avatars", `${targetUserId}/employer-logo`);
+  await removeStorageFolder(admin, "avatars", `${targetUserId}/cv`);
 
   await deleteEq(admin, "seeker_certificates", "user_id", targetUserId);
+  await deleteEq(admin, "seeker_education", "seeker_user_id", targetUserId);
   await deleteEq(admin, "seeker_workplace_needs", "user_id", targetUserId);
   await deleteEq(admin, "seeker_work_capacity", "user_id", targetUserId);
   await deleteEq(admin, "saved_jobs", "seeker_user_id", targetUserId);
+  await deleteEq(admin, "saved_search_alert_deliveries", "seeker_user_id", targetUserId);
   await deleteEq(admin, "saved_job_searches", "seeker_user_id", targetUserId);
   await deleteEq(admin, "job_applications", "seeker_user_id", targetUserId);
   await deleteEq(admin, "job_post_reports", "reporter_user_id", targetUserId);

@@ -1,5 +1,10 @@
 import type { SeekerMatchInput } from "@/lib/matching/calculateJobMatch";
 
+/**
+ * Ranking-sort signal only: enough profile text to score a match.
+ * Apply / onboarding eligibility is `seekerCoreComplete` in
+ * `lib/seeker/profileCompleteness.ts` — do not treat this as that gate.
+ */
 export function seekerCanUseMatchRanking(seeker: SeekerMatchInput | null | undefined): boolean {
   if (!seeker) return false;
   const skills = (seeker.skills ?? []).map((s) => String(s).trim()).filter(Boolean);

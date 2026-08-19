@@ -31,12 +31,14 @@ $$;
 revoke all on function public.employer_profile_has_published_job(uuid) from public;
 grant execute on function public.employer_profile_has_published_job(uuid) to anon, authenticated;
 
--- Employer row readable for public listings only when at least one published job exists.
+-- Employer row: anon may SELECT published-job companies (column-limited).
+-- Authenticated non-owners use employer_public_profiles — see
+-- fix-employer-profiles-public-column-grants.sql.
 drop policy if exists "employer_profiles_select_for_published_jobs" on public.employer_profiles;
 create policy "employer_profiles_select_for_published_jobs"
 on public.employer_profiles
 for select
-to anon, authenticated
+to anon
 using (public.employer_profile_has_published_job(id));
 
 -- Employers read their own company row (drafts, onboarding, account).

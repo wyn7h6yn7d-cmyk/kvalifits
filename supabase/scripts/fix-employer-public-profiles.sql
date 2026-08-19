@@ -108,9 +108,12 @@ comment on column public.employer_profiles.public_slug is
 -- ---------------------------------------------------------------------------
 -- Public view (safe columns only)
 -- ---------------------------------------------------------------------------
+-- Public view + column grants: prefer
+-- supabase/scripts/fix-employer-profiles-public-column-grants.sql
+drop view if exists public.employer_saved_public_profiles;
 drop view if exists public.employer_public_profiles;
 create view public.employer_public_profiles
-with (security_invoker = true)
+with (security_invoker = false, security_barrier = true)
 as
 select
   ep.id,
@@ -121,11 +124,10 @@ select
   ep.industry,
   ep.website,
   ep.company_description,
-  ep.company_verified
+  ep.company_verified,
+  ep.verification_status
 from public.employer_profiles ep
-where ep.public_slug is not null
-  and btrim(coalesce(ep.company_name, '')) <> ''
-  and public.employer_profile_has_published_job(ep.id);
+where public.employer_profile_has_published_job(ep.id);
 
 comment on view public.employer_public_profiles is
   'Public company directory rows. No owner, contacts, registry, billing, or verification admin metadata.';
@@ -135,10 +137,24 @@ revoke all on table public.employer_public_profiles from anon;
 revoke all on table public.employer_public_profiles from authenticated;
 grant select on table public.employer_public_profiles to anon, authenticated;
 
+-- Authenticated non-owners must not hit the table for other companies.
+drop policy if exists "employer_profiles_select_for_published_jobs" on public.employer_profiles;
+create policy "employer_profiles_select_for_published_jobs"
+  on public.employer_profiles
+  for select
+  to anon
+  using (public.employer_profile_has_published_job(id));
+
+drop policy if exists "employer_profiles_select_for_saved_jobs" on public.employer_profiles;
+
 -- ---------------------------------------------------------------------------
 -- Anon cannot SELECT private employer columns even when the row is public
 -- ---------------------------------------------------------------------------
-revoke select on table public.employer_profiles from anon;
+-- Anon + authenticated public columns; authenticated also gets owner/admin columns.
+-- Full grant set: fix-employer-profiles-public-column-grants.sql
+revoke all on table public.employer_profiles from public;
+revoke all on table public.employer_profiles from anon;
+revoke all on table public.employer_profiles from authenticated;
 grant select (
   id,
   public_slug,
@@ -150,6 +166,18 @@ grant select (
   company_description,
   company_verified,
   verification_status
-) on table public.employer_profiles to anon;
+) on table public.employer_profiles to anon, authenticated;
+grant select (
+  owner_user_id,
+  registry_code,
+  contact_email,
+  contact_phone,
+  company_size,
+  created_at,
+  updated_at,
+  verification_source,
+  verified_at
+) on table public.employer_profiles to authenticated;
+grant insert, update on table public.employer_profiles to authenticated;
 
 notify pgrst, 'reload schema';

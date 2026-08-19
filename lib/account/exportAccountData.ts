@@ -28,6 +28,17 @@ export async function exportAccountData(opts: {
     )
     .eq("user_id", userId);
 
+  const { data: education, error: educationErr } = await supabase
+    .from("seeker_education")
+    .select(
+      "id,institution,field_of_study,degree_or_level,start_year,end_year,currently_studying,description,created_at,updated_at",
+    )
+    .eq("seeker_user_id", userId);
+  const educationRows =
+    educationErr && /does not exist|schema cache|relation|could not find/i.test(educationErr.message ?? "")
+      ? []
+      : education ?? [];
+
   const { data: workplaceNeeds } = await supabase
     .from("seeker_workplace_needs")
     .select("*")
@@ -105,6 +116,17 @@ export async function exportAccountData(opts: {
     if (!savedSearchRes.error) savedJobSearches = savedSearchRes.data ?? [];
   }
 
+  let notifications: any[] = [];
+  {
+    const notifRes = await supabase
+      .from("notifications")
+      .select("id,type,entity_type,entity_id,payload,created_at,read_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (!notifRes.error) notifications = notifRes.data ?? [];
+  }
+
   return {
     exportVersion: 1,
     exportedAt,
@@ -122,11 +144,13 @@ export async function exportAccountData(opts: {
     },
     seekerProfile: seeker ?? null,
     certificates: certificates ?? [],
+    education: educationRows,
     workplaceNeeds: workplaceNeeds ?? null,
     workCapacity: workCapacity ?? null,
     jobApplications,
     savedJobs: savedJobs ?? [],
     savedJobSearches: savedJobSearches ?? [],
+    notifications: notifications ?? [],
     employerProfile: employer ?? null,
     jobPosts,
     jobPostReportsFiled: reports ?? [],

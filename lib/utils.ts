@@ -5,6 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function omitKeys<T extends object, K extends string>(obj: T, keys: readonly K[]): Omit<T, K> {
+  const next = { ...obj } as Record<string, unknown>;
+  for (const key of keys) {
+    delete next[key];
+  }
+  return next as Omit<T, K>;
+}
+
 /** Supabase `PostgrestError` and similar objects often are not `instanceof Error`. */
 export function errorMessageFromUnknown(err: unknown, fallback: string): string {
   if (err instanceof Error && err.message.trim()) return err.message;

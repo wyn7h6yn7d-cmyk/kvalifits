@@ -1,42 +1,62 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { reportException, reportMessage } from "@/lib/monitoring/report";
+
 type SendEmailArgs = {
   from: string;
   to: string;
   subject: string;
   html: string;
+  /** Stable key so retries do not create a second Resend message. */
+  idempotencyKey?: string;
 };
 
-export async function sendEmailViaResend(args: SendEmailArgs) {
+export type SendEmailResult = { ok: true } | { ok: false; reason: "missing_config" | "provider_error" };
+
+export async function sendEmailViaResend(args: SendEmailArgs): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing required environment variable: RESEND_API_KEY.");
-  }
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: args.from,
-      to: [args.to],
-      subject: args.subject,
-      html: args.html,
-    }),
-  });
-
-  if (!res.ok) {
-    let msg = `Resend API error (${res.status})`;
-    try {
-      const data = (await res.json()) as any;
-      msg = data?.message ? `Resend API error: ${data.message}` : msg;
-    } catch {
-      // ignore
+    if (process.env.VERCEL_ENV === "production") {
+      reportMessage("email_missing_config", { area: "email", code: "missing_config" });
     }
-    throw new Error(msg);
+    return { ok: false, reason: "missing_config" };
   }
 
-  return (await res.json()) as unknown;
-}
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
+  if (args.idempotencyKey) {
+    headers["Idempotency-Key"] = args.idempotencyKey;
+  }
 
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        from: args.from,
+        to: [args.to],
+        subject: args.subject,
+        html: args.html,
+      }),
+    });
+
+    if (!res.ok) {
+      try {
+        await res.json();
+      } catch {
+        // ignore provider body — never surface it
+      }
+      reportMessage("email_provider_error", {
+        area: "email",
+        code: "provider_error",
+        extras: { status: res.status },
+      });
+      return { ok: false, reason: "provider_error" };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    reportException(err, { area: "email", code: "provider_error" });
+    return { ok: false, reason: "provider_error" };
+  }
+}

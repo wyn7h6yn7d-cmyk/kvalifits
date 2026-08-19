@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { clientIpFromHeaders, consumeAuthRateLimit } from "@/lib/auth/rateLimit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { reportMessage } from "@/lib/monitoring/report";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,9 @@ export async function POST(req: Request) {
   const ip = clientIpFromHeaders(req.headers);
   const limit = await consumeAuthRateLimit({ action: "password_reset", ip, email });
   if (!limit.ok) {
+    if (limit.error === "missing_rate_limit_table") {
+      reportMessage("missing_rate_limit_table", { area: "auth", code: "missing_rate_limit_table" });
+    }
     return NextResponse.json(
       {
         error: limit.error === "missing_rate_limit_table" ? "missing_rate_limit_table" : "rate_limited",

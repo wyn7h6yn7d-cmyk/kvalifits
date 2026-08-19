@@ -19,8 +19,12 @@ export function companyCanonicalPath(slug: string): string {
   return `/ettevotted/${slug}`;
 }
 
-export function buildCompanySeoTitle(locale: string, company: PublicCompany): string {
-  const name = company.name.trim() || "Ettevõte";
+export function buildCompanySeoTitle(
+  locale: string,
+  company: PublicCompany,
+  emptyName: string,
+): string {
+  const name = company.name.trim() || emptyName;
   const loc = (company.location ?? "").trim();
   if (locale === "en") {
     return loc ? `${name} — ${loc}` : name;

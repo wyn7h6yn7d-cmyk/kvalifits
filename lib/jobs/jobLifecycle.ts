@@ -135,6 +135,17 @@ export function endOfDayTallinnIso(ymd: string): string {
 
 export type ListingPackageDays = 30 | 90;
 
+/** Infer 30 vs 90 day listing package from a stored application deadline. */
+export function inferListingPackageDays(
+  applicationDeadline: string | null | undefined,
+  asOf: Date = new Date(),
+): ListingPackageDays {
+  const requested = toCalendarDate(applicationDeadline);
+  if (!requested) return 30;
+  const start = calendarDateInTallinn(asOf);
+  return requested > addCalendarDays(start, 30) ? 90 : 30;
+}
+
 export function buildPublishLifecycleDates(opts: {
   publishedAt?: Date;
   /** Listing live duration in days (package). */

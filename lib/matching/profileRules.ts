@@ -1,11 +1,5 @@
 /** Shared rules for structured profile/job data used by matching later. */
 
-import {
-  calculateAgeYears,
-  isLearningObligationStatus,
-  needsLearningObligationStatus,
-} from "@/lib/seeker/age";
-
 export const EXPERIENCE_LEVEL_VALUES = ["entry", "mid", "senior", "lead", "executive"] as const;
 export type ExperienceLevel = (typeof EXPERIENCE_LEVEL_VALUES)[number];
 
@@ -61,9 +55,6 @@ export function isLikelyHttpUrl(v: string) {
   }
 }
 
-const MIN_ABOUT = 40;
-const MIN_PROFILE_TITLE = 3;
-const MIN_SKILLS = 2;
 const MIN_REQ_LINES = 2;
 const MIN_SKILLS_JOB = 1;
 const MIN_KEYWORDS_JOB = 1;
@@ -83,37 +74,6 @@ export type SeekerCoreFields = {
   date_of_birth?: string | null;
   learning_obligation_status?: string | null;
 };
-
-export function seekerCoreComplete(args: {
-  avatarOk: boolean;
-  seeker: SeekerCoreFields | null;
-  /** Legacy param kept for compatibility; certificates are optional now. */
-  certRowsWithImage: number;
-}): boolean {
-  const s = args.seeker;
-  if (!args.avatarOk) return false;
-  if (!s) return false;
-  const about = (s.about ?? "").trim();
-  const title = (s.profile_title ?? "").trim();
-  const name = (s.full_name ?? "").trim();
-  if (!name || !title || title.length < MIN_PROFILE_TITLE) return false;
-  if (!isExperienceLevel(s.experience_level)) return false;
-  if (!(s.phone ?? "").trim() || !(s.location ?? "").trim()) return false;
-  if (about.length < MIN_ABOUT) return false;
-  const skills = Array.isArray(s.skills) ? s.skills.filter(Boolean) : [];
-  if (skills.length < MIN_SKILLS) return false;
-  const jt = Array.isArray(s.preferred_job_types) ? s.preferred_job_types.filter(Boolean) : [];
-  const loc = Array.isArray(s.preferred_locations) ? s.preferred_locations.filter(Boolean) : [];
-  if (jt.length < 1 || loc.length < 1) return false;
-
-  const dob = (s.date_of_birth ?? "").trim();
-  const ageYears = calculateAgeYears(dob);
-  if (ageYears === null) return false;
-  if (needsLearningObligationStatus(ageYears) && !isLearningObligationStatus(s.learning_obligation_status)) {
-    return false;
-  }
-  return true;
-}
 
 export type EmployerCoreFields = {
   company_name: string | null;

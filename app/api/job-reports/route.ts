@@ -4,7 +4,11 @@ import {
   isJobPostReportReason,
   JOB_POST_REPORT_DETAILS_MAX,
 } from "@/lib/jobs/jobPostReport";
+import { authGateBody, evaluateAuthGate } from "@/lib/auth/accountBlocked";
+import { getAuthUser } from "@/lib/auth/currentAuth";
+import { getProfileSecurity } from "@/lib/auth/profileSecurity";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { reportMessage } from "@/lib/monitoring/report";
 
 export const runtime = "nodejs";
 
@@ -41,9 +45,14 @@ export async function POST(req: Request) {
   }
 
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getAuthUser();
+  if (user) {
+    const security = await getProfileSecurity(user.id);
+    const gate = evaluateAuthGate({ user, security });
+    if (!gate.ok) {
+      return NextResponse.json(authGateBody(gate), { status: gate.status });
+    }
+  }
 
   const { data: job, error: jobErr } = await supabase
     .from("job_posts")
@@ -52,6 +61,7 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   if (jobErr) {
+    reportMessage("job_lookup_failed", { area: "api", code: "job_lookup_failed" });
     return NextResponse.json({ error: "job_lookup_failed" }, { status: 500 });
   }
   if (!job || (job.status as string) !== "published") {
@@ -71,8 +81,10 @@ export async function POST(req: Request) {
   if (insErr) {
     const msg = (insErr.message ?? "").toLowerCase();
     if (msg.includes("job_post_reports") || msg.includes("schema cache") || msg.includes("does not exist")) {
+      reportMessage("missing_reports_table", { area: "api", code: "missing_reports_table" });
       return NextResponse.json({ error: "missing_reports_table" }, { status: 500 });
     }
+    reportMessage("job_report_insert_failed", { area: "api", code: "insert_failed" });
     return NextResponse.json({ error: "insert_failed", message: insErr.message }, { status: 500 });
   }
 

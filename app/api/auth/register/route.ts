@@ -3,6 +3,12 @@ import { NextResponse } from "next/server";
 import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from "@/lib/legal/acceptanceVersions";
 import { clientIpFromHeaders, consumeAuthRateLimit } from "@/lib/auth/rateLimit";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  employerProfilePlaceholderRow,
+  resultFromEmployerOwnerInsert,
+} from "@/lib/employer/employerOwnerUniqueness";
+import { reportMessage } from "@/lib/monitoring/report";
+import { emptySeekerProfileCompletenessPersistence } from "@/lib/seeker/profileCompleteness";
 
 export const runtime = "nodejs";
 
@@ -44,6 +50,9 @@ export async function POST(req: Request) {
   const ip = clientIpFromHeaders(req.headers);
   const limit = await consumeAuthRateLimit({ action: "register", ip, email });
   if (!limit.ok) {
+    if (limit.error === "missing_rate_limit_table") {
+      reportMessage("missing_rate_limit_table", { area: "auth", code: "missing_rate_limit_table" });
+    }
     return NextResponse.json(
       {
         error: limit.error === "missing_rate_limit_table" ? "missing_rate_limit_table" : "rate_limited",
@@ -80,6 +89,7 @@ export async function POST(req: Request) {
 
   const userId = data.user?.id;
   if (!userId) {
+    reportMessage("signup_no_user", { area: "auth", code: "signup_no_user" });
     return NextResponse.json({ error: "signup_no_user" }, { status: 500 });
   }
 
@@ -98,6 +108,7 @@ export async function POST(req: Request) {
     privacy_version: CURRENT_PRIVACY_VERSION,
   });
   if (profileErr) {
+    reportMessage("profile_failed", { area: "auth", code: "profile_failed" });
     return NextResponse.json(
       { error: "profile_failed", message: profileErr.message },
       { status: 500 }
@@ -117,22 +128,20 @@ export async function POST(req: Request) {
       preferred_job_types: [],
       preferred_locations: [],
       profile_visible: false,
-      completion_percent: 0,
-      is_complete: false,
+      ...emptySeekerProfileCompletenessPersistence(),
     });
     if (seekerErr && seekerErr.code !== "23505") {
+      reportMessage("profile_failed", { area: "auth", code: "seeker_profile_failed" });
       return NextResponse.json({ error: "profile_failed", message: seekerErr.message }, { status: 500 });
     }
   } else {
-    const { error: employerErr } = await supabase.from("employer_profiles").insert({
-      owner_user_id: userId,
-      company_name: "",
-      contact_email: email,
-      company_description: "",
-      location: "",
-    });
-    if (employerErr && employerErr.code !== "23505") {
-      return NextResponse.json({ error: "profile_failed", message: employerErr.message }, { status: 500 });
+    const { error: employerErr } = await supabase
+      .from("employer_profiles")
+      .insert(employerProfilePlaceholderRow(userId, email));
+    const insertResult = resultFromEmployerOwnerInsert(employerErr);
+    if (insertResult.kind === "failed") {
+      reportMessage("profile_failed", { area: "auth", code: "employer_profile_failed" });
+      return NextResponse.json({ error: "profile_failed", message: insertResult.message }, { status: 500 });
     }
   }
 

@@ -6,7 +6,7 @@ import {
   type ModerationQueue,
 } from "@/lib/admin/moderationTypes";
 import { runModerationAction } from "@/lib/admin/runModerationAction";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
 export const runtime = "nodejs";
@@ -44,35 +44,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "not_authenticated" }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const role =
-    ((profile as { role?: string | null } | null)?.role ??
-      (user.user_metadata as { role?: string } | undefined)?.role ??
-      null) ||
-    null;
-
-  if (role !== "admin") {
+  const gate = await requireAuthenticatedUser();
+  if (!gate.ok) return authGateJson(gate);
+  if (gate.role !== "admin") {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   try {
     await runModerationAction({
-      supabase,
-      adminUserId: user.id,
+      supabase: gate.supabase,
+      adminUserId: gate.user.id,
       queue,
       action: action as AdminModerationAction,
       targetId,

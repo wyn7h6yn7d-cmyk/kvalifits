@@ -8,7 +8,7 @@ import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { getEmployerJobIfOwned } from "@/lib/employer/getEmployerJobIfOwned";
 import { loadEmployerInboxJobOptions } from "@/lib/employer/loadEmployerInboxJobOptions";
 import type { ApplicantApplicationRow } from "@/lib/employer/applicantScan";
-import { safeHttpUrl } from "@/lib/utils";
+import { firstCvStorageRef } from "@/lib/seeker/cvStorage";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
 
@@ -18,16 +18,12 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "jobs" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { role, nextPath } = await getRoleAndNextPath(locale);
+  const { user, role, nextPath } = await getRoleAndNextPath(locale);
+  if (!user) redirect(nextPath);
   if (role !== "employer") redirect(`/${locale}/account`);
   if (nextPath.includes("/onboarding/")) redirect(nextPath);
+
+  const supabase = await createSupabaseServerClient();
 
   const job = await getEmployerJobIfOwned(supabase, user.id, id);
   if (!job) redirect(`/${locale}/account/employer`);
@@ -92,7 +88,7 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
           ? null
           : Number(row.experience_duration_years);
       liveBySeeker.set(row.user_id, {
-        cvUrl: safeHttpUrl(row.cv_url),
+        cvUrl: firstCvStorageRef(row.cv_url),
         languages: langs,
         experienceDurationYears: years !== null && Number.isFinite(years) ? years : null,
         seekingFirstJob: Boolean(row.exp_seeking_first_job),
@@ -102,7 +98,7 @@ export default async function EmployerJobApplicantsPage({ params }: Props) {
 
   const enriched: ApplicantApplicationRow[] = apps.map((a) => {
     const seeker = (a.shared_profile as { seeker?: Record<string, unknown> } | null)?.seeker ?? {};
-    const fromSnap = safeHttpUrl(seeker.cv_url);
+    const fromSnap = firstCvStorageRef(typeof seeker.cv_url === "string" ? seeker.cv_url : null);
     const live = a.seeker_user_id ? liveBySeeker.get(a.seeker_user_id) : undefined;
     return {
       id: String(a.id),

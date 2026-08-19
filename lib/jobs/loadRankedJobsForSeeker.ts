@@ -8,6 +8,7 @@ import { fetchSavedJobIdsForUser } from "@/lib/jobs/savedJobs";
 import { sortJobs } from "@/lib/jobs/jobSearchSort";
 import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
 import { isEmployerCompanyVerified } from "@/lib/employer/companyVerification";
+import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
 
 const JOB_SELECT =
   "id,title,location,job_type,work_type,short_summary,required_skills,keywords,certificate_requirements,requirement_lines,job_requirements,requirements,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,experience_level_required,weekly_hours,daily_hours,shift_start,shift_end,includes_night_work,is_hazardous_work";
@@ -55,29 +56,17 @@ export async function loadRankedJobsForSeeker(
     { name: string; logoUrl: string | null; verified: boolean; slug: string | null }
   >();
   if (employerIds.length) {
-    const withSlug = await supabase
-      .from("employer_profiles")
-      .select("id,company_name,logo_url,company_verified,verification_status,public_slug")
-      .in("id", employerIds);
-    const employerRows =
-      withSlug.error && /public_slug/i.test(withSlug.error.message ?? "")
-        ? await supabase
-            .from("employer_profiles")
-            .select("id,company_name,logo_url,company_verified,verification_status")
-            .in("id", employerIds)
-        : withSlug;
-    if (!employerRows.error) {
-      for (const e of employerRows.data ?? []) {
-        employerById.set(e.id, {
-          name: (e.company_name ?? "—").toString(),
-          logoUrl: (e.logo_url ?? "").toString().trim() || null,
-          verified: isEmployerCompanyVerified({
-            company_verified: (e as { company_verified?: boolean | null }).company_verified,
-            verification_status: (e as { verification_status?: string | null }).verification_status,
-          }),
-          slug: ((e as { public_slug?: string | null }).public_slug ?? "").toString().trim() || null,
-        });
-      }
+    const employerRows = await loadEmployerPublicRowsByIds(supabase, employerIds);
+    for (const [id, e] of employerRows) {
+      employerById.set(id, {
+        name: (e.company_name ?? "—").toString(),
+        logoUrl: (e.logo_url ?? "").toString().trim() || null,
+        verified: isEmployerCompanyVerified({
+          company_verified: (e.company_verified as boolean | null | undefined) ?? null,
+          verification_status: (e.verification_status as string | null | undefined) ?? null,
+        }),
+        slug: ((e.public_slug ?? "") as string).toString().trim() || null,
+      });
     }
   }
 

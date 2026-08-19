@@ -9,7 +9,7 @@ import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function MfaChallengeForm({ locale, nextPath }: { locale: string; nextPath: string }) {
+export function MfaChallengeForm({ nextPath }: { locale: string; nextPath: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const [code, setCode] = useState("");

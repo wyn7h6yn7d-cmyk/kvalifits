@@ -7,6 +7,7 @@ import { SeekerSavedJobsList, type SavedJobListItem } from "@/components/account
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
+import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -16,15 +17,12 @@ export default async function SeekerSavedPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "savedJobs" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { role, nextPath } = await getRoleAndNextPath(locale);
+  const { user, role, nextPath } = await getRoleAndNextPath(locale);
+  if (!user) redirect(nextPath);
   if (role !== "seeker") redirect(`/${locale}/account`);
   if (nextPath.includes("/onboarding/")) redirect(nextPath);
+
+  const supabase = await createSupabaseServerClient();
 
   const { data: savedRows, error } = await supabase
     .from("saved_jobs")
@@ -49,12 +47,9 @@ export default async function SeekerSavedPage({ params }: Props) {
 
   const employerById = new Map<string, string>();
   if (employerIds.length) {
-    const { data: employers } = await supabase
-      .from("employer_profiles")
-      .select("id,company_name")
-      .in("id", employerIds);
-    for (const emp of employers ?? []) {
-      employerById.set(emp.id, (emp.company_name ?? "").toString().trim() || "—");
+    const employers = await loadEmployerPublicRowsByIds(supabase, employerIds);
+    for (const [id, emp] of employers) {
+      employerById.set(id, (emp.company_name ?? "").toString().trim() || "—");
     }
   }
 

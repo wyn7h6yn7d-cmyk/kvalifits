@@ -221,12 +221,22 @@ async function erasePersonalData(
         .from("avatars")
         .remove(logoList.map((f) => `${userId}/employer-logo/${f.name}`));
     }
+    const { data: legacyCvList } = await admin.storage.from("avatars").list(`${userId}/cv`, { limit: 100 });
+    if (legacyCvList?.length) {
+      await admin.storage.from("avatars").remove(legacyCvList.map((f) => `${userId}/cv/${f.name}`));
+    }
+    const { data: resumeList } = await admin.storage.from("resumes").list(`${userId}/cv`, { limit: 100 });
+    if (resumeList?.length) {
+      await admin.storage.from("resumes").remove(resumeList.map((f) => `${userId}/cv/${f.name}`));
+    }
   } catch {
     // Storage list may fail if folder missing — ignore.
   }
 
   await admin.from("seeker_certificates").delete().eq("user_id", userId);
   erased.push("certificates_and_files");
+
+  await admin.from("seeker_education").delete().eq("seeker_user_id", userId);
 
   await admin.from("seeker_workplace_needs").delete().eq("user_id", userId);
   await admin.from("seeker_work_capacity").delete().eq("user_id", userId);
@@ -247,8 +257,12 @@ async function erasePersonalData(
   const savedDel = await admin.from("saved_jobs").delete().eq("seeker_user_id", userId);
   if (!savedDel.error) erased.push("saved_jobs");
 
-  const savedSearchDel = await admin.from("saved_job_searches").delete().eq("seeker_user_id", userId);
-  if (!savedSearchDel.error) erased.push("saved_job_searches");
+  await admin.from("saved_search_alert_deliveries").delete().eq("seeker_user_id", userId);
+  const savedSearchRowsDel = await admin.from("saved_job_searches").delete().eq("seeker_user_id", userId);
+  if (!savedSearchRowsDel.error) erased.push("saved_job_searches");
+
+  const notifDel = await admin.from("notifications").delete().eq("user_id", userId);
+  if (!notifDel.error) erased.push("notifications");
 
   await admin.from("seeker_profiles").delete().eq("user_id", userId);
   erased.push("profile");

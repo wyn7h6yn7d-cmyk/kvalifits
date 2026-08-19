@@ -1,6 +1,10 @@
 import { createHash } from "crypto";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  RESEND_VERIFICATION_MAX_HITS,
+  RESEND_VERIFICATION_WINDOW_SECONDS,
+} from "./resendVerification";
 
 export type AuthRateLimitAction = "login" | "register" | "password_reset" | "resend_verification";
 
@@ -12,7 +16,10 @@ export const AUTH_RATE_LIMITS: Record<
   login: { windowSeconds: 15 * 60, maxHits: 20 },
   register: { windowSeconds: 60 * 60, maxHits: 8 },
   password_reset: { windowSeconds: 60 * 60, maxHits: 5 },
-  resend_verification: { windowSeconds: 60 * 60, maxHits: 5 },
+  resend_verification: {
+    windowSeconds: RESEND_VERIFICATION_WINDOW_SECONDS,
+    maxHits: RESEND_VERIFICATION_MAX_HITS,
+  },
 };
 
 export type RateLimitResult =

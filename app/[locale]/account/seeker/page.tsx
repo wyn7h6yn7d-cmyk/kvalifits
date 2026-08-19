@@ -14,10 +14,12 @@ import { DashboardSummarySkeleton } from "@/components/skeletons/DashboardSummar
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { loadRankedJobsForSeeker } from "@/lib/jobs/loadRankedJobsForSeeker";
+import { loadEmployerPublicRowsByIds } from "@/lib/companies/loadPublicEmployerFields";
 import { jobAcceptsApplications, daysUntilCalendarDate, formatJobDateDdMmYyyy } from "@/lib/jobs/jobLifecycle";
 import {
-  computeSeekerProfileCompleteness,
+  computeSeekerProfileCompletenessFromProfile,
   firstNameFromFullName,
+  namedCertificateCountFromRows,
 } from "@/lib/seeker/profileCompleteness";
 import {
   daysUntilCertificateExpiry,
@@ -39,13 +41,8 @@ export default async function SeekerOverviewPage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "nav" });
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/auth/login`);
-
-  const { role, nextPath } = await getRoleAndNextPath(locale);
+  const { user, role, nextPath } = await getRoleAndNextPath(locale);
+  if (!user) redirect(nextPath);
   if (role !== "seeker") redirect(`/${locale}/account`);
   if (nextPath.includes("/onboarding/")) redirect(nextPath);
 
@@ -119,21 +116,10 @@ async function SeekerOverviewBody({
   const seeker = seekerRes.data;
   const certs = certsRes.data;
 
-  const namedCertificateCount = (certs ?? []).filter((c) => (c.certificate_name ?? "").toString().trim()).length;
-  const completeness = computeSeekerProfileCompleteness({
+  const namedCertificateCount = namedCertificateCountFromRows(certs);
+  const completeness = computeSeekerProfileCompletenessFromProfile({
     avatarUrl,
-    fullName: seeker?.full_name ?? null,
-    profileTitle: seeker?.profile_title ?? null,
-    phone: seeker?.phone ?? null,
-    location: seeker?.location ?? null,
-    about: seeker?.about ?? null,
-    skills: (seeker?.skills as string[] | null) ?? null,
-    experienceLevel: seeker?.experience_level ?? null,
-    preferredJobTypes: (seeker?.preferred_job_types as string[] | null) ?? null,
-    preferredLocations: (seeker?.preferred_locations as string[] | null) ?? null,
-    dateOfBirth: seeker?.date_of_birth ?? null,
-    learningObligationStatus: seeker?.learning_obligation_status ?? null,
-    hasBCategoryDriversLicense: seeker?.has_b_category_drivers_license ?? null,
+    seeker,
     namedCertificateCount,
   });
 
@@ -195,9 +181,9 @@ async function SeekerOverviewBody({
   );
   const employerById = new Map<string, string>();
   if (employerIds.length) {
-    const { data: employers } = await supabase.from("employer_profiles").select("id,company_name").in("id", employerIds);
-    for (const emp of employers ?? []) {
-      employerById.set(emp.id, (emp.company_name ?? "").toString().trim() || "—");
+    const employers = await loadEmployerPublicRowsByIds(supabase, employerIds);
+    for (const [id, emp] of employers) {
+      employerById.set(id, (emp.company_name ?? "").toString().trim() || "—");
     }
   }
 
@@ -233,7 +219,7 @@ async function SeekerOverviewBody({
       locale={locale}
       firstName={firstNameFromFullName(seeker?.full_name ?? null)}
       percent={completeness.percent}
-      gaps={completeness.gaps}
+      missing={completeness.missing}
       matches={ranked.jobs.slice(0, OVERVIEW_MATCHES)}
       matchSortAvailable={ranked.matchSortAvailable}
       applications={applicationRows}

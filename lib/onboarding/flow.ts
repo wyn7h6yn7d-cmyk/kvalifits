@@ -1,13 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { cache } from "react";
+
 import { getAuthUser } from "@/lib/auth/currentAuth";
+import { getProfileSecurity } from "@/lib/auth/profileSecurity";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { emailVerificationBlockReason } from "@/lib/auth/emailVerification";
-import { employerCoreComplete, seekerCoreComplete } from "@/lib/matching/profileRules";
+import { employerCoreComplete } from "@/lib/matching/profileRules";
+import { seekerCoreComplete } from "@/lib/seeker/profileCompleteness";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 
 type Role = "seeker" | "employer" | "admin";
 
-export async function getRoleAndNextPath(locale: string) {
+/** One onboarding/role resolution per locale per request. Uses cached getAuthUser(). */
+export const getRoleAndNextPath = cache(async (locale: string) => {
   const supabase = await createSupabaseServerClient();
   const user = await getAuthUser();
 
@@ -24,19 +28,13 @@ export async function getRoleAndNextPath(locale: string) {
     };
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const isBlocked = Boolean((profile as any)?.is_blocked);
-  if (isBlocked) {
+  const security = await getProfileSecurity(user.id);
+  if (security.isBlocked) {
     return { user, role: null, nextPath: `/${locale}/blocked` };
   }
 
   const fallbackRole = user.user_metadata?.role;
-  const role = (((profile as any)?.role ?? fallbackRole ?? null) as Role | null);
+  const role = ((security.role ?? fallbackRole ?? null) as Role | null);
   if (!role) {
     return { user, role: null, nextPath: `/${locale}/auth/register` };
   }
@@ -55,15 +53,9 @@ export async function getRoleAndNextPath(locale: string) {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const { data: certRows } = await supabase
-      .from("seeker_certificates")
-      .select("id")
-      .eq("user_id", user.id);
-
     const isComplete = seekerCoreComplete({
       avatarOk,
       seeker: seeker ?? null,
-      certRowsWithImage: 0,
     });
     return {
       user,
@@ -86,5 +78,5 @@ export async function getRoleAndNextPath(locale: string) {
     role,
     nextPath: isComplete ? `/${locale}/account/employer` : `/${locale}/onboarding/employer`,
   };
-}
+});
 

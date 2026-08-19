@@ -14,7 +14,7 @@ import {
   companyCanonicalPath,
 } from "@/lib/companies/companySeo";
 import { loadActiveJobsForPublicCompany, loadPublicCompanyBySlug } from "@/lib/companies/loadPublicCompany";
-import { absoluteUrl, jsonLdScriptHtml, NOINDEX_ROBOTS } from "@/lib/seo/site";
+import { absoluteUrl, jsonLdScriptHtml, noindexLocalizedMetadata } from "@/lib/seo/site";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -23,12 +23,18 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
   const supabase = await createSupabaseServerClient();
   const company = await loadPublicCompanyBySlug(supabase, slug);
   if (!company) {
-    return { title: "Ettevõte | Kvalifits", robots: NOINDEX_ROBOTS };
+    return noindexLocalizedMetadata({
+      locale,
+      path: `/ettevotted/${slug}`,
+      title: t("companyMissingTitle"),
+      description: t("companyMissingDescription"),
+    });
   }
-  const title = buildCompanySeoTitle(locale, company);
+  const title = buildCompanySeoTitle(locale, company, t("companyFallbackName"));
   const description = buildCompanySeoDescription(locale, company);
   return buildCompanyMetadata({ locale, company, title, description });
 }

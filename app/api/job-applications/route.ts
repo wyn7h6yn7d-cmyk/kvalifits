@@ -1,12 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { authGateJson, requireAuthenticatedUser } from "@/lib/auth/requireAuthenticatedUser";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendEmailViaResend } from "@/lib/email/resend";
+import {
+  deliverEmployerApplicationEmail,
+  jsonForApplicationSubmit,
+  resultFromApplicationInsert,
+  safeEmployerNotifyFailLog,
+} from "@/lib/jobs/applicationSubmitOutcome";
 import { calculateJobMatch } from "@/lib/matching/calculateJobMatch";
-import { seekerCoreComplete } from "@/lib/matching/profileRules";
+import { seekerCoreComplete } from "@/lib/seeker/profileCompleteness";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
+import { persistCvStorageRef } from "@/lib/seeker/cvStorage";
+import { SITE_ORIGIN } from "@/lib/seo/site";
 import {
   calculateAgeYears,
   isLegalRepresentativeConsentStatus,
@@ -27,6 +35,12 @@ import {
 import { getTranslations } from "next-intl/server";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { isListingExpired, jobAcceptsApplications } from "@/lib/jobs/jobLifecycle";
+import { reportException, reportMessage } from "@/lib/monitoring/report";
+import {
+  coerceEducationRows,
+  educationSnapshotForShare,
+  isEducationTableMissing,
+} from "@/lib/seeker/education";
 
 type Body = {
   jobPostId?: string;
@@ -40,11 +54,9 @@ type Body = {
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "not_authed" }, { status: 401 });
+    const gate = await requireAuthenticatedUser();
+    if (!gate.ok) return authGateJson(gate, { unauthenticatedError: "not_authed" });
+    const { user } = gate;
 
     const body = (await req.json()) as Body;
     const jobPostId = (body.jobPostId ?? "").toString().trim();
@@ -110,6 +122,10 @@ export async function POST(req: Request) {
 
     const admin = createSupabaseAdminClient();
     if (!admin) {
+      reportMessage("missing_service_role_key", {
+        area: "job_application",
+        code: "missing_service_role_key",
+      });
       return NextResponse.json({ error: "missing_service_role_key" }, { status: 500 });
     }
 
@@ -149,6 +165,17 @@ export async function POST(req: Request) {
     }
     if (certErr) throw certErr;
 
+    const eduQuery = await admin
+      .from("seeker_education")
+      .select(
+        "id,seeker_user_id,institution,field_of_study,degree_or_level,start_year,end_year,currently_studying,description,created_at,updated_at",
+      )
+      .eq("seeker_user_id", user.id);
+    if (eduQuery.error && !isEducationTableMissing(eduQuery.error.message)) {
+      throw eduQuery.error;
+    }
+    const educationRows = eduQuery.error ? [] : coerceEducationRows(eduQuery.data);
+
     const { data: workplaceNeedsRow } = await admin
       .from("seeker_workplace_needs")
       .select(
@@ -164,7 +191,6 @@ export async function POST(req: Request) {
     const profileReady = seekerCoreComplete({
       avatarOk,
       seeker,
-      certRowsWithImage: 0,
     });
     if (!profileReady) {
       return NextResponse.json({ error: "seeker_profile_required" }, { status: 400 });
@@ -303,7 +329,7 @@ export async function POST(req: Request) {
         experience_level: seeker.experience_level ?? null,
         preferred_job_types: seeker.preferred_job_types ?? null,
         preferred_locations: seeker.preferred_locations ?? null,
-        cv_url: seeker.cv_url ?? null,
+        cv_url: persistCvStorageRef(seeker.cv_url) ?? null,
         // Employer-safe flag only — no DOB, consent status detail, or guardian PII.
         requires_legal_representative_consent: requiresLegalRepresentativeConsentNotice({
           isMinor:
@@ -336,6 +362,7 @@ export async function POST(req: Request) {
           verification_source: (c as { verification_source?: string | null }).verification_source ?? null,
           verified_by: (c as { verified_by?: string | null }).verified_by ?? null,
         })),
+        education: educationSnapshotForShare(educationRows),
       },
       job: {
         id: job.id,
@@ -357,6 +384,7 @@ export async function POST(req: Request) {
       answers,
     };
 
+    // Match/snapshot/consent are server-controlled. Authenticated PostgREST INSERT is revoked.
     const { data: inserted, error: insErr } = await admin
       .from("job_applications")
       .insert({
@@ -370,59 +398,244 @@ export async function POST(req: Request) {
         match_breakdown: breakdown,
         status: "new",
       })
-      .select("id,created_at,match_score")
+      .select("id,created_at,match_score,employer_notified_at")
       .single();
 
-    if (insErr) {
-      if (insErr.code === "23505") {
-        return NextResponse.json({ error: "duplicate_application" }, { status: 409 });
-      }
-      const msg = (insErr.message ?? "").toLowerCase();
-      if (msg.includes("application_answers") || msg.includes("schema cache")) {
-        return NextResponse.json({ error: "missing_application_answers_column" }, { status: 500 });
-      }
-      throw insErr;
+    let submit = resultFromApplicationInsert({ error: insErr, row: inserted });
+    if (
+      submit.kind === "insert_failed" &&
+      insErr &&
+      /employer_notified_at/i.test(insErr.message ?? "")
+    ) {
+      const retry = await admin
+        .from("job_applications")
+        .insert({
+          job_post_id: job.id,
+          seeker_user_id: user.id,
+          cover_letter: answers.noteForEmployer,
+          application_answers: answers,
+          consent_to_share: true,
+          shared_profile: shared,
+          match_score: score,
+          match_breakdown: breakdown,
+          status: "new",
+        })
+        .select("id,created_at,match_score")
+        .single();
+      submit = resultFromApplicationInsert({ error: retry.error, row: retry.data });
     }
 
-    const from = process.env.EMAIL_FROM || "no-reply@kvalifits.ee";
-    const localeRaw = (body.locale ?? "").toString().trim();
-    const locale: AppLocale = routing.locales.includes(localeRaw as AppLocale)
-      ? (localeRaw as AppLocale)
-      : routing.defaultLocale;
-    const t = await getTranslations({ locale, namespace: "jobs" });
+    if (submit.kind === "insert_failed") {
+      reportMessage("job_application_insert_failed", {
+        area: "job_application",
+        code: submit.error,
+      });
+      const json = jsonForApplicationSubmit(submit);
+      return NextResponse.json(json.body, { status: json.status });
+    }
 
-    const subject = t("applicationEmailSubject", { title: job.title ?? "—" });
-    const companyName = (employer?.company_name ?? "—").toString();
-    const seekerName = (seeker.full_name ?? "—").toString();
-    const seekerEmail = (profile?.email ?? user.email ?? "—").toString();
-    const seekerPhone = (seeker.phone ?? "—").toString();
-    const seekerLocation = (seeker.location ?? "—").toString();
-    const seekerCv = (seeker.cv_url ?? "").toString();
+    let applicationId = submit.kind === "created" ? submit.id : submit.id;
+    let notifiedAt: string | null = inserted?.employer_notified_at ?? null;
+    let createdAt = submit.kind === "created" ? submit.createdAt : "";
+    let matchScore = submit.kind === "created" ? submit.matchScore : score;
 
-    const salaryPlain = formatSalaryExpectationPlain(answers, {
-      negotiable: t("applySalaryModeOption.negotiable"),
-      brutoMonthly: t("applySalaryBasisOption.bruto_monthly"),
-      brutoHourly: t("applySalaryBasisOption.bruto_hourly"),
-    });
-    const startPlain = formatAvailabilityStartDisplay(answers, (code: AvailabilityStart) =>
-      t(`applyAvailableFromOption.${code}`)
-    );
-    const schedulePlain = t(`applyScheduleFitOption.${answers.scheduleFits as ScheduleFit}`);
-    const interviewPlain = (() => {
-      const iv = formatInterviewPreferencesDisplay(
+    if (submit.kind === "already_applied") {
+      const existing = await loadExistingActiveApplication(admin, job.id, user.id);
+      applicationId = existing?.id ?? null;
+      notifiedAt = existing?.employer_notified_at ?? null;
+      createdAt = existing?.created_at ?? "";
+      matchScore = existing?.match_score ?? score;
+      submit = { kind: "already_applied", id: applicationId };
+    }
+
+    if (applicationId) {
+      await notifyEmployerBestEffort({
+        admin,
+        applicationId,
+        notifiedAt,
+        locale: (body.locale ?? "").toString().trim(),
+        job,
+        employer,
+        seeker,
+        profile,
+        userEmail: user.email,
         answers,
-        (code: InterviewPreference) => t(`applyInterviewOption.${code}`),
-        t("applyPreferFirstInterviewOnline")
-      );
-      return iv.preferOnline ? `${iv.formats} · ${iv.preferOnlineLabel}` : iv.formats;
-    })();
+        score,
+        toEmail,
+      });
+    }
 
-    const html = `
+    const json = jsonForApplicationSubmit(
+      submit.kind === "created"
+        ? { kind: "created", id: applicationId as string, createdAt, matchScore }
+        : { kind: "already_applied", id: applicationId },
+    );
+    return NextResponse.json(json.body, { status: json.status });
+  } catch (err) {
+    reportException(err, { area: "job_application", code: "server_error" });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+}
+
+type AdminClient = NonNullable<ReturnType<typeof createSupabaseAdminClient>>;
+
+async function loadExistingActiveApplication(
+  admin: AdminClient,
+  jobPostId: string,
+  seekerUserId: string,
+): Promise<{
+  id: string;
+  created_at: string;
+  match_score: number | null;
+  employer_notified_at: string | null;
+} | null> {
+  const full = await admin
+    .from("job_applications")
+    .select("id,created_at,match_score,employer_notified_at")
+    .eq("job_post_id", jobPostId)
+    .eq("seeker_user_id", seekerUserId)
+    .neq("status", "withdrawn")
+    .maybeSingle();
+  if (!full.error && full.data?.id) {
+    return {
+      id: full.data.id,
+      created_at: full.data.created_at,
+      match_score: full.data.match_score ?? null,
+      employer_notified_at: full.data.employer_notified_at ?? null,
+    };
+  }
+  const legacy = await admin
+    .from("job_applications")
+    .select("id,created_at,match_score")
+    .eq("job_post_id", jobPostId)
+    .eq("seeker_user_id", seekerUserId)
+    .neq("status", "withdrawn")
+    .maybeSingle();
+  if (!legacy.data?.id) return null;
+  return {
+    id: legacy.data.id,
+    created_at: legacy.data.created_at,
+    match_score: legacy.data.match_score ?? null,
+    employer_notified_at: null,
+  };
+}
+
+async function notifyEmployerBestEffort(args: {
+  admin: AdminClient;
+  applicationId: string;
+  notifiedAt: string | null;
+  locale: string;
+  job: { id: string; title?: string | null; location?: string | null };
+  employer: { company_name?: string | null } | null;
+  seeker: { full_name?: string | null; phone?: string | null; location?: string | null; cv_url?: string | null };
+  profile: { email?: string | null } | null;
+  userEmail: string | null | undefined;
+  answers: ApplicationAnswers;
+  score: number;
+  toEmail: string;
+}): Promise<void> {
+  try {
+    const delivery = await deliverEmployerApplicationEmail({
+      applicationId: args.applicationId,
+      notifiedAt: args.notifiedAt,
+      send: async (idempotencyKey) => {
+        const locale: AppLocale = routing.locales.includes(args.locale as AppLocale)
+          ? (args.locale as AppLocale)
+          : routing.defaultLocale;
+        const t = await getTranslations({ locale, namespace: "jobs" });
+        const from = process.env.EMAIL_FROM || "no-reply@kvalifits.ee";
+        const html = buildEmployerApplicationHtml({
+          t,
+          locale,
+          job: args.job,
+          employer: args.employer,
+          seeker: args.seeker,
+          profile: args.profile,
+          userEmail: args.userEmail,
+          answers: args.answers,
+          score: args.score,
+          applicationId: args.applicationId,
+        });
+        return sendEmailViaResend({
+          from,
+          to: args.toEmail,
+          subject: t("applicationEmailSubject", { title: args.job.title ?? "—" }),
+          html,
+          idempotencyKey,
+        });
+      },
+      markNotified: async (applicationId) => {
+        const stamped = new Date().toISOString();
+        await args.admin
+          .from("job_applications")
+          .update({ employer_notified_at: stamped })
+          .eq("id", applicationId);
+      },
+    });
+    if (delivery === "failed") {
+      const payload = safeEmployerNotifyFailLog(args.applicationId);
+      console.error(JSON.stringify(payload));
+      reportMessage("employer_application_notify_failed", {
+        area: "email",
+        code: "employer_notify_failed",
+        extras: { applicationId: payload.applicationId },
+      });
+    }
+  } catch (err) {
+    const payload = safeEmployerNotifyFailLog(args.applicationId);
+    console.error(JSON.stringify(payload));
+    reportException(err, {
+      area: "email",
+      code: "employer_notify_failed",
+      extras: { applicationId: payload.applicationId },
+    });
+  }
+}
+
+function buildEmployerApplicationHtml(args: {
+  t: Awaited<ReturnType<typeof getTranslations>>;
+  locale: AppLocale;
+  job: { id: string; title?: string | null; location?: string | null };
+  employer: { company_name?: string | null } | null;
+  seeker: { full_name?: string | null; phone?: string | null; location?: string | null; cv_url?: string | null };
+  profile: { email?: string | null } | null;
+  userEmail: string | null | undefined;
+  answers: ApplicationAnswers;
+  score: number;
+  applicationId: string;
+}): string {
+  const { t, locale, job, answers } = args;
+  const companyName = (args.employer?.company_name ?? "—").toString();
+  const seekerName = (args.seeker.full_name ?? "—").toString();
+  const seekerEmail = (args.profile?.email ?? args.userEmail ?? "—").toString();
+  const seekerPhone = (args.seeker.phone ?? "—").toString();
+  const seekerLocation = (args.seeker.location ?? "—").toString();
+  const seekerCv = persistCvStorageRef(args.seeker.cv_url);
+  const applicantInboxUrl = `${SITE_ORIGIN}/${locale}/account/employer/jobs/${job.id}/applicants/${args.applicationId}`;
+  const salaryPlain = formatSalaryExpectationPlain(answers, {
+    negotiable: t("applySalaryModeOption.negotiable"),
+    brutoMonthly: t("applySalaryBasisOption.bruto_monthly"),
+    brutoHourly: t("applySalaryBasisOption.bruto_hourly"),
+  });
+  const startPlain = formatAvailabilityStartDisplay(answers, (code: AvailabilityStart) =>
+    t(`applyAvailableFromOption.${code}`),
+  );
+  const schedulePlain = t(`applyScheduleFitOption.${answers.scheduleFits as ScheduleFit}`);
+  const interviewPlain = (() => {
+    const iv = formatInterviewPreferencesDisplay(
+      answers,
+      (code: InterviewPreference) => t(`applyInterviewOption.${code}`),
+      t("applyPreferFirstInterviewOnline"),
+    );
+    return iv.preferOnline ? `${iv.formats} · ${iv.preferOnlineLabel}` : iv.formats;
+  })();
+
+  return `
       <div style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; line-height: 1.5; color: #111;">
         <h2 style="margin: 0 0 12px 0;">${escapeHtml(t("applicationEmailHeading"))}</h2>
         <p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailCompany"))}:</strong> ${escapeHtml(companyName)}</p>
         <p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailJob"))}:</strong> ${escapeHtml(job.title ?? "—")} (${escapeHtml(job.location ?? "—")})</p>
-        <p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailMatchScore"))}:</strong> ${score}%</p>
+        <p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailMatchScore"))}:</strong> ${args.score}%</p>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 14px 0;" />
         <p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailCandidate"))}:</strong> ${escapeHtml(seekerName)}</p>
         <p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailEmail"))}:</strong> ${escapeHtml(seekerEmail)}</p>
@@ -431,8 +644,8 @@ export async function POST(req: Request) {
         ${
           seekerCv
             ? `<p style="margin: 0 0 10px 0;"><strong>${escapeHtml(t("applicationEmailCv"))}:</strong> <a href="${escapeAttr(
-                seekerCv
-              )}">${escapeHtml(seekerCv)}</a></p>`
+                applicantInboxUrl,
+              )}">${escapeHtml(t("applicationEmailCvInbox"))}</a></p>`
             : ""
         }
         ${
@@ -451,7 +664,7 @@ export async function POST(req: Request) {
         ${
           answers.noteForEmployer
             ? `<p style="margin: 14px 0 6px 0;"><strong>${escapeHtml(t("applicationEmailNote"))}:</strong></p><pre style="white-space: pre-wrap; background: #fafafa; border: 1px solid #eee; padding: 12px; border-radius: 10px; margin: 0;">${escapeHtml(
-                answers.noteForEmployer
+                answers.noteForEmployer,
               )}</pre>`
             : ""
         }
@@ -460,18 +673,6 @@ export async function POST(req: Request) {
         </p>
       </div>
     `;
-
-    await sendEmailViaResend({ from, to: toEmail, subject, html });
-
-    return NextResponse.json({
-      ok: true,
-      id: inserted.id,
-      createdAt: inserted.created_at,
-      matchScore: inserted.match_score ?? score,
-    });
-  } catch {
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
-  }
 }
 
 function escapeHtml(v: string) {

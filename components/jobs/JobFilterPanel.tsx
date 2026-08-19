@@ -46,18 +46,21 @@ function useRemoteFacetSearch(
   enabled: boolean,
 ) {
   const debounced = useDebouncedValue(query.trim(), 280);
-  const [options, setOptions] = useState<FacetOption[] | null>(null);
-  const [loading, setLoading] = useState(false);
+  const shouldFetch = enabled && debounced.length >= FACET_SEARCH_MIN_CHARS;
+  const requestKey = shouldFetch
+    ? `${facet}\0${debounced}\0${keywordQuery.trim()}\0${listSearchParams}`
+    : "";
+  const [remote, setRemote] = useState<{ key: string; options: FacetOption[] } | null>(null);
+
+  if (!shouldFetch && remote !== null) {
+    setRemote(null);
+  }
 
   useEffect(() => {
-    if (!enabled || debounced.length < FACET_SEARCH_MIN_CHARS) {
-      setOptions(null);
-      setLoading(false);
-      return;
-    }
+    if (!shouldFetch) return;
 
     const ac = new AbortController();
-    setLoading(true);
+    const key = requestKey;
     const params = new URLSearchParams(listSearchParams);
     params.set("facet", facet);
     params.set("q", debounced);
@@ -68,19 +71,19 @@ function useRemoteFacetSearch(
     void fetch(`/api/jobs/facets?${params.toString()}`, { signal: ac.signal })
       .then((res) => (res.ok ? res.json() : { options: [] }))
       .then((data: { options?: FacetOption[] }) => {
-        setOptions(Array.isArray(data.options) ? data.options : []);
+        if (ac.signal.aborted) return;
+        setRemote({ key, options: Array.isArray(data.options) ? data.options : [] });
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === "AbortError") return;
-        setOptions([]);
-      })
-      .finally(() => {
-        if (!ac.signal.aborted) setLoading(false);
+        setRemote({ key, options: [] });
       });
 
     return () => ac.abort();
-  }, [enabled, facet, debounced, keywordQuery, listSearchParams]);
+  }, [shouldFetch, requestKey, facet, debounced, keywordQuery, listSearchParams]);
 
+  const options = shouldFetch ? (remote?.options ?? null) : null;
+  const loading = shouldFetch && remote?.key !== requestKey;
   return { options, loading, debouncedQuery: debounced };
 }
 

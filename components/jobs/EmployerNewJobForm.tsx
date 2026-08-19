@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import {
-  EXPERIENCE_LEVEL_VALUES,
   JOB_EXPERIENCE_LEVEL_VALUES,
   employerCoreComplete,
-  jobMatchingReady,
   parseCommaList,
 } from "@/lib/matching/profileRules";
 import { syncRequirementLinesFromStructured, type JobRequirementItem } from "@/lib/jobs/jobRequirements";
@@ -28,6 +26,14 @@ import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
 import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { jobPassesYoungSeekerAutoEligibility } from "@/lib/employmentRules";
 import { JobRequirementsEditor } from "@/components/jobs/JobRequirementsEditor";
+import { JobLinesEditor } from "@/components/jobs/JobLinesEditor";
+import {
+  isJobContentLinesColumnError,
+  jobContentLinesI18nError,
+  sanitizeJobContentLines,
+  stripJobContentLineColumns,
+  validateJobContentLines,
+} from "@/lib/jobs/jobContentLines";
 import {
   JOB_SALARY_MODE_VALUES,
   JOB_SALARY_PERIOD_VALUES,
@@ -42,6 +48,7 @@ import {
   calendarDateInTallinn,
   type ListingPackageDays,
 } from "@/lib/jobs/jobLifecycle";
+import { validateDraftSave, validateJobForPublish } from "@/lib/jobs/jobPublishValidation";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { findTerm } from "@/lib/taxonomy/labels";
 import { jobTaxonomyWriteColumns, stripTaxonomyWriteColumns } from "@/lib/taxonomy/jobWrite";
@@ -72,6 +79,8 @@ export function EmployerNewJobForm({ locale }: Props) {
   const [jobType, setJobType] = useState("full_time");
   const [summary, setSummary] = useState("");
   const [description, setDescription] = useState("");
+  const [dutyLines, setDutyLines] = useState<string[]>([""]);
+  const [benefitLines, setBenefitLines] = useState<string[]>([]);
   const [requirementItems, setRequirementItems] = useState<JobRequirementItem[]>([
     { text: "", priority: "mandatory" },
     { text: "", priority: "recommended" },
@@ -146,62 +155,54 @@ export function EmployerNewJobForm({ locale }: Props) {
     };
   }, [supabase]);
 
-  function validate(): string | null {
-    if (!employerProfileOk) return t("employerProfileIncomplete");
-    if (!title.trim()) return t("errTitleRequired");
-    if (!location.trim()) return t("errLocationRequired");
-    if (!workType.trim()) return t("errWorkTypeRequired");
-    if (!jobType.trim()) return t("errJobTypeRequired");
-    if (!summary.trim()) return t("errSummaryRequired");
-    if (summary.trim().length < 20) return t("errShortSummary");
-    if (!description.trim()) return t("errDescriptionRequired");
-    if (description.trim().length < 40) return t("errDescriptionLength");
-
+  function validatePublish(): string | null {
     const synced = syncRequirementLinesFromStructured(requirementItems);
     const lines = synced.requirement_lines;
-    if (lines.length < 2) return t("errRequirementLines");
-
     const requiredSkills = taxonomyAvailable
       ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
       : parseCommaList(requiredSkillsCsv);
-    if (requiredSkills.length < 1) return t("errRequiredSkills");
-    if (taxonomyAvailable && !professionId) return t("errProfessionRequired");
-
     const keywords = parseCommaList(keywordsCsv);
-    if (keywords.length < 1) return t("errKeywords");
-
-    if (!experienceLevelRequired) return t("errExperienceRequired");
-
-    if (!applicationDeadline.trim()) return t("errApplicationDeadlineRequired");
-    if (applicationDeadline < calendarDateInTallinn()) return t("errApplicationDeadlinePast");
-
-    const ready = jobMatchingReady({
-      title: title.trim(),
-      location: location.trim(),
-      work_type: workType,
-      job_type: jobType,
-      short_summary: summary.trim(),
-      description: description.trim(),
-      requirement_lines: lines,
-      required_skills: requiredSkills,
+    const result = validateJobForPublish({
+      employerProfileComplete: employerProfileOk,
+      companyName,
+      title,
+      location,
+      workType,
+      jobType,
+      summary,
+      description,
+      requirementLines: lines,
+      requiredSkills,
       keywords,
-      experience_level_required: experienceLevelRequired,
-      certificate_requirements: certificateRequirements.trim() || null,
-      application_type: "in_app",
-      application_url: null,
+      experienceLevelRequired,
+      applicationDeadline,
+      professionRequired: taxonomyAvailable,
+      professionId,
+      salary: {
+        mode: salaryMode,
+        min: salaryMin,
+        max: salaryMax,
+        tax: salaryTax,
+        period: salaryPeriod,
+        currency: salaryCurrency,
+      },
+      matching: {
+        title: title.trim(),
+        location: location.trim(),
+        work_type: workType,
+        job_type: jobType,
+        short_summary: summary.trim(),
+        description: description.trim(),
+        requirement_lines: lines,
+        required_skills: requiredSkills,
+        keywords,
+        experience_level_required: experienceLevelRequired,
+        certificate_requirements: certificateRequirements.trim() || null,
+        application_type: "in_app",
+        application_url: null,
+      },
     });
-    if (!ready) return t("jobMatchingIncomplete");
-
-    const salaryParsed = parseJobSalaryForPublish({
-      mode: salaryMode,
-      min: salaryMin,
-      max: salaryMax,
-      tax: salaryTax,
-      period: salaryPeriod,
-      currency: salaryCurrency,
-    });
-    if (!salaryParsed.ok) return t(salaryParsed.error as "errSalaryModeRequired");
-
+    if (!result.ok) return t(result.error as "errTitleRequired");
     return null;
   }
 
@@ -220,11 +221,29 @@ export function EmployerNewJobForm({ locale }: Props) {
     return `${base || "job"}-${suffix}`;
   }
 
-  async function saveDraft(mode: "publish" | "payment") {
-    const v = validate();
-    if (v) {
-      setError(v);
-      return;
+  async function persist(intent: "draft" | "preview" | "publish") {
+    if (intent === "publish") {
+      const v = validatePublish();
+      if (v) {
+        setError(v);
+        return;
+      }
+      const duties = validateJobContentLines(dutyLines);
+      if (!duties.ok) {
+        setError(t(jobContentLinesI18nError(duties.error)));
+        return;
+      }
+      const benefits = validateJobContentLines(benefitLines);
+      if (!benefits.ok) {
+        setError(t(jobContentLinesI18nError(benefits.error)));
+        return;
+      }
+    } else {
+      const draft = validateDraftSave(title);
+      if (!draft.ok) {
+        setError(t(draft.error as "errTitleRequired"));
+        return;
+      }
     }
 
     setLoading(true);
@@ -254,8 +273,7 @@ export function EmployerNewJobForm({ locale }: Props) {
         period: salaryPeriod,
         currency: salaryCurrency,
       });
-      if (!salaryParsed.ok) throw new Error(t(salaryParsed.error as "errSalaryModeRequired"));
-      const salary = salaryParsed.value;
+      const salary = salaryParsed.ok ? salaryParsed.value : null;
 
       const synced = syncRequirementLinesFromStructured(requirementItems);
       const lines = synced.requirement_lines;
@@ -273,27 +291,32 @@ export function EmployerNewJobForm({ locale }: Props) {
       const requiredSkills = tax?.required_skills ?? parseCommaList(requiredSkillsCsv);
       const keywords = parseCommaList(keywordsCsv);
 
-      const lifecycle = buildPublishLifecycleDates({
-        publishedAt: new Date(),
-        packageDays,
-        applicationDeadline,
-      });
+      const lifecycle =
+        intent === "publish"
+          ? buildPublishLifecycleDates({
+              publishedAt: new Date(),
+              packageDays,
+              applicationDeadline,
+            })
+          : null;
       const payload = {
         employer_profile_id: employer.id,
         created_by: user.id,
         title: title.trim(),
         slug: slugify(title),
-        location: location.trim(),
+        location: location.trim() || null,
         work_type: workType,
         job_type: jobType,
-        short_summary: summary.trim(),
-        description: description.trim(),
+        short_summary: summary.trim() || null,
+        description: description.trim() || "",
+        duty_lines: sanitizeJobContentLines(dutyLines),
+        benefit_lines: sanitizeJobContentLines(benefitLines),
         requirements: synced.requirements,
         requirement_lines: lines,
         job_requirements: synced.job_requirements,
         required_skills: requiredSkills,
         keywords,
-        experience_level_required: experienceLevelRequired,
+        experience_level_required: experienceLevelRequired || null,
         certificate_requirements: tax?.certificate_requirements ?? (certificateRequirements.trim() || null),
         languages: tax?.languages ?? [],
         weekly_hours: parseOptionalHours(workConditions.weeklyHours),
@@ -302,7 +325,6 @@ export function EmployerNewJobForm({ locale }: Props) {
         shift_end: timeOrNull(workConditions.shiftEnd),
         includes_night_work: workConditions.includesNightWork,
         is_hazardous_work: workConditions.isHazardousWork,
-        // Derived from employment rules — never a manual employer toggle.
         suitable_for_ages_16_17: jobPassesYoungSeekerAutoEligibility({
           weeklyHours: parseOptionalHours(workConditions.weeklyHours),
           dailyHours: parseOptionalHours(workConditions.dailyHours),
@@ -312,18 +334,18 @@ export function EmployerNewJobForm({ locale }: Props) {
           isHazardousWork: workConditions.isHazardousWork,
           jobType,
         }),
-        salary_mode: salary.mode,
-        salary_min: salary.salary_min,
-        salary_max: salary.salary_max,
-        salary_tax: salary.salary_tax,
-        salary_period: salary.salary_period,
-        salary_currency: salary.salary_currency,
+        salary_mode: salary?.mode ?? null,
+        salary_min: salary?.salary_min ?? null,
+        salary_max: salary?.salary_max ?? null,
+        salary_tax: salary?.salary_tax ?? null,
+        salary_period: salary?.salary_period ?? null,
+        salary_currency: salary?.salary_currency ?? salaryCurrency,
         application_type: "in_app",
         application_url: null,
-        status: "published",
-        published_at: lifecycle.published_at,
-        application_deadline: lifecycle.application_deadline,
-        expires_at: lifecycle.expires_at,
+        status: intent === "publish" ? "published" : "draft",
+        published_at: lifecycle?.published_at ?? null,
+        application_deadline: lifecycle?.application_deadline ?? (applicationDeadline.trim() || null),
+        expires_at: lifecycle?.expires_at ?? null,
         ...(tax
           ? {
               industry_id: tax.industry_id,
@@ -334,16 +356,34 @@ export function EmployerNewJobForm({ locale }: Props) {
             }
           : {}),
       };
-      let { error: jobErr } = await supabase.from("job_posts").insert(payload);
+      let inserted: { id: string } | null = null;
+      let writePayload: Record<string, unknown> = payload;
+      let { data, error: jobErr } = await supabase.from("job_posts").insert(writePayload).select("id").maybeSingle();
       if (jobErr && isTaxonomyColumnError(jobErr.message)) {
-        const retry = await supabase.from("job_posts").insert(stripTaxonomyWriteColumns(payload));
+        writePayload = stripTaxonomyWriteColumns(writePayload);
+        const retry = await supabase.from("job_posts").insert(writePayload).select("id").maybeSingle();
         jobErr = retry.error;
+        data = retry.data;
+      }
+      if (jobErr && isJobContentLinesColumnError(jobErr.message)) {
+        writePayload = stripJobContentLineColumns(writePayload);
+        const retry = await supabase.from("job_posts").insert(writePayload).select("id").maybeSingle();
+        jobErr = retry.error;
+        data = retry.data;
       }
       if (jobErr) throw jobErr;
+      inserted = data;
 
-      if (mode === "payment") {
-        setInfo(t("publishSuccess"));
-        router.push(`/${locale}/account/employer/jobs`);
+      if (!inserted?.id) throw new Error(t("saveFailed"));
+
+      if (intent === "preview") {
+        router.push(`/${locale}/account/employer/jobs/${inserted.id}/preview`);
+        router.refresh();
+        return;
+      }
+      if (intent === "draft") {
+        setInfo(t("draftSaved"));
+        router.push(`/${locale}/account/employer/jobs/${inserted.id}/edit`);
         router.refresh();
         return;
       }
@@ -356,7 +396,7 @@ export function EmployerNewJobForm({ locale }: Props) {
       const lower = raw.toLowerCase();
       const withHint =
         lower.includes("schema cache") || lower.includes("column of 'job_posts'")
-          ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}\n\n${t("jobWorkConditionsFixHint")}\n\n${t("youngSeekerAutoFixHint")}\n\n${t("jobRequirementsPriorityFixHint")}\n\n${t("jobSalaryStructureFixHint")}\n\n${t("jobLifecycleDatesFixHint")}`
+          ? `${raw}\n\n${t("jobSchemaCacheCertFixHint")}\n\n${t("jobWorkConditionsFixHint")}\n\n${t("youngSeekerAutoFixHint")}\n\n${t("jobRequirementsPriorityFixHint")}\n\n${t("jobSalaryStructureFixHint")}\n\n${t("jobLifecycleDatesFixHint")}\n\n${t("jobDutyBenefitFixHint")}`
           : lower.includes("enum application_type")
             ? `${raw}\n\n${t("jobApplicationTypeEnumFixHint")}`
             : raw;
@@ -370,7 +410,7 @@ export function EmployerNewJobForm({ locale }: Props) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        void saveDraft("publish");
+        void persist("draft");
       }}
       className="space-y-6"
     >
@@ -378,6 +418,7 @@ export function EmployerNewJobForm({ locale }: Props) {
         <div className="text-sm font-medium text-white/85">{t("introTitle")}</div>
         <div className="mt-1 text-sm leading-relaxed text-white/60">{t("introBody")}</div>
         <div className="mt-3 text-xs leading-relaxed text-white/50">{t("jobFieldGuideIntro")}</div>
+        <div className="mt-3 text-xs leading-relaxed text-white/55">{t("draftHint")}</div>
       </div>
 
       {!employerProfileOk ? (
@@ -439,23 +480,11 @@ export function EmployerNewJobForm({ locale }: Props) {
             value={applicationDeadline}
             min={calendarDateInTallinn()}
             onChange={(e) => setApplicationDeadline(e.target.value)}
-            required
           />
           <p className="text-xs leading-relaxed text-white/45">{t("applicationDeadlineHint")}</p>
         </div>
         <div>
-          <Button
-            type="button"
-            variant="primary"
-            size="lg"
-            className="w-full"
-            loading={loading}
-            loadingText={t("saving")}
-            onClick={() => void saveDraft("payment")}
-          >
-            {t("publishNow")}
-          </Button>
-          <div className="mt-2 text-xs text-white/50">{t("publishHint")}</div>
+          <p className="text-xs leading-relaxed text-white/50">{t("draftHint")}</p>
         </div>
       </div>
 
@@ -488,8 +517,7 @@ export function EmployerNewJobForm({ locale }: Props) {
               <label className="text-xs font-medium tracking-wide text-white/65">{t("jobProfession")}</label>
               <TaxonomySelect
                 value={professionId}
-                required
-                terms={
+                                terms={
                   industryId
                     ? catalog.professions.filter((p) => p.industry_id === industryId)
                     : catalog.professions
@@ -510,7 +538,7 @@ export function EmployerNewJobForm({ locale }: Props) {
           <label className="text-xs font-medium tracking-wide text-white/65">
             {t("location")}
           </label>
-          <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
+          <Input value={location} onChange={(e) => setLocation(e.target.value)} />
         </div>
 
         <div className="space-y-2">
@@ -544,7 +572,6 @@ export function EmployerNewJobForm({ locale }: Props) {
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
             rows={2}
-            required
             className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
             placeholder={t("summaryPlaceholder")}
           />
@@ -557,18 +584,39 @@ export function EmployerNewJobForm({ locale }: Props) {
       <JobYoungSeekerAutoHint workConditions={workConditions} jobType={jobType} />
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">
-          {t("description")}
-        </label>
+        <label className="text-xs font-medium tracking-wide text-white/65">{t("jobSectionDescription")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          required
           rows={6}
           className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
         />
         <div className="text-xs text-white/45">{t("jobFieldGuideDescription")}</div>
       </div>
+
+      <JobLinesEditor
+        title={t("jobSectionDuties")}
+        help={t("jobFieldGuideDuties")}
+        addLabel={t("jobDutyAdd")}
+        addFirstLabel={t("jobDutyAddFirst")}
+        placeholder={t("jobDutyPlaceholder")}
+        itemLabel={(n) => t("jobDutyItemLabel", { n })}
+        value={dutyLines}
+        onChange={setDutyLines}
+        disabled={loading}
+      />
+
+      <JobLinesEditor
+        title={t("jobSectionBenefits")}
+        help={t("jobFieldGuideBenefits")}
+        addLabel={t("jobBenefitAdd")}
+        addFirstLabel={t("jobBenefitAddFirst")}
+        placeholder={t("jobBenefitPlaceholder")}
+        itemLabel={(n) => t("jobBenefitItemLabel", { n })}
+        value={benefitLines}
+        onChange={setBenefitLines}
+        disabled={loading}
+      />
 
       <JobRequirementsEditor value={requirementItems} onChange={setRequirementItems} disabled={loading} />
 
@@ -593,8 +641,7 @@ export function EmployerNewJobForm({ locale }: Props) {
               <Input
                 value={requiredSkillsCsv}
                 onChange={(e) => setRequiredSkillsCsv(e.target.value)}
-                required
-                placeholder={t("csvHintJobs")}
+                                placeholder={t("csvHintJobs")}
               />
               <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
             </>
@@ -605,7 +652,6 @@ export function EmployerNewJobForm({ locale }: Props) {
           <Input
             value={keywordsCsv}
             onChange={(e) => setKeywordsCsv(e.target.value)}
-            required
             placeholder={t("csvHintJobs")}
           />
           <div className="text-xs text-white/45">{t("jobFieldGuideKeywords")}</div>
@@ -617,7 +663,6 @@ export function EmployerNewJobForm({ locale }: Props) {
             onChange={(e) =>
               setExperienceLevelRequired(e.target.value as (typeof JOB_EXPERIENCE_LEVEL_VALUES)[number] | "")
             }
-            required
             className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
           >
             <option value="">{tOnb("experienceLevelPlaceholder")}</option>
@@ -697,7 +742,6 @@ export function EmployerNewJobForm({ locale }: Props) {
             id="job-salary-mode"
             value={salaryMode}
             onChange={(e) => setSalaryMode(e.target.value as JobSalaryMode | "")}
-            required
             className={selectClassName}
           >
             <option value="">{t("applySelectPlaceholder")}</option>
@@ -722,7 +766,6 @@ export function EmployerNewJobForm({ locale }: Props) {
                 setSalaryMax(e.target.value);
               }}
               inputMode="decimal"
-              required
               placeholder={t("jobSalaryAmountPlaceholder")}
             />
           </div>
@@ -739,8 +782,7 @@ export function EmployerNewJobForm({ locale }: Props) {
                 value={salaryMin}
                 onChange={(e) => setSalaryMin(e.target.value)}
                 inputMode="decimal"
-                required
-                placeholder={t("jobSalaryMinPlaceholder")}
+                                placeholder={t("jobSalaryMinPlaceholder")}
               />
             </div>
             <div className="space-y-2">
@@ -752,8 +794,7 @@ export function EmployerNewJobForm({ locale }: Props) {
                 value={salaryMax}
                 onChange={(e) => setSalaryMax(e.target.value)}
                 inputMode="decimal"
-                required
-                placeholder={t("jobSalaryMaxPlaceholder")}
+                                placeholder={t("jobSalaryMaxPlaceholder")}
               />
             </div>
           </div>
@@ -768,7 +809,6 @@ export function EmployerNewJobForm({ locale }: Props) {
               id="job-salary-tax"
               value={salaryTax}
               onChange={(e) => setSalaryTax(e.target.value as JobSalaryTax)}
-              required
               className={selectClassName}
             >
               {JOB_SALARY_TAX_VALUES.map((v) => (
@@ -786,7 +826,6 @@ export function EmployerNewJobForm({ locale }: Props) {
               id="job-salary-period"
               value={salaryPeriod}
               onChange={(e) => setSalaryPeriod(e.target.value as JobSalaryPeriod)}
-              required
               className={selectClassName}
             >
               {JOB_SALARY_PERIOD_VALUES.map((v) => (
@@ -812,16 +851,33 @@ export function EmployerNewJobForm({ locale }: Props) {
         </div>
       ) : null}
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        className="w-full"
-        loading={loading}
-        loadingText={t("saving")}
-      >
-        {t("publishNow")}
-      </Button>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Button type="submit" variant="outline" size="lg" className="w-full" loading={loading} loadingText={t("saving")}>
+          {t("saveDraft")}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full"
+          loading={loading}
+          loadingText={t("saving")}
+          onClick={() => void persist("preview")}
+        >
+          {t("previewJob")}
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          size="lg"
+          className="w-full"
+          loading={loading}
+          loadingText={t("saving")}
+          onClick={() => void persist("publish")}
+        >
+          {t("publishNow")}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
@@ -6,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { EXPERIENCE_LEVEL_VALUES, parseCommaList, seekerCoreComplete } from "@/lib/matching/profileRules";
+import { EXPERIENCE_LEVEL_VALUES, parseCommaList } from "@/lib/matching/profileRules";
 import { isSeekerAvatarFromStorageUpload } from "@/lib/seeker/seekerAvatarUpload";
 import {
   buildCertificateObjectPath,
@@ -23,13 +22,16 @@ import {
   type LegalRepresentativeConsentStatus,
 } from "@/lib/seeker/age";
 import { MAX_CV_BYTES, prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
+import { persistCvStorageRef } from "@/lib/seeker/cvStorage";
+import { removeCvStorageObject, uploadOwnCvPdf } from "@/lib/seeker/cvUpload";
+import { reportStorageUploadFailure } from "@/lib/monitoring/report";
+import { PrivateCvOpenLink } from "@/components/seeker/PrivateCvOpenLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TaxonomyChipField } from "@/components/taxonomy/TaxonomyChipField";
 import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { SeekerExperienceBackgroundFields } from "@/components/seeker/SeekerExperienceBackgroundFields";
 import {
-  emptyExperienceBackgroundFormValue,
   experienceBackgroundFromDb,
   experienceBackgroundToDbPayload,
   type ExperienceBackgroundFormValue,
@@ -54,7 +56,7 @@ import {
   workCapacityToDbPayload,
   type WorkCapacityStatus,
 } from "@/lib/seeker/workCapacity";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import { errorMessageFromUnknown, omitKeys } from "@/lib/utils";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { findTerm, taxonomyLabel } from "@/lib/taxonomy/labels";
 import { mergeLegacyText, partitionTaxonomyValues, suggestedSkillIds } from "@/lib/taxonomy/resolve";
@@ -70,6 +72,14 @@ import {
   certificateViewLabelsFromT,
 } from "@/components/seeker/CertificateVerificationBadge";
 import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
+import { SeekerCompletenessPanel } from "@/components/account/SeekerCompletenessPanel";
+import {
+  computeSeekerProfileCompleteness,
+  namedCertificateCountFromRows,
+  seekerProfileCompletenessPersistence,
+} from "@/lib/seeker/profileCompleteness";
+import { SeekerEducationSection } from "@/components/account/SeekerEducationSection";
+import type { SeekerEducationRow } from "@/lib/seeker/education";
 
 type Certificate = {
   id?: string;
@@ -91,6 +101,7 @@ type Props = {
   /** `profile` hides certificates; `certificates` hides the rest of the form. */
   section?: "full" | "profile" | "certificates";
   initial: {
+    userId: string;
     email: string;
     avatar_url: string | null;
     linkedin_url: string | null;
@@ -140,6 +151,7 @@ type Props = {
       experience_duration_years?: number | null;
     } | null;
     certificates: Certificate[];
+    education: SeekerEducationRow[];
     workplaceNeeds: WorkplaceNeedsFormValue | null;
     workCapacity: WorkCapacityStatus | null;
   };
@@ -190,7 +202,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
   const [avatarUrl, setAvatarUrl] = useState(initial.avatar_url ?? "");
   const [salaryExpectation, setSalaryExpectation] = useState(initial.seeker?.salary_expectation ?? "");
   const [workAuthNotes, setWorkAuthNotes] = useState(initial.seeker?.work_authorization_notes ?? "");
-  const [cvUrl, setCvUrl] = useState(initial.seeker?.cv_url ?? "");
+  const [cvUrl, setCvUrl] = useState(() => persistCvStorageRef(initial.seeker?.cv_url) ?? "");
   const [cvUploading, setCvUploading] = useState(false);
   const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState(initial.seeker?.date_of_birth ?? "");
@@ -263,6 +275,49 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           verified_by: (c as Certificate).verified_by ?? null,
         }))
       : []
+  );
+
+  const completeness = useMemo(
+    () =>
+      computeSeekerProfileCompleteness({
+        avatarUrl,
+        fullName: `${firstName} ${lastName}`.trim().replace(/\s+/g, " "),
+        profileTitle,
+        phone,
+        location,
+        about,
+        skills: taxonomyAvailable
+          ? mergeLegacyText(catalog, "skill", skillIds, skillLeftover, "et")
+          : parseCommaList(skillsCsv),
+        experienceLevel,
+        preferredJobTypes: parseCommaList(preferredJobTypesCsv),
+        preferredLocations: parseCommaList(preferredLocationsCsv),
+        dateOfBirth,
+        learningObligationStatus,
+        hasBCategoryDriversLicense,
+        namedCertificateCount: namedCertificateCountFromRows(certificates),
+      }),
+    [
+      about,
+      avatarUrl,
+      catalog,
+      certificates,
+      dateOfBirth,
+      experienceLevel,
+      firstName,
+      hasBCategoryDriversLicense,
+      lastName,
+      learningObligationStatus,
+      location,
+      phone,
+      preferredJobTypesCsv,
+      preferredLocationsCsv,
+      profileTitle,
+      skillIds,
+      skillLeftover,
+      skillsCsv,
+      taxonomyAvailable,
+    ],
   );
 
   useEffect(() => {
@@ -366,7 +421,10 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           upsert: true,
           contentType: uploadFile.type || undefined,
         });
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        reportStorageUploadFailure(uploadErr, "certificate");
+        throw uploadErr;
+      }
       setCertificates((prev) =>
         prev.map((x, i) => (i === idx ? { ...x, certificate_image_url: path } : x))
       );
@@ -398,7 +456,10 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           upsert: true,
           contentType: uploadFile.type || undefined,
         });
-      if (uploadErr) throw uploadErr;
+      if (uploadErr) {
+        reportStorageUploadFailure(uploadErr, "avatar");
+        throw uploadErr;
+      }
 
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       setAvatarUrl(data.publicUrl);
@@ -429,23 +490,13 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         throw new Error(t("unknownError"));
       }
 
-      const safeBase = file.name
-        .replace(/\.[^.]+$/, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9-_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-        .slice(0, 48);
-      const path = `${user.id}/cv/${Date.now()}-${safeBase || "cv"}.pdf`;
-
-      const { error: uploadErr } = await supabase.storage.from("avatars").upload(path, file, {
-        upsert: true,
-        contentType: "application/pdf",
+      const path = await uploadOwnCvPdf({
+        supabase,
+        userId: user.id,
+        file,
+        previous: cvUrl,
       });
-      if (uploadErr) throw uploadErr;
-
-      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      setCvUrl(data.publicUrl);
+      setCvUrl(path);
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));
     } finally {
@@ -578,22 +629,21 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           certificate_image_url: persistCertificateImageRef(c.certificate_image_url) ?? "",
         }))
         .filter((c) => c.certificate_name && c.certificate_issuer);
-      const isComplete = seekerCoreComplete({
+      const completeness = computeSeekerProfileCompleteness({
         avatarOk: isSeekerAvatarFromStorageUpload(avatarUrl),
-        seeker: {
-          full_name: fullName,
-          profile_title: title,
-          phone,
-          location,
-          about,
-          skills,
-          experience_level: experienceLevel,
-          preferred_job_types: preferredJobTypes,
-          preferred_locations: preferredLocations,
-          date_of_birth: dateOfBirth,
-          learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
-        },
-        certRowsWithImage: 0,
+        fullName,
+        profileTitle: title,
+        phone,
+        location,
+        about,
+        skills,
+        experienceLevel,
+        preferredJobTypes,
+        preferredLocations,
+        dateOfBirth,
+        learningObligationStatus: isLearningObligationStatus(learningStatus) ? learningStatus : null,
+        hasBCategoryDriversLicense,
+        namedCertificateCount: validCerts.length,
       });
 
       const { error: metaErr } = await supabase.auth.updateUser({
@@ -617,13 +667,13 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         preferred_locations: preferredLocations,
         salary_expectation: salaryExpectation.trim() || null,
         work_authorization_notes: workAuthNotes.trim() || null,
-        cv_url: cvUrl.trim() || null,
+        cv_url: persistCvStorageRef(cvUrl),
         date_of_birth: dateOfBirth,
         learning_obligation_status: isLearningObligationStatus(learningStatus) ? learningStatus : null,
         legal_representative_consent_status: consentToSave,
         ...workPreferencesToDbPayload(sanitizedPrefs),
         ...experienceBackgroundToDbPayload(experienceBackground),
-        is_complete: isComplete,
+        ...seekerProfileCompletenessPersistence(completeness),
         profile_visible: profileVisible,
         has_b_category_drivers_license: hasBCategoryDriversLicense,
         profession_id: taxonomyAvailable ? professionId || null : undefined,
@@ -633,14 +683,9 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       };
       let { error: seekerErr } = await supabase.from("seeker_profiles").upsert(seekerPayload);
       if (seekerErr && isTaxonomyColumnError(seekerErr.message)) {
-        const {
-          profession_id: _p,
-          skill_ids: _s,
-          language_ids: _l,
-          languages: _lang,
-          ...rest
-        } = seekerPayload;
-        const retry = await supabase.from("seeker_profiles").upsert(rest);
+        const retry = await supabase.from("seeker_profiles").upsert(
+          omitKeys(seekerPayload, ["profession_id", "skill_ids", "language_ids", "languages"]),
+        );
         seekerErr = retry.error;
       }
       if (seekerErr) throw seekerErr;
@@ -729,15 +774,14 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         });
         let { error: insErr } = await supabase.from("seeker_certificates").insert(rows);
         if (insErr && /verification_|column/i.test(insErr.message ?? "")) {
-          const legacyRows = rows.map(
-            ({
-              verification_status: _s,
-              verified_at: _a,
-              verification_source: _src,
-              verified_by: _by,
-              certificate_id: _cid,
-              ...rest
-            }) => rest
+          const legacyRows = rows.map((row) =>
+            omitKeys(row, [
+              "verification_status",
+              "verified_at",
+              "verification_source",
+              "verified_by",
+              "certificate_id",
+            ]),
           );
           const retry = await supabase.from("seeker_certificates").insert(legacyRows);
           insErr = retry.error;
@@ -807,6 +851,8 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           </div>
         ) : null}
       </div>
+
+      <SeekerCompletenessPanel completeness={completeness} />
 
       {showProfile ? (
       <>
@@ -1004,6 +1050,8 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
         </div>
       </div>
 
+      <SeekerEducationSection seekerUserId={initial.userId} initialRows={initial.education ?? []} />
+
       <SeekerWorkPreferencesFields
         value={workPreferences}
         onChange={setWorkPreferences}
@@ -1035,11 +1083,28 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           <div className="text-xs text-white/45">{t("cvUrlHint")}</div>
           {cvUploading ? <div className="text-xs text-white/55">{t("cvUploading")}</div> : null}
           {!cvUploading && cvUrl ? (
-            <div className="text-xs text-white/55">
-              {cvFileName ? `${cvFileName} — ` : null}
-              <a href={cvUrl} target="_blank" rel="noreferrer" className="underline hover:text-white/80">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/55">
+              {cvFileName ? <span>{cvFileName}</span> : null}
+              <PrivateCvOpenLink
+                cvRef={cvUrl}
+                errorLabel={t("cvOpenFailed")}
+                className="underline hover:text-white/80 disabled:opacity-60"
+              >
                 {t("cvOpen")}
-              </a>
+              </PrivateCvOpenLink>
+              <button
+                type="button"
+                className="underline hover:text-white/80"
+                onClick={() => {
+                  void (async () => {
+                    await removeCvStorageObject(supabase, cvUrl);
+                    setCvUrl("");
+                    setCvFileName(null);
+                  })();
+                }}
+              >
+                {t("cvRemove")}
+              </button>
             </div>
           ) : null}
         </div>

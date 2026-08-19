@@ -1,9 +1,6 @@
 /**
- * Copy helpers for future saved-search job alerts.
- *
- * Delivery is not wired: Resend is used for apply notifications only, and there
- * is no cron/queue that calls these functions. Keep UI copy honest until a
- * scheduler sets SAVED_SEARCH_ALERTS_DELIVERY_ENABLED.
+ * Copy helpers for saved-search job alerts (in-app + optional email).
+ * Email is only sent when the worker sees Resend configured and SAVED_SEARCH_ALERTS_EMAIL=1.
  */
 
 export type SavedSearchAlertCopyValues = {

@@ -133,11 +133,10 @@ create policy "job_posts_select_saved_by_seeker"
   to authenticated
   using (public.current_user_has_saved_job(id));
 
+-- Company names for saved listings come from employer_saved_public_profiles
+-- (see fix-employer-profiles-public-column-grants.sql). Do not add a table
+-- SELECT policy here: authenticated table SELECT of other companies leaks
+-- private employer columns.
 drop policy if exists "employer_profiles_select_for_saved_jobs" on public.employer_profiles;
-create policy "employer_profiles_select_for_saved_jobs"
-  on public.employer_profiles
-  for select
-  to authenticated
-  using (public.current_user_saved_job_for_employer(id));
 
 notify pgrst, 'reload schema';

@@ -23,9 +23,12 @@ import {
   CertificateStatusBlock,
   certificateViewLabelsFromT,
 } from "@/components/seeker/CertificateVerificationBadge";
+import { ApplicantEducationList } from "@/components/employer/ApplicantEducationList";
 import { isWorkplaceNeedKey, type SharedWorkplaceNeed, type WorkplaceNeedKey } from "@/lib/seeker/workplaceNeeds";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import { cn, safeHttpUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { firstCvStorageRef } from "@/lib/seeker/cvStorage";
+import { PrivateCvOpenLink } from "@/components/seeker/PrivateCvOpenLink";
 import {
   type ApplicantApplicationRow,
   answersFromApplicantRow,
@@ -126,7 +129,7 @@ export function EmployerApplicantDetailDrawer({
     : null;
   const needs = sharedWorkplaceNeeds(seeker);
   const certRows = Array.isArray(seeker.certificates) ? seeker.certificates : [];
-  const cvUrl = row?.resolved_cv_url ?? safeHttpUrl(seeker.cv_url);
+  const cvUrl = firstCvStorageRef(row?.resolved_cv_url, typeof seeker.cv_url === "string" ? seeker.cv_url : null);
   const about = ((seeker.about as string | undefined) ?? "").toString().trim();
 
   let experienceLabel = "—";
@@ -178,14 +181,13 @@ export function EmployerApplicantDetailDrawer({
                 </div>
                 {cvUrl ? (
                   <div className="flex items-end">
-                    <a
-                      href={cvUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-10 items-center rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 text-[13px] font-medium text-white/80 hover:bg-white/[0.07]"
+                    <PrivateCvOpenLink
+                      cvRef={cvUrl}
+                      errorLabel={t("applicantCvOpenFailed")}
+                      className="inline-flex h-10 items-center rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 text-[13px] font-medium text-white/80 hover:bg-white/[0.07] disabled:opacity-60"
                     >
                       {t("applicantDetailViewCv")}
-                    </a>
+                    </PrivateCvOpenLink>
                   </div>
                 ) : null}
               </div>
@@ -284,6 +286,8 @@ export function EmployerApplicantDetailDrawer({
                   <p className="mt-1.5 text-sm text-white/50">{t("applicantDetailNoCertificates")}</p>
                 )}
               </section>
+
+              <ApplicantEducationList raw={seeker.education} variant="drawer" />
 
               <section>
                 <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { MfaChallengeForm } from "@/components/auth/MfaChallengeForm";
 import { getAuthUser } from "@/lib/auth/currentAuth";
+import { getProfileSecurity } from "@/lib/auth/profileSecurity";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -16,6 +17,8 @@ export default async function MfaChallengePage({ params, searchParams }: Props) 
   const t = await getTranslations({ locale, namespace: "auth" });
   const user = await getAuthUser();
   if (!user) redirect(`/${locale}/auth/login`);
+  const security = await getProfileSecurity(user.id);
+  if (security.isBlocked) redirect(`/${locale}/blocked`);
 
   const nextRaw = (sp.next ?? `/${locale}/admin`).toString();
   const nextPath = nextRaw.startsWith(`/${locale}/`) ? nextRaw : `/${locale}/admin`;

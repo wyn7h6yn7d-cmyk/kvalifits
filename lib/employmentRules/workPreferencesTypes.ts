@@ -1,5 +1,3 @@
-import type { SeekerEligibilityInput } from "@/lib/employmentRules/types";
-
 /** Structured seeker work-preference choices (Töösoovid). */
 export type WorkPreferencesInput = {
   fullTime: boolean;

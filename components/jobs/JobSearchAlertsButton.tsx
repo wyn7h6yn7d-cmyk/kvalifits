@@ -161,10 +161,10 @@ export function JobSearchAlertsButton({
             {savedOk ? (
               <div className="mt-5 space-y-4">
                 <p className="rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2.5 text-sm text-white/75">
-                  {tSaved("savedPendingDelivery")}
+                  {tSaved(SAVED_SEARCH_ALERTS_DELIVERY_ENABLED ? "savedOkDelivery" : "savedPendingDelivery")}
                 </p>
                 <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => router.push("/account/seeker/notifications")}>
+                  <Button type="button" variant="outline" size="sm" onClick={() => router.push("/account/seeker/alerts")}>
                     {tSaved("manageCta")}
                   </Button>
                   <Button type="button" size="sm" onClick={() => setOpen(false)}>

@@ -142,23 +142,35 @@ create policy "admin_select_job_applications"
 
 -- ---------------------------------------------------------------------------
 -- job_post_reports — SELECT/UPDATE moderation
+-- Table is created in 20260816_job_post_reports (later in the 20260816_*
+-- filename order). Skip if missing so a fresh apply does not abort here.
 -- ---------------------------------------------------------------------------
-alter table public.job_post_reports enable row level security;
+do $$
+begin
+  if to_regclass('public.job_post_reports') is null then
+    return;
+  end if;
 
-drop policy if exists "admin_select_job_post_reports" on public.job_post_reports;
-create policy "admin_select_job_post_reports"
-  on public.job_post_reports
-  for select
-  to authenticated
-  using (public.current_user_is_admin());
-
-drop policy if exists "admin_update_job_post_reports" on public.job_post_reports;
-create policy "admin_update_job_post_reports"
-  on public.job_post_reports
-  for update
-  to authenticated
-  using (public.current_user_is_admin())
-  with check (public.current_user_is_admin());
+  execute 'alter table public.job_post_reports enable row level security';
+  execute 'drop policy if exists "admin_select_job_post_reports" on public.job_post_reports';
+  execute $p$
+    create policy "admin_select_job_post_reports"
+      on public.job_post_reports
+      for select
+      to authenticated
+      using (public.current_user_is_admin())
+  $p$;
+  execute 'drop policy if exists "admin_update_job_post_reports" on public.job_post_reports';
+  execute $p$
+    create policy "admin_update_job_post_reports"
+      on public.job_post_reports
+      for update
+      to authenticated
+      using (public.current_user_is_admin())
+      with check (public.current_user_is_admin())
+  $p$;
+end;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- admin_audit_log — SELECT + INSERT (append-only; actor_id must be self)
@@ -183,25 +195,35 @@ create policy "admin_insert_admin_audit_log"
   );
 
 -- ---------------------------------------------------------------------------
--- Privacy / deletion audit — SELECT only
+-- Privacy / deletion audit — SELECT only (skip if tables are absent)
 -- ---------------------------------------------------------------------------
-alter table public.legal_retention_records enable row level security;
+do $$
+begin
+  if to_regclass('public.legal_retention_records') is not null then
+    execute 'alter table public.legal_retention_records enable row level security';
+    execute 'drop policy if exists "admin_select_legal_retention_records" on public.legal_retention_records';
+    execute $p$
+      create policy "admin_select_legal_retention_records"
+        on public.legal_retention_records
+        for select
+        to authenticated
+        using (public.current_user_is_admin())
+    $p$;
+  end if;
 
-drop policy if exists "admin_select_legal_retention_records" on public.legal_retention_records;
-create policy "admin_select_legal_retention_records"
-  on public.legal_retention_records
-  for select
-  to authenticated
-  using (public.current_user_is_admin());
-
-alter table public.account_deletion_events enable row level security;
-
-drop policy if exists "admin_select_account_deletion_events" on public.account_deletion_events;
-create policy "admin_select_account_deletion_events"
-  on public.account_deletion_events
-  for select
-  to authenticated
-  using (public.current_user_is_admin());
+  if to_regclass('public.account_deletion_events') is not null then
+    execute 'alter table public.account_deletion_events enable row level security';
+    execute 'drop policy if exists "admin_select_account_deletion_events" on public.account_deletion_events';
+    execute $p$
+      create policy "admin_select_account_deletion_events"
+        on public.account_deletion_events
+        for select
+        to authenticated
+        using (public.current_user_is_admin())
+    $p$;
+  end if;
+end;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- Storage: certificates bucket — admin SELECT for review (no write)

@@ -123,12 +123,16 @@ create policy "employer_profiles_update_own"
   using (owner_user_id = auth.uid())
   with check (owner_user_id = auth.uid());
 
+-- Authenticated non-owners read public fields via employer_public_profiles.
+-- Table published-job SELECT stays anon-only so login cannot widen columns.
 drop policy if exists "employer_profiles_select_for_published_jobs" on public.employer_profiles;
 create policy "employer_profiles_select_for_published_jobs"
   on public.employer_profiles
   for select
-  to anon, authenticated
+  to anon
   using (public.employer_profile_has_published_job(id));
+
+drop policy if exists "employer_profiles_select_for_saved_jobs" on public.employer_profiles;
 
 drop policy if exists "admin_select_employer_profiles" on public.employer_profiles;
 create policy "admin_select_employer_profiles"
@@ -145,8 +149,9 @@ create policy "admin_update_employer_profiles"
   using (public.current_user_is_admin())
   with check (public.current_user_is_admin());
 
+-- Do not GRANT table-level SELECT to authenticated (exposes private columns).
+-- Column grants: supabase/scripts/fix-employer-profiles-public-column-grants.sql
 revoke all on table public.employer_profiles from public;
-grant select on table public.employer_profiles to anon;
-grant select, insert, update on table public.employer_profiles to authenticated;
+grant insert, update on table public.employer_profiles to authenticated;
 
 notify pgrst, 'reload schema';

@@ -10,6 +10,7 @@ export type NavKey =
   | "seekerApplications"
   | "seekerSaved"
   | "seekerNotifications"
+  | "seekerJobAlerts"
   | "seekerProfile"
   | "seekerCertificates"
   | "employerOverview"
@@ -37,7 +38,8 @@ export const SEEKER_NAV: NavItem[] = [
   { href: "/account/seeker/matches", key: "seekerMatches" },
   { href: "/account/seeker/applications", key: "seekerApplications" },
   { href: "/account/seeker/saved", key: "seekerSaved" },
-  { href: "/account/seeker/notifications", key: "seekerNotifications" },
+  { href: "/account/notifications", key: "seekerNotifications" },
+  { href: "/account/seeker/alerts", key: "seekerJobAlerts" },
   { href: "/account/seeker/profile", key: "seekerProfile" },
   { href: "/account/seeker/certificates", key: "seekerCertificates" },
 ];
@@ -48,7 +50,8 @@ export const SEEKER_MOBILE_NAV: NavItem[] = [
   { href: "/account/seeker/matches", key: "seekerMatches" },
   { href: "/account/seeker/applications", key: "seekerApplications" },
   { href: "/account/seeker/saved", key: "seekerSaved" },
-  { href: "/account/seeker/notifications", key: "seekerNotifications" },
+  { href: "/account/notifications", key: "seekerNotifications" },
+  { href: "/account/seeker/alerts", key: "seekerJobAlerts" },
   { href: "/account/seeker/profile", key: "seekerProfile" },
 ];
 
@@ -59,11 +62,12 @@ export const SEEKER_BOTTOM_NAV: NavItem[] = [
   { href: "/account/seeker/profile", key: "seekerProfile" },
 ];
 
+/** Messaging is not shipped; do not add /account/employer/messages here. */
 export const EMPLOYER_NAV: NavItem[] = [
   { href: "/account/employer", key: "employerOverview" },
   { href: "/account/employer/jobs", key: "employerJobPosts" },
+  { href: "/account/notifications", key: "seekerNotifications" },
   { href: "/account/employer/candidates", key: "candidates" },
-  { href: "/account/employer/messages", key: "employerMessages" },
   { href: "/account/employer", key: "employerCompany" },
 ];
 

@@ -14,7 +14,7 @@ export default async function AdminEmployersPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: "admin" });
   const db = createSupabaseAdminClient() ?? supabase;
 
-  let { data: employers, error } = await db
+  const primary = await db
     .from("employer_profiles")
     .select(
       "id,company_name,registry_code,contact_email,company_verified,verification_status,verification_source,verified_at,created_at"
@@ -22,7 +22,8 @@ export default async function AdminEmployersPage({ params }: Props) {
     .order("created_at", { ascending: false })
     .limit(200);
 
-  if (error) {
+  let employers = primary.data;
+  if (primary.error) {
     const fallback = await db
       .from("employer_profiles")
       .select("id,company_name,registry_code,contact_email,created_at")

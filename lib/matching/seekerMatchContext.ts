@@ -1,4 +1,5 @@
 import { cache } from "react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { SeekerEligibilityInput } from "@/lib/employmentRules/types";
 import type { SeekerCertificateInput, SeekerMatchInput } from "@/lib/matching/calculateJobMatch";
@@ -97,10 +98,11 @@ function certsFromRows(rows: unknown[] | null | undefined): SeekerCertificateInp
   });
 }
 
-/** One seeker profile + compact certs per request. Date of birth stays server-side. */
-export const loadSeekerMatchContext = cache(async (userId: string): Promise<SeekerMatchContext> => {
+export async function loadSeekerMatchContextWithClient(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<SeekerMatchContext> {
   if (!userId) return emptySeekerMatchContext;
-  const supabase = await createSupabaseServerClient();
 
   let seekerQuery = await supabase.from("seeker_profiles").select(SEEKER_MATCH_SELECT).eq("user_id", userId).maybeSingle();
   if (seekerQuery.error && /date_of_birth|is_minor|minor_age_band|learning_obligation|skill_ids|profession_id|language_ids|column/i.test(seekerQuery.error.message ?? "")) {
@@ -125,4 +127,11 @@ export const loadSeekerMatchContext = cache(async (userId: string): Promise<Seek
     certs: certsFromRows(certRows),
     legal: legalFromRow(row),
   };
+}
+
+/** One seeker profile + compact certs per request. Date of birth stays server-side. */
+export const loadSeekerMatchContext = cache(async (userId: string): Promise<SeekerMatchContext> => {
+  if (!userId) return emptySeekerMatchContext;
+  const supabase = await createSupabaseServerClient();
+  return loadSeekerMatchContextWithClient(supabase, userId);
 });

@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
-import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SheetTrigger } from "@/components/ui/sheet";
+import { QuickApplySheet, scrollApplyFieldIntoView } from "@/components/jobs/QuickApplySheet";
 import { ApplyFormSkeleton } from "@/components/skeletons/ApplyFormSkeleton";
 import { Link } from "@/i18n/routing";
+import { reportException } from "@/lib/monitoring/report";
 import {
   AVAILABILITY_START_VALUES,
   INTERVIEW_PREFERENCE_VALUES,
@@ -48,8 +50,10 @@ import {
   type ApplyEligibilityResult,
   type ApplyEligibilitySeekerInput,
 } from "@/lib/jobs/evaluateApplyEligibility";
+import { computeSeekerProfileCompletenessFromProfile } from "@/lib/seeker/profileCompleteness";
 import { JobApplyEligibilityBanner } from "@/components/jobs/JobApplyEligibilityBanner";
 import { FitScoreExplain } from "@/components/jobs/FitScoreExplain";
+import { hasCvStorageRef } from "@/lib/seeker/cvStorage";
 import { calculateAgeYears, isLearningObligationStatus, minorAgeBandFromAge } from "@/lib/seeker/age";
 import { cn } from "@/lib/utils";
 
@@ -111,6 +115,7 @@ export function JobApplyForm({
   const [authLoading, setAuthLoading] = useState(true);
   const [authed, setAuthed] = useState(false);
   const [role, setRole] = useState<string | null>(null);
+  const [profileCoreComplete, setProfileCoreComplete] = useState<boolean | null>(null);
   const [panel, setPanel] = useState<PanelMode>("closed");
 
   const [profileHints, setProfileHints] = useState<QuickApplyProfileHints>({
@@ -145,6 +150,7 @@ export function JobApplyForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
 
   const canQuickApply = isQuickApplyReady(quickDraft);
   const showNotice = noticePeriodRelevant(availabilityStart);
@@ -228,6 +234,13 @@ export function JobApplyForm({
 
         if (!mounted) return;
 
+        setProfileCoreComplete(
+          computeSeekerProfileCompletenessFromProfile({
+            avatarUrl: (user.user_metadata?.avatar_url as string | undefined) ?? null,
+            seeker: seeker ?? null,
+          }).coreComplete,
+        );
+
         const hoursRaw = seeker?.pref_desired_weekly_hours;
         const hoursNum = hoursRaw === null || hoursRaw === undefined ? null : Number(hoursRaw);
         const hints: QuickApplyProfileHints = {
@@ -235,7 +248,7 @@ export function JobApplyForm({
           preferredWeeklyHours: hoursNum !== null && Number.isFinite(hoursNum) ? hoursNum : null,
           prefFullTime: Boolean(seeker?.pref_full_time),
           prefPartTime: Boolean(seeker?.pref_part_time),
-          hasCv: Boolean((seeker?.cv_url ?? "").toString().trim()),
+          hasCv: hasCvStorageRef(seeker?.cv_url),
         };
         setProfileHints(hints);
 
@@ -473,28 +486,10 @@ export function JobApplyForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, authed, role, acceptsApplications, success]);
 
-  useEffect(() => {
-    if (panel === "closed") return;
-    const prev = document.body.style.overflow;
-    const mq = window.matchMedia("(max-width: 1023px)");
-    function lock() {
-      document.body.style.overflow = mq.matches ? "hidden" : prev;
-    }
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        closeApply();
-      }
-    }
-    lock();
-    mq.addEventListener("change", lock);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      mq.removeEventListener("change", lock);
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [panel]);
+  function onSheetOpenChange(next: boolean) {
+    if (next) openApply();
+    else closeApply();
+  }
 
   function refreshMatch(answers: ApplicationAnswers) {
     if (!seekerMatchInput || !jobMatch) return;
@@ -554,6 +549,10 @@ export function JobApplyForm({
   }
 
   async function submitAnswers(answers: ApplicationAnswers) {
+    if (profileCoreComplete === false) {
+      setError(t("applyProfileRequired"));
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -567,10 +566,12 @@ export function JobApplyForm({
           answers,
         }),
       });
-      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      const json = (await res.json().catch(() => ({}))) as { error?: string; alreadyApplied?: boolean };
       if (!res.ok) {
         if (res.status === 409 && json.error === "duplicate_application") {
-          setError(t("applyDuplicate"));
+          setAlreadyApplied(true);
+          setSuccess(true);
+          setPanel("closed");
           return;
         }
         if (res.status === 410 && (json.error === "job_expired" || json.error === "job_closed_for_applications")) {
@@ -595,7 +596,8 @@ export function JobApplyForm({
       setQuickDraft(answers);
       setSuccess(true);
       setPanel("closed");
-    } catch {
+    } catch (err) {
+      reportException(err, { area: "job_application", code: "apply_network_error" });
       setError(t("applyFailed"));
     } finally {
       setLoading(false);
@@ -668,11 +670,30 @@ export function JobApplyForm({
     );
   }
 
+  if (profileCoreComplete === false) {
+    return (
+      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
+        <div className="mt-1 text-sm text-white/60">{t("applyProfileRequired")}</div>
+        <Link
+          href="/account/seeker/profile"
+          className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-white/80 underline hover:text-white"
+        >
+          {t("applyCompleteProfile")}
+        </Link>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applySuccessTitle")}</div>
-        <div className="mt-1 text-sm text-white/60">{t("applySuccessBody")}</div>
+        <div className="text-sm font-medium text-white/85">
+          {alreadyApplied ? t("applyDuplicate") : t("applySuccessTitle")}
+        </div>
+        <div className="mt-1 text-sm text-white/60">
+          {alreadyApplied ? t("applyDuplicateBody") : t("applySuccessBody")}
+        </div>
       </div>
     );
   }
@@ -707,7 +728,7 @@ export function JobApplyForm({
 
   const answersBody = (
     <form onSubmit={goToReview} className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-4 pt-1 sm:px-5">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 pb-4 pt-1 sm:px-5">
         {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
 
         <p className="text-[13px] leading-relaxed text-white/55">{t("quickApplyNoCvHint")}</p>
@@ -739,6 +760,7 @@ export function JobApplyForm({
               enterKeyHint="next"
               placeholder={t("applySalaryPlaceholder")}
               aria-label={t("applySalaryFixedAmount")}
+              onFocus={scrollApplyFieldIntoView}
             />
           ) : null}
           {salaryMode === "range" ? (
@@ -751,6 +773,7 @@ export function JobApplyForm({
                 enterKeyHint="next"
                 placeholder={t("applySalaryMin")}
                 aria-label={t("applySalaryMin")}
+                onFocus={scrollApplyFieldIntoView}
               />
               <Input
                 value={salaryMax}
@@ -760,6 +783,7 @@ export function JobApplyForm({
                 enterKeyHint="next"
                 placeholder={t("applySalaryMax")}
                 aria-label={t("applySalaryMax")}
+                onFocus={scrollApplyFieldIntoView}
               />
             </div>
           ) : null}
@@ -790,6 +814,7 @@ export function JobApplyForm({
               onChange={(e) => setAvailabilityStartDate(e.target.value)}
               aria-label={t("applyAvailableFromDate")}
               className="min-h-12 [color-scheme:dark]"
+              onFocus={scrollApplyFieldIntoView}
             />
           ) : null}
         </fieldset>
@@ -805,6 +830,7 @@ export function JobApplyForm({
               value={noticePeriod}
               onChange={(e) => setNoticePeriod(e.target.value)}
               placeholder={t("applyNoticePeriodPlaceholder")}
+              onFocus={scrollApplyFieldIntoView}
             />
           </div>
         ) : null}
@@ -827,6 +853,7 @@ export function JobApplyForm({
             autoComplete="off"
             enterKeyHint="next"
             placeholder={t("applyWeeklyHoursPlaceholder")}
+            onFocus={scrollApplyFieldIntoView}
           />
           <div className="text-xs text-white/55">{t("applyScheduleFit")}</div>
           {scheduleHint ? <p className="text-xs text-white/45">{scheduleHint}</p> : null}
@@ -865,6 +892,7 @@ export function JobApplyForm({
             maxLength={500}
             className="min-h-[6.5rem] w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 py-3 text-base text-white/85 placeholder:text-white/35 outline-none transition-colors focus:border-white/[0.18] lg:text-sm"
             placeholder={t("applyNotePlaceholder")}
+            onFocus={scrollApplyFieldIntoView}
           />
         </div>
 
@@ -885,7 +913,7 @@ export function JobApplyForm({
 
   const reviewBody = reviewAnswers ? (
     <form onSubmit={onReviewSubmit} className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4 pt-1 sm:px-5">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 pb-4 pt-1 sm:px-5">
         {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
 
         <dl className="space-y-3 rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-4">
@@ -1000,58 +1028,29 @@ export function JobApplyForm({
   ) : null;
 
   return (
-    <div>
-      <div className={cn("rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
-        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-        <div className="mt-1 text-sm text-white/60">{t("applySubtitle")}</div>
-        {applyUntilLabel ? <p className="mt-2 text-sm font-medium text-white/80">{applyUntilLabel}</p> : null}
-        <p className="mt-3 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
-        <div className="mt-4">
-          <Button type="button" variant="primary" size="lg" className="w-full" onClick={openApply}>
-            {t("applyOpenCta")}
-          </Button>
-        </div>
-      </div>
-
-      {sheetOpen ? (
-        <>
-          <button
-            type="button"
-            aria-label={t("applySheetClose")}
-            className="fixed inset-0 z-[80] bg-black/70 lg:hidden"
-            onClick={closeApply}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="quick-apply-title"
-            className={cn(
-              "z-[80] flex flex-col border border-white/[0.10] bg-[#121216]",
-              "fixed inset-0 h-dvh lg:static lg:z-auto lg:h-auto lg:max-h-none lg:rounded-3xl",
-            )}
-          >
-            <div className="flex shrink-0 items-start justify-between gap-3 px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 lg:pt-3">
-              <div className="min-w-0">
-                <h2 id="quick-apply-title" className="text-base font-semibold text-white/90">
-                  {panel === "review" ? t("applyReviewTitle") : t("quickApplyTitle")}
-                </h2>
-                <p className="mt-0.5 text-[13px] text-white/50">
-                  {panel === "review" ? t("quickApplySummarySubtitle") : t("quickApplySubtitle")}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeApply}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] text-white/70 hover:bg-white/[0.06]"
-                aria-label={t("applySheetClose")}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            {panel === "answers" ? answersBody : reviewBody}
+    <QuickApplySheet
+      open={sheetOpen}
+      onOpenChange={onSheetOpenChange}
+      title={panel === "review" ? t("applyReviewTitle") : t("quickApplyTitle")}
+      description={panel === "review" ? t("quickApplySummarySubtitle") : t("quickApplySubtitle")}
+      closeLabel={t("applySheetClose")}
+      trigger={
+        <div className={cn("rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
+          <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
+          <div className="mt-1 text-sm text-white/60">{t("applySubtitle")}</div>
+          {applyUntilLabel ? <p className="mt-2 text-sm font-medium text-white/80">{applyUntilLabel}</p> : null}
+          <p className="mt-3 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
+          <div className="mt-4">
+            <SheetTrigger asChild>
+              <Button type="button" variant="primary" size="lg" className="w-full" data-testid="quick-apply-open">
+                {t("applyOpenCta")}
+              </Button>
+            </SheetTrigger>
           </div>
-        </>
-      ) : null}
-    </div>
+        </div>
+      }
+    >
+      {panel === "answers" ? answersBody : reviewBody}
+    </QuickApplySheet>
   );
 }

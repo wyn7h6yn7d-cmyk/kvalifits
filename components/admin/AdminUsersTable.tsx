@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
@@ -36,7 +35,6 @@ export function AdminUsersTable({
 }) {
   const t = useTranslations("admin");
   const router = useRouter();
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,19 +42,19 @@ export function AdminUsersTable({
     setBusyId(userId);
     setError(null);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const { error } = await supabase.from("profiles").update({ is_blocked: blocked }).eq("id", userId);
-      if (error) throw error;
-      const { tryWriteAdminAuditLog, ADMIN_AUDIT_ACTIONS } = await import("@/lib/admin/auditLog");
-      await tryWriteAdminAuditLog(supabase, {
-        actorId: user?.id,
-        action: blocked ? ADMIN_AUDIT_ACTIONS.userBlock : ADMIN_AUDIT_ACTIONS.userUnblock,
-        targetType: "user",
-        targetId: userId,
-        details: { is_blocked: blocked },
+      const res = await fetch("/api/admin/moderation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          queue: "blocked_users",
+          action: blocked ? "block" : "restore",
+          targetId: userId,
+        }),
       });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        throw new Error(json.error || t("unknownError"));
+      }
       router.refresh();
     } catch (err) {
       setError(errorMessageFromUnknown(err, t("unknownError")));

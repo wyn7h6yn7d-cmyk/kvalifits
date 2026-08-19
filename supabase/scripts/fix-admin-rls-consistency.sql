@@ -84,16 +84,30 @@ create policy "admin_select_job_applications"
   on public.job_applications for select to authenticated
   using (public.current_user_is_admin());
 
-alter table public.job_post_reports enable row level security;
-drop policy if exists "admin_select_job_post_reports" on public.job_post_reports;
-create policy "admin_select_job_post_reports"
-  on public.job_post_reports for select to authenticated
-  using (public.current_user_is_admin());
-drop policy if exists "admin_update_job_post_reports" on public.job_post_reports;
-create policy "admin_update_job_post_reports"
-  on public.job_post_reports for update to authenticated
-  using (public.current_user_is_admin())
-  with check (public.current_user_is_admin());
+-- job_post_reports / privacy tables may be missing on lagging remotes.
+-- Canonical skip-if-missing logic lives in 20260816_admin_rls_consistency.sql
+-- and 20260818202000_reconciliation_security_final.sql.
+
+do $$
+begin
+  if to_regclass('public.job_post_reports') is not null then
+    execute 'alter table public.job_post_reports enable row level security';
+    execute 'drop policy if exists "admin_select_job_post_reports" on public.job_post_reports';
+    execute $p$
+      create policy "admin_select_job_post_reports"
+        on public.job_post_reports for select to authenticated
+        using (public.current_user_is_admin())
+    $p$;
+    execute 'drop policy if exists "admin_update_job_post_reports" on public.job_post_reports';
+    execute $p$
+      create policy "admin_update_job_post_reports"
+        on public.job_post_reports for update to authenticated
+        using (public.current_user_is_admin())
+        with check (public.current_user_is_admin())
+    $p$;
+  end if;
+end;
+$$;
 
 alter table public.admin_audit_log enable row level security;
 drop policy if exists "admin_select_admin_audit_log" on public.admin_audit_log;
@@ -105,17 +119,28 @@ create policy "admin_insert_admin_audit_log"
   on public.admin_audit_log for insert to authenticated
   with check (public.current_user_is_admin() and actor_id = auth.uid());
 
-alter table public.legal_retention_records enable row level security;
-drop policy if exists "admin_select_legal_retention_records" on public.legal_retention_records;
-create policy "admin_select_legal_retention_records"
-  on public.legal_retention_records for select to authenticated
-  using (public.current_user_is_admin());
-
-alter table public.account_deletion_events enable row level security;
-drop policy if exists "admin_select_account_deletion_events" on public.account_deletion_events;
-create policy "admin_select_account_deletion_events"
-  on public.account_deletion_events for select to authenticated
-  using (public.current_user_is_admin());
+do $$
+begin
+  if to_regclass('public.legal_retention_records') is not null then
+    execute 'alter table public.legal_retention_records enable row level security';
+    execute 'drop policy if exists "admin_select_legal_retention_records" on public.legal_retention_records';
+    execute $p$
+      create policy "admin_select_legal_retention_records"
+        on public.legal_retention_records for select to authenticated
+        using (public.current_user_is_admin())
+    $p$;
+  end if;
+  if to_regclass('public.account_deletion_events') is not null then
+    execute 'alter table public.account_deletion_events enable row level security';
+    execute 'drop policy if exists "admin_select_account_deletion_events" on public.account_deletion_events';
+    execute $p$
+      create policy "admin_select_account_deletion_events"
+        on public.account_deletion_events for select to authenticated
+        using (public.current_user_is_admin())
+    $p$;
+  end if;
+end;
+$$;
 
 drop policy if exists "certificates_select_admin" on storage.objects;
 create policy "certificates_select_admin"

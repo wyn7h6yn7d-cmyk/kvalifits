@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 /**
  * Admin TOTP enrollment — prepares MFA without changing the public login UI.
  */
-export function AdminMfaSetupPanel({ locale, nextPath }: { locale: string; nextPath: string }) {
+export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
