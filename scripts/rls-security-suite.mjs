@@ -300,16 +300,27 @@ try {
     .single();
   if (epBErr) throw new Error(`epB: ${epBErr.message}`);
 
+  const jobBase = {
+    application_url: "",
+    salary_currency: "EUR",
+    required_skills: [],
+    keywords: [],
+    requirement_lines: [],
+    languages: [],
+    requirements: "test",
+  };
+
   const { data: jobADraft, error: jobAErr } = await admin
     .from("job_posts")
     .insert({
+      ...jobBase,
       employer_profile_id: epA.id,
       created_by: uE.id,
       title: "Employer A Draft",
       slug: `rls-a-draft-${stamp}`,
       location: "Tallinn",
-      work_type: "full_time",
-      job_type: "permanent",
+      work_type: "on_site",
+      job_type: "full_time",
       short_summary: "draft A",
       description: "draft A body",
       status: "draft",
@@ -322,13 +333,14 @@ try {
   const { data: jobAPub, error: jobAPubErr } = await admin
     .from("job_posts")
     .insert({
+      ...jobBase,
       employer_profile_id: epA.id,
       created_by: uE.id,
       title: "Employer A Published",
       slug: `rls-a-pub-${stamp}`,
       location: "Tallinn",
-      work_type: "full_time",
-      job_type: "permanent",
+      work_type: "on_site",
+      job_type: "full_time",
       short_summary: "pub A",
       description: "pub A body",
       status: "published",
@@ -342,13 +354,14 @@ try {
   const { data: jobB, error: jobBErr } = await admin
     .from("job_posts")
     .insert({
+      ...jobBase,
       employer_profile_id: epB.id,
       created_by: uE2.id,
       title: "Employer B Job SECRET",
       slug: `rls-b-job-${stamp}`,
       location: "Pärnu",
-      work_type: "full_time",
-      job_type: "permanent",
+      work_type: "on_site",
+      job_type: "full_time",
       short_summary: "other employer job",
       description: "should not be writable by A",
       status: "draft",
@@ -673,13 +686,14 @@ try {
     employerA
       .from("job_posts")
       .insert({
+        ...jobBase,
         employer_profile_id: epA.id,
         created_by: uE.id,
         title: "Employer A Created",
         slug: `rls-a-create-${stamp}`,
         location: "Tallinn",
-        work_type: "full_time",
-        job_type: "permanent",
+        work_type: "on_site",
+        job_type: "full_time",
         short_summary: "created by A",
         description: "created by A body",
         status: "draft",
