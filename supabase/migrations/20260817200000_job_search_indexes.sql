@@ -26,12 +26,28 @@ as $$
   select replace(lower(coalesce(raw, '')), '-', '_');
 $$;
 
+create or replace function public.job_search_job_type_key(raw public.job_type)
+returns text
+language sql
+immutable
+as $$
+  select public.job_search_job_type_key(raw::text);
+$$;
+
 create or replace function public.job_search_work_type_key(raw text)
 returns text
 language sql
 immutable
 as $$
   select replace(replace(lower(coalesce(raw, '')), '-', '_'), 'onsite', 'on_site');
+$$;
+
+create or replace function public.job_search_work_type_key(raw public.job_work_type)
+returns text
+language sql
+immutable
+as $$
+  select public.job_search_work_type_key(raw::text);
 $$;
 
 create or replace function public.job_search_norm_arr(raw text[])
@@ -176,28 +192,28 @@ create index if not exists job_posts_employer_profile_id_idx
 
 create index if not exists job_posts_search_job_type_idx
   on public.job_posts (public.job_search_job_type_key(job_type))
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_search_work_type_idx
   on public.job_posts (public.job_search_work_type_key(work_type))
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_search_experience_idx
   on public.job_posts (experience_level_required)
-  where status::text = 'published'
+  where status = 'published'::public.job_post_status
     and coalesce(experience_level_required, '') <> '';
 
 create index if not exists job_posts_search_title_norm_idx
   on public.job_posts (public.job_search_norm(title))
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_search_skills_norm_gin_idx
   on public.job_posts using gin (public.job_search_norm_arr(required_skills))
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_search_languages_norm_gin_idx
   on public.job_posts using gin (public.job_search_norm_arr(languages))
-  where status::text = 'published'
+  where status = 'published'::public.job_post_status
     and coalesce(array_length(languages, 1), 0) > 0;
 
 create index if not exists employer_profiles_industry_norm_idx
@@ -206,7 +222,7 @@ create index if not exists employer_profiles_industry_norm_idx
 
 create index if not exists job_posts_search_tsv_idx
   on public.job_posts using gin (search_tsv)
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists employer_profiles_search_tsv_idx
   on public.employer_profiles using gin (search_tsv);
@@ -230,7 +246,7 @@ begin
   execute format(
     'create index if not exists job_posts_search_text_trgm_idx
        on public.job_posts using gin (search_text %s)
-       where status::text = ''published''',
+       where status = ''published''::public.job_post_status',
     v_ops
   );
   execute format(

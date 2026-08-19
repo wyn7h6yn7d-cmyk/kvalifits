@@ -9,15 +9,15 @@ comment on column public.job_posts.languages is
 
 create index if not exists job_posts_search_published_at_idx
   on public.job_posts (published_at desc nulls last, created_at desc)
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_search_salary_idx
   on public.job_posts ((coalesce(salary_max, salary_min)) desc nulls last)
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_search_deadline_idx
   on public.job_posts (application_deadline asc nulls last)
-  where status::text = 'published';
+  where status = 'published'::public.job_post_status;
 
 create index if not exists job_posts_required_skills_gin_idx
   on public.job_posts using gin (required_skills);
@@ -178,7 +178,7 @@ as $$
       or coalesce(array_length(p_job_types, 1), 0) = 0
       or exists (
         select 1 from unnest(p_job_types) t
-        where replace(lower(coalesce(jp.job_type, '')), '-', '_')
+        where replace(lower(coalesce(jp.job_type::text, '')), '-', '_')
           = replace(lower(t), '-', '_')
       )
     )
@@ -187,7 +187,7 @@ as $$
       or coalesce(array_length(p_work_types, 1), 0) = 0
       or exists (
         select 1 from unnest(p_work_types) t
-        where replace(replace(lower(coalesce(jp.work_type, '')), '-', '_'), 'onsite', 'on_site')
+        where replace(replace(lower(coalesce(jp.work_type::text, '')), '-', '_'), 'onsite', 'on_site')
           = replace(replace(lower(t), '-', '_'), 'onsite', 'on_site')
       )
     )
@@ -503,7 +503,7 @@ begin
   v_out := v_out || jsonb_build_object('jobType', coalesce((
     select jsonb_agg(jsonb_build_object('value', x.val, 'count', x.cnt) order by x.cnt desc, x.val)
     from (
-      select replace(lower(coalesce(jp.job_type, '')), '-', '_') as val, count(*)::int as cnt
+      select replace(lower(coalesce(jp.job_type::text, '')), '-', '_') as val, count(*)::int as cnt
       from public.job_posts jp
       where jp.id in (
         select m.id from public.published_job_ids_matching(
@@ -511,7 +511,7 @@ begin
           p_salary_buckets, p_experience, p_skills, p_certs, p_languages, p_has_salary, 'jobType'
         ) m
       )
-      and coalesce(jp.job_type, '') <> ''
+      and coalesce(jp.job_type::text, '') <> ''
       group by 1
     ) x
   ), '[]'::jsonb));
@@ -520,7 +520,7 @@ begin
   v_out := v_out || jsonb_build_object('workType', coalesce((
     select jsonb_agg(jsonb_build_object('value', x.val, 'count', x.cnt) order by x.cnt desc, x.val)
     from (
-      select replace(replace(lower(coalesce(jp.work_type, '')), '-', '_'), 'onsite', 'on_site') as val,
+      select replace(replace(lower(coalesce(jp.work_type::text, '')), '-', '_'), 'onsite', 'on_site') as val,
              count(*)::int as cnt
       from public.job_posts jp
       where jp.id in (
@@ -529,7 +529,7 @@ begin
           p_salary_buckets, p_experience, p_skills, p_certs, p_languages, p_has_salary, 'workType'
         ) m
       )
-      and coalesce(jp.work_type, '') <> ''
+      and coalesce(jp.work_type::text, '') <> ''
       group by 1
     ) x
   ), '[]'::jsonb));

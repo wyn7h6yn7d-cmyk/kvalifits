@@ -42,8 +42,12 @@ as $$
     '[]'::jsonb
   )
   from public.job_posts jp
-  where (jp.status)::text = 'published'
-    and jp.id = any (coalesce(p_job_ids, '{}'::uuid[])[1:200]);
+  where jp.status = 'published'::public.job_post_status
+    and jp.id in (
+      select x
+      from unnest(coalesce(p_job_ids, '{}'::uuid[])) as x
+      limit 200
+    );
 $$;
 
 comment on function public.get_job_match_inputs(uuid[]) is

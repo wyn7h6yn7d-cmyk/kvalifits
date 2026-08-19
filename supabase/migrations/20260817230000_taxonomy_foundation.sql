@@ -549,7 +549,7 @@ on conflict (id) do update set
   is_active = true;
 
 insert into public.taxonomy_aliases (kind, term_id, alias)
-select k.kind, k.term_id, a.alias
+select k.kind, k.term_id, k.alias
 from (
   values
     -- industries
@@ -1919,8 +1919,12 @@ as $$
     '[]'::jsonb
   )
   from public.job_posts jp
-  where (jp.status)::text = 'published'
-    and jp.id = any (coalesce(p_job_ids, '{}'::uuid[])[1:200]);
+  where jp.status = 'published'::public.job_post_status
+    and jp.id in (
+      select x
+      from unnest(coalesce(p_job_ids, '{}'::uuid[])) as x
+      limit 200
+    );
 $$;
 
 revoke all on function public.published_job_ids_matching(text, text[], text[], text[], text[], text[], text[], text[], text[], text[], text[], boolean, text) from public;
