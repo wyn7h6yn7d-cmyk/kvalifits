@@ -1,14 +1,15 @@
 # Public Launch Release Gate
 
-Date: 2026-08-19  
-Git HEAD: `69fac71`+ (see `git log -1`)  
+Date: 2026-08-19 (re-evaluated)  
 Target: **FULL PUBLIC PRODUCTION LAUNCH** (~1000 early users)
 
 ## Final verdict
 
 **NOT READY FOR PUBLIC LAUNCH**
 
-Codebase security, migrations (Git↔remote), and automated quality gates are strong. Public launch is blocked by **unregistered legal operator**, **unverified production email/monitoring/cron**, **incomplete live flow verification**, **no backup restore drill**, and **no staging load test**.
+Automated security, quality, and code readiness are strong. Launch is blocked by **legal operator identity**, **production email delivery verification**, **missing `CRON_SECRET` on Vercel Production**, **undeployed health/upload-rate-limit code**, **no live seeker/employer/admin walkthrough**, **no backup restore drill**, and **no staging load test**.
+
+Human checklist: `docs/HUMAN-ACTIONS-BEFORE-LAUNCH.md`
 
 ---
 
@@ -16,26 +17,26 @@ Codebase security, migrations (Git↔remote), and automated quality gates are st
 
 | Cat | Area | Status |
 |-----|------|--------|
-| A | Database & migrations | **PASS** (local clean apply drill: **EXTERNAL**) |
+| A | Database & migrations | **PASS** (clean local Docker drill: **EXTERNAL ACTION REQUIRED**) |
 | B | Security (RLS) | **PASS** — 93/0 |
-| C | Auth | **PASS** (code); live blocked E2E fixture available |
+| C | Auth | **PASS** (code); live email **EXTERNAL ACTION REQUIRED** |
 | D | Live seeker flow | **EXTERNAL ACTION REQUIRED** |
 | E | Live employer flow | **EXTERNAL ACTION REQUIRED** |
 | F | Admin | **EXTERNAL ACTION REQUIRED** |
 | G | Email | **EXTERNAL ACTION REQUIRED** |
-| H | Cron / background | **PARTIAL** — DB **PASS**, Vercel **EXTERNAL** |
-| I | Storage | **PASS** |
-| J | Monitoring | **EXTERNAL ACTION REQUIRED** |
+| H | Cron / background | **EXTERNAL ACTION REQUIRED** — schedule deployed; **`CRON_SECRET` missing** |
+| I | Storage | **PASS** (private buckets + upload rate limits in code) |
+| J | Monitoring | **PASS** (Sentry active on prod); alerting **EXTERNAL ACTION REQUIRED** |
 | K | Backup / restore | **EXTERNAL ACTION REQUIRED** |
 | L | Performance / load | **EXTERNAL ACTION REQUIRED** |
-| M | Abuse / rate limiting | **PASS** (auth + apply/report); uploads **PARTIAL** |
-| N | Mobile | **PASS** (E2E viewports 320–1024) |
-| O | Accessibility | **PASS** (partial — Quick Apply a11y E2E; full WCAG audit **EXTERNAL**) |
-| P | Localization | **PASS** (ET/EN/RU routes in E2E) |
-| Q | SEO | **PASS** (code); scale validation **EXTERNAL** |
+| M | Abuse / rate limiting | **PASS** |
+| N | Mobile | **PASS** |
+| O | Accessibility | **PASS** (axe smoke + Quick Apply a11y) |
+| P | Localization | **PASS** |
+| Q | SEO | **PASS** (code + scale assessment) |
 | R | Privacy technical | **PASS** |
 | S | Legal / operator | **FAIL** — `LAUNCH_OPERATOR` unset |
-| T | Operations | **PARTIAL** — runbook exists; on-call **EXTERNAL** |
+| T | Operations | **PARTIAL** — health routes in code; **404 on prod until deploy** |
 | U | Automated quality | **PASS** |
 
 ---
@@ -47,7 +48,7 @@ Codebase security, migrations (Git↔remote), and automated quality gates are st
 | Git HEAD migrations | **78** |
 | Working tree | **78** |
 | Remote applied / pending | **78 / 0** |
-| Reproducibility | **PASS** — see `docs/migration-reproducibility-status.md` |
+| Reproducibility | **PASS** — `docs/migration-reproducibility-status.md` |
 | Clean local apply | **EXTERNAL** — Docker required |
 
 ---
@@ -56,69 +57,184 @@ Codebase security, migrations (Git↔remote), and automated quality gates are st
 
 `npm run test:security` → **93 PASS / 0 FAIL**
 
-All closed-beta categories plus employer company verification adversarial tests.
+---
+
+## C. Auth & email
+
+| Check | Result |
+|-------|--------|
+| Auth code (blocked user, rate limits) | **PASS** |
+| Supabase Auth production config | **EXTERNAL** — `docs/supabase-auth-email-production.md` |
+| Resend production | **EXTERNAL** — `docs/resend-production-status.md` |
+
+Verdict: **HUMAN DELIVERY TEST REQUIRED**
 
 ---
 
-## C. Auth
+## G. Email (Resend + Supabase)
 
-- Blocked user DB trigger + auth paths: **PASS**
-- Ephemeral blocked E2E: `E2E_TEST_FIXTURES=1` + project ref guard
-- Rate limits: login, register, reset, resend verification
+See `docs/resend-production-status.md`, `docs/supabase-auth-email-production.md`.
 
 ---
 
-## U. Automated quality (Task 22)
+## H. Cron
+
+| Check | Result |
+|-------|--------|
+| `vercel.json` schedule | **PASS** — `0 8 * * *` |
+| `vercel crons ls` | **VERIFIED DEPLOYED** |
+| Unauthorized public GET | **401** |
+| `CRON_SECRET` in Production env | **FAIL — absent** |
+| DB pg_cron jobs | **PASS** (archive, deadline notifications) |
+
+See `docs/vercel-cron-public-launch.md`.
+
+---
+
+## I. Storage & uploads
+
+| Check | Result |
+|-------|--------|
+| Private resume/certificate buckets | **PASS** |
+| MIME + size validation | **PASS** |
+| Upload rate limits (`/api/uploads/consume`) | **PASS** (code; deploy required) |
+
+See `docs/storage-upload-production.md`.
+
+---
+
+## J. Monitoring (Sentry)
+
+| Check | Result |
+|-------|--------|
+| Production runtime (`sentry-environment=production`) | **VERIFIED** |
+| Privacy scrubbing | **PASS** |
+| Dashboard alerts | **EXTERNAL ACTION REQUIRED** |
+
+See `docs/sentry-public-launch-status.md`.
+
+---
+
+## K. Backup / restore
+
+**EXTERNAL ACTION REQUIRED** — `docs/backup-restore-drill.md`
+
+---
+
+## L. Performance / load
+
+**EXTERNAL ACTION REQUIRED** — `docs/load-test-results.md` (not executed)
+
+Pagination improvements merged for launch scale.
+
+---
+
+## M. Abuse / rate limiting
+
+| Surface | Status |
+|---------|--------|
+| Login / register / reset | **PASS** |
+| Job apply / report | **PASS** |
+| Saved search create | **PASS** |
+| CV / certificate / avatar upload | **PASS** |
+
+---
+
+## O. Accessibility
+
+| Check | Result |
+|-------|--------|
+| axe smoke (5 routes) | **PASS** |
+| Quick Apply keyboard trap | **PASS** |
+
+See `docs/accessibility-public-launch.md`.
+
+---
+
+## Q. SEO scale
+
+**PASS FOR LAUNCH SCALE** — `docs/seo-production-scale.md`
+
+---
+
+## S. Legal / operator
+
+**FAIL** — all `LAUNCH_OPERATOR` fields null. See `docs/operator-launch-input.md`.
+
+Status: **READY WHEN OPERATOR DATA PROVIDED**
+
+---
+
+## T. Operations
+
+| Check | Result |
+|-------|--------|
+| `/api/health` in codebase | **PASS** |
+| `/api/health` on production | **404** (undeployed) |
+| Production env audit | **PARTIAL** — `docs/production-env-final.md` |
+
+---
+
+## U. Automated quality
+
+Re-run 2026-08-19:
 
 | Gate | Result |
 |------|--------|
-| lint | **PASS** |
+| lint | **PASS** (0 errors) |
 | typecheck | **PASS** |
-| unit | **223 PASS** |
+| unit | **225 PASS / 0 FAIL** |
 | build | **PASS** |
-| security | **93/0** |
-| E2E | **29 PASS / 0 FAIL / 9 SKIPPED** (CI uses 1 worker; parallel local runs may flake) |
+| security | **93 PASS / 0 FAIL** |
+| E2E | **34 PASS / 0 FAIL / 9 SKIPPED** (`--workers=1`; includes 5 axe smoke tests) |
 
-Skipped: live seeker/employer/blocked credentials.
+Skipped: live seeker/employer/blocked credential tests.
 
 ---
 
-## Implemented this pass
+## Live flows (D, E, F)
 
-- `/api/health`, `/api/health/ready`
-- API rate limits: job apply, job report
-- Server pagination: applicants, applications, saved jobs, admin tables, notifications
-- DB-paginated public company directory
-- Launch documentation set (this file + linked docs)
+**EXTERNAL ACTION REQUIRED** — `docs/live-flow-production-results.md`
+
+---
+
+## UX availability (Task 16)
+
+**PASS** — `docs/ux-availability-audit.md`
 
 ---
 
 ## Public launch blockers (must resolve)
 
-1. **Legal operator** — fill `LAUNCH_OPERATOR`; professional legal review (`docs/public-launch-legal-required-fields.md`)
-2. **Production email** — verify Supabase auth mail + Resend (`docs/email-production-verification.md`)
-3. **Sentry DSN** on production (`docs/monitoring-production-status.md`)
-4. **Vercel cron** + `CRON_SECRET` verified (`docs/cron-production-status.md`)
-5. **Live seeker/employer/admin walkthrough** on production/staging (`docs/live-beta-walkthrough.md`)
-6. **Backup restore drill** on disposable env (`docs/disaster-recovery.md`)
-7. **Staging load test** (`docs/load-test-plan.md`)
+1. **Legal operator** — fill `LAUNCH_OPERATOR` (`docs/operator-launch-input.md`)
+2. **Production email smoke test** — Supabase Auth + Resend (`docs/HUMAN-ACTIONS-BEFORE-LAUNCH.md`)
+3. **`CRON_SECRET`** on Vercel Production + verify cron runs
+4. **Deploy latest `main`** — health endpoints, upload rate limits
+5. **Live seeker/employer/admin walkthrough**
+6. **Backup restore drill**
+7. **Staging load test**
 
 ---
 
 ## Related documentation
 
+- `docs/HUMAN-ACTIONS-BEFORE-LAUNCH.md`
+- `docs/operator-launch-input.md`
+- `docs/supabase-auth-email-production.md`
+- `docs/resend-production-status.md`
+- `docs/sentry-public-launch-status.md`
+- `docs/vercel-cron-public-launch.md`
+- `docs/backup-restore-drill.md`
+- `docs/load-test-results.md`
+- `docs/accessibility-public-launch.md`
+- `docs/seo-production-scale.md`
+- `docs/production-env-final.md`
+- `docs/ux-availability-audit.md`
+- `docs/live-flow-production-results.md`
 - `docs/migration-reproducibility-status.md`
-- `docs/monitoring-production-status.md`
-- `docs/cron-production-status.md`
-- `docs/disaster-recovery.md`
-- `docs/storage-upload-production.md`
 - `docs/load-test-plan.md`
-- `docs/database-index-review.md`
-- `docs/production-env-audit.md`
-- `docs/privacy-technical-audit.md`
-- `docs/public-launch-legal-required-fields.md`
+- `docs/disaster-recovery.md`
 - `docs/production-runbook.md`
-- `docs/live-beta-walkthrough.md`
 
 ---
 
@@ -127,9 +243,8 @@ Skipped: live seeker/employer/blocked credentials.
 ```bash
 npm run lint && npm run typecheck && npm test && npm run build
 npm run test:security
-npx playwright test --workers=1   # stable E2E count
+npx playwright test --workers=1
 supabase migration list
-supabase db push --linked --dry-run
-curl -sS https://<host>/api/health
-curl -sS https://<host>/api/health/ready
+curl -sS https://www.kvalifits.ee/api/health
+curl -sS https://www.kvalifits.ee/api/health/ready
 ```
