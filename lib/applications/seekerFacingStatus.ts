@@ -1,7 +1,8 @@
 /** Seeker-facing status only — never exposes employer pipeline nuance beyond these labels. */
 export function seekerApplicationStatusLabelKey(status: string | null | undefined): string {
   const v = (status ?? "").toString().trim().toLowerCase();
-  if (v === "rejected" || v === "withdrawn") return "seekerApplicationStatus_processEnded";
+  if (v === "withdrawn") return "seekerApplicationStatus_withdrawn";
+  if (v === "rejected") return "seekerApplicationStatus_processEnded";
   if (v === "hired") return "seekerApplicationStatus_hired";
   if (v === "offer") return "seekerApplicationStatus_offer";
   if (v === "interview" || v === "interview_2") return "seekerApplicationStatus_interview";

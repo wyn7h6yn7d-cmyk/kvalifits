@@ -1210,7 +1210,7 @@
     },
     "seekerApplicationStatus_submitted": "Kandideerimine saadetud",
     "seekerApplicationStatus_sent": "Kandideerimine saadetud",
-    "seekerApplicationStatus_withdrawn": "Värbamisprotsess lõppenud",
+    "seekerApplicationStatus_withdrawn": "Kandideerimine tagasi võetud",
     "seekerApplicationStatus_new": "Kandideerimine saadetud",
     "seekerApplicationStatus_reviewing": "Tööandja vaatab kandideerimist",
     "seekerApplicationStatus_interview": "Kutsutud vestlusele",

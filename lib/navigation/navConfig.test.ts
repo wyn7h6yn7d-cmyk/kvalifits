@@ -10,4 +10,9 @@ describe("employer primary navigation", () => {
       false,
     );
   });
+
+  it("has no duplicate hrefs", () => {
+    const hrefs = EMPLOYER_NAV.map((item) => item.href);
+    assert.deepEqual(hrefs, [...new Set(hrefs)]);
+  });
 });

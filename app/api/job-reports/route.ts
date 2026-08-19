@@ -85,7 +85,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "missing_reports_table" }, { status: 500 });
     }
     reportMessage("job_report_insert_failed", { area: "api", code: "insert_failed" });
-    return NextResponse.json({ error: "insert_failed", message: insErr.message }, { status: 500 });
+    return NextResponse.json({ error: "insert_failed" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

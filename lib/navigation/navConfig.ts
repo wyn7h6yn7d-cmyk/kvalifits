@@ -68,7 +68,6 @@ export const EMPLOYER_NAV: NavItem[] = [
   { href: "/account/employer/jobs", key: "employerJobPosts" },
   { href: "/account/notifications", key: "seekerNotifications" },
   { href: "/account/employer/candidates", key: "candidates" },
-  { href: "/account/employer", key: "employerCompany" },
 ];
 
 export const ADMIN_NAV: NavItem[] = [

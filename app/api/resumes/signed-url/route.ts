@@ -50,30 +50,22 @@ export async function GET(req: Request) {
     : CV_SIGNED_URL_TTL_SEC;
 
   let signedUrl: string | null = null;
-  let signError: string | null = null;
   let bucket = RESUMES_BUCKET;
 
   const userSign = await supabase.storage.from(RESUMES_BUCKET).createSignedUrl(ref.path, ttl);
   if (userSign.data?.signedUrl) {
     signedUrl = userSign.data.signedUrl;
   } else {
-    signError = userSign.error?.message ?? null;
     const admin = createSupabaseAdminClient();
     if (admin) {
       const adminSign = await admin.storage.from(RESUMES_BUCKET).createSignedUrl(ref.path, ttl);
       if (adminSign.data?.signedUrl) {
         signedUrl = adminSign.data.signedUrl;
-        signError = null;
       } else {
-        signError = adminSign.error?.message ?? signError;
-        // Authorized fallback while a legacy public object is still being moved.
         const legacySign = await admin.storage.from("avatars").createSignedUrl(ref.path, ttl);
         if (legacySign.data?.signedUrl) {
           signedUrl = legacySign.data.signedUrl;
-          signError = null;
           bucket = "avatars";
-        } else {
-          signError = legacySign.error?.message ?? signError;
         }
       }
     }
@@ -82,7 +74,7 @@ export async function GET(req: Request) {
   if (!signedUrl) {
     reportMessage("cv_sign_failed", { area: "storage", code: "sign_failed" });
     return NextResponse.json(
-      { error: "sign_failed", message: signError ?? "Unable to create signed URL" },
+      { error: "sign_failed" },
       { status: 500 }
     );
   }

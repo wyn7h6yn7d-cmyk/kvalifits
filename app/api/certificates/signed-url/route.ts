@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   if (ref.legacyPublicAvatars) {
     return NextResponse.json(
-      { error: "legacy_public_file", message: "Re-upload certificate into private storage." },
+      { error: "legacy_public_file" },
       { status: 409 }
     );
   }
@@ -61,22 +61,17 @@ export async function GET(req: Request) {
     : CERTIFICATE_SIGNED_URL_TTL_SEC;
 
   let signedUrl: string | null = null;
-  let signError: string | null = null;
 
   const userSign = await supabase.storage.from(CERTIFICATES_BUCKET).createSignedUrl(ref.path, ttl);
 
   if (userSign.data?.signedUrl) {
     signedUrl = userSign.data.signedUrl;
   } else {
-    signError = userSign.error?.message ?? null;
     const admin = createSupabaseAdminClient();
     if (admin) {
       const adminSign = await admin.storage.from(CERTIFICATES_BUCKET).createSignedUrl(ref.path, ttl);
       if (adminSign.data?.signedUrl) {
         signedUrl = adminSign.data.signedUrl;
-        signError = null;
-      } else {
-        signError = adminSign.error?.message ?? signError;
       }
     }
   }
@@ -84,7 +79,7 @@ export async function GET(req: Request) {
   if (!signedUrl) {
     reportMessage("certificate_sign_failed", { area: "storage", code: "sign_failed" });
     return NextResponse.json(
-      { error: "sign_failed", message: signError ?? "Unable to create signed URL" },
+      { error: "sign_failed" },
       { status: 500 }
     );
   }

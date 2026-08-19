@@ -1177,7 +1177,7 @@
     "seekerWithdrawnHint": "This application has been withdrawn. You can apply again if needed.",
     "seekerApplicationStatus_submitted": "Application sent",
     "seekerApplicationStatus_sent": "Application sent",
-    "seekerApplicationStatus_withdrawn": "Process ended",
+    "seekerApplicationStatus_withdrawn": "Application withdrawn",
     "applicationPipelineTitle": "Hiring flow",
     "applicationPipelineHint": "A simple hiring flow — filter by status and update it in the list. Not a full ATS.",
     "applicationPipelineAll": "All",

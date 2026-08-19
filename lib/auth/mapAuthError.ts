@@ -65,6 +65,8 @@ export function mapAuthError(err: unknown, t: Translator): string {
     return t("errorWeakPassword");
   }
 
+  if (c === "weak_password") return t("errorWeakPassword");
+
   return m || t("unknownError");
 }
 

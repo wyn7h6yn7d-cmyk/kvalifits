@@ -1177,7 +1177,7 @@
     "seekerWithdrawnHint": "Отклик отозван. При необходимости можно откликнуться снова.",
     "seekerApplicationStatus_submitted": "Отклик отправлен",
     "seekerApplicationStatus_sent": "Отклик отправлен",
-    "seekerApplicationStatus_withdrawn": "Процесс найма завершён",
+    "seekerApplicationStatus_withdrawn": "Заявка отозвана",
     "applicationPipelineTitle": "Воронка найма",
     "applicationPipelineHint": "Простой поток найма — фильтруйте по статусу и меняйте его в списке. Это не полноценный ATS.",
     "applicationPipelineAll": "Все",

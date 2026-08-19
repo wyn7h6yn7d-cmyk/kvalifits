@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
     "test": "node scripts/run-unit-tests.mjs",
+    "test:unit": "node scripts/run-unit-tests.mjs",
     "test:e2e": "playwright test",
     "test:security": "node scripts/rls-security-suite.mjs",
     "favicon:circular": "node scripts/make-circular-favicon.mjs"

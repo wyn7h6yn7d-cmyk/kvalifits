@@ -157,7 +157,7 @@ export function Navbar() {
   const headerBar = cn(
     "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b px-4 sm:gap-3 lg:px-5",
     "border-white/[0.08] bg-[#09090d]",
-    "lg:overflow-hidden lg:rounded-[18px] lg:border lg:border-white/[0.10] lg:bg-[#111116] lg:shadow-[0_10px_28px_-18px_rgba(0,0,0,0.62)]",
+    "lg:overflow-x-clip lg:rounded-[18px] lg:border lg:border-white/[0.10] lg:bg-[#111116] lg:shadow-[0_10px_28px_-18px_rgba(0,0,0,0.62)]",
     scrolled && "border-white/[0.10] lg:border-white/[0.12] lg:bg-[#131318]",
   );
 

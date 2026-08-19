@@ -82,7 +82,7 @@ export async function POST(req: Request) {
   });
   if (error) {
     return NextResponse.json(
-      { error: "auth_failed", message: error.message, code: error.code ?? null },
+      { error: "auth_failed", code: error.code ?? null },
       { status: 400 }
     );
   }
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
   if (profileErr) {
     reportMessage("profile_failed", { area: "auth", code: "profile_failed" });
     return NextResponse.json(
-      { error: "profile_failed", message: profileErr.message },
+      { error: "profile_failed" },
       { status: 500 }
     );
   }
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
     });
     if (seekerErr && seekerErr.code !== "23505") {
       reportMessage("profile_failed", { area: "auth", code: "seeker_profile_failed" });
-      return NextResponse.json({ error: "profile_failed", message: seekerErr.message }, { status: 500 });
+      return NextResponse.json({ error: "profile_failed" }, { status: 500 });
     }
   } else {
     const { error: employerErr } = await supabase
@@ -141,7 +141,7 @@ export async function POST(req: Request) {
     const insertResult = resultFromEmployerOwnerInsert(employerErr);
     if (insertResult.kind === "failed") {
       reportMessage("profile_failed", { area: "auth", code: "employer_profile_failed" });
-      return NextResponse.json({ error: "profile_failed", message: insertResult.message }, { status: 500 });
+      return NextResponse.json({ error: "profile_failed" }, { status: 500 });
     }
   }
 
