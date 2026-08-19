@@ -225,10 +225,10 @@ async function callSearchRpc(supabase: SupabaseClient, args: RpcArgs) {
 }
 
 function emptyJobSearchPageResult(sort: JobSearchSort): JobSearchPageResult {
-  const facetOptions = Object.fromEntries(ALL_JOB_FILTER_FACETS.map((facet) => [facet, []])) as Record<
-    JobFilterFacet,
-    FacetOption[]
-  >;
+  const facetOptions = {} as Record<JobFilterFacet, FacetOption[]>;
+  for (const facet of ALL_JOB_FILTER_FACETS) {
+    facetOptions[facet] = [];
+  }
   return {
     jobs: [],
     totalCount: 0,
