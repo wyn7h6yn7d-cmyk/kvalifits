@@ -28,7 +28,9 @@ export async function WhyKvalifits() {
           </div>
           <h2 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight text-foreground sm:mt-5 sm:text-3xl lg:text-[2.65rem]">
             {t("title")}
-            <span className="block text-muted-2"> {t("titleMuted")}</span>
+            {t("titleMuted").trim() ? (
+              <span className="block text-muted-2"> {t("titleMuted")}</span>
+            ) : null}
           </h2>
           <p className="mt-4 text-base leading-relaxed text-body sm:mt-6 sm:text-lg sm:leading-relaxed">
             {t("subtitle")}

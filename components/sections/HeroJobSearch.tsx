@@ -46,7 +46,7 @@ export function HeroJobSearch({ quickFilters }: Props) {
     <div className="mt-7 sm:mt-8">
       <form
         onSubmit={onSubmit}
-        className="overflow-hidden rounded-2xl border border-white/[0.12] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.06)] lg:bg-[#121216]"
+        className="overflow-hidden rounded-2xl border border-white/[0.22] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.08)] ring-1 ring-white/[0.08] lg:bg-[#121216]"
       >
         <div className="grid min-h-14 items-stretch gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
           <label className="relative flex min-h-14 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
