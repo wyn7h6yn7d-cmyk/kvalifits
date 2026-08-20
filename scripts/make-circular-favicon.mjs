@@ -11,7 +11,7 @@ const root = join(__dirname, "..");
  * Square image → circular mask (transparent outside the circle).
  * Logo is scaled with margin so the k + dot stay inside the ring.
  */
-async function circularPng(inputPath, outputPath, size) {
+async function circularPng(inputPath, size) {
   const margin = 0.06;
   const inner = Math.round(size * (1 - 2 * margin));
 
@@ -42,10 +42,10 @@ async function circularPng(inputPath, outputPath, size) {
     </svg>`,
   );
 
-  await sharp(padded)
+  return sharp(padded)
     .composite([{ input: circleSvg, blend: "dest-in" }])
     .png({ compressionLevel: 9 })
-    .toFile(outputPath);
+    .toBuffer();
 }
 
 const source = join(root, "public/favicon-source.png");
@@ -58,28 +58,32 @@ async function main() {
     process.exit(1);
   }
 
-  const tmp512 = join(root, ".tmp-favicon-512.png");
-  await circularPng(source, tmp512, 512);
+  const base512 = await circularPng(source, 512);
 
-  const png128 = join(root, "public/favicon-v4.png");
-  await sharp(tmp512).resize(128, 128).png({ compressionLevel: 9 }).toFile(png128);
-  // Canonical names (some clients only request /favicon.ico)
-  fs.copyFileSync(png128, join(root, "public/favicon.png"));
+  async function writePng(size, relativePath) {
+    const buf = await sharp(base512).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+    fs.writeFileSync(join(root, relativePath), buf);
+  }
 
-  await sharp(tmp512)
-    .resize(180, 180)
-    .png({ compressionLevel: 9 })
-    .toFile(join(root, "public/apple-touch-icon.png"));
+  await writePng(48, "public/favicon-48.png");
+  await writePng(96, "public/favicon-96.png");
+  await writePng(128, "public/favicon-v4.png");
+  await writePng(128, "public/favicon.png");
+  await writePng(180, "public/apple-touch-icon.png");
+  await writePng(192, "public/favicon-192.png");
+  await writePng(192, "app/icon.png");
+  await writePng(256, "public/favicon-256.png");
 
-  fs.unlinkSync(tmp512);
-
-  const icoBuf = await pngToIco(png128);
-  const icoPath = join(root, "public/favicon-v4.ico");
-  fs.writeFileSync(icoPath, icoBuf);
+  const png16 = await sharp(base512).resize(16, 16).png().toBuffer();
+  const png32 = await sharp(base512).resize(32, 32).png().toBuffer();
+  const png48 = await sharp(base512).resize(48, 48).png().toBuffer();
+  const icoBuf = await pngToIco([png16, png32, png48]);
+  fs.writeFileSync(join(root, "public/favicon-v4.ico"), icoBuf);
   fs.writeFileSync(join(root, "public/favicon.ico"), icoBuf);
+  fs.writeFileSync(join(root, "app/favicon.ico"), icoBuf);
 
   console.log(
-    "Wrote public/favicon-v4.{png,ico}, public/favicon.{png,ico}, public/apple-touch-icon.png (from favicon-source.png)",
+    "Wrote favicon 16/32/48/96/128/180/192/256 PNG+ICO assets (public + app/icon.png + app/favicon.ico).",
   );
 }
 

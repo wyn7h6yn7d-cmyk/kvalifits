@@ -237,8 +237,7 @@ function JobCardComponent({
             <Button
               asChild
               variant="outline"
-              size="sm"
-              className="relative z-[1] h-11 min-w-0 flex-1 rounded-xl px-3.5 text-[14px]"
+              className="relative z-[1] min-w-0 flex-1"
             >
               <Link href={href}>{t("openJob")}</Link>
             </Button>
@@ -257,8 +256,7 @@ function JobCardComponent({
           <Button
             asChild
             variant="outline"
-            size="sm"
-            className="relative z-[1] h-9 w-full rounded-xl text-[13px]"
+            className="relative z-[1] w-full"
           >
             <Link href={href}>{t("openJob")}</Link>
           </Button>

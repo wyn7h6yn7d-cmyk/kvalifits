@@ -84,10 +84,10 @@ export function JobSaveButton({
       onClick={onClick}
       disabled={busy}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.03] text-white/55 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white/85 disabled:opacity-60",
+        "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/[0.14] bg-white/[0.03] text-sm font-medium leading-none text-white/55 transition-[color,background-color,border-color] hover:border-white/[0.20] hover:bg-white/[0.06] hover:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/[0.16] disabled:opacity-60",
         variant === "labeled"
-          ? "h-11 min-w-0 gap-2 whitespace-normal px-3.5 text-center text-[13px] font-medium lg:h-9 lg:whitespace-nowrap"
-          : "h-11 w-11 lg:h-9 lg:w-9",
+          ? "h-11 min-w-0 whitespace-nowrap px-5"
+          : "h-11 w-11 px-0",
         saved && "border-white/[0.16] bg-white/[0.07] text-white/90",
         className,
       )}

@@ -20,22 +20,25 @@ function Spinner({ className }: { className?: string }) {
 }
 
 const buttonVariants = cva(
-  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-sans text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 max-lg:whitespace-normal",
+  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-sans text-sm font-medium leading-none transition-[color,background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/[0.16] disabled:pointer-events-none disabled:opacity-50 max-lg:whitespace-normal [&_svg]:pointer-events-none [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-white/[0.08] text-white hover:bg-white/[0.12] border border-white/[0.10]",
+          "border border-white/[0.14] bg-white/[0.08] text-white hover:bg-white/[0.12]",
         primary:
           "overflow-hidden border border-transparent bg-transparent text-white shadow-[0_12px_40px_rgba(168,85,247,0.25)] hover:shadow-[0_16px_60px_rgba(168,85,247,0.33)] ring-1 ring-white/[0.14] ring-inset before:content-[''] before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-gradient-to-r before:from-violet-500/90 before:via-fuchsia-500/80 before:to-[rgba(227,31,141,0.70)] after:content-[''] after:absolute after:inset-[1px] after:-z-10 after:rounded-[calc(0.75rem-1px)] after:bg-[rgba(0,0,0,0.10)]",
         outline:
-          "bg-transparent text-white border border-white/[0.14] hover:bg-white/[0.06]",
-        ghost: "bg-transparent text-white/90 hover:bg-white/[0.06]",
+          "border border-white/[0.14] bg-transparent text-white hover:bg-white/[0.06]",
+        ghost: "border border-transparent bg-transparent text-white/90 hover:bg-white/[0.06]",
       },
       size: {
+        /** Standard page control — shared height/padding for primary + secondary. */
         default: "h-11 px-5",
-        sm: "h-10 px-4 rounded-lg",
-        lg: "h-12 px-6 rounded-2xl text-[15px]",
+        /** Compact chrome (nav, dense toolbars). Same radius/typography/border as default. */
+        sm: "h-9 px-4",
+        /** Taller for key form submits; same typography and radius. */
+        lg: "h-12 px-6",
         icon: "h-11 w-11 px-0",
       },
     },
@@ -93,10 +96,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? <Spinner /> : null}
-        <span className={cn(isLoading && loadingText == null && "opacity-90")}>{content}</span>
+        <span className={cn("inline-flex items-center justify-center gap-2", isLoading && loadingText == null && "opacity-90")}>
+          {content}
+        </span>
       </Comp>
     );
   }
 );
 Button.displayName = "Button";
 
+export { buttonVariants };

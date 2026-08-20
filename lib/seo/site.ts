@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 
 import { routing, type AppLocale } from "@/i18n/routing";
 
-export const SITE_ORIGIN = "https://kvalifits.ee";
+export const SITE_ORIGIN = "https://www.kvalifits.ee";
 export const SITE_NAME = "Kvalifits";
+export const SITE_ALTERNATE_NAME = "kvalifits.ee";
 
 export const SEO_LOCALES = routing.locales;
 export const SEO_DEFAULT_LOCALE = routing.defaultLocale;
@@ -144,6 +145,47 @@ export function searchParamsIndicateDuplicateLanding(
 
 export function jsonLdScriptHtml(data: Record<string, unknown>): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
+}
+
+/** Canonical WebSite JSON-LD for brand / site-name signals (homepage only). */
+export function websiteJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    alternateName: SITE_ALTERNATE_NAME,
+    url: `${SITE_ORIGIN}/`,
+  };
+}
+
+/** Homepage brand metadata: title is always absolute "Kvalifits". */
+export function homepageBrandMetadata(opts: {
+  locale: string;
+  description: string;
+}): Metadata {
+  return {
+    ...publicPageMetadata({
+      locale: opts.locale,
+      path: "",
+      title: SITE_NAME,
+      description: opts.description,
+    }),
+    title: { absolute: SITE_NAME },
+    openGraph: {
+      type: "website",
+      url: absoluteUrl(opts.locale, ""),
+      siteName: SITE_NAME,
+      locale: ogLocaleTag(opts.locale),
+      alternateLocale: ogAlternateLocales(opts.locale),
+      title: SITE_NAME,
+      description: opts.description,
+    },
+    twitter: {
+      card: "summary",
+      title: SITE_NAME,
+      description: opts.description,
+    },
+  };
 }
 
 /** Shared metadata for public, indexable locale pages. */

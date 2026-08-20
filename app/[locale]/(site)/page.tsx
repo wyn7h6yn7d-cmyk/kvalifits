@@ -6,25 +6,19 @@ import { LoginAnchor } from "@/components/sections/LoginAnchor";
 import { WhyKvalifits } from "@/components/sections/WhyKvalifits";
 import { Audience } from "@/components/sections/Audience";
 import { FinalCTA } from "@/components/sections/FinalCTA";
+import { WebsiteJsonLd } from "@/components/seo/WebsiteJsonLd";
 import { getHeroQuickFilters } from "@/lib/jobs/getHeroQuickFilters";
-import { publicPageMetadata, SITE_NAME } from "@/lib/seo/site";
+import { homepageBrandMetadata } from "@/lib/seo/site";
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const description = t("description");
-  return {
-    ...publicPageMetadata({
-      locale,
-      path: "",
-      title: SITE_NAME,
-      description,
-    }),
-    // Avoid layout template appending " · Kvalifits" onto the brand title.
-    title: { absolute: SITE_NAME },
-  };
+  return homepageBrandMetadata({
+    locale,
+    description: t("description"),
+  });
 }
 
 export default async function HomePage({ params }: Props) {
@@ -33,6 +27,7 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
+      <WebsiteJsonLd />
       <Hero quickFilters={quickFilters} />
       <WhyKvalifits />
       <Audience />

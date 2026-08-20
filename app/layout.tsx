@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import { ConsentedAnalytics } from "@/components/cookies/ConsentedAnalytics";
-import { SEO_DEFAULT_LOCALE, SITE_NAME } from "@/lib/seo/site";
+import { SEO_DEFAULT_LOCALE, SITE_NAME, SITE_ORIGIN } from "@/lib/seo/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,17 +12,21 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kvalifits.ee"),
+  metadataBase: new URL(SITE_ORIGIN),
   applicationName: SITE_NAME,
   appleWebApp: {
     title: SITE_NAME,
   },
   icons: {
     icon: [
-      { url: "/favicon-v4.ico", type: "image/x-icon" },
+      { url: "/favicon-v4.ico", type: "image/x-icon", sizes: "any" },
+      { url: "/favicon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/favicon-96.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon-192.png", type: "image/png", sizes: "192x192" },
       { url: "/favicon-v4.png", type: "image/png", sizes: "128x128" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon-v4.ico"],
   },
 };
 

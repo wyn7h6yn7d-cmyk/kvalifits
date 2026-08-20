@@ -12,6 +12,7 @@ import { Chip } from "@/components/ui/chip";
 import { Container } from "@/components/ui/container";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   isSearchableFacet,
@@ -356,7 +357,7 @@ export function JobsSearch({
               <Button
                 type="submit"
                 variant="primary"
-                className="h-12 w-full rounded-none px-6 text-[14px] font-medium lg:h-[52px] lg:min-w-[132px]"
+                className="h-12 w-full rounded-none px-6 lg:h-[52px] lg:min-w-[8.5rem]"
               >
                 {t("searchSubmit")}
               </Button>
@@ -368,15 +369,15 @@ export function JobsSearch({
           <p className="text-[13px] text-white/55" aria-live="polite">
             {resultsLabel}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             <Button
               type="button"
               variant="outline"
-              className="h-11 min-w-0 flex-1 justify-between rounded-xl px-4"
+              className="w-full justify-between"
               onClick={() => setMobileOpen(true)}
             >
-              <span className="inline-flex min-w-0 items-center gap-2 text-[14px]">
-                <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              <span className="inline-flex min-w-0 items-center gap-2">
+                <SlidersHorizontal className="opacity-70" aria-hidden />
                 <span className="truncate">
                   {activeFilterCount
                     ? t("filtersWithCount", { count: activeFilterCount })
@@ -388,22 +389,22 @@ export function JobsSearch({
               snapshot={searchSnapshot}
               matchSortAvailable={matchSortAvailable}
               canSave={canSaveJobs}
-              className="h-11 shrink-0"
+              className="w-full justify-center"
             />
           </div>
           <label className="flex items-center gap-2">
             <span className="shrink-0 text-[12px] text-white/45">{t("sortLabel")}</span>
-            <select
+            <Select
               value={sort}
               onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
-              className="h-11 min-w-0 flex-1 rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 text-base text-white/85 outline-none focus:border-white/[0.18] lg:text-[13px]"
+              className="min-w-0 flex-1"
             >
               {sortOptions.map((opt) => (
                 <option key={opt.value} value={opt.value} disabled={opt.disabled}>
                   {opt.label}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         </div>
 
@@ -430,17 +431,17 @@ export function JobsSearch({
               <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                 <label className="inline-flex items-center gap-2">
                   <span className="text-[12px] text-white/45">{t("sortLabel")}</span>
-                  <select
+                  <Select
                     value={sort}
                     onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
-                    className="h-10 min-w-[10.5rem] rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 text-[13px] text-white/85 outline-none focus:border-white/[0.18]"
+                    className="w-auto min-w-[10.5rem]"
                   >
                     {sortOptions.map((opt) => (
                       <option key={opt.value} value={opt.value} disabled={opt.disabled}>
                         {opt.label}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </label>
                 <JobSearchAlertsButton
                   snapshot={searchSnapshot}
@@ -496,7 +497,7 @@ export function JobsSearch({
             {totalPages > 1 ? (
               <div className="mt-6 flex items-center justify-between gap-3">
                 {currentPage > 1 ? (
-                  <Button asChild variant="outline" size="sm">
+                  <Button asChild variant="outline">
                     <Link
                       href={buildJobSearchUrl(
                         buildSearchUrlState({
@@ -519,7 +520,7 @@ export function JobsSearch({
                   {t("pageStatus", { page: currentPage, pages: totalPages, size: pageSize })}
                 </p>
                 {currentPage < totalPages ? (
-                  <Button asChild variant="outline" size="sm">
+                  <Button asChild variant="outline">
                     <Link
                       href={buildJobSearchUrl(
                         buildSearchUrlState({
@@ -562,13 +563,9 @@ export function JobsSearch({
                   : t("filters")}
               </div>
               <DialogPrimitive.Close asChild>
-                <button
-                  type="button"
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-xl text-white/50 hover:bg-white/[0.05] hover:text-white/80"
-                  aria-label={t("closeFilters")}
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                <Button type="button" variant="ghost" size="icon" aria-label={t("closeFilters")}>
+                  <X aria-hidden />
+                </Button>
               </DialogPrimitive.Close>
             </div>
 
@@ -590,7 +587,7 @@ export function JobsSearch({
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-12 w-full rounded-xl"
+                  className="w-full"
                   onClick={clearAll}
                 >
                   {t("clearAll")}
@@ -599,7 +596,7 @@ export function JobsSearch({
               <Button
                 type="button"
                 variant="primary"
-                className="h-12 w-full rounded-xl"
+                className="w-full"
                 onClick={() => setMobileOpen(false)}
               >
                 {t("showJobs", { count: totalCount })}
@@ -635,11 +632,11 @@ function JobSearchEmptyState({
       actions={
         <>
           {hasConstraints ? (
-            <Button type="button" variant="outline" size="sm" onClick={onClearFilters}>
+            <Button type="button" variant="outline" onClick={onClearFilters}>
               {t("emptyClearFilters")}
             </Button>
           ) : null}
-          <Button type="button" variant="outline" size="sm" onClick={onChangeSearch}>
+          <Button type="button" variant="outline" onClick={onChangeSearch}>
             {t("emptyChangeSearch")}
           </Button>
           {alertButton}

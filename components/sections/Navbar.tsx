@@ -184,7 +184,7 @@ export function Navbar() {
                 {authenticated ? (
                   <>
                     {role === "employer" ? (
-                      <Button asChild variant="primary" size="sm" className="h-8 rounded-md px-3 text-[13px]">
+                      <Button asChild variant="primary" size="sm">
                         <Link href="/account/employer/jobs/new">{t("addJob")}</Link>
                       </Button>
                     ) : null}
@@ -213,7 +213,7 @@ export function Navbar() {
                     >
                       {t("login")}
                     </Link>
-                    <Button asChild variant="primary" size="sm" className="h-8 rounded-md px-3 text-[13px]">
+                    <Button asChild variant="primary" size="sm">
                       <Link href="/auth/register">{t("signup")}</Link>
                     </Button>
                   </>
@@ -227,10 +227,9 @@ export function Navbar() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="h-11 w-11 rounded-md border-white/[0.12] bg-white/[0.04]"
                       aria-label={t("openMenu")}
                     >
-                      <Menu className="h-4 w-4" />
+                      <Menu aria-hidden />
                     </Button>
                   </SheetTrigger>
                   <SheetContent>

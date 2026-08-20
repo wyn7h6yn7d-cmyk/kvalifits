@@ -7,6 +7,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useRouter } from "@/i18n/routing";
 import { cn, errorMessageFromUnknown } from "@/lib/utils";
@@ -134,14 +135,14 @@ export function JobSearchAlertsButton({
         type="button"
         variant={variant}
         className={cn(
-          "h-11 gap-2 rounded-xl px-3 text-[13px] lg:h-10",
-          variant === "outline" && "border-white/[0.12] bg-white/[0.03]",
+          "max-w-full shrink-0 px-5 max-lg:min-w-0",
+          variant === "outline" && "bg-white/[0.03]",
           className,
         )}
         onClick={onCtaClick}
       >
-        <Bell className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
-        <span className="min-w-0 max-lg:whitespace-normal lg:max-w-[12.5rem] lg:truncate">{label ?? t("alertsCta")}</span>
+        <Bell className="opacity-70" aria-hidden />
+        <span className="min-w-0 whitespace-nowrap max-lg:whitespace-normal">{label ?? t("alertsCta")}</span>
       </Button>
 
       <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
@@ -163,11 +164,11 @@ export function JobSearchAlertsButton({
                 <p className="rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2.5 text-sm text-white/75">
                   {tSaved(SAVED_SEARCH_ALERTS_DELIVERY_ENABLED ? "savedOkDelivery" : "savedPendingDelivery")}
                 </p>
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => router.push("/account/seeker/alerts")}>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => router.push("/account/seeker/alerts")}>
                     {tSaved("manageCta")}
                   </Button>
-                  <Button type="button" size="sm" onClick={() => setOpen(false)}>
+                  <Button type="button" onClick={() => setOpen(false)}>
                     {tSaved("close")}
                   </Button>
                 </div>
@@ -215,10 +216,10 @@ export function JobSearchAlertsButton({
                 {matchSortAvailable ? (
                   <label className="block">
                     <span className="text-[12px] font-medium text-white/55">{tSaved("minMatchLabel")}</span>
-                    <select
+                    <Select
                       value={minMatch}
                       onChange={(e) => setMinMatch(e.target.value)}
-                      className="mt-1.5 h-10 w-full rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 text-[13px] text-white/85 outline-none focus:border-white/[0.18]"
+                      className="mt-1.5"
                     >
                       <option value="none">{tSaved("minMatchNone")}</option>
                       {SAVED_SEARCH_MATCH_THRESHOLDS.map((n) => (
@@ -226,7 +227,7 @@ export function JobSearchAlertsButton({
                           {tSaved("minMatchOption", { threshold: n })}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </label>
                 ) : null}
 
@@ -236,11 +237,11 @@ export function JobSearchAlertsButton({
                   </p>
                 ) : null}
 
-                <div className="flex justify-end gap-2 pt-1">
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
+                <div className="flex flex-wrap justify-end gap-2 pt-1">
+                  <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                     {tSaved("cancel")}
                   </Button>
-                  <Button type="submit" size="sm" loading={busy}>
+                  <Button type="submit" variant="primary" loading={busy}>
                     {tSaved("save")}
                   </Button>
                 </div>
