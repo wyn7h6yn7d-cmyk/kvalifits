@@ -35,7 +35,7 @@ function PreviewScoreRing({
       <div className="relative mt-3 flex h-[128px] w-[128px] items-center justify-center">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-12%] hidden rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.28),transparent_70%)] blur-lg lg:block"
+          className="pointer-events-none absolute inset-[-6%] hidden rounded-full bg-[radial-gradient(circle_closest-side,rgba(168,85,247,0.32)_0%,rgba(217,70,239,0.14)_42%,transparent_72%)] lg:block"
         />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
           <circle
@@ -56,7 +56,6 @@ function PreviewScoreRing({
             strokeLinecap="round"
             strokeDasharray={RING_C}
             strokeDashoffset={offset}
-            className="max-lg:[filter:none] lg:[filter:drop-shadow(0_0_10px_rgba(217,70,239,0.55))]"
           />
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
