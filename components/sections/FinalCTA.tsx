@@ -12,7 +12,7 @@ export async function FinalCTA() {
   return (
     <section
       id="registreeru"
-      className="relative scroll-mt-[var(--site-header-offset)] overflow-hidden bg-surface py-16 sm:py-24 lg:py-40"
+      className="relative scroll-mt-[var(--site-header-offset)] overflow-hidden bg-surface py-12 sm:py-16 lg:py-24"
     >
       <div
         aria-hidden="true"
@@ -26,10 +26,10 @@ export async function FinalCTA() {
               {t("titleBefore")}{" "}
               <GradientAccentText>{t("titleAccent")}</GradientAccentText>.
             </h3>
-            <p className="mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-body sm:mt-6 sm:text-lg sm:leading-relaxed">
+            <p className="mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-body sm:mt-5 sm:text-lg sm:leading-relaxed">
               {t("subtitle")}
             </p>
-            <RegistrationConsentText className="mt-6 max-w-xl sm:mt-10" />
+            <RegistrationConsentText className="mt-5 max-w-xl sm:mt-7" />
           </div>
           <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
             <Button asChild variant="primary" size="lg" className="h-12 w-full justify-center sm:flex-1 lg:w-full">
