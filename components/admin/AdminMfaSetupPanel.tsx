@@ -83,12 +83,13 @@ export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: str
     return <div className="text-sm text-white/55">{t("loading")}</div>;
   }
 
+  if (hasVerified && !factorId) {
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-sm leading-relaxed text-white/60">{t("adminMfaIntro")}</p>
-      {hasVerified && !factorId ? (
-        <p className="text-sm text-emerald-100/90">{t("adminMfaAlreadyEnabled")}</p>
-      ) : null}
 
       {!factorId ? (
         <Button
@@ -147,8 +148,6 @@ export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: str
           {error}
         </div>
       ) : null}
-
-      <p className="text-[11px] leading-relaxed text-white/40">{t("adminMfaEnforceHint")}</p>
     </div>
   );
 }

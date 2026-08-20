@@ -23,10 +23,15 @@ export default async function AdminSecurityPage({ params, searchParams }: Props)
 
   return (
     <AdminShell title={t("securityTitle")} subtitle={t("securitySubtitle")} maxWidthClassName="max-w-md">
-      <div className="mb-4 text-xs text-white/50">
-        {mfa.hasVerifiedTotp ? tAuth("adminMfaStatusOn") : tAuth("adminMfaStatusOff")}
-        {mfa.currentLevel ? ` · AAL: ${mfa.currentLevel}` : null}
-      </div>
+      <p
+        className={
+          mfa.hasVerifiedTotp
+            ? "text-sm text-emerald-100/90"
+            : "mb-4 text-sm text-white/55"
+        }
+      >
+        {mfa.hasVerifiedTotp ? tAuth("adminMfaAlreadyEnabled") : tAuth("adminMfaStatusOff")}
+      </p>
       <AdminMfaSetupPanel locale={locale} nextPath={nextPath} />
     </AdminShell>
   );

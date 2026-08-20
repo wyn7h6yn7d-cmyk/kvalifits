@@ -21,8 +21,8 @@ export function AdminSubnav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label={t("navLabel")} className="-mx-1 overflow-x-auto">
-      <div className="flex min-w-max gap-1 pb-1">
+    <nav aria-label={t("navLabel")} className="overflow-x-auto">
+      <div className="flex min-w-max gap-1">
         {ITEMS.map((item) => {
           const active = item.exact
             ? pathname === item.href
