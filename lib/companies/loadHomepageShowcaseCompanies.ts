@@ -6,6 +6,7 @@ import {
   mapHomepageShowcaseRow,
   type HomepageShowcaseCompany,
 } from "@/lib/companies/homepageShowcase";
+import { isE2eOfflineSupabase } from "@/lib/e2e/offlineHarness";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const SELECT = "id,public_slug,company_name,logo_url,carousel_logo_path,use_logo_plate,website";
@@ -18,7 +19,8 @@ async function queryShowcaseRows(supabase: SupabaseClient): Promise<HomepageShow
 
   if (error) {
     if (isHomepageShowcaseColumnMissing(error.message)) return [];
-    throw error;
+    // Fail soft on the homepage — never block marketing SSR on showcase fetch issues.
+    return [];
   }
 
   const companies: HomepageShowcaseCompany[] = [];
@@ -30,6 +32,12 @@ async function queryShowcaseRows(supabase: SupabaseClient): Promise<HomepageShow
 }
 
 export const getHomepageShowcaseCompanies = cache(async (): Promise<HomepageShowcaseCompany[]> => {
-  const supabase = await createSupabaseServerClient();
-  return queryShowcaseRows(supabase);
+  if (isE2eOfflineSupabase()) return [];
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    return await queryShowcaseRows(supabase);
+  } catch {
+    return [];
+  }
 });

@@ -36,6 +36,7 @@ export function QuickApplyA11yHarness() {
     >
       <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-4 pt-1 sm:px-5">
+          <p className="text-[13px] leading-relaxed text-white/55">{t("quickApplyNoCvHint")}</p>
           <label className="block space-y-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
               {t("applyNoteLabel")}

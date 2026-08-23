@@ -10,7 +10,7 @@ test.describe("mobile seeker browse", () => {
     await expect(page.getByRole("heading", { name: "Tööpakkumised" })).toBeVisible();
     await expect(page.locator("#job-search-query")).toBeVisible();
     await page.locator("#job-search-query").fill("õde");
-    await page.getByRole("button", { name: /Otsi/i }).click();
+    await page.getByRole("button", { name: "Otsi", exact: true }).click();
     await expect(page).toHaveURL(/query=/, { timeout: 12_000 });
   });
 });
