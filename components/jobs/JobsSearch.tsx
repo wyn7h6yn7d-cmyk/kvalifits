@@ -385,7 +385,7 @@ export function JobsSearch({
             className="mt-4 overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418]"
           >
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_auto]">
-              <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+              <label className="relative block border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
                 <span className="sr-only">{t("searchPlaceholder")}</span>
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/38" />
                 <Input
@@ -397,11 +397,11 @@ export function JobsSearch({
                   autoComplete="off"
                   className={cn(
                     JOBS_PAGE_CONTROL_HEIGHT,
-                    "rounded-none border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0",
+                    "rounded-none border-0 bg-transparent pl-11 shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none",
                   )}
                 />
               </label>
-              <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+              <label className="relative block border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
                 <span className="sr-only">{t("locationPlaceholder")}</span>
                 <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/38" />
                 <Input
@@ -412,7 +412,7 @@ export function JobsSearch({
                   autoComplete="off"
                   className={cn(
                     JOBS_PAGE_CONTROL_HEIGHT,
-                    "rounded-none border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0",
+                    "rounded-none border-0 bg-transparent pl-11 shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none",
                   )}
                 />
               </label>

@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import { HeroJobSearch } from "@/components/sections/HeroJobSearch";
-import { HeroMatchDemoCard } from "@/components/sections/HeroMatchDemoCard";
+import { HeroMatchMockup } from "@/components/sections/HeroMatchMockup";
 import { HomepageScrollHint } from "@/components/sections/HomepageScrollHint";
 import { GradientAccentText } from "@/components/site/GradientAccentText";
 import type { HeroQuickFilterId } from "@/lib/jobs/heroQuickFilters";
@@ -53,7 +53,12 @@ export function HeroContent({
       </div>
 
       <div className="kf-enter-slow kf-enter-d1 relative flex min-w-0 justify-center lg:justify-end">
-        <HeroMatchDemoCard />
+        <div className="w-full lg:hidden">
+          <HeroMatchMockup compact />
+        </div>
+        <div className="hidden w-full lg:block">
+          <HeroMatchMockup />
+        </div>
       </div>
     </div>
   );

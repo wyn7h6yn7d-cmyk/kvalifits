@@ -54,7 +54,7 @@ export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
         className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.28] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.10)] ring-1 ring-white/[0.12] lg:bg-[#121216]"
       >
         <div className="grid min-h-14 min-w-0 items-stretch gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
-          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
             <span className="sr-only">{t("searchQueryPlaceholder")}</span>
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -64,11 +64,11 @@ export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("searchQueryPlaceholder")}
-              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus-visible:ring-0"
+              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
             />
           </label>
 
-          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
             <span className="sr-only">{t("searchLocationPlaceholder")}</span>
             <MapPin
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -78,7 +78,7 @@ export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder={t("searchLocationPlaceholder")}
-              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus-visible:ring-0"
+              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
             />
           </label>
 

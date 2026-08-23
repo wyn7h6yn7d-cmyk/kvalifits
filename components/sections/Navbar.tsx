@@ -143,7 +143,7 @@ export function Navbar() {
   const showSeekerBottomNav = authenticated && role === "seeker";
 
   const headerBar = cn(
-    "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b px-4 sm:gap-3 lg:px-5",
+    "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b pr-4 sm:gap-3 lg:pr-5",
     "border-white/[0.08] bg-[#09090d]",
     "lg:overflow-x-clip lg:rounded-[18px] lg:border lg:border-white/[0.10] lg:bg-[#111116] lg:shadow-[0_10px_28px_-18px_rgba(0,0,0,0.62)]",
     scrolled && "border-white/[0.10] lg:border-white/[0.12] lg:bg-[#131318]",
@@ -157,7 +157,7 @@ export function Navbar() {
             <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden lg:flex-none lg:shrink-0">
               <Logo
                 className="inline-flex h-full max-w-full items-center"
-                imageClassName="h-8 w-[7.75rem] object-cover object-left sm:h-9 sm:w-[10.5rem] lg:h-[3.35rem] lg:w-[16.5rem] lg:object-center"
+                imageClassName="h-8 w-[7.75rem] object-left sm:h-9 sm:w-[10.5rem] lg:h-[3.35rem] lg:w-[11.5rem]"
                 priority
               />
             </div>
