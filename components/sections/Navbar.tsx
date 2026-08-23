@@ -157,7 +157,7 @@ export function Navbar() {
             <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden lg:flex-none lg:shrink-0">
               <Logo
                 className="inline-flex h-full max-w-full items-center"
-                imageClassName="h-8 w-[7.75rem] object-left sm:h-9 sm:w-[10.5rem] lg:h-[3.35rem] lg:w-[11.5rem]"
+                imageClassName="h-9 w-[8.25rem] object-left sm:h-10 sm:w-[11.25rem] lg:h-[3.5rem] lg:w-[16.5rem]"
                 priority
               />
             </div>
