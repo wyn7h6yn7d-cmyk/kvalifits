@@ -10,6 +10,16 @@ import { isFeaturedColumnMissing } from "@/lib/jobs/jobFeatured";
 
 type Props = { params: Promise<{ locale: string }> };
 
+type EmployerJobRow = {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+  is_featured?: boolean | null;
+  featured_from?: string | null;
+  featured_until?: string | null;
+};
+
 const JOBS_SELECT_WITH_FEATURED =
   "id, title, status, created_at, is_featured, featured_from, featured_until";
 const JOBS_SELECT_BASE = "id, title, status, created_at";
@@ -25,18 +35,24 @@ export default async function EmployerJobsPage({ params }: Props) {
 
   const supabase = await createSupabaseServerClient();
 
-  let { data: jobs, error } = await supabase
+  let jobs: EmployerJobRow[] | null = null;
+  let error = null;
+
+  const featuredRes = await supabase
     .from("job_posts")
     .select(JOBS_SELECT_WITH_FEATURED)
     .eq("created_by", user.id)
     .order("created_at", { ascending: false });
+  jobs = featuredRes.data;
+  error = featuredRes.error;
 
   if (error && isFeaturedColumnMissing(error.message)) {
-    ({ data: jobs } = await supabase
+    const res = await supabase
       .from("job_posts")
       .select(JOBS_SELECT_BASE)
       .eq("created_by", user.id)
-      .order("created_at", { ascending: false }));
+      .order("created_at", { ascending: false });
+    jobs = res.data;
   }
 
   return (

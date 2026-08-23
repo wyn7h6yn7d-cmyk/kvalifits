@@ -9,6 +9,24 @@ import { parsePaginationParams, paginationRange, buildPaginatedResult } from "@/
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
+type AdminEmployerRow = {
+  id: string;
+  owner_user_id: string;
+  company_name: string | null;
+  registry_code: string | null;
+  contact_email: string | null;
+  company_verified: boolean | null;
+  verification_status: string | null;
+  verification_source: string | null;
+  verified_at: string | null;
+  created_at: string;
+  logo_url: string | null;
+  show_on_homepage?: boolean | null;
+  homepage_logo_approved?: boolean | null;
+  carousel_logo_path?: string | null;
+  use_logo_plate?: boolean | null;
+};
+
 export default async function AdminEmployersPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
@@ -24,27 +42,32 @@ export default async function AdminEmployersPage({ params, searchParams }: Props
     "id,owner_user_id,company_name,registry_code,contact_email,company_verified,verification_status,verification_source,verified_at,created_at,logo_url";
 
   let showOnHomepageAvailable = true;
-  let primary = await db
+  const withShowcase = await db
     .from("employer_profiles")
     .select(selectWithShowcase, { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to);
 
+  let employers: AdminEmployerRow[] | null = withShowcase.data;
+  let totalCount = withShowcase.count;
+  let queryError = withShowcase.error;
+
   if (
-    primary.error &&
-    /show_on_homepage|homepage_logo_approved|carousel_logo_path|use_logo_plate|column/i.test(primary.error.message ?? "")
+    queryError &&
+    /show_on_homepage|homepage_logo_approved|carousel_logo_path|use_logo_plate|column/i.test(queryError.message ?? "")
   ) {
     showOnHomepageAvailable = false;
-    primary = await db
+    const withoutShowcase = await db
       .from("employer_profiles")
       .select(selectWithoutShowcase, { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
+    employers = withoutShowcase.data;
+    totalCount = withoutShowcase.count;
+    queryError = withoutShowcase.error;
   }
 
-  let employers = primary.data;
-  let totalCount = primary.count;
-  if (primary.error) {
+  if (queryError) {
     const fallback = await db
       .from("employer_profiles")
       .select("id,owner_user_id,company_name,registry_code,contact_email,created_at,logo_url", { count: "exact" })
