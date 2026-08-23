@@ -25,6 +25,11 @@ export const EMPLOYER_PROFILE_COLUMN_CLASS = {
   company_verified: "public",
   verification_status: "public",
 
+  show_on_homepage: "admin_only",
+  homepage_logo_approved: "admin_only",
+  carousel_logo_path: "admin_only",
+  use_logo_plate: "admin_only",
+
   owner_user_id: "owner_private",
   registry_code: "owner_private",
   contact_email: "owner_private",

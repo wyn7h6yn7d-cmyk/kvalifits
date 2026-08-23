@@ -46,99 +46,84 @@ export default async function ToootsijatelePage({ params }: Props) {
 
   return (
     <>
-      <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")}>
-          <>
-            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8 lg:p-10">
-              <div className="text-[13px] font-medium uppercase tracking-wide text-white/52">
-                {t("tutorialEyebrow")}
-              </div>
-              <h2 className="mt-3 text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl">
-                {t("tutorialTitle")}
-              </h2>
-              <ol className="mt-8 grid list-none gap-4 sm:gap-5">
-                {tutorialSteps.map((step, index) => (
-                  <li
-                    key={step.title}
-                    className="flex gap-4 rounded-2xl border border-white/[0.08] bg-black/25 p-5 sm:p-6"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.12] bg-white/[0.05] text-[13px] font-medium tabular-nums text-white/72">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="text-[15px] font-medium text-white/90">{step.title}</div>
-                      <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{step.body}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+      <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")} />
 
-              <div className="mt-8 border-t border-white/[0.08] pt-8">
-                <Button
-                  asChild
-                  variant="primary"
-                  size="lg"
-                  className="h-12 w-full rounded-2xl px-7 sm:w-auto"
-                >
-                  <Link href="/auth/register?role=seeker">
-                    <UserPlus className="h-4 w-4" />
-                    {t("tutorialCtaRegister")}
-                  </Link>
-                </Button>
-              </div>
+      <section className="py-10 sm:py-16 lg:py-20">
+        <Container>
+          <div className="mx-auto max-w-3xl">
+            <div className="text-[13px] font-medium uppercase tracking-wide text-white/52">
+              {t("tutorialEyebrow")}
             </div>
-          </>
-        </PageHero>
-
-        <section className="border-t border-white/[0.06] py-10 sm:py-20">
-          <Container>
-            <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-16">
-              <div>
-                <h2 className="text-[13px] font-medium uppercase tracking-wide text-white/52">
-                  {t("sectionEyebrow")}
-                </h2>
-                <p className="mt-4 text-lg font-medium leading-snug text-white sm:text-xl">
-                  {t("sectionLead")}
-                </p>
-                <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionBody")}</p>
-              </div>
-              <ul className="space-y-5">
-                {details.map((d) => (
-                  <li
-                    key={d.title}
-                    className="flex gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
-                      <d.icon className="h-4 w-4 text-white/70" />
-                    </div>
-                    <div>
-                      <div className="text-[15px] font-medium text-white/90">{d.title}</div>
-                      <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{d.text}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Container>
-        </section>
-
-        <section className="py-10 sm:py-20">
-          <Container>
-            <h2 className="text-center text-[13px] font-medium uppercase tracking-wide text-white/52">
-              {t("pillarsTitle")}
+            <h2 className="mt-3 text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              {t("tutorialTitle")}
             </h2>
-            <div className="mt-10 grid gap-6 lg:grid-cols-3">
-              {highlights.map((x) => (
-                <div
-                  key={x.title}
-                  className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-7"
-                >
-                  <div className="text-[15px] font-medium text-white/88">{x.title}</div>
-                  <div className="mt-3 text-[15px] leading-7 text-white/68 sm:text-base">{x.desc}</div>
-                </div>
+            <ol className="mt-8 list-none space-y-7 sm:space-y-8">
+              {tutorialSteps.map((step, index) => (
+                <li key={step.title} className="flex gap-5 sm:gap-6">
+                  <span className="mt-0.5 shrink-0 text-[13px] font-medium tabular-nums text-white/45">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div className="min-w-0">
+                    <div className="text-[15px] font-medium text-white/90">{step.title}</div>
+                    <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{step.body}</p>
+                  </div>
+                </li>
               ))}
+            </ol>
+            <div className="mt-10">
+              <Button asChild variant="primary" size="lg" className="h-12 w-full rounded-2xl px-7 sm:w-auto">
+                <Link href="/auth/register?role=seeker">
+                  <UserPlus className="h-4 w-4" />
+                  {t("tutorialCtaRegister")}
+                </Link>
+              </Button>
             </div>
-          </Container>
-        </section>
+          </div>
+        </Container>
+      </section>
+
+      <section className="py-10 sm:py-16 lg:py-20">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-16">
+            <div>
+              <h2 className="text-[13px] font-medium uppercase tracking-wide text-white/52">
+                {t("sectionEyebrow")}
+              </h2>
+              <p className="mt-4 text-lg font-medium leading-snug text-white sm:text-xl">{t("sectionLead")}</p>
+              <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionBody")}</p>
+            </div>
+            <ul className="space-y-8">
+              {details.map((d) => (
+                <li key={d.title} className="flex gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-white/70">
+                    <d.icon className="h-4 w-4" aria-hidden />
+                  </div>
+                  <div>
+                    <div className="text-[15px] font-medium text-white/90">{d.title}</div>
+                    <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{d.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      </section>
+
+      <section className="pb-12 sm:pb-20 lg:pb-24">
+        <Container>
+          <h2 className="text-center text-[13px] font-medium uppercase tracking-wide text-white/52">
+            {t("pillarsTitle")}
+          </h2>
+          <div className="mx-auto mt-10 grid max-w-4xl gap-8 sm:grid-cols-3 sm:gap-10">
+            {highlights.map((x) => (
+              <div key={x.title}>
+                <div className="text-[15px] font-medium text-white/88">{x.title}</div>
+                <p className="mt-3 text-[15px] leading-relaxed text-white/68 sm:text-base">{x.desc}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
     </>
   );
 }

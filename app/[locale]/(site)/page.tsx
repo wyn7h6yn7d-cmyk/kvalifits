@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { Hero } from "@/components/sections/Hero";
+import { FeaturedJobsSection } from "@/components/sections/FeaturedJobsSection";
+import { HomepageCompaniesSection } from "@/components/sections/HomepageCompaniesSection";
 import { LoginAnchor } from "@/components/sections/LoginAnchor";
 import { WhyKvalifits } from "@/components/sections/WhyKvalifits";
 import { Audience } from "@/components/sections/Audience";
@@ -22,13 +24,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function HomePage({ params }: Props) {
-  await params;
+  const { locale } = await params;
   const quickFilters = await getHeroQuickFilters();
 
   return (
     <>
       <WebsiteJsonLd />
       <Hero quickFilters={quickFilters} />
+      <FeaturedJobsSection locale={locale} />
+      <HomepageCompaniesSection />
       <WhyKvalifits />
       <Audience />
       <FinalCTA />

@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Link } from "@/i18n/routing";
 import { buildDuplicatedJobPost, loadOwnedJobForDuplicate } from "@/lib/jobs/duplicateJobPost";
+import { EmployerJobFeaturedPromo } from "@/components/jobs/EmployerJobFeaturedPromo";
 import { isTaxonomyColumnError } from "@/lib/taxonomy/columnMissing";
 import { stripTaxonomyWriteColumns } from "@/lib/taxonomy/jobWrite";
 import { errorMessageFromUnknown } from "@/lib/utils";
@@ -20,6 +21,9 @@ type Job = {
   title: string;
   status: string;
   created_at?: string;
+  is_featured?: boolean | null;
+  featured_from?: string | null;
+  featured_until?: string | null;
 };
 
 type Props = {
@@ -156,6 +160,9 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
               {t("statusLabel")}:{" "}
               <span className="text-white/75">{t(`status_${job.status}` as any)}</span>
             </div>
+            {job.status === "published" ? (
+              <EmployerJobFeaturedPromo locale={locale} job={job} compact />
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">

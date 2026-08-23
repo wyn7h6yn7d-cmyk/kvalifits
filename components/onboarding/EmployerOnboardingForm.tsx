@@ -17,6 +17,7 @@ import {
 import { formatEmployerProfileSaveError } from "@/lib/employer/employerProfileSaveError";
 import { isEmployerOwnerUniqueViolation } from "@/lib/employer/employerOwnerUniqueness";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
+import { queueEmployerCarouselLogoProcessing } from "@/lib/employer/queueEmployerCarouselLogoProcessing";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { reportStorageUploadFailure } from "@/lib/monitoring/report";
 import { errorMessageFromUnknown, omitKeys } from "@/lib/utils";
@@ -195,6 +196,10 @@ export function EmployerOnboardingForm({ locale }: Props) {
         return;
       }
       if (error) throw error;
+
+      if (logoUrl.trim() && isEmployerLogoFromStorageUpload(logoUrl)) {
+        queueEmployerCarouselLogoProcessing();
+      }
 
       router.push(`/${locale}/onboarding`);
       router.refresh();

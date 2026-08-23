@@ -46,7 +46,7 @@ function formatPostedRelative(
 function CompanyLogo({ url, company }: { url?: string | null; company: string }) {
   const letter = (company || "?").trim().charAt(0).toUpperCase() || "?";
   const box =
-    "flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.04] text-[13px] font-semibold text-white/70 lg:h-12 lg:w-12";
+    "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.04] text-[12px] font-semibold text-white/70 lg:h-11 lg:w-11";
 
   if (!url) {
     return (
@@ -70,25 +70,17 @@ function CompanyLogo({ url, company }: { url?: string | null; company: string })
       width={48}
       height={48}
       sizes="48px"
-        loading="lazy"
-        quality={70}
-        className={cn(box, "object-contain p-1")}
+      loading="lazy"
+      quality={70}
+      className={cn(box, "object-contain p-1")}
     />
   );
 }
 
-function MatchPanel({
-  jobId,
-  score,
-  compact,
-}: {
-  jobId: string;
-  score: number;
-  compact?: boolean;
-}) {
+function MatchPanel({ jobId, score }: { jobId: string; score: number }) {
   return (
-    <div className={cn("relative min-w-0", compact ? "" : "w-full text-right")}>
-      <FitScoreExplain score={score} lazySource={{ jobId }} compact={compact} showCountsWhenCollapsed={compact} />
+    <div className="relative min-w-0 lg:w-full lg:text-right">
+      <FitScoreExplain score={score} lazySource={{ jobId }} compact showCountsWhenCollapsed />
     </div>
   );
 }
@@ -97,10 +89,12 @@ function JobCardComponent({
   job,
   saved = false,
   canSave = true,
+  featured = false,
 }: {
   job: Job;
   saved?: boolean;
   canSave?: boolean;
+  featured?: boolean;
 }) {
   const locale = useLocale();
   const t = useTranslations("jobCard");
@@ -123,9 +117,9 @@ function JobCardComponent({
   return (
     <article
       className={cn(
-        "group relative overflow-visible rounded-2xl border border-white/[0.08] bg-[#16161b] p-4 transition-[border-color,background-color] duration-200",
+        "group relative overflow-visible rounded-2xl border border-white/[0.08] bg-[#16161b] p-3.5 transition-[border-color,background-color] duration-200",
         "hover:border-white/[0.14] hover:bg-[#1a1a20]",
-        "sm:p-5",
+        "sm:p-4",
       )}
     >
       <Link
@@ -134,14 +128,21 @@ function JobCardComponent({
         aria-label={`${job.title} — ${job.company}`}
       />
 
-      <div className="relative z-[1] flex flex-col gap-3.5 lg:flex-row lg:items-stretch lg:gap-6">
-        <div className="min-w-0 flex-1">
-          <div className="flex gap-3 sm:gap-3.5">
+      <div className="relative z-[1] flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_12.75rem] lg:items-stretch lg:gap-x-6 lg:gap-y-3">
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+          <div className="flex gap-3">
             <CompanyLogo url={job.companyLogoUrl} company={job.company} />
             <div className="min-w-0 flex-1">
-              <h2 className="text-pretty text-[1.05rem] font-semibold leading-snug tracking-tight text-white sm:text-[1.125rem]">
-                {job.title}
-              </h2>
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="min-w-0 text-pretty text-[1rem] font-semibold leading-snug tracking-tight text-white sm:text-[1.05rem]">
+                  {job.title}
+                </h2>
+                {featured ? (
+                  <span className="shrink-0 rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-[11px] font-medium leading-snug text-white/55">
+                    {t("featuredBadge")}
+                  </span>
+                ) : null}
+              </div>
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-white/62">
                 {job.companySlug ? (
                   <Link
@@ -169,13 +170,13 @@ function JobCardComponent({
           </div>
 
           {job.salary ? (
-            <p className="mt-3 text-[1.05rem] font-semibold tabular-nums tracking-tight text-white">
+            <p className="mt-2.5 text-[1rem] font-semibold tabular-nums tracking-tight text-white">
               {job.salary}
             </p>
           ) : null}
 
           {badges.length || job.openToFirstJob || job.suitableForYoungSeeker ? (
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
               {badges.map((b) => (
                 <span
                   key={b}
@@ -192,75 +193,77 @@ function JobCardComponent({
               {job.suitableForYoungSeeker ? <YoungSeekerJobBadge compact /> : null}
             </div>
           ) : null}
+        </div>
 
-          {hasMatch ? (
-            <div className="mt-3 lg:hidden">
-              <MatchPanel jobId={job.id} score={job.matchScore!} compact />
-            </div>
-          ) : null}
+        {hasMatch ? (
+          <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:self-start lg:justify-self-start lg:border-l lg:border-white/[0.06] lg:pl-6 lg:pr-2">
+            <MatchPanel jobId={job.id} score={job.matchScore!} />
+          </div>
+        ) : null}
 
-          {(posted || deadline) && (
-            <p className="mt-2.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-white/45">
-              {posted ? <span>{posted}</span> : null}
-              {deadline ? (
-                <span>
-                  {t("labelDeadline")} {deadline}
-                </span>
-              ) : null}
-            </p>
-          )}
+        {(posted || deadline) && (
+          <p className="flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-white/45 lg:col-start-1 lg:row-start-2">
+            {posted ? <span>{posted}</span> : null}
+            {deadline ? (
+              <span>
+                {t("labelDeadline")} {deadline}
+              </span>
+            ) : null}
+          </p>
+        )}
 
-          {job.summary ? (
-            <p className="mt-2.5 hidden line-clamp-2 max-w-2xl text-[13px] leading-snug text-white/50 lg:block">
-              {job.summary}
-            </p>
-          ) : null}
+        {job.summary ? (
+          <p className="hidden line-clamp-2 max-w-2xl text-[13px] leading-snug text-white/50 lg:col-start-1 lg:row-start-3 lg:block">
+            {job.summary}
+          </p>
+        ) : null}
 
-          {visibleTags.length ? (
-            <div className="mt-2.5 hidden flex-wrap items-center gap-1.5 lg:flex">
-              {visibleTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="max-w-[11rem] truncate rounded-md px-1.5 py-0.5 text-[11px] text-white/45"
-                >
-                  {tag}
-                </span>
-              ))}
-              {extraTags > 0 ? (
-                <span className="text-[11px] tabular-nums text-white/35">+{extraTags}</span>
-              ) : null}
-            </div>
-          ) : null}
+        {visibleTags.length ? (
+          <div className="hidden flex-wrap items-center gap-1.5 lg:col-start-1 lg:row-start-4 lg:flex">
+            {visibleTags.map((tag) => (
+              <span
+                key={tag}
+                className="max-w-[11rem] truncate rounded-md px-1.5 py-0.5 text-[11px] text-white/45"
+              >
+                {tag}
+              </span>
+            ))}
+            {extraTags > 0 ? (
+              <span className="text-[11px] tabular-nums text-white/35">+{extraTags}</span>
+            ) : null}
+          </div>
+        ) : null}
 
-          <div className="mt-3 flex items-center gap-2 lg:hidden">
-            {canSave ? <JobSaveButton jobId={job.id} initialSaved={saved} /> : null}
+        {canSave ? (
+          <div className="flex items-center gap-2 lg:contents">
+            <JobSaveButton
+              jobId={job.id}
+              initialSaved={saved}
+              className={cn(
+                "relative z-[1] shrink-0 lg:col-start-2 lg:row-start-1 lg:justify-self-end lg:self-start",
+                !hasMatch && "lg:border-l lg:border-white/[0.06] lg:pl-6",
+              )}
+            />
             <Button
               asChild
               variant="outline"
-              className="relative z-[1] min-w-0 flex-1"
+              className={cn(
+                "relative z-[1] min-w-0 flex-1 lg:col-start-2 lg:row-start-1 lg:row-end-[-1] lg:w-full lg:flex-none lg:self-end",
+                !hasMatch && "lg:border-l lg:border-white/[0.06] lg:pl-6",
+              )}
             >
               <Link href={href}>{t("openJob")}</Link>
             </Button>
           </div>
-        </div>
-
-        <div className="hidden w-[12.75rem] shrink-0 flex-col items-end justify-between gap-4 border-l border-white/[0.06] pl-6 lg:flex">
-          <div className="flex w-full items-start justify-between gap-2">
-            {hasMatch ? (
-              <MatchPanel jobId={job.id} score={job.matchScore!} compact />
-            ) : (
-              <span />
-            )}
-            {canSave ? <JobSaveButton jobId={job.id} initialSaved={saved} /> : null}
-          </div>
+        ) : (
           <Button
             asChild
             variant="outline"
-            className="relative z-[1] w-full"
+            className="relative z-[1] w-full lg:col-start-2 lg:row-start-1 lg:row-end-[-1] lg:self-end lg:border-l lg:border-white/[0.06] lg:pl-6"
           >
             <Link href={href}>{t("openJob")}</Link>
           </Button>
-        </div>
+        )}
       </div>
     </article>
   );

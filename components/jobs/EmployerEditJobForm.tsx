@@ -27,6 +27,7 @@ import { TaxonomySelect } from "@/components/taxonomy/TaxonomySelect";
 import { jobPassesYoungSeekerAutoEligibility } from "@/lib/employmentRules";
 import { JobRequirementsEditor } from "@/components/jobs/JobRequirementsEditor";
 import { JobLinesEditor } from "@/components/jobs/JobLinesEditor";
+import { EmployerJobFeaturedPromo } from "@/components/jobs/EmployerJobFeaturedPromo";
 import {
   isJobContentLinesColumnError,
   jobContentLinesI18nError,
@@ -87,6 +88,9 @@ type Job = {
   published_at?: string | null;
   application_deadline?: string | null;
   expires_at?: string | null;
+  is_featured?: boolean | null;
+  featured_from?: string | null;
+  featured_until?: string | null;
 };
 
 type Props = {
@@ -497,6 +501,9 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
         {t("jobFieldGuideEditLead")}
         {initialJob.status !== "published" ? <div className="mt-2 text-white/55">{t("draftHint")}</div> : null}
       </div>
+      {initialJob.status === "published" ? (
+        <EmployerJobFeaturedPromo locale={locale} job={initialJob} />
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <label className="text-xs font-medium tracking-wide text-white/65">{t("title")}</label>

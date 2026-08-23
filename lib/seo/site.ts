@@ -5,6 +5,8 @@ import { routing, type AppLocale } from "@/i18n/routing";
 export const SITE_ORIGIN = "https://www.kvalifits.ee";
 export const SITE_NAME = "Kvalifits";
 export const SITE_ALTERNATE_NAME = "kvalifits.ee";
+/** Homepage `<title>`, og:title, and Twitter title — exact string, no layout template suffix. */
+export const HOMEPAGE_SEO_TITLE = "Kvalifits - uue ajastu tööotsinguportaal";
 
 export const SEO_LOCALES = routing.locales;
 export const SEO_DEFAULT_LOCALE = routing.defaultLocale;
@@ -158,7 +160,7 @@ export function websiteJsonLd(): Record<string, unknown> {
   };
 }
 
-/** Homepage brand metadata: title is always absolute "Kvalifits". */
+/** Homepage metadata: absolute title for brand landing (bypasses locale title template). */
 export function homepageBrandMetadata(opts: {
   locale: string;
   description: string;
@@ -167,22 +169,22 @@ export function homepageBrandMetadata(opts: {
     ...publicPageMetadata({
       locale: opts.locale,
       path: "",
-      title: SITE_NAME,
+      title: HOMEPAGE_SEO_TITLE,
       description: opts.description,
     }),
-    title: { absolute: SITE_NAME },
+    title: { absolute: HOMEPAGE_SEO_TITLE },
     openGraph: {
       type: "website",
       url: absoluteUrl(opts.locale, ""),
       siteName: SITE_NAME,
       locale: ogLocaleTag(opts.locale),
       alternateLocale: ogAlternateLocales(opts.locale),
-      title: SITE_NAME,
+      title: HOMEPAGE_SEO_TITLE,
       description: opts.description,
     },
     twitter: {
       card: "summary",
-      title: SITE_NAME,
+      title: HOMEPAGE_SEO_TITLE,
       description: opts.description,
     },
   };

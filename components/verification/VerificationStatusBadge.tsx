@@ -23,7 +23,7 @@ export function VerificationStatusBadge({ tone, label, className }: Props) {
       )}
     >
       <Icon className="h-3 w-3 shrink-0" aria-hidden />
-      <span className="truncate">{label}</span>
+      <span className="min-w-0 break-words text-pretty leading-snug">{label}</span>
     </span>
   );
 }

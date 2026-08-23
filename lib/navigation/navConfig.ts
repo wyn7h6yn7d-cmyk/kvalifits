@@ -31,6 +31,52 @@ export const GUEST_NAV: NavItem[] = [
   { href: "/tooandjatele", key: "forEmployers" },
 ];
 
+/** Public marketing/site pages keep the simple guest nav even when signed in. */
+export function isDashboardNavPath(pathname: string): boolean {
+  return (
+    pathname === "/account" ||
+    pathname.startsWith("/account/") ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin/") ||
+    pathname === "/onboarding" ||
+    pathname.startsWith("/onboarding/")
+  );
+}
+
+export type NavbarRole = "seeker" | "employer" | "admin" | null;
+
+export function resolveDesktopNavItems(
+  pathname: string,
+  authenticated: boolean,
+  role: NavbarRole,
+): NavItem[] {
+  if (!isDashboardNavPath(pathname)) {
+    return GUEST_NAV;
+  }
+
+  if (!authenticated) return GUEST_NAV;
+  if (role === "employer") return EMPLOYER_NAV;
+  if (role === "seeker") return SEEKER_NAV;
+  if (role === "admin") return ADMIN_NAV;
+  return GUEST_NAV;
+}
+
+export function resolveMobileNavItems(
+  pathname: string,
+  authenticated: boolean,
+  role: NavbarRole,
+): NavItem[] {
+  if (!isDashboardNavPath(pathname)) {
+    return GUEST_NAV;
+  }
+
+  if (authenticated && role === "seeker") {
+    return SEEKER_MOBILE_NAV;
+  }
+
+  return resolveDesktopNavItems(pathname, authenticated, role);
+}
+
 export const SEEKER_NAV: NavItem[] = [
   { href: "/account/seeker", key: "seekerOverview" },
   { href: "/account/seeker/matches", key: "seekerMatches" },

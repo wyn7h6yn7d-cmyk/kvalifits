@@ -116,6 +116,7 @@ export async function JobListingDetailView({
   job,
   employer,
   preview = false,
+  acceptsApplications = true,
   toolbar,
   mobileLead,
   applySection,
@@ -125,6 +126,7 @@ export async function JobListingDetailView({
   job: JobListingDetailJob;
   employer: JobListingDetailEmployer;
   preview?: boolean;
+  acceptsApplications?: boolean;
   toolbar?: ReactNode;
   mobileLead?: ReactNode;
   applySection?: ReactNode;
@@ -191,18 +193,30 @@ export async function JobListingDetailView({
     exclude: languageLines,
   });
   const certLines = splitCertLines(certRequirements);
-  const scheduleLines = buildScheduleLines(job, tJobs, startLabel);
   const employmentType = mapJobTypeLabel((job.job_type ?? "").toString(), tJobs);
   const weeklyHours = toNum(job.weekly_hours);
   const workloadHours = weeklyHours !== null ? tJobs("jobScheduleWeeklyHours", { hours: weeklyHours }) : "";
+  const workloadParts = [employmentType, workloadHours, workMode].filter(Boolean);
+  const workloadLine = workloadParts.join(" · ");
 
-  const facts: { label: string; value: string }[] = [];
-  if (salary) facts.push({ label: tJobs("jobDetailMetaSalary"), value: salary });
-  if (employmentType) facts.push({ label: tJobs("jobDetailMetaEmploymentType"), value: employmentType });
-  if (workloadHours) facts.push({ label: tJobs("jobDetailMetaWorkload"), value: workloadHours });
-  if (workMode) facts.push({ label: tJobs("jobDetailMetaArrangement"), value: workMode });
-  if (location) facts.push({ label: tJobs("jobDetailMetaLocation"), value: location });
-  if (applyUntilLabel) facts.push({ label: tJobs("jobDetailMetaDeadline"), value: applyUntilLabel });
+  const descriptionParts: string[] = [];
+  if (shortSummary && description) {
+    const summaryNorm = shortSummary.trim();
+    const descNorm = description.trim();
+    if (descNorm.includes(summaryNorm) || summaryNorm === descNorm) {
+      descriptionParts.push(descNorm);
+    } else {
+      descriptionParts.push(summaryNorm, descNorm);
+    }
+  } else if (shortSummary) {
+    descriptionParts.push(shortSummary);
+  } else if (description) {
+    descriptionParts.push(description);
+  }
+
+  const scheduleLines = buildScheduleLines(job, tJobs, startLabel).filter(
+    (line) => !(workloadHours && line === workloadHours),
+  );
 
   const suitableForYoungSeeker = jobPassesYoungSeekerAutoEligibility(
     jobWorkConditionsFromJobRow({
@@ -265,32 +279,27 @@ export async function JobListingDetailView({
                   </div>
                 ) : null}
                 {location ? (
-                  <div className="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-white/55">
+                  <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[15px] text-white/62">
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
                     <span className="truncate">{location}</span>
                   </div>
                 ) : null}
               </div>
             </div>
+
             {salary ? (
-              <p className="mt-4 text-[1.15rem] font-semibold tabular-nums tracking-tight text-white lg:hidden">
+              <p className="mt-4 text-[1.15rem] font-semibold tabular-nums tracking-tight text-white">
                 {salary}
               </p>
             ) : null}
-          </header>
 
-          {facts.length ? (
-            <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 border-y border-white/[0.08] py-5 sm:grid-cols-3 lg:grid-cols-5">
-              {facts.map((fact) => (
-                <div key={fact.label} className="min-w-0">
-                  <dt className="text-[11px] text-white/40">{fact.label}</dt>
-                  <dd className="mt-1 break-words text-[15px] font-medium leading-snug tracking-tight text-white/90">
-                    {fact.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          ) : null}
+            {workloadLine ? (
+              <p className="mt-2 text-[15px] leading-snug text-white/72">
+                <span className="text-white/45">{tJobs("jobDetailMetaWorkloadAndMode")}: </span>
+                {workloadLine}
+              </p>
+            ) : null}
+          </header>
 
           {showBadges ? (
             <div className="mt-4 flex flex-wrap gap-2">
@@ -306,15 +315,18 @@ export async function JobListingDetailView({
           {mobileLead ? <div className="mt-5 lg:hidden">{mobileLead}</div> : null}
 
           <div className="mt-2">
-            {shortSummary ? (
-              <DetailSection title={tJobs("jobDetailSectionSummary")}>
-                <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75">{shortSummary}</p>
-              </DetailSection>
-            ) : null}
-
-            {description ? (
+            {descriptionParts.length ? (
               <DetailSection title={tJobs("jobDetailSectionDescription")}>
-                <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75">{description}</p>
+                <div className="space-y-4">
+                  {descriptionParts.map((paragraph, index) => (
+                    <p
+                      key={`desc-${index}`}
+                      className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
               </DetailSection>
             ) : null}
 
@@ -337,12 +349,6 @@ export async function JobListingDetailView({
             {recommendedReqs.length ? (
               <DetailSection title={tJobs("jobDetailSectionRecommended")}>
                 <RequirementList items={recommendedReqs} />
-              </DetailSection>
-            ) : null}
-
-            {benefitLines.length ? (
-              <DetailSection title={tJobs("jobDetailSectionBenefits")}>
-                <RequirementList items={benefitLines.map((text) => ({ text }))} />
               </DetailSection>
             ) : null}
 
@@ -370,6 +376,12 @@ export async function JobListingDetailView({
               </DetailSection>
             ) : null}
 
+            {benefitLines.length ? (
+              <DetailSection title={tJobs("jobDetailSectionBenefits")}>
+                <RequirementList items={benefitLines.map((text) => ({ text }))} />
+              </DetailSection>
+            ) : null}
+
             {companyDescription ? (
               <DetailSection title={tJobs("jobDetailSectionAboutCompany")}>
                 <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75">{companyDescription}</p>
@@ -386,6 +398,15 @@ export async function JobListingDetailView({
                   </p>
                 ) : null}
               </DetailSection>
+            ) : null}
+
+            {applyUntilLabel && acceptsApplications ? (
+              <section className="border-t border-white/[0.08] py-8">
+                <p className="text-[15px] leading-snug text-white/75">
+                  <span className="font-semibold text-white/90">{tJobs("jobDetailMetaDeadline")}: </span>
+                  {applyUntilLabel}
+                </p>
+              </section>
             ) : null}
 
             {applySection}

@@ -818,6 +818,241 @@ try {
       .select("id")
       .single()
   );
+
+  console.log("\n--- Featured job posts ---");
+  const featuredFrom = new Date().toISOString();
+  const featuredUntil = new Date(Date.now() + 7 * 86_400_000).toISOString();
+
+  {
+    const { data, error } = await employerA
+      .from("job_posts")
+      .update({
+        is_featured: true,
+        featured_from: featuredFrom,
+        featured_until: featuredUntil,
+      })
+      .eq("id", jobAPub.id)
+      .select("is_featured,featured_from,featured_until")
+      .single();
+    const pass =
+      !error &&
+      data?.is_featured === false &&
+      data?.featured_from == null &&
+      data?.featured_until == null;
+    record(
+      "Employer A cannot set is_featured on own published job (trigger strips)",
+      pass,
+      error?.message || JSON.stringify(data),
+    );
+  }
+
+  {
+    const { data, error } = await employerA
+      .from("job_posts")
+      .insert({
+        ...jobBase,
+        employer_profile_id: epA.id,
+        created_by: uE.id,
+        title: "Employer A Featured Spoof",
+        slug: `rls-a-featured-spoof-${stamp}`,
+        location: "Tallinn",
+        work_type: "on_site",
+        job_type: "full_time",
+        short_summary: "spoof",
+        description: "spoof body",
+        status: "draft",
+        application_type: "in_app",
+        is_featured: true,
+        featured_from: featuredFrom,
+        featured_until: featuredUntil,
+      })
+      .select("id,is_featured,featured_from,featured_until")
+      .single();
+    const pass =
+      !error &&
+      data?.is_featured === false &&
+      data?.featured_from == null &&
+      data?.featured_until == null;
+    record(
+      "Employer A INSERT strips is_featured fields",
+      pass,
+      error?.message || JSON.stringify(data),
+    );
+    if (data?.id) {
+      await admin.from("job_posts").delete().eq("id", data.id);
+    }
+  }
+
+  {
+    const { data, error } = await admin
+      .from("job_posts")
+      .update({
+        is_featured: true,
+        featured_from: featuredFrom,
+        featured_until: featuredUntil,
+      })
+      .eq("id", jobADraft.id)
+      .select("id,is_featured,featured_from,featured_until")
+      .single();
+    const pass =
+      !error &&
+      data?.is_featured === false &&
+      data?.featured_from == null &&
+      data?.featured_until == null;
+    record("Draft job_posts cannot remain featured", pass, error?.message || JSON.stringify(data));
+  }
+
+  await expectOk("Service role can feature published accepting job_posts", async () =>
+    admin
+      .from("job_posts")
+      .update({
+        is_featured: true,
+        featured_from: featuredFrom,
+        featured_until: featuredUntil,
+      })
+      .eq("id", jobAPub.id)
+      .select("id,is_featured,featured_from,featured_until")
+      .single(),
+  );
+
+  await expectOk("Admin JWT can feature published accepting job_posts", async () =>
+    adminUser
+      .from("job_posts")
+      .update({
+        is_featured: true,
+        featured_from: featuredFrom,
+        featured_until: featuredUntil,
+      })
+      .eq("id", jobAPub.id)
+      .select("id,is_featured")
+      .single(),
+  );
+
+  {
+    const { data, error } = await admin
+      .from("job_posts")
+      .update({ status: "archived" })
+      .eq("id", jobAPub.id)
+      .select("status,is_featured,featured_from,featured_until")
+      .single();
+    const pass =
+      !error &&
+      data?.status === "archived" &&
+      data?.is_featured === false &&
+      data?.featured_from == null &&
+      data?.featured_until == null;
+    record("Archiving clears featured fields", pass, error?.message || JSON.stringify(data));
+    if (!error) {
+      await admin
+        .from("job_posts")
+        .update({ status: "published", published_at: new Date().toISOString() })
+        .eq("id", jobAPub.id);
+    }
+  }
+
+  console.log("\n--- Employer homepage carousel approval ---");
+  {
+    const { data, error } = await employerA
+      .from("employer_profiles")
+      .update({
+        show_on_homepage: true,
+        homepage_logo_approved: true,
+        carousel_logo_path: "spoof/carousel-logo/approved.png",
+        use_logo_plate: true,
+      })
+      .eq("id", epA.id)
+      .select("show_on_homepage,homepage_logo_approved,carousel_logo_path,use_logo_plate")
+      .single();
+    const pass =
+      !error &&
+      data?.show_on_homepage === false &&
+      data?.homepage_logo_approved === false &&
+      data?.carousel_logo_path == null &&
+      data?.use_logo_plate === false;
+    record(
+      "Employer A cannot set homepage carousel admin fields (trigger strips)",
+      pass,
+      error?.message || JSON.stringify(data),
+    );
+  }
+
+  {
+    const originalLogo = "https://example.com/rls-original-logo.png";
+    const carouselPath = `${uE.id}/carousel-logo/approved.png`;
+    const { error: setupErr } = await admin
+      .from("employer_profiles")
+      .update({
+        logo_url: originalLogo,
+        carousel_logo_path: carouselPath,
+        homepage_logo_approved: true,
+        show_on_homepage: true,
+        use_logo_plate: false,
+      })
+      .eq("id", epA.id);
+    if (setupErr && /show_on_homepage|homepage_logo_approved|carousel_logo_path|column/i.test(setupErr.message ?? "")) {
+      record(
+        "homepage carousel approval migration applied",
+        false,
+        setupErr.message || "apply 20260823181258_employer_homepage_carousel_approval.sql",
+      );
+    } else if (setupErr) {
+      record("Admin can configure homepage carousel for Employer A", false, setupErr.message);
+    } else {
+      record("Admin can configure homepage carousel for Employer A", true);
+
+      const { data, error } = await anon
+        .from("employer_show_on_homepage_profiles")
+        .select("id,public_slug,carousel_logo_path")
+        .eq("id", epA.id)
+        .maybeSingle();
+      const pass =
+        !error &&
+        data?.id === epA.id &&
+        (data?.carousel_logo_path ?? "").toString().includes("carousel-logo");
+      record("Anon sees carousel row only when approved + opted in", pass, error?.message || JSON.stringify(data));
+
+      const { data: hidden, error: hiddenErr } = await anon
+        .from("employer_show_on_homepage_profiles")
+        .select("id")
+        .eq("id", epB.id)
+        .maybeSingle();
+      record(
+        "Carousel view hides employers without full approval",
+        !hiddenErr && !hidden,
+        hiddenErr?.message || JSON.stringify(hidden),
+      );
+
+      const { data: stripped, error: stripErr } = await employerA
+        .from("employer_profiles")
+        .update({ logo_url: "https://example.com/rls-new-original-logo.png" })
+        .eq("id", epA.id)
+        .select("show_on_homepage,homepage_logo_approved,carousel_logo_path,use_logo_plate")
+        .single();
+      const stripPass =
+        !stripErr &&
+        stripped?.show_on_homepage === false &&
+        stripped?.homepage_logo_approved === false &&
+        stripped?.carousel_logo_path == null &&
+        stripped?.use_logo_plate === false;
+      record(
+        "Employer logo_url change clears homepage carousel approval",
+        stripPass,
+        stripErr?.message || JSON.stringify(stripped),
+      );
+
+      await admin
+        .from("employer_profiles")
+        .update({
+          logo_url: originalLogo,
+          show_on_homepage: false,
+          homepage_logo_approved: false,
+          carousel_logo_path: null,
+          use_logo_plate: false,
+        })
+        .eq("id", epA.id);
+    }
+  }
+
   await expectOk("Anon can SELECT published job_posts", async () =>
     anon.from("job_posts").select("id,status").eq("id", jobAPub.id).single()
   );

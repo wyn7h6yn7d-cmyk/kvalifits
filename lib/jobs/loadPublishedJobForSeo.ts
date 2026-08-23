@@ -4,13 +4,13 @@ import { isPublicJobListing } from "@/lib/jobs/jobVisibility";
 import type { JobSeoEmployerRow, JobSeoJobRow } from "@/lib/jobs/jobSeo";
 
 const SELECT_FULL =
-  "id,title,location,job_type,work_type,short_summary,description,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,salary_min,salary_max,salary_currency,salary_tax,salary_period";
+  "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,job_requirements,employer_profile_id,status,created_at,published_at,application_deadline,expires_at,salary_min,salary_max,salary_currency,salary_tax,salary_period";
 const SELECT_MID =
-  "id,title,location,job_type,work_type,short_summary,description,employer_profile_id,status,created_at,salary_min,salary_max,salary_currency,salary_tax,salary_period";
+  "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,job_requirements,employer_profile_id,status,created_at,salary_min,salary_max,salary_currency,salary_tax,salary_period";
 const SELECT_LEGACY =
-  "id,title,location,job_type,work_type,short_summary,description,employer_profile_id,status,created_at,salary_min,salary_max,salary_currency";
+  "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,employer_profile_id,status,created_at,salary_min,salary_max,salary_currency";
 const SELECT_MIN =
-  "id,title,location,job_type,work_type,short_summary,description,employer_profile_id,status,created_at";
+  "id,title,location,job_type,work_type,short_summary,description,requirements,requirement_lines,employer_profile_id,status,created_at";
 
 /**
  * Load a public job + employer fields for SEO (published, or archived public history).

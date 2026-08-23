@@ -43,13 +43,13 @@ export function HeroJobSearch({ quickFilters }: Props) {
   }
 
   return (
-    <div className="mt-7 sm:mt-8">
+    <div className="mt-6 min-w-0 sm:mt-7 lg:mt-8">
       <form
         onSubmit={onSubmit}
-        className="overflow-hidden rounded-2xl border border-white/[0.28] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.10)] ring-1 ring-white/[0.12] lg:bg-[#121216]"
+        className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.28] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.10)] ring-1 ring-white/[0.12] lg:bg-[#121216]"
       >
-        <div className="grid min-h-14 items-stretch gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
-          <label className="relative flex min-h-14 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+        <div className="grid min-h-14 min-w-0 items-stretch gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
+          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
             <span className="sr-only">{t("searchQueryPlaceholder")}</span>
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -59,11 +59,11 @@ export function HeroJobSearch({ quickFilters }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("searchQueryPlaceholder")}
-              className="h-14 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus-visible:ring-0"
+              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus-visible:ring-0"
             />
           </label>
 
-          <label className="relative flex min-h-14 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
+          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] lg:border-b-0 lg:border-r">
             <span className="sr-only">{t("searchLocationPlaceholder")}</span>
             <MapPin
               className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
@@ -73,13 +73,13 @@ export function HeroJobSearch({ quickFilters }: Props) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder={t("searchLocationPlaceholder")}
-              className="h-14 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus-visible:ring-0"
+              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus-visible:ring-0"
             />
           </label>
 
           <button
             type="submit"
-            className="inline-flex h-14 w-full items-center justify-center bg-gradient-to-r from-violet-500/90 via-fuchsia-500/80 to-[rgba(227,31,141,0.70)] px-6 text-[15px] font-medium text-white transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset lg:h-full lg:min-w-[148px]"
+            className="inline-flex min-h-14 w-full min-w-0 items-center justify-center bg-gradient-to-r from-violet-500/90 via-fuchsia-500/80 to-[rgba(227,31,141,0.70)] px-4 text-pretty text-[14px] font-medium text-white transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset sm:px-6 sm:text-[15px] lg:h-full lg:min-w-[148px]"
           >
             {t("searchSubmit")}
           </button>
@@ -87,7 +87,7 @@ export function HeroJobSearch({ quickFilters }: Props) {
       </form>
 
       {quickFilters.length ? (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
           {quickFilters.map((id) => {
             const params = heroQuickFilterToSearchParams(id);
             const labelKey = {
@@ -102,8 +102,9 @@ export function HeroJobSearch({ quickFilters }: Props) {
                 key={id}
                 href={buildJobSearchUrl(params)}
                 className={cn(
-                  "inline-flex min-h-11 items-center rounded-full border border-white/[0.10] bg-white/[0.04] px-3.5 py-2",
-                  "text-[13px] font-medium text-white/72 transition-colors hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white",
+                  "inline-flex min-h-11 max-w-full items-center rounded-full border border-white/[0.10] bg-white/[0.04] px-3 py-2 sm:px-3.5",
+                  "text-pretty text-[12px] font-medium leading-snug text-white/72 sm:text-[13px]",
+                  "transition-colors hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white",
                 )}
               >
                 {t(labelKey)}
@@ -113,7 +114,7 @@ export function HeroJobSearch({ quickFilters }: Props) {
         </div>
       ) : null}
 
-      <p className="mt-4 text-[13px] text-white/45">
+      <p className="mt-3 text-pretty text-[13px] leading-relaxed text-white/45 sm:mt-4">
         {t("employerHint")}{" "}
         <Link href="/tooandjatele" className="font-medium text-white/68 underline-offset-4 hover:text-white hover:underline">
           {t("ctaEmployer")}

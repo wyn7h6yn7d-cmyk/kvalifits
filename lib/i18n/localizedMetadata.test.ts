@@ -109,7 +109,7 @@ describe("localized missing metadata and error copy", () => {
         companyName: "",
         emptyTitle: "Вакансия",
       }),
-      "Вакансия – Kvalifits | Kvalifits",
+      "Вакансия | Kvalifits",
     );
     assert.equal(
       buildJobSeoDescription({

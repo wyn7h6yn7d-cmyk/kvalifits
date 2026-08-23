@@ -26,7 +26,7 @@ export function GradientAccentText({
   wrapClassName?: string;
 }) {
   return (
-    <span className={cn("relative inline-block align-baseline", DISPLAY[variant], wrapClassName, className)}>
+    <span className={cn("relative inline break-words align-baseline", DISPLAY[variant], wrapClassName, className)}>
       {children}
     </span>
   );

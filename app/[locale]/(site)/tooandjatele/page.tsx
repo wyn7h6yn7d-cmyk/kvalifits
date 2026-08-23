@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, ClipboardCheck, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { EmployerProductPreview } from "@/components/employer/EmployerProductPreview";
@@ -29,175 +29,68 @@ export default async function TooandjatelePage({ params }: Props) {
   const { role } = await getCurrentAuth();
   const showPricing = role === "employer";
 
-  const details = [
-    { icon: Building2, title: t("d1Title"), text: t("d1Text") },
-    { icon: ClipboardCheck, title: t("d2Title"), text: t("d2Text") },
-    { icon: ArrowRight, title: t("d3Title"), text: t("d3Text") },
-  ];
-
-  const highlights = [
-    { title: t("p1Title"), desc: t("p1Desc") },
-    { title: t("p2Title"), desc: t("p2Desc") },
-    { title: t("p3Title"), desc: t("p3Desc") },
-  ];
-
-  const tutorialSteps = [
-    { title: t("tutorialStep1Title"), body: t("tutorialStep1Body") },
-    { title: t("tutorialStep2Title"), body: t("tutorialStep2Body") },
-    { title: t("tutorialStep3Title"), body: t("tutorialStep3Body") },
-    { title: t("tutorialStep4Title"), body: t("tutorialStep4Body") },
-    { title: t("tutorialStep5Title"), body: t("tutorialStep5Body") },
-  ] as const;
-
-  const tutorialBenefits = [
-    t("tutorialBenefit1"),
-    t("tutorialBenefit2"),
-    t("tutorialBenefit3"),
-    t("tutorialBenefit4"),
-  ] as const;
+  const steps = [t("step1"), t("step2"), t("step3"), t("step4")] as const;
+  const benefits = [t("benefit1"), t("benefit2"), t("benefit3")] as const;
 
   return (
     <>
-      <PageHero
-          ambient={false}
-          eyebrow={t("heroEyebrow")}
-          title={t("heroTitle")}
-          subtitle={t("heroSubtitle")}
-        />
+      <PageHero ambient={false} eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")} />
 
-        <EmployerProductPreview />
+      <section className="py-10 sm:py-16 lg:py-20">
+        <Container>
+          <ol className="mx-auto max-w-3xl list-none space-y-5 sm:space-y-6">
+            {steps.map((step, index) => (
+              <li key={step} className="flex gap-4 sm:gap-5">
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold tabular-nums text-white/70"
+                  aria-hidden
+                >
+                  {index + 1}
+                </span>
+                <span className="pt-0.5 text-[15px] font-medium leading-snug text-white/90 sm:text-base">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </Container>
+      </section>
 
-        <section className="border-t border-white/[0.06] py-10 sm:py-20">
-          <Container>
-            <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8 lg:p-10">
-              <h2 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                {t("tutorialSectionTitle")}
-              </h2>
-              <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/62 sm:text-base">
-                {t("tutorialSectionIntro")}
-              </p>
-              <ol className="mt-8 grid list-none gap-4 sm:gap-5">
-                {tutorialSteps.map((step) => (
-                  <li
-                    key={step.title}
-                    className="rounded-2xl border border-white/[0.08] bg-black/25 p-5 sm:p-6"
-                  >
-                    <div className="text-[15px] font-medium text-white/90">{step.title}</div>
-                    <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{step.body}</p>
-                  </li>
-                ))}
-              </ol>
+      <EmployerProductPreview />
 
-              <div className="mt-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
-                <div className="text-[13px] font-medium uppercase tracking-wide text-white/52">
-                  {t("tutorialBenefitsTitle")}
-                </div>
-                <ul className="mt-4 space-y-2.5 text-[15px] leading-relaxed text-white/68 sm:text-base">
-                  {tutorialBenefits.map((line) => (
-                    <li key={line} className="flex gap-2.5">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden />
-                      <span>{line}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      <section className="py-10 sm:py-16 lg:py-20">
+        <Container>
+          <ul className="mx-auto grid max-w-4xl gap-6 text-center sm:grid-cols-3 sm:gap-8">
+            {benefits.map((benefit) => (
+              <li key={benefit} className="text-[15px] font-medium leading-snug text-white/85 sm:text-base">
+                {benefit}
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </section>
 
-              <div className="mt-8 border-t border-white/[0.08] pt-8">
-                <div className="text-lg font-semibold tracking-tight text-white sm:text-xl">
-                  {t("tutorialCtaSectionTitle")}
-                </div>
-                <p className="mt-2 max-w-xl text-[15px] leading-relaxed text-white/62 sm:text-base">
-                  {t("tutorialCtaSectionText")}
-                </p>
-                <div className="mt-5">
-                  <Button
-                    asChild
-                    variant="primary"
-                    size="lg"
-                    className="h-12 w-full rounded-2xl px-7 sm:w-auto"
-                  >
-                    <Link href="/auth/register?role=employer">
-                      <UserPlus className="h-4 w-4" />
-                      {t("tutorialCtaRegister")}
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
+      <section className="pb-12 sm:pb-20 lg:pb-24">
+        <Container>
+          <div className="flex flex-col items-center gap-6 text-center">
+            <Button asChild variant="primary" size="lg" className="h-12 w-full rounded-2xl px-8 sm:w-auto">
+              <Link href="/auth/register?role=employer">
+                <UserPlus className="h-4 w-4" />
+                {t("ctaAddJob")}
+              </Link>
+            </Button>
 
             {showPricing ? (
-              <div className="mx-auto mt-10 max-w-3xl">
-                <div className="max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
-                  <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">
-                    {t("pricingTitle")}
-                  </div>
-
-                  <div className="mt-4 space-y-3">
-                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm font-medium text-white/85">
-                      {t("pricingDuration30")}
-                    </div>
-                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm font-medium text-white/85">
-                      {t("pricingDuration90")}
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm leading-relaxed text-white/55">{t("pricingNotChargedYet")}</p>
-                </div>
+              <div className="w-full max-w-xl text-left">
+                <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">{t("pricingTitle")}</div>
+                <ul className="mt-4 space-y-2 text-sm font-medium text-white/85">
+                  <li>{t("pricingDuration30")}</li>
+                  <li>{t("pricingDuration90")}</li>
+                </ul>
+                <p className="mt-4 text-sm leading-relaxed text-white/55">{t("pricingNotChargedYet")}</p>
               </div>
             ) : null}
-          </Container>
-        </section>
-
-        <section className="border-t border-white/[0.06] py-10 sm:py-20">
-          <Container>
-            <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-16">
-              <div>
-                <h2 className="text-[13px] font-medium uppercase tracking-wide text-white/52">
-                  {t("sectionEyebrow")}
-                </h2>
-                <p className="mt-4 text-lg font-medium leading-snug text-white sm:text-xl">
-                  {t("sectionLead")}
-                </p>
-                <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionBody")}</p>
-                <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionPractice")}</p>
-              </div>
-              <ul className="space-y-5">
-                {details.map((d) => (
-                  <li
-                    key={d.title}
-                    className="flex gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.1] bg-black/30">
-                      <d.icon className="h-4 w-4 text-white/70" />
-                    </div>
-                    <div>
-                      <div className="text-[15px] font-medium text-white/90">{d.title}</div>
-                      <p className="mt-2 text-[15px] leading-relaxed text-white/62 sm:text-base">{d.text}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Container>
-        </section>
-
-        <section className="py-10 sm:py-20">
-          <Container>
-            <h2 className="text-center text-[13px] font-medium uppercase tracking-wide text-white/52">
-              {t("pillarsTitle")}
-            </h2>
-            <div className="mt-10 grid gap-6 lg:grid-cols-3">
-              {highlights.map((x) => (
-                <div
-                  key={x.title}
-                  className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-7"
-                >
-                  <div className="text-[15px] font-medium text-white/88">{x.title}</div>
-                  <div className="mt-3 text-[15px] leading-7 text-white/68 sm:text-base">{x.desc}</div>
-                </div>
-              ))}
-            </div>
-          </Container>
-        </section>
+          </div>
+        </Container>
+      </section>
     </>
   );
 }

@@ -1038,7 +1038,6 @@ export function JobApplyForm({
         <div className={cn("rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
           <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
           <div className="mt-1 text-sm text-white/60">{t("applySubtitle")}</div>
-          {applyUntilLabel ? <p className="mt-2 text-sm font-medium text-white/80">{applyUntilLabel}</p> : null}
           <p className="mt-3 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
           <div className="mt-4">
             <SheetTrigger asChild>

@@ -8,18 +8,18 @@ export type ErrorCopy = {
 
 const COPY: Record<AppLocale, ErrorCopy> = {
   et: {
-    title: "Leht läks katki",
-    body: "Proovi uuesti. Kui viga kordub, tule hiljem tagasi.",
+    title: "Midagi läks valesti",
+    body: "Proovi lehte värskendada. Kui viga kordub, tule hiljem tagasi.",
     retry: "Proovi uuesti",
   },
   en: {
-    title: "This page broke",
-    body: "Try again. If it keeps happening, come back later.",
+    title: "Something went wrong",
+    body: "Try refreshing the page. If the problem continues, come back later.",
     retry: "Try again",
   },
   ru: {
-    title: "Страница сломалась",
-    body: "Попробуйте ещё раз. Если ошибка повторяется, вернитесь позже.",
+    title: "Что-то пошло не так",
+    body: "Обновите страницу. Если ошибка повторится, зайдите позже.",
     retry: "Попробовать снова",
   },
 };

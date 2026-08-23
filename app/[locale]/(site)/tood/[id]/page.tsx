@@ -12,15 +12,12 @@ import { JobSaveButton } from "@/components/jobs/JobSaveButton";
 import { JobDetailApplyPanel, type JobDetailMatchStats } from "@/components/jobs/JobDetailApplyPanel";
 import { loadEmployerPublicRowById } from "@/lib/companies/loadPublicEmployerFields";
 import {
-  buildJobOpenGraph,
+  buildJobDetailPageMetadata,
   buildJobPostingJsonLd,
-  buildJobSeoDescription,
-  buildJobSeoTitle,
-  jobCanonicalUrl,
-  jobLocaleAlternates,
+  formatJobSeoSalaryLabel,
 } from "@/lib/jobs/jobSeo";
 import { loadPublishedJobForSeo } from "@/lib/jobs/loadPublishedJobForSeo";
-import { NOINDEX_FOLLOW, noindexLocalizedMetadata } from "@/lib/seo/site";
+import { noindexLocalizedMetadata } from "@/lib/seo/site";
 import {
   formatApplyUntilLabel,
   jobAcceptsApplications,
@@ -42,6 +39,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
+  const tJobs = await getTranslations({ locale, namespace: "jobs" });
   const loaded = await loadPublishedJobForSeo(id);
   if (!loaded) {
     return noindexLocalizedMetadata({
@@ -52,54 +50,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
   }
 
-  const titleText = (loaded.job.title ?? "").toString().trim();
-  const location = (loaded.job.location ?? "").toString().trim();
-  const companyName = (loaded.employer?.company_name ?? "").toString().trim();
-  const pageTitle = buildJobSeoTitle({
-    locale,
-    title: titleText,
-    location,
-    companyName: companyName || "Kvalifits",
-    emptyTitle: t("jobFallbackTitle"),
+  const salaryLabel = formatJobSeoSalaryLabel(loaded.job, locale, {
+    tax: (key) => tJobs(key as never),
+    period: (key) => tJobs(key as never),
   });
-  const description = buildJobSeoDescription({
-    title: titleText,
-    location,
-    companyName,
-    shortSummary: (loaded.job.short_summary ?? "").toString(),
-    description: (loaded.job.description ?? "").toString(),
-    emptyDescription: t("jobFallbackDescription"),
-  });
-  const canonical = jobCanonicalUrl(locale, loaded.job.id);
-  const og = buildJobOpenGraph({
-    locale,
-    title: pageTitle,
-    description,
-    canonical,
-    logoUrl: loaded.employer?.logo_url,
-  });
+  const applyUntilLabel = formatApplyUntilLabel(loaded.job, (key, values) => tJobs(key, values));
 
-  return {
-    title: { absolute: pageTitle },
-    description,
-    ...(jobAcceptsApplications(loaded.job) ? {} : { robots: NOINDEX_FOLLOW }),
-    alternates: jobLocaleAlternates(locale, loaded.job.id),
-    openGraph: {
-      title: og.title,
-      description: og.description,
-      url: og.url,
-      siteName: og.siteName,
-      locale: og.locale,
-      alternateLocale: og.alternateLocale,
-      type: og.type,
-      ...(og.images ? { images: og.images } : {}),
+  return buildJobDetailPageMetadata({
+    locale,
+    jobId: loaded.job.id,
+    job: loaded.job,
+    employer: loaded.employer,
+    labels: {
+      emptyTitle: t("jobFallbackTitle"),
+      emptyDescription: t("jobFallbackDescription"),
+      salaryLabel,
+      applyUntilLabel: applyUntilLabel ?? undefined,
     },
-    twitter: {
-      card: "summary",
-      title: pageTitle,
-      description,
-    },
-  };
+  });
 }
 
 export default async function JobDetailPage({ params }: Props) {
@@ -230,6 +198,9 @@ export default async function JobDetailPage({ params }: Props) {
           work_type: job.work_type,
           short_summary: job.short_summary,
           description: job.description,
+          requirements: job.requirements,
+          requirement_lines: (job.requirement_lines as string[] | null) ?? null,
+          job_requirements: job.job_requirements,
           status: job.status,
           created_at: job.created_at,
           published_at: job.published_at ?? null,
@@ -313,11 +284,12 @@ export default async function JobDetailPage({ params }: Props) {
   };
 
   return (
-    <>
+    <article>
       <JobPostingJsonLd data={jobPostingLd} />
       <JobListingDetailView
         locale={locale}
         job={job}
+        acceptsApplications={acceptsApplications}
         employer={
           employer
             ? {
@@ -342,9 +314,9 @@ export default async function JobDetailPage({ params }: Props) {
         }
         mobileLead={
           <>
-            <JobPostReportLink jobPostId={job.id} variant="toolbar" />
-            <div className="mt-5">
-              <JobDetailApplyPanel variant="inline" {...applyPanelProps} />
+            <JobDetailApplyPanel variant="inline" {...applyPanelProps} />
+            <div className="mt-4">
+              <JobPostReportLink jobPostId={job.id} variant="toolbar" />
             </div>
           </>
         }
@@ -363,6 +335,6 @@ export default async function JobDetailPage({ params }: Props) {
         />
       </div>
       <JobDetailApplyPanel variant="mobileBar" {...applyPanelProps} />
-    </>
+    </article>
   );
 }

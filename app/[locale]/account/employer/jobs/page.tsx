@@ -6,8 +6,13 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getRoleAndNextPath } from "@/lib/onboarding/flow";
 import { EmployerJobsList } from "@/components/account/EmployerJobsList";
+import { isFeaturedColumnMissing } from "@/lib/jobs/jobFeatured";
 
 type Props = { params: Promise<{ locale: string }> };
+
+const JOBS_SELECT_WITH_FEATURED =
+  "id, title, status, created_at, is_featured, featured_from, featured_until";
+const JOBS_SELECT_BASE = "id, title, status, created_at";
 
 export default async function EmployerJobsPage({ params }: Props) {
   const { locale } = await params;
@@ -20,11 +25,19 @@ export default async function EmployerJobsPage({ params }: Props) {
 
   const supabase = await createSupabaseServerClient();
 
-  const { data: jobs } = await supabase
+  let { data: jobs, error } = await supabase
     .from("job_posts")
-    .select("id, title, status, created_at")
+    .select(JOBS_SELECT_WITH_FEATURED)
     .eq("created_by", user.id)
     .order("created_at", { ascending: false });
+
+  if (error && isFeaturedColumnMissing(error.message)) {
+    ({ data: jobs } = await supabase
+      .from("job_posts")
+      .select(JOBS_SELECT_BASE)
+      .eq("created_by", user.id)
+      .order("created_at", { ascending: false }));
+  }
 
   return (
     <AuthShell title={tJobs("myJobs")} subtitle={tJobs("myJobsSubtitle")} maxWidthClassName="max-w-3xl">

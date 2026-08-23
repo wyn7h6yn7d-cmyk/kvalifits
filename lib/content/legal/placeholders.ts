@@ -17,7 +17,7 @@ export type LaunchOperatorFields = {
   privacyEmail: string | null;
   /**
    * Mailbox used only by the contact form (mailto). Not shown as a registered
-   * company’s official address until `officialEmail` is set.
+   * company's official address until `officialEmail` is set.
    * Confirm the mailbox exists before relying on it.
    */
   contactFormMailto: string;
@@ -39,16 +39,49 @@ export const PLATFORM_NAME = "Kvalifits";
 
 export const LEGAL_COPY_UPDATED = "2026-08-17";
 
+const BRACKET_PLACEHOLDER = /^\[[^\]]+\]$/;
+
+type ResolvedOperator = {
+  legalEntityName: string;
+  registryCode: string;
+  legalAddress: string;
+  vatNumber: string | null;
+  phone: string | null;
+  officialEmail: string | null;
+  privacyEmail: string | null;
+};
+
+/** Treat null, blank, and `[placeholder]` strings as unresolved. */
+export function resolveOperatorField(value: string | null | undefined): string | null {
+  if (value == null) return null;
+  const trimmed = value.trim();
+  if (!trimmed || BRACKET_PLACEHOLDER.test(trimmed)) return null;
+  return trimmed;
+}
+
+function resolvedOperator(): ResolvedOperator | null {
+  const legalEntityName = resolveOperatorField(LAUNCH_OPERATOR.legalEntityName);
+  const registryCode = resolveOperatorField(LAUNCH_OPERATOR.registryCode);
+  const legalAddress = resolveOperatorField(LAUNCH_OPERATOR.legalAddress);
+  if (!legalEntityName || !registryCode || !legalAddress) return null;
+
+  return {
+    legalEntityName,
+    registryCode,
+    legalAddress,
+    vatNumber: resolveOperatorField(LAUNCH_OPERATOR.vatNumber),
+    phone: resolveOperatorField(LAUNCH_OPERATOR.phone),
+    officialEmail: resolveOperatorField(LAUNCH_OPERATOR.officialEmail),
+    privacyEmail: resolveOperatorField(LAUNCH_OPERATOR.privacyEmail),
+  };
+}
+
 export function isLegalEntityRegistered(): boolean {
-  return Boolean(
-    LAUNCH_OPERATOR.legalEntityName &&
-      LAUNCH_OPERATOR.registryCode &&
-      LAUNCH_OPERATOR.legalAddress,
-  );
+  return resolvedOperator() !== null;
 }
 
 export function contactFormMailto(): string {
-  return LAUNCH_OPERATOR.officialEmail ?? LAUNCH_OPERATOR.contactFormMailto;
+  return resolveOperatorField(LAUNCH_OPERATOR.officialEmail) ?? LAUNCH_OPERATOR.contactFormMailto;
 }
 
 export function viaContactPage(locale: LegalLocale): string {
@@ -63,16 +96,19 @@ function emailOrForm(email: string | null, locale: LegalLocale): string {
 }
 
 export function publicPrivacyContact(locale: LegalLocale): string {
-  return emailOrForm(LAUNCH_OPERATOR.privacyEmail ?? LAUNCH_OPERATOR.officialEmail, locale);
+  const operator = resolvedOperator();
+  const email = operator?.privacyEmail ?? operator?.officialEmail ?? null;
+  return emailOrForm(email, locale);
 }
 
 export function publicGeneralContact(locale: LegalLocale): string {
-  return emailOrForm(LAUNCH_OPERATOR.officialEmail, locale);
+  const operator = resolvedOperator();
+  return emailOrForm(operator?.officialEmail ?? null, locale);
 }
 
 export function controllerParagraph(locale: LegalLocale): string {
-  if (isLegalEntityRegistered()) {
-    const o = LAUNCH_OPERATOR;
+  const o = resolvedOperator();
+  if (o) {
     const vat =
       o.vatNumber &&
       (locale === "en"
@@ -99,8 +135,8 @@ export function controllerParagraph(locale: LegalLocale): string {
 }
 
 export function providerParagraph(locale: LegalLocale): string {
-  if (isLegalEntityRegistered()) {
-    const o = LAUNCH_OPERATOR;
+  const o = resolvedOperator();
+  if (o) {
     if (locale === "en") {
       return `Kvalifits is a skills-based recruitment platform. The provider is ${o.legalEntityName} (${o.registryCode}), ${o.legalAddress}. A “user” is any person or legal entity that creates an account or otherwise uses the service.`;
     }
@@ -120,19 +156,18 @@ export function providerParagraph(locale: LegalLocale): string {
 }
 
 export function operatorLeadName(locale: LegalLocale): string {
-  if (isLegalEntityRegistered() && LAUNCH_OPERATOR.legalEntityName) {
-    return LAUNCH_OPERATOR.legalEntityName;
-  }
+  const o = resolvedOperator();
+  if (o) return o.legalEntityName;
   if (locale === "en") return "the Kvalifits team";
   if (locale === "ru") return "команда Kvalifits";
   return "Kvalifitsi meeskond";
 }
 
 export function companyIdentityLines(locale: LegalLocale): string[] {
-  if (isLegalEntityRegistered()) {
-    const o = LAUNCH_OPERATOR;
+  const o = resolvedOperator();
+  if (o) {
     const lines = [
-      o.legalEntityName!,
+      o.legalEntityName,
       locale === "en"
         ? `Registry code: ${o.registryCode}`
         : locale === "ru"
@@ -188,14 +223,15 @@ export function companyIdentityLines(locale: LegalLocale): string[] {
 }
 
 export function companyMissionOperatorSentence(locale: LegalLocale): string {
-  if (isLegalEntityRegistered() && LAUNCH_OPERATOR.legalEntityName) {
+  const o = resolvedOperator();
+  if (o) {
     if (locale === "en") {
-      return `${LAUNCH_OPERATOR.legalEntityName} develops and operates the Kvalifits web platform for skills-based recruitment in Estonia, connecting job seekers’ evidence and employers’ requirements.`;
+      return `${o.legalEntityName} develops and operates the Kvalifits web platform for skills-based recruitment in Estonia, connecting job seekers’ evidence and employers’ requirements.`;
     }
     if (locale === "ru") {
-      return `${LAUNCH_OPERATOR.legalEntityName} разрабатывает и эксплуатирует веб-платформу Kvalifits для рекрутинга на основе навыков в Эстонии, связывая подтверждения соискателей с требованиями работодателей.`;
+      return `${o.legalEntityName} разрабатывает и эксплуатирует веб-платформу Kvalifits для рекрутинга на основе навыков в Эстонии, связывая подтверждения соискателей с требованиями работодателей.`;
     }
-    return `${LAUNCH_OPERATOR.legalEntityName} arendab ja haldab veebiplatvormi Kvalifits, mis toetab pädevuspõhist töövahendust Eestis — tööotsijate oskuste ja tõendite ning tööandjate nõuete kohtumist ühes keskkonnas.`;
+    return `${o.legalEntityName} arendab ja haldab veebiplatvormi Kvalifits, mis toetab pädevuspõhist töövahendust Eestis — tööotsijate oskuste ja tõendite ning tööandjate nõuete kohtumist ühes keskkonnas.`;
   }
 
   if (locale === "en") {

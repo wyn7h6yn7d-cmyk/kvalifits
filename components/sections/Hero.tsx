@@ -9,7 +9,7 @@ export function Hero({ quickFilters }: { quickFilters: HeroQuickFilterId[] }) {
   return (
     <section
       id="avaleht"
-      className="relative overflow-hidden scroll-mt-[var(--site-header-offset)] bg-surface-deep pb-10 sm:pb-12 lg:pb-14"
+      className="relative overflow-hidden scroll-mt-[var(--site-header-offset)] bg-surface-deep pb-8 sm:pb-10 lg:pb-14"
     >
       <AmbientBackground intensity={heroPortal.ambientIntensity} />
       <div className="absolute inset-0 z-0 hidden lg:block">

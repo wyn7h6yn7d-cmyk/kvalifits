@@ -3,11 +3,11 @@ import { MatchPanelSkeleton } from "@/components/skeletons/MatchPanelSkeleton";
 
 export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-[#16161b] p-4 sm:p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-6">
-        <div className="min-w-0 flex-1">
-          <div className="flex gap-3 sm:gap-3.5">
-            <Bone className="h-11 w-11 shrink-0 rounded-xl lg:h-12 lg:w-12" />
+    <div className="rounded-2xl border border-white/[0.08] bg-[#16161b] p-3.5 sm:p-4">
+      <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_12.75rem] lg:items-stretch lg:gap-x-6 lg:gap-y-3">
+        <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+          <div className="flex gap-3">
+            <Bone className="h-10 w-10 shrink-0 rounded-xl lg:h-11 lg:w-11" />
             <div className="min-w-0 flex-1">
               <Bone className="h-5 w-[72%] max-w-sm rounded-md" />
               <div className="mt-2 flex items-center gap-2">
@@ -22,21 +22,20 @@ export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
             <Bone className="h-6 w-20 rounded-md" />
             <Bone className="h-6 w-14 rounded-md" />
           </div>
-          {withMatch ? (
-            <div className="mt-3 lg:hidden">
-              <MatchPanelSkeleton compact />
-            </div>
-          ) : null}
-          <Bone className="mt-2.5 hidden h-3.5 w-full max-w-xl lg:block" />
-          <Bone className="mt-1.5 hidden h-3.5 w-[82%] max-w-lg lg:block" />
-          <div className="mt-3 flex items-center gap-2 lg:hidden">
-            <Bone className="h-11 w-11 shrink-0 rounded-xl" />
-            <Bone className="h-11 min-w-0 flex-1 rounded-xl" />
-          </div>
         </div>
-        <div className="hidden w-[12.75rem] shrink-0 flex-col items-end justify-between gap-4 border-l border-white/[0.06] pl-6 lg:flex">
-          {withMatch ? <MatchPanelSkeleton compact /> : <Bone className="h-9 w-24 rounded-lg" />}
-          <Bone className="h-10 w-full rounded-xl" />
+
+        {withMatch ? (
+          <div className="lg:col-start-2 lg:row-start-1 lg:self-start lg:border-l lg:border-white/[0.06] lg:pl-6">
+            <MatchPanelSkeleton compact />
+          </div>
+        ) : null}
+
+        <Bone className="h-3.5 w-full max-w-xl lg:col-start-1 lg:row-start-2" />
+        <Bone className="hidden h-3.5 w-[82%] max-w-lg lg:col-start-1 lg:row-start-3 lg:block" />
+
+        <div className="flex items-center gap-2 lg:contents">
+          <Bone className="h-11 w-11 shrink-0 rounded-xl lg:col-start-2 lg:row-start-1 lg:justify-self-end lg:self-start" />
+          <Bone className="h-11 min-w-0 flex-1 rounded-xl lg:col-start-2 lg:row-start-1 lg:row-end-[-1] lg:w-full lg:self-end" />
         </div>
       </div>
     </div>

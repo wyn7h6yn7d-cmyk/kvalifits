@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { MapPin, Search, SlidersHorizontal, X } from "lucide-react";
@@ -92,6 +99,14 @@ export function JobsSearch({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    if (mq.matches && !searchParams.get("q")?.trim()) {
+      document.getElementById("job-search-query")?.focus({ preventScroll: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- focus search once on desktop entry
+  }, []);
+
+  useEffect(() => {
     const parsed = parseJobSearchParams(searchParams);
     setQuery(parsed.query ?? "");
     setLocationInput(parsed.location ?? "");
@@ -156,6 +171,42 @@ export function JobsSearch({
       return taxonomyFacetLabel(catalog, facet, value, locale);
     };
   }, [t, tExp, catalog, tJobs, locale]);
+
+  const facetTitle = useCallback(
+    (facet: JobFilterFacet) => {
+      switch (facet) {
+        case "title":
+          return t("facetTitle");
+        case "location":
+          return tf("asukoht");
+        case "domain":
+          return tf("valdkond");
+        case "jobType":
+          return t("facetWorkload");
+        case "workType":
+          return t("facetWorkMode");
+        case "salary":
+          return t("facetSalary");
+        case "experience":
+          return t("facetExperience");
+        case "skill":
+          return t("facetSkills");
+        case "cert":
+          return tf("sertifikaat");
+        case "language":
+          return tf("keel");
+        default:
+          return facet;
+      }
+    },
+    [t, tf],
+  );
+
+  const chipLabel = useCallback(
+    (facet: JobFilterFacet, value: string) =>
+      `${facetTitle(facet)}: ${formatLabel(facet, value)}`,
+    [facetTitle, formatLabel],
+  );
 
   const results = jobs;
   const savedSet = useMemo(() => new Set(savedJobIds), [savedJobIds]);
@@ -292,10 +343,10 @@ export function JobsSearch({
           {selections.map((s) => (
             <Chip
               key={selectionKeyOf(s)}
-              label={formatLabel(s.facet, s.value)}
+              label={chipLabel(s.facet, s.value)}
               selected
               onRemove={() => onToggle(s.facet, s.value)}
-              className="shrink-0 max-w-[16rem] truncate rounded-full"
+              className="shrink-0 max-w-[18rem] truncate rounded-full"
             />
           ))}
         </div>
@@ -313,20 +364,13 @@ export function JobsSearch({
     <section className="pb-[calc(4rem+var(--site-bottom-nav-offset,0px))] sm:pb-20">
       <Container className="max-w-[1240px]">
         <div className="border-b border-white/[0.08] pb-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="min-w-0">
-              <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-[1.65rem]">
-                {pageTitle}
-              </h1>
-              <p className="mt-1.5 text-sm text-white/55" aria-live="polite">
-                {resultsLabel}
-              </p>
-            </div>
-          </div>
+          <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            {pageTitle}
+          </h1>
 
           <form
             onSubmit={onSearchSubmit}
-            className="mt-5 overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418]"
+            className="mt-4 overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418] lg:mt-5"
           >
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_auto]">
               <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
@@ -363,49 +407,52 @@ export function JobsSearch({
               </Button>
             </div>
           </form>
+
+          <p
+            className="mt-4 text-[15px] font-medium text-white/88 lg:hidden"
+            aria-live="polite"
+          >
+            {resultsLabel}
+          </p>
         </div>
 
         <div className="sticky top-[var(--site-header-offset)] z-30 -mx-4 mb-3 space-y-2 border-b border-white/[0.08] bg-[#0f0f16] px-4 py-2.5 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 lg:hidden">
-          <p className="text-[13px] text-white/55" aria-live="polite">
-            {resultsLabel}
-          </p>
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
             <Button
               type="button"
               variant="outline"
-              className="w-full justify-between"
+              className="min-w-0 justify-start gap-2 px-3"
               onClick={() => setMobileOpen(true)}
             >
-              <span className="inline-flex min-w-0 items-center gap-2">
-                <SlidersHorizontal className="opacity-70" aria-hidden />
-                <span className="truncate">
-                  {activeFilterCount
-                    ? t("filtersWithCount", { count: activeFilterCount })
-                    : t("filters")}
-                </span>
+              <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+              <span className="truncate text-left">
+                {activeFilterCount
+                  ? t("filtersWithCount", { count: activeFilterCount })
+                  : t("filters")}
               </span>
             </Button>
-            <JobSearchAlertsButton
-              snapshot={searchSnapshot}
-              matchSortAvailable={matchSortAvailable}
-              canSave={canSaveJobs}
-              className="w-full justify-center"
-            />
+            <label className="flex min-w-0 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-[#141418] px-2.5">
+              <span className="sr-only">{t("sortLabel")}</span>
+              <Select
+                value={sort}
+                onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
+                className="min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                aria-label={t("sortLabel")}
+              >
+                {sortOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value} disabled={opt.disabled}>
+                    {opt.label}
+                  </option>
+                ))}
+              </Select>
+            </label>
           </div>
-          <label className="flex items-center gap-2">
-            <span className="shrink-0 text-[12px] text-white/45">{t("sortLabel")}</span>
-            <Select
-              value={sort}
-              onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
-              className="min-w-0 flex-1"
-            >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value} disabled={opt.disabled}>
-                  {opt.label}
-                </option>
-              ))}
-            </Select>
-          </label>
+          <JobSearchAlertsButton
+            snapshot={searchSnapshot}
+            matchSortAvailable={matchSortAvailable}
+            canSave={canSaveJobs}
+            className="w-full justify-center"
+          />
         </div>
 
         <div className="grid gap-6 lg:mt-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">
@@ -473,7 +520,9 @@ export function JobsSearch({
                 hasConstraints={Boolean(
                   query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
                 )}
+                hasFacetFilters={Boolean(selections.length || requirePublicSalary)}
                 onClearFilters={clearAll}
+                onAdjustFilters={() => setMobileOpen(true)}
                 onChangeSearch={() => {
                   const el = document.getElementById("job-search-query");
                   el?.focus();
@@ -613,17 +662,34 @@ function JobSearchEmptyState({
   t,
   catalogEmpty,
   hasConstraints,
+  hasFacetFilters,
   onClearFilters,
+  onAdjustFilters,
   onChangeSearch,
   alertButton,
 }: {
   t: ReturnType<typeof useTranslations>;
   catalogEmpty: boolean;
   hasConstraints: boolean;
+  hasFacetFilters: boolean;
   onClearFilters: () => void;
+  onAdjustFilters: () => void;
   onChangeSearch: () => void;
   alertButton: ReactNode;
 }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  const showAdjustFilters = hasFacetFilters && isMobile;
+  const showChangeSearch = !showAdjustFilters;
+
   return (
     <EmptyState
       className="mt-4"
@@ -636,9 +702,16 @@ function JobSearchEmptyState({
               {t("emptyClearFilters")}
             </Button>
           ) : null}
-          <Button type="button" variant="outline" onClick={onChangeSearch}>
-            {t("emptyChangeSearch")}
-          </Button>
+          {showAdjustFilters ? (
+            <Button type="button" variant="outline" onClick={onAdjustFilters}>
+              {t("emptyAdjustFilters")}
+            </Button>
+          ) : null}
+          {showChangeSearch ? (
+            <Button type="button" variant="outline" onClick={onChangeSearch}>
+              {t("emptyChangeSearch")}
+            </Button>
+          ) : null}
           {alertButton}
         </>
       }

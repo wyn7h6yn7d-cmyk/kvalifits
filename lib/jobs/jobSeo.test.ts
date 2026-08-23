@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  buildJobDetailPageMetadata,
   buildJobPostingJsonLd,
+  buildJobSeoDescription,
+  buildJobSeoTitle,
   jobCanonicalUrl,
   jobHreflangLanguages,
   jobLocaleAlternates,
@@ -111,6 +114,79 @@ describe("SEO JobPosting JSON-LD lifecycle & field completeness", () => {
       employer: baseEmployer() as never,
     });
     assert.equal(json, null);
+  });
+
+  it("includes structured requirements in JobPosting description", () => {
+    const job = {
+      ...baseActiveJob(),
+      short_summary: "",
+      description: "",
+      requirement_lines: ["A-pädevus", "B-kategooria juhiluba"],
+    };
+    const json = buildJobPostingJsonLd({
+      locale: "et",
+      job: job as never,
+      employer: baseEmployer() as never,
+    });
+    assert.ok(json);
+    assert.match(String(json?.description), /A-pädevus/);
+    assert.match(String(json?.description), /B-kategooria juhiluba/);
+  });
+});
+
+describe("job detail metadata", () => {
+  it("builds an absolute title without layout template duplication", () => {
+    const title = buildJobSeoTitle({
+      locale: "et",
+      title: "Plekksepp",
+      location: "Tallinn",
+      companyName: "peremees OÜ",
+      emptyTitle: "Tööpakkumine",
+    });
+    assert.equal(title, "Plekksepp Tallinnas – peremees OÜ | Kvalifits");
+
+    const meta = buildJobDetailPageMetadata({
+      locale: "et",
+      jobId: "job-123",
+      job: {
+        ...baseActiveJob(),
+        id: "job-123",
+        title: "Plekksepp",
+        location: "Tallinn",
+      },
+      employer: { company_name: "peremees OÜ" },
+      labels: {
+        emptyTitle: "Tööpakkumine",
+        emptyDescription: "Tööpakkumine Kvalifitsis",
+        salaryLabel: "2300 € bruto / kuu",
+        applyUntilLabel: "31.12.2099",
+      },
+    });
+
+    assert.deepEqual(meta.title, { absolute: title });
+    assert.equal((meta.alternates as { canonical?: string } | undefined)?.canonical, jobCanonicalUrl("et", "job-123"));
+    assert.equal(meta.openGraph?.title, title);
+    assert.equal(meta.twitter?.title, title);
+    assert.equal(title.includes("Kvalifits · Kvalifits"), false);
+  });
+
+  it("falls back to listing facts in meta description when summary is empty", () => {
+    const description = buildJobSeoDescription({
+      title: "Plekksepp",
+      location: "Tallinn",
+      companyName: "peremees OÜ",
+      shortSummary: "",
+      description: "",
+      salaryLabel: "2300 € bruto / kuu",
+      applyUntilLabel: "31.12.2099",
+      requirements: ["A-pädevus"],
+      emptyDescription: "Tööpakkumine Kvalifitsis",
+    });
+    assert.match(description, /Plekksepp/);
+    assert.match(description, /Tallinn/);
+    assert.match(description, /peremees OÜ/);
+    assert.match(description, /2300 € bruto \/ kuu/);
+    assert.match(description, /31\.12\.2099/);
   });
 });
 

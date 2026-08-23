@@ -79,7 +79,7 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
   const dateLocale = DATE_LOCALE[locale] ?? "et-EE";
 
   return (
-    <div className="relative overflow-hidden border-b border-white/[0.06]">
+    <div className="relative overflow-hidden">
       <AmbientBackground intensity="soft" />
       <Container className="relative max-w-6xl py-14 sm:py-20">
         <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
@@ -98,65 +98,34 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
           </Link>
         </div>
 
-        <div className="relative overflow-hidden rounded-[1.75rem] border border-white/[0.10] bg-gradient-to-br from-white/[0.07] via-white/[0.02] to-transparent p-6 shadow-[0_24px_80px_-32px_rgba(0,0,0,0.65)] sm:p-10">
-          <div
-            className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-violet-500/15 blur-3xl"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-fuchsia-500/10 blur-3xl"
-            aria-hidden
-          />
-
-          <h1 className="relative text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.5rem] lg:leading-tight">
-            {content.h1}
-          </h1>
-          <p className="relative mt-4 max-w-2xl text-base leading-relaxed text-white/60 sm:text-[17px]">
-            {content.lead}
-          </p>
-        </div>
+        <h1 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.5rem] lg:leading-tight">
+          {content.h1}
+        </h1>
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/60 sm:text-[17px]">
+          {content.lead}
+        </p>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-stretch lg:gap-14">
           <div className="flex min-h-0 h-full min-w-0 flex-col">
-            <div
-              className={cn(
-                "relative flex h-full min-h-0 flex-col overflow-hidden rounded-[1.75rem] border border-white/[0.10]",
-                "bg-gradient-to-br from-white/[0.06] via-white/[0.025] to-transparent",
-                "p-6 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_20px_60px_-40px_rgba(0,0,0,0.55)] sm:p-8"
-              )}
-            >
-              <div
-                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl"
-                aria-hidden
-              />
-              {content.blocksAside ? (
-                <header className="relative shrink-0 border-b border-white/[0.08] pb-5">
-                  <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
-                </header>
-              ) : null}
-              <div
-                className={cn(
-                  "relative flex min-h-0 flex-1 flex-col",
-                  content.blocksAside && "pt-5",
-                )}
-              >
-                {contactInfoRows(content.blocks).map((row, idx) => (
-                  <div
-                    key={Array.isArray(row) ? `pair-${row.map((b) => b.title).join("-")}` : row.title}
-                    className={cn(
-                      idx > 0 && "mt-5 border-t border-white/[0.07] pt-5",
-                      Array.isArray(row) && "grid gap-8 sm:grid-cols-2 sm:gap-10",
-                    )}
-                  >
-                    {Array.isArray(row) ? (
-                      row.map((b) => <ContactInfoSection key={b.title} block={b} />)
-                    ) : (
-                      <ContactInfoSection block={row} />
-                    )}
-                  </div>
-                ))}
-              </div>
+            {content.blocksAside ? (
+              <header className="mb-8">
+                <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
+              </header>
+            ) : null}
+            <div className="space-y-8">
+              {contactInfoRows(content.blocks).map((row) => (
+                <div
+                  key={Array.isArray(row) ? `pair-${row.map((b) => b.title).join("-")}` : row.title}
+                  className={cn(Array.isArray(row) && "grid gap-8 sm:grid-cols-2 sm:gap-10")}
+                >
+                  {Array.isArray(row) ? (
+                    row.map((b) => <ContactInfoSection key={b.title} block={b} />)
+                  ) : (
+                    <ContactInfoSection block={row} />
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -170,7 +139,7 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
         </div>
 
         {content.footnote ? (
-          <p className="mt-14 max-w-3xl border-t border-white/[0.08] pt-8 text-xs leading-relaxed text-white/40">
+          <p className="mt-14 max-w-3xl text-xs leading-relaxed text-white/40">
             {content.footnote}
           </p>
         ) : null}

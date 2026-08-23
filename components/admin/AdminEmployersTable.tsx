@@ -14,10 +14,13 @@ import {
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
+import {
+  AdminEmployerHomepageCarouselPanel,
+  type AdminEmployerHomepageCarouselRow,
+} from "@/components/admin/AdminEmployerHomepageCarouselPanel";
 import { errorMessageFromUnknown } from "@/lib/utils";
 
-export type AdminEmployerRow = {
-  id: string;
+export type AdminEmployerRow = AdminEmployerHomepageCarouselRow & {
   company_name: string | null;
   registry_code: string | null;
   contact_email: string | null;
@@ -29,7 +32,13 @@ export type AdminEmployerRow = {
   job_count?: number;
 };
 
-export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow[] }) {
+export function AdminEmployersTable({
+  employers,
+  showOnHomepageAvailable = true,
+}: {
+  employers: AdminEmployerRow[];
+  showOnHomepageAvailable?: boolean;
+}) {
   const t = useTranslations("admin");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -57,7 +66,6 @@ export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow
         .from("employer_profiles")
         .update({
           verification_status: status,
-          // Trigger sets company_verified / verified_at / verification_source for admins.
           company_verified: status === "verified",
           verification_source: status === "verified" ? "manual" : null,
           verified_at: status === "verified" ? new Date().toISOString() : null,
@@ -155,6 +163,12 @@ export function AdminEmployersTable({ employers }: { employers: AdminEmployerRow
                 {typeof e.job_count === "number" ? ` · ${t("jobsCount", { count: e.job_count })}` : ""}
               </div>
             </div>
+
+            <AdminEmployerHomepageCarouselPanel
+              companyName={name}
+              employer={e}
+              disabled={!showOnHomepageAvailable}
+            />
 
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="min-w-0 flex-1 space-y-1.5">

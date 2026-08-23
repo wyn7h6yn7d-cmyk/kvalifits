@@ -17,6 +17,7 @@ import {
 import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
 import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
+import { queueEmployerCarouselLogoProcessing } from "@/lib/employer/queueEmployerCarouselLogoProcessing";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
 import { reportStorageUploadFailure } from "@/lib/monitoring/report";
 import { Button } from "@/components/ui/button";
@@ -241,6 +242,10 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         error = retry.error;
       }
       if (error) throw error;
+
+      if (logoUrl.trim() && isEmployerLogoFromStorageUpload(logoUrl)) {
+        queueEmployerCarouselLogoProcessing();
+      }
 
       setSaveSuccess(true);
       if (successHideTimeoutRef.current) clearTimeout(successHideTimeoutRef.current);

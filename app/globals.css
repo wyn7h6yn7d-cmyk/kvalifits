@@ -306,6 +306,21 @@ input:-webkit-autofill:focus-visible {
   }
 }
 
+.homepage-company-carousel-viewport {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+}
+
+.homepage-company-carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.homepage-company-carousel-viewport.is-dragging a {
+  pointer-events: none;
+}
+
 /* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
   * {

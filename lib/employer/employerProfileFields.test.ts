@@ -44,6 +44,10 @@ describe("employer_profiles column classification", () => {
   it("treats verification admin metadata as ADMIN ONLY", () => {
     assert.equal(EMPLOYER_PROFILE_COLUMN_CLASS.verification_source, "admin_only");
     assert.equal(EMPLOYER_PROFILE_COLUMN_CLASS.verified_at, "admin_only");
+    assert.equal(EMPLOYER_PROFILE_COLUMN_CLASS.show_on_homepage, "admin_only");
+    assert.equal(EMPLOYER_PROFILE_COLUMN_CLASS.homepage_logo_approved, "admin_only");
+    assert.equal(EMPLOYER_PROFILE_COLUMN_CLASS.carousel_logo_path, "admin_only");
+    assert.equal(EMPLOYER_PROFILE_COLUMN_CLASS.use_logo_plate, "admin_only");
   });
 
   it("treats search indexes as SYSTEM", () => {

@@ -3,12 +3,21 @@
  * Structured data includes only fields present on the published listing.
  */
 
+import type { Metadata } from "next";
+
 import {
   applyUntilDate,
   endOfDayTallinnIso,
   jobAcceptsApplications,
 } from "@/lib/jobs/jobLifecycle";
 import {
+  formatJobSalaryDisplay,
+  isJobSalaryPeriod,
+  isJobSalaryTax,
+} from "@/lib/jobs/jobSalary";
+import { jobRequirementTexts, resolveJobRequirements } from "@/lib/jobs/jobRequirements";
+import {
+  NOINDEX_FOLLOW,
   SITE_NAME,
   SITE_ORIGIN,
   absoluteUrl,
@@ -16,6 +25,7 @@ import {
   localeAlternates,
   ogAlternateLocales,
   ogLocaleTag,
+  publicPageMetadata,
 } from "@/lib/seo/site";
 import { safeHttpUrl } from "@/lib/utils";
 
@@ -32,6 +42,9 @@ export type JobSeoJobRow = {
   work_type?: string | null;
   short_summary?: string | null;
   description?: string | null;
+  requirements?: string | null;
+  requirement_lines?: string[] | null;
+  job_requirements?: unknown;
   status?: string | null;
   created_at?: string | null;
   published_at?: string | null;
@@ -81,7 +94,7 @@ export function buildJobSeoTitle(opts: {
   emptyTitle: string;
 }): string {
   const title = opts.title.trim() || opts.emptyTitle;
-  const company = opts.companyName.trim() || "Kvalifits";
+  const company = opts.companyName.trim();
   const loc = opts.location.trim();
   const locale = opts.locale;
 
@@ -92,7 +105,32 @@ export function buildJobSeoTitle(opts: {
     else mid = `${title} ${formatLocationForEtTitle(loc)}`;
   }
 
-  return `${mid} – ${company} | ${JOB_SEO_SITE_NAME}`;
+  if (company) return `${mid} – ${company} | ${JOB_SEO_SITE_NAME}`;
+  return `${mid} | ${JOB_SEO_SITE_NAME}`;
+}
+
+export function formatJobSeoSalaryLabel(
+  job: Pick<JobSeoJobRow, "salary_min" | "salary_max" | "salary_currency" | "salary_tax" | "salary_period">,
+  locale: string,
+  labels: { tax: (key: string) => string; period: (key: string) => string },
+): string | undefined {
+  const min = typeof job.salary_min === "number" ? job.salary_min : null;
+  const max = typeof job.salary_max === "number" ? job.salary_max : null;
+  const taxRaw = job.salary_tax ?? null;
+  const periodRaw = job.salary_period ?? null;
+  const taxKey = isJobSalaryTax(taxRaw) ? taxRaw : null;
+  const periodKey = isJobSalaryPeriod(periodRaw) ? periodRaw : null;
+
+  return formatJobSalaryDisplay({
+    min,
+    max,
+    currency: job.salary_currency,
+    tax: taxKey,
+    period: periodKey,
+    locale,
+    taxLabel: taxKey ? labels.tax(`jobSalaryTaxShort.${taxKey}`) : "",
+    periodLabel: periodKey ? labels.period(`jobSalaryPeriodOption.${periodKey}`) : "",
+  });
 }
 
 export function buildJobSeoDescription(opts: {
@@ -101,17 +139,123 @@ export function buildJobSeoDescription(opts: {
   companyName: string;
   shortSummary: string;
   description: string;
+  salaryLabel?: string;
+  applyUntilLabel?: string;
+  requirements?: string[];
   emptyDescription: string;
 }): string {
   const summary = stripHtmlish(opts.shortSummary);
   const desc = stripHtmlish(opts.description);
-  const base = summary || desc;
+  let base = summary || desc;
+
+  if (!base) {
+    const lead = [opts.title.trim(), opts.location.trim()].filter(Boolean).join(" · ");
+    const parts = [lead, opts.companyName.trim(), opts.salaryLabel?.trim(), opts.applyUntilLabel?.trim()].filter(
+      Boolean,
+    );
+    base = parts.join(" · ");
+  }
+
+  const reqSnippet = (opts.requirements ?? []).slice(0, 3).join("; ");
+  if (reqSnippet && base.length < 130) {
+    base = `${base} — ${reqSnippet}`;
+  }
+
   if (base) {
     return base.length > 160 ? `${base.slice(0, 157).trimEnd()}…` : base;
   }
 
-  const parts = [opts.title.trim(), opts.companyName.trim(), opts.location.trim()].filter(Boolean);
-  return parts.join(" · ").slice(0, 160) || opts.emptyDescription;
+  return opts.emptyDescription;
+}
+
+function buildJobPostingDescription(job: JobSeoJobRow): string {
+  const summary = stripHtmlish(trimText(job.short_summary));
+  const body = stripHtmlish(trimText(job.description));
+  const requirements = jobRequirementTexts(
+    resolveJobRequirements({
+      job_requirements: job.job_requirements,
+      requirement_lines: job.requirement_lines ?? null,
+      requirements: job.requirements ?? null,
+    }),
+  );
+  const reqBlock = requirements.length ? requirements.join("\n") : "";
+  return [summary, body, reqBlock].filter(Boolean).join("\n\n");
+}
+
+export function buildJobDetailPageMetadata(opts: {
+  locale: string;
+  jobId: string;
+  job: JobSeoJobRow;
+  employer: JobSeoEmployerRow | null;
+  labels: {
+    emptyTitle: string;
+    emptyDescription: string;
+    salaryLabel?: string;
+    applyUntilLabel?: string;
+  };
+}): Metadata {
+  const titleText = trimText(opts.job.title);
+  const location = trimText(opts.job.location);
+  const companyName = trimText(opts.employer?.company_name);
+  const requirements = jobRequirementTexts(
+    resolveJobRequirements({
+      job_requirements: opts.job.job_requirements,
+      requirement_lines: opts.job.requirement_lines ?? null,
+      requirements: opts.job.requirements ?? null,
+    }),
+  );
+
+  const pageTitle = buildJobSeoTitle({
+    locale: opts.locale,
+    title: titleText,
+    location,
+    companyName,
+    emptyTitle: opts.labels.emptyTitle,
+  });
+  const description = buildJobSeoDescription({
+    title: titleText,
+    location,
+    companyName,
+    shortSummary: trimText(opts.job.short_summary),
+    description: trimText(opts.job.description),
+    salaryLabel: opts.labels.salaryLabel,
+    applyUntilLabel: opts.labels.applyUntilLabel,
+    requirements,
+    emptyDescription: opts.labels.emptyDescription,
+  });
+  const canonical = jobCanonicalUrl(opts.locale, opts.jobId);
+  const acceptsApplications = jobAcceptsApplications(opts.job);
+  const og = buildJobOpenGraph({
+    locale: opts.locale,
+    title: pageTitle,
+    description,
+    canonical,
+    logoUrl: opts.employer?.logo_url,
+  });
+
+  const base = publicPageMetadata({
+    locale: opts.locale,
+    path: `/tood/${opts.jobId}`,
+    title: { absolute: pageTitle },
+    description,
+    ...(acceptsApplications ? {} : { robots: NOINDEX_FOLLOW }),
+  });
+
+  return {
+    ...base,
+    openGraph: {
+      ...base.openGraph,
+      title: og.title,
+      description: og.description,
+      url: og.url,
+      ...(og.images ? { images: og.images } : {}),
+    },
+    twitter: {
+      card: "summary",
+      title: pageTitle,
+      description,
+    },
+  };
 }
 
 export function jobCanonicalUrl(locale: string, jobId: string): string {
@@ -172,9 +316,7 @@ export function buildJobPostingJsonLd(opts: {
   const title = trimText(opts.job.title);
   if (!title) return null;
 
-  const summary = stripHtmlish(trimText(opts.job.short_summary));
-  const body = stripHtmlish(trimText(opts.job.description));
-  const descriptionRaw = [summary, body].filter(Boolean).join("\n\n");
+  const descriptionRaw = buildJobPostingDescription(opts.job);
   if (!descriptionRaw) return null;
 
   const companyName = trimText(opts.employer?.company_name);

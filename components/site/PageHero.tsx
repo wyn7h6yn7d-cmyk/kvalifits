@@ -23,7 +23,7 @@ export function PageHero({
 }) {
   return (
     <section
-      className={cn("relative overflow-hidden", !ambient && "border-b border-white/[0.06] bg-background")}
+      className={cn("relative overflow-hidden", !ambient && "bg-background")}
     >
       {ambient ? <AmbientBackground intensity="soft" /> : null}
       <Container className="relative">

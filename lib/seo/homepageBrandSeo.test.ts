@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  HOMEPAGE_SEO_TITLE,
   SITE_ALTERNATE_NAME,
   SITE_NAME,
   SITE_ORIGIN,
@@ -22,21 +23,22 @@ describe("homepage brand SEO", () => {
     assert.equal(SITE_ORIGIN, "https://www.kvalifits.ee");
   });
 
-  it("builds absolute homepage title Kvalifits for every locale", () => {
+  it("builds absolute homepage title for every locale without template suffix", () => {
     for (const locale of ["et", "en", "ru"] as const) {
       const meta = homepageBrandMetadata({
         locale,
         description: "Test description",
       });
-      assert.deepEqual(meta.title, { absolute: SITE_NAME });
+      assert.deepEqual(meta.title, { absolute: HOMEPAGE_SEO_TITLE });
       assert.equal(meta.openGraph?.siteName, SITE_NAME);
-      assert.equal(meta.openGraph?.title, SITE_NAME);
-      assert.equal(meta.twitter?.title, SITE_NAME);
+      assert.equal(meta.openGraph?.title, HOMEPAGE_SEO_TITLE);
+      assert.equal(meta.twitter?.title, HOMEPAGE_SEO_TITLE);
       assert.equal(meta.openGraph?.url, `${SITE_ORIGIN}/${locale}`);
       assert.equal(
         (meta.alternates as { canonical?: string } | undefined)?.canonical,
         `${SITE_ORIGIN}/${locale}`,
       );
+      assert.doesNotMatch(HOMEPAGE_SEO_TITLE, / · Kvalifits$/);
     }
   });
 
@@ -59,7 +61,7 @@ describe("homepage brand SEO", () => {
     assert.match(title, /Plekksepp/);
     assert.match(title, /peremees OÜ/);
     assert.match(title, /Kvalifits/);
-    assert.notEqual(title, SITE_NAME);
+    assert.notEqual(title, HOMEPAGE_SEO_TITLE);
   });
 
   it("ships crawlable brand favicon assets", () => {

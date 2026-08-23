@@ -18,31 +18,59 @@ export default async function AdminEmployersPage({ params, searchParams }: Props
   const t = await getTranslations({ locale, namespace: "admin" });
   const db = createSupabaseAdminClient() ?? supabase;
 
-  const primary = await db
+  const selectWithShowcase =
+    "id,owner_user_id,company_name,registry_code,contact_email,company_verified,verification_status,verification_source,verified_at,created_at,logo_url,show_on_homepage,homepage_logo_approved,carousel_logo_path,use_logo_plate";
+  const selectWithoutShowcase =
+    "id,owner_user_id,company_name,registry_code,contact_email,company_verified,verification_status,verification_source,verified_at,created_at,logo_url";
+
+  let showOnHomepageAvailable = true;
+  let primary = await db
     .from("employer_profiles")
-    .select(
-      "id,company_name,registry_code,contact_email,company_verified,verification_status,verification_source,verified_at,created_at",
-      { count: "exact" },
-    )
+    .select(selectWithShowcase, { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to);
+
+  if (
+    primary.error &&
+    /show_on_homepage|homepage_logo_approved|carousel_logo_path|use_logo_plate|column/i.test(primary.error.message ?? "")
+  ) {
+    showOnHomepageAvailable = false;
+    primary = await db
+      .from("employer_profiles")
+      .select(selectWithoutShowcase, { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+  }
 
   let employers = primary.data;
   let totalCount = primary.count;
   if (primary.error) {
     const fallback = await db
       .from("employer_profiles")
-      .select("id,company_name,registry_code,contact_email,created_at", { count: "exact" })
+      .select("id,owner_user_id,company_name,registry_code,contact_email,created_at,logo_url", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
+    showOnHomepageAvailable = false;
     employers = (fallback.data ?? []).map((e) => ({
       ...e,
       company_verified: false,
       verification_status: "unverified",
       verification_source: null,
       verified_at: null,
+      show_on_homepage: null,
+      homepage_logo_approved: null,
+      carousel_logo_path: null,
+      use_logo_plate: null,
     })) as any;
     totalCount = fallback.count;
+  } else if (!showOnHomepageAvailable) {
+    employers = (employers ?? []).map((e) => ({
+      ...e,
+      show_on_homepage: null,
+      homepage_logo_approved: null,
+      carousel_logo_path: null,
+      use_logo_plate: null,
+    })) as any;
   }
 
   const ids = (employers ?? []).map((e) => e.id);
@@ -61,6 +89,7 @@ export default async function AdminEmployersPage({ params, searchParams }: Props
   return (
     <AdminShell title={t("employersTitle")} subtitle={t("employersSubtitle")} maxWidthClassName="max-w-3xl">
       <AdminEmployersTable
+        showOnHomepageAvailable={showOnHomepageAvailable}
         employers={(employers ?? []).map((e) => ({
           ...(e as any),
           job_count: jobCountById.get(e.id) ?? 0,

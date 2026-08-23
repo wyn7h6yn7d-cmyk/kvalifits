@@ -24,7 +24,7 @@ export async function Audience() {
   ] as const;
 
   return (
-    <section className="relative overflow-hidden bg-surface py-12 sm:py-16 lg:py-24">
+    <section className="relative overflow-hidden bg-surface py-10 sm:py-14 lg:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_85%_20%,rgba(168,85,247,0.08),transparent_55%)]"
@@ -35,16 +35,16 @@ export async function Audience() {
           <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2 sm:text-sm">
             {t("eyebrow")}
           </div>
-          <h2 className="mt-3 text-balance text-2xl font-semibold leading-tight tracking-tight text-foreground sm:mt-4 sm:text-3xl lg:text-[2.65rem]">
+          <h2 className="mt-3 text-balance text-[1.625rem] font-semibold leading-tight tracking-tight text-foreground sm:mt-4 sm:text-2xl lg:text-[2.65rem]">
             {t("title")}
             <span className="block text-muted-2"> {t("titleMuted")}</span>
           </h2>
-          <p className="mt-3 text-base leading-relaxed text-body sm:mt-4 sm:text-lg sm:leading-relaxed">
+          <p className="mt-3 text-pretty text-base leading-relaxed text-body sm:mt-4 sm:text-lg sm:leading-relaxed">
             {t("subtitle")}
           </p>
         </div>
 
-        <div className="mt-8 grid gap-10 lg:mt-14 lg:grid-cols-12 lg:items-start lg:gap-12 xl:gap-16">
+        <div className="mt-8 grid gap-8 lg:mt-12 lg:grid-cols-12 lg:items-start lg:gap-12 xl:gap-16">
           <div id="toootsijatele" className="kf-enter scroll-mt-28 lg:col-span-6">
             <div className="flex items-center gap-3">
               <UserRound className="h-5 w-5 text-accent-pink/85" strokeWidth={1.6} />
@@ -56,12 +56,12 @@ export async function Audience() {
               {t("seekerSublabel")}
             </p>
 
-            <h3 className="mt-6 text-xl font-semibold tracking-tight text-foreground sm:mt-8 sm:text-3xl">
+            <h3 className="mt-5 text-xl font-semibold tracking-tight text-foreground sm:mt-6 sm:text-2xl lg:mt-8 lg:text-3xl">
               {t("seekerTitle")}
               <span className="block text-muted-2"> {t("seekerTitleMuted")}</span>
             </h3>
 
-            <ol className="mt-6 space-y-6 sm:mt-8 sm:space-y-8">
+            <ol className="mt-5 space-y-5 sm:mt-6 sm:space-y-6 lg:space-y-8">
               {seekerSteps.map((s, i) => (
                 <li
                   key={s.n}
@@ -75,7 +75,7 @@ export async function Audience() {
                     <div className="text-[12px] font-medium uppercase tracking-wide text-muted-2">
                       {s.title}
                     </div>
-                    <p className="mt-2 text-[15px] leading-relaxed text-body sm:text-base">
+                    <p className="mt-2 text-pretty text-[15px] leading-relaxed text-body sm:text-base">
                       {s.line}
                     </p>
                   </div>
@@ -83,11 +83,11 @@ export async function Audience() {
               ))}
             </ol>
 
-            <div className="mt-6 sm:mt-10">
+            <div className="mt-6 sm:mt-8 lg:mt-10">
               <Button
                 asChild
                 variant="primary"
-                className="h-12 w-full rounded-2xl sm:w-auto sm:min-w-[220px]"
+                className="h-12 w-full rounded-2xl text-pretty sm:w-auto sm:min-w-[220px]"
               >
                 <Link href="/toootsijatele">
                   {t("seekerCta")}
@@ -98,56 +98,50 @@ export async function Audience() {
           </div>
 
           <div id="tooandjatele" className="kf-enter scroll-mt-28 lg:col-span-6 lg:mt-4">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-[#0F0F16]/55 px-6 py-7 sm:px-8 sm:py-9">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-8 top-0 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.12),transparent_70%)]"
-              />
-
-              <div className="relative">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <Briefcase className="h-4 w-4 text-muted" strokeWidth={1.6} />
+            <div className="relative">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <Briefcase className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.6} />
                     <div className="text-[11px] font-medium uppercase tracking-wide text-violet-300/85">
                       {t("employerLabel")}
                     </div>
                   </div>
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
+                  <span className="shrink-0 text-[11px] font-medium uppercase tracking-wide text-muted-2">
                     {t("preview")}
                   </span>
                 </div>
-                <p className="mt-1 text-[13px] leading-snug text-muted-2">{t("employerSublabel")}</p>
+                <p className="mt-1 text-pretty text-[13px] leading-snug text-muted-2">{t("employerSublabel")}</p>
 
-                <h3 className="mt-6 text-lg font-semibold leading-snug tracking-tight text-foreground sm:text-xl">
+                <h3 className="mt-5 text-lg font-semibold leading-snug tracking-tight text-foreground sm:mt-6 sm:text-xl">
                   {t("employerTitle")}
                 </h3>
 
-                <div className="mt-8 space-y-4">
-                  <div className="flex items-center justify-between gap-3 text-[14px]">
-                    <span className="flex items-center gap-2 text-body">
+                <div className="mt-6 space-y-4 sm:mt-8">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[14px]">
+                    <span className="flex min-w-0 items-center gap-2 text-pretty text-body">
                       <ClipboardList className="h-4 w-4 shrink-0 text-muted-2" aria-hidden />
                       {t("activeReq")}
                     </span>
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
+                    <span className="shrink-0 text-[11px] font-medium uppercase tracking-wide text-muted-2">
                       {t("preview")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-3 text-[14px]">
-                    <span className="flex items-center gap-2 text-body">
+                  <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[14px]">
+                    <span className="flex min-w-0 items-center gap-2 text-pretty text-body">
                       <Users className="h-4 w-4 shrink-0 text-muted-2" aria-hidden />
                       {t("matchingCandidates")}
                     </span>
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
+                    <span className="shrink-0 text-[11px] font-medium uppercase tracking-wide text-muted-2">
                       {t("preview")}
                     </span>
                   </div>
                   <div>
-                    <div className="flex items-center justify-between text-[12.5px] text-muted-2">
-                      <span className="flex items-center gap-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[12.5px] text-muted-2">
+                      <span className="flex min-w-0 items-center gap-1.5 text-pretty">
                         <Layers className="h-3.5 w-3.5 shrink-0" aria-hidden />
                         {t("bestOverlap")}
                       </span>
-                      <span className="text-[11px] font-medium uppercase tracking-wide">
+                      <span className="shrink-0 text-[11px] font-medium uppercase tracking-wide">
                         {t("preview")}
                       </span>
                     </div>
@@ -167,32 +161,32 @@ export async function Audience() {
                   </div>
                 </div>
 
-                <div className="mt-6 border-t border-white/[0.04] pt-5">
+                <div className="mt-6 space-y-5 sm:mt-8 sm:space-y-6">
                   <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
                     {t("employerPricingKicker")}
                   </div>
-                  <div className="mt-4 space-y-3">
-                    <div className="flex items-center gap-3 text-[14px] font-medium text-foreground/90">
+                  <div className="space-y-3">
+                    <div className="flex min-w-0 items-center gap-3 text-pretty text-[14px] font-medium text-foreground/90">
                       <Briefcase className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.6} />
                       {t("employerPricingPostings")}
                     </div>
-                    <div className="flex items-center gap-3 text-[14px] font-medium text-foreground/90">
+                    <div className="flex min-w-0 items-center gap-3 text-pretty text-[14px] font-medium text-foreground/90">
                       <CalendarDays className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.6} />
                       {t("employerPricingDuration")}
                     </div>
                   </div>
-                  <p className="mt-5 text-[12.5px] leading-relaxed text-body">
+                  <p className="text-pretty text-[12.5px] leading-relaxed text-body">
                     {t("employerPricingHint")}
                   </p>
                 </div>
 
-                <p className="mt-6 text-[15px] leading-relaxed text-body">{t("employerTagline")}</p>
+                <p className="mt-5 text-pretty text-[15px] leading-relaxed text-body sm:mt-6">{t("employerTagline")}</p>
 
-                <div className="mt-7">
+                <div className="mt-6 sm:mt-7">
                   <Button
                     asChild
                     variant="outline"
-                    className="h-12 w-full rounded-2xl border-white/[0.14] bg-transparent hover:bg-white/[0.05]"
+                    className="h-12 w-full rounded-2xl border-white/[0.14] bg-transparent text-pretty hover:bg-white/[0.05]"
                   >
                     <Link href="/tooandjatele">
                       {t("employerCta")}
@@ -200,7 +194,6 @@ export async function Audience() {
                     </Link>
                   </Button>
                 </div>
-              </div>
             </div>
           </div>
         </div>

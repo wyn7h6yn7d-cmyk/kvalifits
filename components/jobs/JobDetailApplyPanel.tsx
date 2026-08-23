@@ -132,10 +132,38 @@ export function JobDetailApplyPanel({
       <div className={cn("rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4", className)}>
         {match ? <MatchLines match={match} /> : null}
         {showCreateProfileCta ? (
-          <Link href={profileHref} className="text-sm leading-relaxed text-white/70 underline-offset-4 hover:text-white hover:underline">
+          <Link
+            href={profileHref}
+            className={cn(
+              "text-sm leading-relaxed text-white/70 underline-offset-4 hover:text-white hover:underline",
+              match ? "mt-3 block" : "",
+            )}
+          >
             {t("jobDetailCreateProfileCta")}
           </Link>
         ) : null}
+        {acceptsApplications ? (
+          <a
+            href={applyHref}
+            onClick={applyClick}
+            className={cn(
+              "flex h-11 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90",
+              match || showCreateProfileCta ? "mt-4" : "",
+            )}
+          >
+            {t("jobDetailApplyTopCta")}
+          </a>
+        ) : (
+          <div
+            className={cn(
+              "rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 py-2.5 text-[13px] leading-relaxed text-white/65",
+              match || showCreateProfileCta ? "mt-4" : "",
+            )}
+          >
+            {applyClosedBody}
+            {applyUntilLabel ? <span className="mt-1 block font-medium text-white/80">{applyUntilLabel}</span> : null}
+          </div>
+        )}
       </div>
     );
   }

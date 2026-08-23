@@ -4,9 +4,7 @@ import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Briefcase, Building2, CalendarDays, MapPin } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
 type ApplicantId = 0 | 1 | 2;
@@ -30,7 +28,7 @@ function PreviewScoreRing({
   const offset = RING_C * (1 - Math.min(100, Math.max(0, score)) / 100);
 
   return (
-    <div className="relative flex h-full min-h-[11rem] w-full flex-col items-center justify-center rounded-2xl border border-white/[0.10] bg-black/25 px-4 py-5">
+    <div className="relative flex h-full min-h-[11rem] w-full flex-col items-center justify-center rounded-2xl bg-white/[0.03] px-4 py-5">
       <span className="text-[11px] font-medium uppercase tracking-wide text-white/52">{label}</span>
       <div className="relative mt-3 flex h-[128px] w-[128px] items-center justify-center">
         <div
@@ -71,7 +69,7 @@ function PreviewScoreRing({
           </div>
         </div>
       </div>
-      <span className="mt-3 rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/40">
+      <span className="mt-3 rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/40">
         {sampleLabel}
       </span>
     </div>
@@ -126,7 +124,7 @@ export function EmployerProductPreview() {
     [1, 2, 3, 4].map((n) => t(detailKey(id, `FitBullet${n}`)));
 
   return (
-    <section className="border-t border-white/[0.06] pt-10 pb-12 sm:pt-20 sm:pb-20 lg:pt-24">
+    <section className="py-10 sm:py-16 lg:py-20">
       <Container>
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/42 sm:text-xs sm:tracking-wide">
@@ -141,15 +139,15 @@ export function EmployerProductPreview() {
         </div>
 
         <div className="mx-auto mt-12 max-w-6xl sm:mt-14">
-          <div className="overflow-hidden rounded-[28px] border border-white/[0.12] bg-gradient-to-b from-white/[0.06] via-black/35 to-black/65 shadow-[0_32px_100px_-48px_rgba(0,0,0,0.85)] backdrop-blur-xl">
-            <div className="flex flex-col gap-0.5 border-b border-white/[0.07] bg-black/[0.28] px-5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-3">
+          <div className="overflow-hidden rounded-[28px] border border-white/[0.06] bg-[#0c0c10] shadow-[0_32px_100px_-48px_rgba(0,0,0,0.85)]">
+            <div className="flex flex-col gap-0.5 bg-white/[0.02] px-5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-7 sm:py-3">
               <span className="text-[12px] leading-snug text-white/50">{t("previewWorkspaceContext")}</span>
               <span className="text-[12px] leading-snug text-white/42">{t("previewWorkspaceMeta")}</span>
             </div>
-            <div className="flex flex-col gap-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
+            <div className="flex flex-col gap-4 bg-white/[0.02] px-5 py-5 sm:flex-row sm:items-start sm:justify-between sm:px-7 sm:py-6">
               <div className="min-w-0 space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/30 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-white/55">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium uppercase tracking-wide text-white/55">
                     <Briefcase className="h-3 w-3 text-white/45" aria-hidden />
                     {t("previewJobLabel")}
                   </span>
@@ -179,7 +177,7 @@ export function EmployerProductPreview() {
             </div>
 
             <div className="grid min-h-0 lg:grid-cols-[minmax(0,300px)_1fr] lg:items-stretch">
-              <div className="flex min-h-0 flex-col border-b border-white/[0.08] lg:h-full lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+              <div className="flex min-h-0 flex-col lg:h-full lg:border-r lg:border-white/[0.04]">
                 <div className="space-y-1 p-4 sm:p-5 lg:flex lg:h-full lg:min-h-0 lg:flex-1 lg:flex-col">
                   <div className="px-1 pb-3 text-[12px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewApplicantsTitle")}
@@ -200,14 +198,14 @@ export function EmployerProductPreview() {
                           aria-label={t(`previewDemoApp${a.id}Name` as "previewDemoApp0Name")}
                           onClick={() => setSelected(a.id)}
                           className={cn(
-                            "group relative flex w-full gap-3 rounded-2xl border p-3.5 text-left transition-[border-color,background-color,box-shadow] sm:p-4",
+                            "group relative flex w-full gap-3 rounded-2xl p-3.5 text-left transition-colors sm:p-4",
                             active
-                              ? "border-violet-400/35 bg-white/[0.07] shadow-[0_0_0_1px_rgba(168,85,247,0.12)_inset]"
-                              : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.045]",
+                              ? "bg-white/[0.07] shadow-[0_0_0_1px_rgba(168,85,247,0.15)_inset]"
+                              : "bg-transparent hover:bg-white/[0.04]",
                           )}
                         >
                           <div
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/[0.10] bg-white/[0.06] text-[13px] font-semibold tabular-nums text-white/80"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/[0.06] text-[13px] font-semibold tabular-nums text-white/80"
                             aria-hidden
                           >
                             {a.initial}
@@ -238,14 +236,14 @@ export function EmployerProductPreview() {
               </div>
 
               <div className="flex min-h-0 flex-col p-4 sm:p-6 lg:h-full lg:min-h-0 lg:p-7">
-                <div className="mb-5 flex items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+                <div className="mb-5 flex items-center justify-between gap-3 pb-2">
                   <div className="text-[12px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewDetailTitle")}
                   </div>
                   <span className="hidden text-[12px] text-white/42 sm:inline">{t("previewDemoHint")}</span>
                 </div>
 
-                <div className="mb-6 rounded-2xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5">
+                <div className="mb-6">
                   <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                     {t("previewFitSummaryTitle")}
                   </div>
@@ -260,7 +258,7 @@ export function EmployerProductPreview() {
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(12.5rem,14rem)_minmax(0,1fr)] lg:items-stretch lg:gap-5 xl:gap-8">
-                  <div className="flex min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
+                  <div className="flex min-h-0 flex-col">
                     <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                       {t("previewSeekerColumnTitle")}
                     </div>
@@ -275,7 +273,7 @@ export function EmployerProductPreview() {
                     sampleLabel={sampleLabel}
                   />
 
-                  <div className="flex min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-black/25 p-4 sm:p-5">
+                  <div className="flex min-h-0 flex-col lg:border-l lg:border-white/[0.04] lg:pl-6">
                     <div className="text-[11px] font-medium uppercase tracking-wide text-white/52">
                       {t("previewJobColumnTitle")}
                     </div>
@@ -288,11 +286,6 @@ export function EmployerProductPreview() {
             </div>
           </div>
 
-          <div className="mt-8 flex w-full flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
-            <Button asChild variant="primary" size="lg" className="h-12 w-full rounded-2xl px-8 sm:w-auto">
-              <Link href="/auth/register?role=employer">{t("previewCtaRegister")}</Link>
-            </Button>
-          </div>
         </div>
       </Container>
     </section>

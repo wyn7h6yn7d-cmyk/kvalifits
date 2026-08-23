@@ -56,7 +56,7 @@ export function LegalDocumentView({
   const toc = showToc ?? doc.sections.length >= 5;
 
   return (
-    <div className="relative overflow-hidden border-b border-white/[0.06]">
+    <div className="relative overflow-hidden">
       <AmbientBackground intensity="soft" />
       <Container className="relative max-w-3xl py-10 sm:py-20">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -83,7 +83,7 @@ export function LegalDocumentView({
         ) : null}
 
         {toc ? (
-          <div className="mt-10 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 sm:p-6">
+          <div className="mt-10">
             <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
               {t("contents")}
             </div>
@@ -120,7 +120,7 @@ export function LegalDocumentView({
         </div>
 
         {doc.footnote ? (
-          <p className="mt-14 border-t border-white/[0.08] pt-8 text-xs leading-relaxed text-white/40">
+          <p className="mt-14 text-xs leading-relaxed text-white/40">
             {doc.footnote}
           </p>
         ) : null}

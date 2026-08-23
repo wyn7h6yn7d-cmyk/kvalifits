@@ -12,11 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link, usePathname } from "@/i18n/routing";
 import {
-  ADMIN_NAV,
-  EMPLOYER_NAV,
-  GUEST_NAV,
-  SEEKER_MOBILE_NAV,
-  SEEKER_NAV,
+  resolveDesktopNavItems,
+  resolveMobileNavItems,
   type NavItem,
 } from "@/lib/navigation/navConfig";
 import { cn } from "@/lib/utils";
@@ -139,18 +136,9 @@ export function Navbar() {
     };
   }, [authenticated, role]);
 
-  const desktopNavPaths: NavItem[] = authenticated
-    ? role === "employer"
-      ? EMPLOYER_NAV
-      : role === "seeker"
-        ? SEEKER_NAV
-        : role === "admin"
-          ? ADMIN_NAV
-          : GUEST_NAV
-    : GUEST_NAV;
+  const desktopNavPaths = resolveDesktopNavItems(pathname, authenticated, role);
 
-  const mobileNavPaths: NavItem[] =
-    authenticated && role === "seeker" ? SEEKER_MOBILE_NAV : desktopNavPaths;
+  const mobileNavPaths = resolveMobileNavItems(pathname, authenticated, role);
 
   const showSeekerBottomNav = authenticated && role === "seeker";
 

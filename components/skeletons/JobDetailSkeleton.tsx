@@ -17,8 +17,9 @@ export function JobDetailSkeleton({ label }: { label?: string }) {
               <Bone className="mt-2 h-3.5 w-52" />
             </div>
           </div>
-          <Bone className="mt-4 h-6 w-40 lg:hidden" />
-          <div className="mt-5 flex flex-wrap gap-2">
+          <Bone className="mt-4 h-6 w-40" />
+          <Bone className="mt-2 h-4 w-[72%] max-w-md" />
+          <div className="mt-5 flex flex-wrap gap-2 lg:hidden">
             <Bone className="h-7 w-24 rounded-md" />
             <Bone className="h-7 w-28 rounded-md" />
             <Bone className="h-7 w-20 rounded-md" />
