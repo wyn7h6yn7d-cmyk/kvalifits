@@ -2,6 +2,12 @@ import type { ReactNode } from "react";
 
 import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
+import {
+  SITE_EYEBROW,
+  SITE_H1_HERO,
+  SITE_PAGE_TOP,
+  SITE_SECTION_PB,
+} from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 export function PageHero({
@@ -29,20 +35,16 @@ export function PageHero({
       <Container className="relative">
         <div
           className={cn(
-            "pt-10 sm:pt-20 lg:pt-28",
-            ambient ? "pb-12 sm:pb-16 lg:pb-20" : "pb-14 sm:pb-20 lg:pb-[6.5rem]",
+            SITE_PAGE_TOP,
+            ambient ? SITE_SECTION_PB : "pb-14 sm:pb-16 lg:pb-20",
           )}
         >
           <div className="kf-enter">
-            {prepend ? <div className="mb-6 w-full sm:mb-12">{prepend}</div> : null}
+            {prepend ? <div className="mb-6 w-full sm:mb-8">{prepend}</div> : null}
             <div className="mx-auto max-w-3xl">
-              <div className="text-[13px] font-medium uppercase tracking-wide text-white/60 sm:text-sm">
-                {eyebrow}
-              </div>
-              <h1 className="mt-3 text-balance text-[1.75rem] font-semibold leading-tight tracking-tight text-white sm:mt-5 sm:text-4xl lg:text-5xl">
-                {title}
-              </h1>
-              <p className="mt-3 text-base leading-[1.65] text-white/68 sm:mt-5 sm:text-[1.0625rem] sm:leading-relaxed">
+              <div className={SITE_EYEBROW}>{eyebrow}</div>
+              <h1 className={cn("mt-3 sm:mt-4", SITE_H1_HERO)}>{title}</h1>
+              <p className="mt-3 text-base leading-[1.65] text-white/68 sm:mt-4 sm:text-[1.0625rem] sm:leading-relaxed">
                 {subtitle}
               </p>
             </div>

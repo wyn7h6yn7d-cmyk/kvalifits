@@ -6,6 +6,8 @@ import { Container } from "@/components/ui/container";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CompanyCard } from "@/components/companies/CompanyCard";
 import { CompanySearchForm } from "@/components/companies/CompanySearchForm";
+import { SITE_GRID_GAP, SITE_SECTION_PB } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 import { loadPublicCompanies } from "@/lib/companies/loadPublicCompanies";
 import { NOINDEX_FOLLOW, publicPageMetadata, searchParamsIndicateDuplicateLanding } from "@/lib/seo/site";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -86,7 +88,7 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
           }}
         />
       </PageHero>
-      <section className="pb-20 pt-2">
+      <section className={cn(SITE_SECTION_PB, "pt-0")}>
         <Container>
           {!companies.length ? (
             <EmptyState
@@ -95,7 +97,7 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
             />
           ) : (
             <>
-              <ul className="mx-auto grid max-w-4xl list-none gap-3 p-0 sm:gap-4">
+              <ul className={cn("mx-auto grid max-w-4xl list-none p-0", SITE_GRID_GAP)}>
                 {companies.map((company) => (
                   <li key={company.id}>
                     <CompanyCard company={company} verifiedLabel={tUi("verifiedBadge")} />

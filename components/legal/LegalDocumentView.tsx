@@ -1,11 +1,19 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
 import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import type { LegalSection } from "@/lib/content/legal";
+import {
+  SITE_CONTAINER_PROSE,
+  SITE_H1_HERO,
+  SITE_H2,
+  SITE_SECTION_PY,
+} from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 const INLINE_LEGAL_PATH =
   /(\/(?:et|en|ru)\/(?:privaatsus|tingimused|kupsised|andmekaitse|kontakt|ettevote)|\/(?:privaatsus|tingimused|kupsised|andmekaitse|kontakt|ettevote))/g;
@@ -46,9 +54,11 @@ const DATE_LOCALE: Record<string, string> = {
 export function LegalDocumentView({
   doc,
   showToc,
+  prepend,
 }: {
   doc: LegalProseDoc;
   showToc?: boolean;
+  prepend?: ReactNode;
 }) {
   const t = useTranslations("legalChrome");
   const locale = useLocale();
@@ -58,7 +68,8 @@ export function LegalDocumentView({
   return (
     <div className="relative overflow-hidden">
       <AmbientBackground intensity="soft" />
-      <Container className="relative max-w-3xl py-10 sm:py-20">
+      <Container className={cn("relative", SITE_CONTAINER_PROSE, SITE_SECTION_PY)}>
+        {prepend ? <div className="mb-6">{prepend}</div> : null}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs text-white/40">
             {t("updated")}{" "}
@@ -75,9 +86,7 @@ export function LegalDocumentView({
           </Link>
         </div>
 
-        <h1 className="text-balance text-[1.75rem] font-semibold leading-tight tracking-tight text-white sm:text-4xl">
-          {doc.h1}
-        </h1>
+        <h1 className={SITE_H1_HERO}>{doc.h1}</h1>
         {doc.lead ? (
           <p className="mt-5 text-base leading-relaxed text-white/65">{doc.lead}</p>
         ) : null}
@@ -102,7 +111,7 @@ export function LegalDocumentView({
         <div className="mt-12 space-y-12">
           {doc.sections.map((s) => (
             <section key={s.id} id={s.id} className="scroll-mt-28">
-              <h2 className="text-lg font-semibold text-white">{s.title}</h2>
+              <h2 className={SITE_H2}>{s.title}</h2>
               <div className="mt-4 space-y-4 text-sm leading-relaxed text-white/65">
                 {s.paragraphs.map((p, i) => (
                   <p key={i}>{renderParagraphWithLinks(p, locale)}</p>

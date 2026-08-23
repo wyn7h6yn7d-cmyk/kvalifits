@@ -428,10 +428,10 @@
   "hero": {
     "badgeBrand": "Kvalifits",
     "badgeMarket": "On the Estonian labour market",
-    "headlineBefore": "Find a job posting that",
-    "headlineAccent": "fits",
+    "headlineBefore": "Find a job that",
+    "headlineAccent": "truly fits you",
     "headlineAfter": "",
-    "subheadline": "Compare your skills and preferences with job posting requirements.",
+    "subheadline": "See how well your skills and preferences match the job posting.",
     "searchQueryPlaceholder": "Job, skill or company",
     "searchLocationPlaceholder": "Location",
     "searchSubmit": "Search",
@@ -531,7 +531,30 @@
     "ctaEmployer": "I am an employer"
   },
   "homeJobs": {
-    "featuredTitle": "Featured job postings"
+    "featuredTitle": "Featured job postings",
+    "newTitle": "New job postings",
+    "viewAll": "View all"
+  },
+  "homeBenefits": {
+    "title": "Why Kvalifits",
+    "b1Title": "Clear requirements",
+    "b1Desc": "Skills, languages and certificates are separate fields on each posting.",
+    "b2Title": "Verified qualifications",
+    "b2Desc": "Verified certificates and licences before the interview.",
+    "b3Title": "Clear match score",
+    "b3Desc": "See which requirements are met."
+  },
+  "homeAudience": {
+    "title": "Who Kvalifits is for",
+    "seekerTitle": "For job seekers",
+    "seekerDesc": "Build a profile, see your match and apply faster.",
+    "seekerLink": "Learn more",
+    "employerTitle": "For employers",
+    "employerDesc": "Find candidates who meet your requirements.",
+    "employerLink": "Learn more"
+  },
+  "homeMatchDemo": {
+    "title": "Match example"
   },
   "homeCompanies": {
     "title": "Companies on Kvalifits",

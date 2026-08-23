@@ -4,6 +4,11 @@ import { Link } from "@/i18n/routing";
 import { CompanyLogo } from "@/components/companies/CompanyLogo";
 import { CompanyVerifiedBadge } from "@/components/employer/CompanyVerificationBadge";
 import type { PublicCompany } from "@/lib/companies/publicCompany";
+import {
+  SITE_CARD_PADDING,
+  SITE_CARD_SURFACE,
+} from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 export function CompanyCard({
   company,
@@ -13,7 +18,13 @@ export function CompanyCard({
   verifiedLabel: string;
 }) {
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#16161b] p-4 transition-[border-color,background-color] hover:border-white/[0.14] hover:bg-[#1a1a20] sm:p-5">
+    <article
+      className={cn(
+        SITE_CARD_SURFACE,
+        SITE_CARD_PADDING,
+        "relative overflow-hidden transition-[border-color,background-color] hover:border-white/[0.14] hover:bg-[#1a1a20]",
+      )}
+    >
       <Link
         href={`/ettevotted/${company.slug}`}
         className="absolute inset-0 z-0 rounded-2xl"

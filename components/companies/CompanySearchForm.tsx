@@ -1,15 +1,17 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
+import { nativeSelectFormClassName } from "@/components/ui/controlStyles";
+import { SITE_CONTROL_HEIGHT } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 const fieldLabelClass =
   "mb-1.5 block text-[11px] font-medium uppercase tracking-[0.1em] text-white/40";
 
-const selectClass =
-  "h-12 w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 text-base text-white/85 outline-none focus:border-white/[0.18] lg:h-11 lg:text-sm";
-
-const actionClass =
-  "h-12 w-full rounded-2xl px-5 ring-0 shadow-none after:hidden before:rounded-2xl lg:h-11";
+const actionClass = cn(
+  SITE_CONTROL_HEIGHT,
+  "w-full rounded-2xl px-5 ring-0 shadow-none after:hidden before:rounded-2xl",
+);
 
 export function CompanySearchForm({
   q,
@@ -47,7 +49,7 @@ export function CompanySearchForm({
       </label>
       <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.industry}</span>
-        <select name="industry" defaultValue={industry} className={selectClass}>
+        <select name="industry" defaultValue={industry} className={nativeSelectFormClassName()}>
           <option value="" className="bg-zinc-900">
             {labels.all}
           </option>
@@ -60,7 +62,7 @@ export function CompanySearchForm({
       </label>
       <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.location}</span>
-        <select name="location" defaultValue={location} className={selectClass}>
+        <select name="location" defaultValue={location} className={nativeSelectFormClassName()}>
           <option value="" className="bg-zinc-900">
             {labels.all}
           </option>

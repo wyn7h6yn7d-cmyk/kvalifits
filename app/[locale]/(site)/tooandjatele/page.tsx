@@ -8,6 +8,14 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
 import { publicPageMetadata } from "@/lib/seo/site";
+import {
+  SITE_CONTROL_HEIGHT,
+  SITE_EYEBROW,
+  SITE_GRID_GAP,
+  SITE_SECTION_PB,
+  SITE_SECTION_PY,
+} from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -36,7 +44,7 @@ export default async function TooandjatelePage({ params }: Props) {
     <>
       <PageHero ambient={false} eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")} />
 
-      <section className="py-10 sm:py-16 lg:py-20">
+      <section className={SITE_SECTION_PY}>
         <Container>
           <ol className="mx-auto max-w-3xl list-none space-y-5 sm:space-y-6">
             {steps.map((step, index) => (
@@ -56,9 +64,9 @@ export default async function TooandjatelePage({ params }: Props) {
 
       <EmployerProductPreview />
 
-      <section className="py-10 sm:py-16 lg:py-20">
+      <section className={SITE_SECTION_PY}>
         <Container>
-          <ul className="mx-auto grid max-w-4xl gap-6 text-center sm:grid-cols-3 sm:gap-8">
+          <ul className={cn("mx-auto grid max-w-4xl text-center sm:grid-cols-3", SITE_GRID_GAP)}>
             {benefits.map((benefit) => (
               <li key={benefit} className="text-[15px] font-medium leading-snug text-white/85 sm:text-base">
                 {benefit}
@@ -68,10 +76,14 @@ export default async function TooandjatelePage({ params }: Props) {
         </Container>
       </section>
 
-      <section className="pb-12 sm:pb-20 lg:pb-24">
+      <section className={SITE_SECTION_PB}>
         <Container>
           <div className="flex flex-col items-center gap-6 text-center">
-            <Button asChild variant="primary" size="lg" className="h-12 w-full rounded-2xl px-8 sm:w-auto">
+            <Button
+              asChild
+              variant="primary"
+              className={cn(SITE_CONTROL_HEIGHT, "w-full rounded-2xl px-8 sm:w-auto")}
+            >
               <Link href="/auth/register?role=employer">
                 <UserPlus className="h-4 w-4" />
                 {t("ctaAddJob")}
@@ -80,7 +92,7 @@ export default async function TooandjatelePage({ params }: Props) {
 
             {showPricing ? (
               <div className="w-full max-w-xl text-left">
-                <div className="text-[13px] font-medium uppercase tracking-wide text-white/58">{t("pricingTitle")}</div>
+                <div className={SITE_EYEBROW}>{t("pricingTitle")}</div>
                 <ul className="mt-4 space-y-2 text-sm font-medium text-white/85">
                   <li>{t("pricingDuration30")}</li>
                   <li>{t("pricingDuration90")}</li>

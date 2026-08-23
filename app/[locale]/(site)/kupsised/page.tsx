@@ -18,11 +18,12 @@ export default async function KupsisedPage({ params }: Props) {
   const doc = getCookiePolicy(l);
 
   return (
-    <>
-      <div className="mx-auto max-w-3xl px-4 pt-4 sm:px-6">
+    <LegalDocumentView
+      doc={doc}
+      showToc
+      prepend={
         <CookieSettingsButton className="text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline" />
-      </div>
-      <LegalDocumentView doc={doc} showToc />
-    </>
+      }
+    />
   );
 }

@@ -8,6 +8,12 @@ import { Container } from "@/components/ui/container";
 import type { ContactBlock, ContactPageContent } from "@/lib/content/legal";
 import { contactFormMailto } from "@/lib/content/legal";
 import { Link } from "@/i18n/routing";
+import {
+  SITE_GRID_GAP_LOOSE,
+  SITE_H1_HERO,
+  SITE_H2,
+  SITE_SECTION_PY,
+} from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 import { ContactForm } from "./ContactForm";
@@ -81,8 +87,8 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
   return (
     <div className="relative overflow-hidden">
       <AmbientBackground intensity="soft" />
-      <Container className="relative max-w-6xl py-14 sm:py-20">
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
+      <Container className={cn("relative", SITE_SECTION_PY)}>
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs text-white/40">
             {t("updated")}{" "}
             <time dateTime={content.lastUpdated}>
@@ -98,18 +104,21 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
           </Link>
         </div>
 
-        <h1 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.5rem] lg:leading-tight">
-          {content.h1}
-        </h1>
+        <h1 className={SITE_H1_HERO}>{content.h1}</h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/60 sm:text-[17px]">
           {content.lead}
         </p>
 
-        <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-stretch lg:gap-14">
+        <div
+          className={cn(
+            "mt-10 grid lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-stretch",
+            SITE_GRID_GAP_LOOSE,
+          )}
+        >
           <div className="flex min-h-0 h-full min-w-0 flex-col">
             {content.blocksAside ? (
               <header className="mb-8">
-                <h2 className="text-lg font-semibold text-white/90">{content.blocksAside.title}</h2>
+                <h2 className={SITE_H2}>{content.blocksAside.title}</h2>
                 <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
               </header>
             ) : null}

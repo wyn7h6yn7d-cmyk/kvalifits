@@ -38,3 +38,12 @@ export function selectControlClassName(className?: string) {
     className,
   );
 }
+
+/** Native `<select>` styled like standalone form inputs (rounded-2xl). */
+export function nativeSelectFormClassName(className?: string) {
+  return cn(
+    controlTokens.height,
+    "w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 text-base text-white/85 outline-none transition-[border-color,background-color] focus:border-white/[0.18] lg:text-sm",
+    className,
+  );
+}

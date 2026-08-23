@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SITE_EYEBROW, SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
 
 export function SectionHeading({
   eyebrow,
@@ -22,13 +23,9 @@ export function SectionHeading({
       )}
     >
       {eyebrow ? (
-        <div className="text-xs font-medium tracking-[0.22em] uppercase text-muted-2">
-          {eyebrow}
-        </div>
+        <div className={SITE_EYEBROW}>{eyebrow}</div>
       ) : null}
-      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-        {title}
-      </h2>
+      <h2 className={cn("mt-3", SITE_H2_SECTION)}>{title}</h2>
       {subtitle ? (
         <p className="mt-3 text-base leading-7 text-body">{subtitle}</p>
       ) : null}

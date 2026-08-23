@@ -5,6 +5,7 @@ import { useCallback, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ContactPageContent } from "@/lib/content/legal";
+import { SITE_CARD_PADDING, SITE_CARD_SURFACE, SITE_CONTROL_HEIGHT } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 export function ContactForm({
@@ -43,7 +44,9 @@ export function ContactForm({
     <form
       onSubmit={submit}
       className={cn(
-        "flex min-h-0 flex-col rounded-2xl border border-white/[0.10] bg-white/[0.03] p-6 sm:p-8",
+        SITE_CARD_SURFACE,
+        SITE_CARD_PADDING,
+        "flex min-h-0 flex-col border-white/[0.10] bg-white/[0.03]",
         className,
       )}
     >
@@ -89,7 +92,11 @@ export function ContactForm({
       </div>
       <div className="mt-auto shrink-0">
         <p className="mt-4 text-xs leading-relaxed text-white/40">{form.privacyHint}</p>
-        <Button type="submit" variant="primary" size="lg" className="mt-6 h-12 rounded-2xl px-8">
+        <Button
+          type="submit"
+          variant="primary"
+          className={cn(SITE_CONTROL_HEIGHT, "mt-6 w-full rounded-2xl px-8 sm:w-auto")}
+        >
           {form.submitLabel}
         </Button>
         {hint ? <p className="mt-3 text-xs text-white/50">{hint}</p> : null}

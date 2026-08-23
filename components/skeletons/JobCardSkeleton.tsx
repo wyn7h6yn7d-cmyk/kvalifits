@@ -1,9 +1,16 @@
 import { Bone } from "@/components/ui/Skeleton";
 import { MatchPanelSkeleton } from "@/components/skeletons/MatchPanelSkeleton";
+import { JOBS_PAGE_CARD_PADDING } from "@/lib/jobs/jobsPageLayout";
+import { cn } from "@/lib/utils";
 
 export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-[#16161b] p-3.5 sm:p-4">
+    <div
+      className={cn(
+        JOBS_PAGE_CARD_PADDING,
+        "rounded-2xl border border-white/[0.08] bg-[#16161b]",
+      )}
+    >
       <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_12.75rem] lg:items-stretch lg:gap-x-6 lg:gap-y-3">
         <div className="min-w-0 lg:col-start-1 lg:row-start-1">
           <div className="flex gap-3">

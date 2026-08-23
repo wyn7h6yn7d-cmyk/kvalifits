@@ -24,6 +24,7 @@ import {
 } from "@/lib/jobs/jobLifecycle";
 import { SimilarJobsSection } from "@/components/jobs/SimilarJobsSection";
 import { JobListingDetailView } from "@/components/jobs/JobListingDetailView";
+import { Container } from "@/components/ui/container";
 import { loadSimilarJobsForDetail } from "@/lib/jobs/loadSimilarJobsForDetail";
 import { getJobMatchesForSeeker } from "@/lib/matching/getJobMatchesForSeeker";
 import { loadSeekerMatchContext } from "@/lib/matching/seekerMatchContext";
@@ -327,13 +328,13 @@ export default async function JobDetailPage({ params }: Props) {
         }
         sidebar={<JobDetailApplyPanel variant="sidebar" {...applyPanelProps} />}
       />
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+      <Container className="pb-12 lg:pb-16">
         <SimilarJobsSection
           jobs={similarJobs}
           title={tJobs("similarJobsTitle")}
           matchLabel={(score) => tJobs("jobDetailMatchPercent", { score })}
         />
-      </div>
+      </Container>
       <JobDetailApplyPanel variant="mobileBar" {...applyPanelProps} />
     </article>
   );

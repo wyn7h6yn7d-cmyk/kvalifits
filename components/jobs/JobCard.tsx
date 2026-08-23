@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { formatJobDateDdMmYyyy } from "@/lib/jobs/jobLifecycle";
+import { JOBS_PAGE_CARD_PADDING } from "@/lib/jobs/jobsPageLayout";
 
 function formatDate(iso: string | undefined | null, locale: string) {
   if (!iso) return null;
@@ -117,9 +118,9 @@ function JobCardComponent({
   return (
     <article
       className={cn(
-        "group relative overflow-visible rounded-2xl border border-white/[0.08] bg-[#16161b] p-3.5 transition-[border-color,background-color] duration-200",
+        JOBS_PAGE_CARD_PADDING,
+        "group relative overflow-visible rounded-2xl border border-white/[0.08] bg-[#16161b] transition-[border-color,background-color] duration-200",
         "hover:border-white/[0.14] hover:bg-[#1a1a20]",
-        "sm:p-4",
       )}
     >
       <Link

@@ -7,6 +7,8 @@ import { Container } from "@/components/ui/container";
 import { CompanyActiveJobs } from "@/components/companies/CompanyActiveJobs";
 import { CompanyLogo } from "@/components/companies/CompanyLogo";
 import { CompanyVerifiedBadge } from "@/components/employer/CompanyVerificationBadge";
+import { SITE_H1_HERO, SITE_PAGE_TOP } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 import {
   buildCompanyMetadata,
   buildCompanySeoDescription,
@@ -68,16 +70,14 @@ export default async function CompanyProfilePage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptHtml(jsonLd) }} />
-      <section className="border-b border-white/[0.06] pb-10 pt-20 sm:pt-24">
+      <section className={cn("border-b border-white/[0.06] pb-10 sm:pb-12", SITE_PAGE_TOP)}>
         <Container>
           <div className="mx-auto max-w-3xl">
             <div className="flex gap-4 sm:gap-5">
               <CompanyLogo url={company.logoUrl} name={company.name} size="lg" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                    {company.name}
-                  </h1>
+                  <h1 className={SITE_H1_HERO}>{company.name}</h1>
                   {company.verified ? <CompanyVerifiedBadge label={tUi("verifiedBadge")} /> : null}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-white/60">

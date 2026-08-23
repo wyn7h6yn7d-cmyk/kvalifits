@@ -3,10 +3,11 @@ import { getTranslations } from "next-intl/server";
 
 import { Hero } from "@/components/sections/Hero";
 import { FeaturedJobsSection } from "@/components/sections/FeaturedJobsSection";
+import { NewJobsSection } from "@/components/sections/NewJobsSection";
+import { HomepageBenefitsSection } from "@/components/sections/HomepageBenefitsSection";
 import { HomepageCompaniesSection } from "@/components/sections/HomepageCompaniesSection";
-import { LoginAnchor } from "@/components/sections/LoginAnchor";
-import { WhyKvalifits } from "@/components/sections/WhyKvalifits";
-import { Audience } from "@/components/sections/Audience";
+import { HomepageAudienceSection } from "@/components/sections/HomepageAudienceSection";
+import { HomepageMatchDemo } from "@/components/sections/HomepageMatchDemo";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { WebsiteJsonLd } from "@/components/seo/WebsiteJsonLd";
 import { getHeroQuickFilters } from "@/lib/jobs/getHeroQuickFilters";
@@ -32,11 +33,12 @@ export default async function HomePage({ params }: Props) {
       <WebsiteJsonLd />
       <Hero quickFilters={quickFilters} />
       <FeaturedJobsSection locale={locale} />
+      <NewJobsSection locale={locale} />
+      <HomepageBenefitsSection />
       <HomepageCompaniesSection />
-      <WhyKvalifits />
-      <Audience />
+      <HomepageAudienceSection />
+      <HomepageMatchDemo />
       <FinalCTA />
-      <LoginAnchor />
     </>
   );
 }

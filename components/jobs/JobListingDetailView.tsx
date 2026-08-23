@@ -4,7 +4,10 @@ import { getTranslations } from "next-intl/server";
 
 import { CompanyVerifiedBadge } from "@/components/employer/CompanyVerificationBadge";
 import { YoungSeekerJobBadge } from "@/components/jobs/YoungSeekerJobBadge";
+import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
+import { SITE_H1_DETAIL, SITE_PAGE_TOP } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 import {
   jobPassesYoungSeekerAutoEligibility,
   jobWorkConditionsFromJobRow,
@@ -239,7 +242,12 @@ export async function JobListingDetailView({
     (job.experience_level_required ?? "").toString().trim() === "not_required" || suitableForYoungSeeker;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-[calc(5.75rem+var(--site-bottom-nav-offset,0px)+env(safe-area-inset-bottom,0px))] pt-6 sm:px-6 lg:pb-16 lg:pt-10">
+    <Container
+      className={cn(
+        SITE_PAGE_TOP,
+        "pb-[calc(5.75rem+var(--site-bottom-nav-offset,0px)+env(safe-area-inset-bottom,0px))] lg:pb-16",
+      )}
+    >
       {preview ? (
         <div className="mb-6 rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3">
           <div className="text-sm font-semibold tracking-wide text-amber-100">{tJobs("previewBanner")}</div>
@@ -250,7 +258,7 @@ export async function JobListingDetailView({
         <div className="min-w-0">
           <header>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <h1 className="min-w-0 text-[1.65rem] font-semibold leading-tight tracking-tight text-white/94 sm:text-3xl">
+              <h1 className={cn("min-w-0", SITE_H1_DETAIL)}>
                 {job.title}
               </h1>
               {toolbar ? <div className="hidden shrink-0 items-center gap-2 lg:flex">{toolbar}</div> : null}
@@ -416,6 +424,6 @@ export async function JobListingDetailView({
           <div className="hidden lg:sticky lg:top-[calc(var(--site-header-offset)+0.75rem)] lg:block">{sidebar}</div>
         ) : null}
       </div>
-    </div>
+    </Container>
   );
 }

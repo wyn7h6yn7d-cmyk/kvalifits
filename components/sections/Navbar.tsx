@@ -152,7 +152,7 @@ export function Navbar() {
   return (
     <>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
-        <div className="pointer-events-auto mx-auto w-full lg:max-w-[1280px] lg:px-10">
+        <div className="pointer-events-auto mx-auto w-full max-w-[1240px] px-4 md:px-6 lg:px-8">
           <div className={headerBar}>
             <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden lg:flex-none lg:shrink-0">
               <Logo

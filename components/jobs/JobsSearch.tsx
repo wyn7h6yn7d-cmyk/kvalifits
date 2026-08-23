@@ -40,8 +40,19 @@ import { taxonomyFacetLabel } from "@/lib/taxonomy/facetLabel";
 import { useTaxonomyCatalog } from "@/lib/taxonomy/useTaxonomyCatalog";
 import { useRouter, Link } from "@/i18n/routing";
 import { JobFiltersBody, selectionKeyOf } from "@/components/jobs/JobFilterPanel";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { JobCard } from "./JobCard";
+import {
+  JOBS_PAGE_CONTAINER,
+  JOBS_PAGE_CONTROL_HEIGHT,
+  JOBS_PAGE_LIST_GAP,
+  JOBS_PAGE_MAIN_GRID,
+  JOBS_PAGE_SECTION_GAP,
+  JOBS_PAGE_SIDEBAR_PADDING,
+} from "@/lib/jobs/jobsPageLayout";
+import { SITE_H1_UTILITY } from "@/lib/site/publicPageLayout";
+
+const JOB_SEARCH_EMPTY_ACTION_CLASS =
+  "h-11 w-full min-w-0 sm:w-auto sm:min-w-[10.75rem]";
 
 const PRIMARY_FACETS: JobFilterFacet[] = [
   "location",
@@ -361,16 +372,16 @@ export function JobsSearch({
     ) : null;
 
   return (
-    <section className="pb-[calc(4rem+var(--site-bottom-nav-offset,0px))] sm:pb-20">
-      <Container className="max-w-[1240px]">
-        <div className="border-b border-white/[0.08] pb-6">
-          <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+    <section className="pb-[calc(2.5rem+var(--site-bottom-nav-offset,0px))] sm:pb-12 lg:pb-16">
+      <Container className={JOBS_PAGE_CONTAINER}>
+        <header className="border-b border-white/[0.08] pb-4 md:pb-6 lg:pb-8">
+          <h1 className={SITE_H1_UTILITY}>
             {pageTitle}
           </h1>
 
           <form
             onSubmit={onSearchSubmit}
-            className="mt-4 overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418] lg:mt-5"
+            className="mt-4 overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418]"
           >
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_auto]">
               <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
@@ -383,7 +394,10 @@ export function JobsSearch({
                   placeholder={t("searchPlaceholder")}
                   enterKeyHint="search"
                   autoComplete="off"
-                  className="h-12 rounded-none border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0 lg:h-[52px]"
+                  className={cn(
+                    JOBS_PAGE_CONTROL_HEIGHT,
+                    "rounded-none border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0",
+                  )}
                 />
               </label>
               <label className="relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r">
@@ -395,13 +409,19 @@ export function JobsSearch({
                   placeholder={t("locationPlaceholder")}
                   enterKeyHint="search"
                   autoComplete="off"
-                  className="h-12 rounded-none border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0 lg:h-[52px]"
+                  className={cn(
+                    JOBS_PAGE_CONTROL_HEIGHT,
+                    "rounded-none border-0 bg-transparent pl-11 shadow-none focus-visible:ring-0",
+                  )}
                 />
               </label>
               <Button
                 type="submit"
                 variant="primary"
-                className="h-12 w-full rounded-none px-6 lg:h-[52px] lg:min-w-[8.5rem]"
+                className={cn(
+                  JOBS_PAGE_CONTROL_HEIGHT,
+                  "w-full rounded-none px-6 lg:min-w-[8.5rem]",
+                )}
               >
                 {t("searchSubmit")}
               </Button>
@@ -414,29 +434,34 @@ export function JobsSearch({
           >
             {resultsLabel}
           </p>
-        </div>
+        </header>
 
-        <div className="sticky top-[var(--site-header-offset)] z-30 -mx-4 mb-3 space-y-2 border-b border-white/[0.08] bg-[#0f0f16] px-4 py-2.5 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 lg:hidden">
-          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="min-w-0 justify-start gap-2 px-3"
-              onClick={() => setMobileOpen(true)}
-            >
-              <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
-              <span className="truncate text-left">
-                {activeFilterCount
-                  ? t("filtersWithCount", { count: activeFilterCount })
-                  : t("filters")}
-              </span>
-            </Button>
-            <label className="flex min-w-0 items-center gap-1.5 rounded-xl border border-white/[0.10] bg-[#141418] px-2.5">
-              <span className="sr-only">{t("sortLabel")}</span>
+        <div
+          className={cn(
+            JOBS_PAGE_SECTION_GAP,
+            "sticky top-[var(--site-header-offset)] z-30 space-y-3 border-b border-white/[0.08] bg-background py-3 lg:hidden",
+          )}
+        >
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 w-full min-w-0 justify-start gap-2 px-3"
+            onClick={() => setMobileOpen(true)}
+          >
+            <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
+            <span className="truncate text-left">
+              {activeFilterCount
+                ? t("filtersWithCount", { count: activeFilterCount })
+                : t("filters")}
+            </span>
+          </Button>
+          <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#141418] px-3">
+              <span className="shrink-0 text-[12px] text-white/45">{t("sortLabel")}</span>
               <Select
                 value={sort}
                 onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
-                className="min-w-0 flex-1 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                className="min-h-0 min-w-0 flex-1 border-0 bg-transparent px-0 pr-8 shadow-none focus-visible:ring-0"
                 aria-label={t("sortLabel")}
               >
                 {sortOptions.map((opt) => (
@@ -446,42 +471,35 @@ export function JobsSearch({
                 ))}
               </Select>
             </label>
+            <JobSearchAlertsButton
+              snapshot={searchSnapshot}
+              matchSortAvailable={matchSortAvailable}
+              canSave={canSaveJobs}
+              className="h-11 w-full min-w-0 shrink-0 sm:w-auto sm:max-w-full"
+            />
           </div>
-          <JobSearchAlertsButton
-            snapshot={searchSnapshot}
-            matchSortAvailable={matchSortAvailable}
-            canSave={canSaveJobs}
-            className="w-full justify-center"
-          />
         </div>
 
-        <div className="grid gap-6 lg:mt-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start lg:gap-7">
-          <aside className="hidden lg:sticky lg:top-[calc(var(--site-header-offset)+0.75rem)] lg:block lg:self-start">
-            <div className="max-h-[calc(100vh-var(--site-header-offset)-1.5rem)] overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#141416] p-4">
-              <JobFiltersBody
-                groups={primaryGroups}
-                moreGroups={moreGroups}
-                selections={selections}
-                onToggle={onToggle}
-                onClear={clearAll}
-                keywordQuery={query}
-                listSearchParams={paramsKey}
-              />
+        <div className={JOBS_PAGE_SECTION_GAP}>
+          <div className={JOBS_PAGE_MAIN_GRID}>
+            <div className="hidden h-11 items-center text-[13px] font-medium leading-none text-white/80 lg:flex">
+              {t("filters")}
             </div>
-          </aside>
-
-          <div className="min-w-0">
-            <div className="mb-4 hidden border-b border-white/[0.06] pb-4 lg:flex lg:items-center lg:justify-between">
-              <p className="text-[15px] font-medium text-white/88" aria-live="polite">
+            <div className="hidden h-11 min-w-0 items-center justify-between gap-3 lg:flex">
+              <p
+                className="min-w-0 truncate pr-2 text-[15px] font-medium text-white/88"
+                aria-live="polite"
+              >
                 {resultsLabel}
               </p>
-              <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+              <div className="flex shrink-0 items-center gap-3">
                 <label className="inline-flex items-center gap-2">
-                  <span className="text-[12px] text-white/45">{t("sortLabel")}</span>
+                  <span className="shrink-0 text-[12px] text-white/45">{t("sortLabel")}</span>
                   <Select
                     value={sort}
                     onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
-                    className="w-auto min-w-[10.5rem]"
+                    className="h-11 w-auto min-w-[10.5rem] max-w-[12rem] shrink-0"
+                    aria-label={t("sortLabel")}
                   >
                     {sortOptions.map((opt) => (
                       <option key={opt.value} value={opt.value} disabled={opt.disabled}>
@@ -494,102 +512,128 @@ export function JobsSearch({
                   snapshot={searchSnapshot}
                   matchSortAvailable={matchSortAvailable}
                   canSave={canSaveJobs}
+                  className="h-11 shrink-0"
                 />
               </div>
             </div>
 
-            {activeChips}
-
-            <div className="grid gap-4 lg:gap-3.5">
-              {results.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  saved={savedSet.has(job.id)}
-                  canSave={canSaveJobs}
+            <aside className="hidden lg:sticky lg:top-[calc(var(--site-header-offset)+0.75rem)] lg:block lg:self-start">
+              <div
+                className={cn(
+                  JOBS_PAGE_SIDEBAR_PADDING,
+                  "max-h-[calc(100vh-var(--site-header-offset)-1.5rem)] overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#141416]",
+                )}
+              >
+                <JobFiltersBody
+                  groups={primaryGroups}
+                  moreGroups={moreGroups}
+                  selections={selections}
+                  onToggle={onToggle}
+                  onClear={clearAll}
+                  showHeader={false}
+                  keywordQuery={query}
+                  listSearchParams={paramsKey}
                 />
-              ))}
-            </div>
-
-            {results.length === 0 ? (
-              <JobSearchEmptyState
-                t={t}
-                catalogEmpty={totalCount === 0 && !Boolean(
-                  query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
-                )}
-                hasConstraints={Boolean(
-                  query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
-                )}
-                hasFacetFilters={Boolean(selections.length || requirePublicSalary)}
-                onClearFilters={clearAll}
-                onAdjustFilters={() => setMobileOpen(true)}
-                onChangeSearch={() => {
-                  const el = document.getElementById("job-search-query");
-                  el?.focus();
-                  el?.scrollIntoView({ behavior: "smooth", block: "center" });
-                }}
-                alertButton={
-                  canSaveJobs ? (
-                    <JobSearchAlertsButton
-                      snapshot={searchSnapshot}
-                      matchSortAvailable={matchSortAvailable}
-                      canSave
-                      alwaysShow
-                      label={t("emptyCreateAlert")}
-                      variant="primary"
-                    />
-                  ) : null
-                }
-              />
-            ) : null}
-
-            {totalPages > 1 ? (
-              <div className="mt-6 flex items-center justify-between gap-3">
-                {currentPage > 1 ? (
-                  <Button asChild variant="outline">
-                    <Link
-                      href={buildJobSearchUrl(
-                        buildSearchUrlState({
-                          query,
-                          locationInput,
-                          selections,
-                          requirePublicSalary,
-                          sort,
-                          page: currentPage - 1,
-                        }),
-                      )}
-                    >
-                      {t("pagePrev")}
-                    </Link>
-                  </Button>
-                ) : (
-                  <span />
-                )}
-                <p className="text-[13px] text-white/50">
-                  {t("pageStatus", { page: currentPage, pages: totalPages, size: pageSize })}
-                </p>
-                {currentPage < totalPages ? (
-                  <Button asChild variant="outline">
-                    <Link
-                      href={buildJobSearchUrl(
-                        buildSearchUrlState({
-                          query,
-                          locationInput,
-                          selections,
-                          requirePublicSalary,
-                          sort,
-                          page: currentPage + 1,
-                        }),
-                      )}
-                    >
-                      {t("pageNext")}
-                    </Link>
-                  </Button>
-                ) : (
-                  <span />
-                )}
               </div>
-            ) : null}
+            </aside>
+
+            <div className="min-w-0">
+              {activeChips}
+
+              <div className={JOBS_PAGE_LIST_GAP}>
+                {results.map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    saved={savedSet.has(job.id)}
+                    canSave={canSaveJobs}
+                  />
+                ))}
+              </div>
+
+              {results.length === 0 ? (
+                <div className="flex justify-center py-4 sm:py-5 lg:py-6">
+                  <JobSearchEmptyState
+                    t={t}
+                    catalogEmpty={totalCount === 0 && !Boolean(
+                      query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
+                    )}
+                    hasConstraints={Boolean(
+                      query.trim() || locationInput.trim() || selections.length || requirePublicSalary,
+                    )}
+                    hasFacetFilters={Boolean(selections.length || requirePublicSalary)}
+                    onClearFilters={clearAll}
+                    onAdjustFilters={() => setMobileOpen(true)}
+                    onChangeSearch={() => {
+                      const el = document.getElementById("job-search-query");
+                      el?.focus();
+                      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}
+                    alertButton={
+                      canSaveJobs ? (
+                        <JobSearchAlertsButton
+                          snapshot={searchSnapshot}
+                          matchSortAvailable={matchSortAvailable}
+                          canSave
+                          alwaysShow
+                          label={t("emptyCreateAlert")}
+                          variant="primary"
+                          className={JOB_SEARCH_EMPTY_ACTION_CLASS}
+                        />
+                      ) : null
+                    }
+                  />
+                </div>
+              ) : null}
+
+              {totalPages > 1 ? (
+                <div className="mt-6 flex items-center justify-between gap-3">
+                  {currentPage > 1 ? (
+                    <Button asChild variant="outline">
+                      <Link
+                        href={buildJobSearchUrl(
+                          buildSearchUrlState({
+                            query,
+                            locationInput,
+                            selections,
+                            requirePublicSalary,
+                            sort,
+                            page: currentPage - 1,
+                          }),
+                        )}
+                      >
+                        {t("pagePrev")}
+                      </Link>
+                    </Button>
+                  ) : (
+                    <span />
+                  )}
+                  <p className="text-[13px] text-white/50">
+                    {t("pageStatus", { page: currentPage, pages: totalPages, size: pageSize })}
+                  </p>
+                  {currentPage < totalPages ? (
+                    <Button asChild variant="outline">
+                      <Link
+                        href={buildJobSearchUrl(
+                          buildSearchUrlState({
+                            query,
+                            locationInput,
+                            selections,
+                            requirePublicSalary,
+                            sort,
+                            page: currentPage + 1,
+                          }),
+                        )}
+                      >
+                        {t("pageNext")}
+                      </Link>
+                    </Button>
+                  ) : (
+                    <span />
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </Container>
@@ -691,30 +735,49 @@ function JobSearchEmptyState({
   const showChangeSearch = !showAdjustFilters;
 
   return (
-    <EmptyState
-      className="mt-4"
-      icon={Search}
-      title={catalogEmpty && !hasConstraints ? t("emptyCatalog") : t("noResults")}
-      actions={
-        <>
-          {hasConstraints ? (
-            <Button type="button" variant="outline" onClick={onClearFilters}>
-              {t("emptyClearFilters")}
-            </Button>
-          ) : null}
-          {showAdjustFilters ? (
-            <Button type="button" variant="outline" onClick={onAdjustFilters}>
-              {t("emptyAdjustFilters")}
-            </Button>
-          ) : null}
-          {showChangeSearch ? (
-            <Button type="button" variant="outline" onClick={onChangeSearch}>
-              {t("emptyChangeSearch")}
-            </Button>
-          ) : null}
-          {alertButton}
-        </>
-      }
-    />
+    <div className="mx-auto w-full max-w-sm rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-5 text-center sm:px-6 sm:py-6">
+      <div
+        className="mx-auto mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40"
+        aria-hidden
+      >
+        <Search className="h-4 w-4" strokeWidth={1.75} />
+      </div>
+      <p className="mx-auto max-w-[18rem] text-[15px] font-medium leading-snug tracking-tight text-white/88">
+        {catalogEmpty && !hasConstraints ? t("emptyCatalog") : t("noResults")}
+      </p>
+      <div className="mt-3.5 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+        {hasConstraints ? (
+          <Button
+            type="button"
+            variant="outline"
+            className={JOB_SEARCH_EMPTY_ACTION_CLASS}
+            onClick={onClearFilters}
+          >
+            {t("emptyClearFilters")}
+          </Button>
+        ) : null}
+        {showAdjustFilters ? (
+          <Button
+            type="button"
+            variant="outline"
+            className={JOB_SEARCH_EMPTY_ACTION_CLASS}
+            onClick={onAdjustFilters}
+          >
+            {t("emptyAdjustFilters")}
+          </Button>
+        ) : null}
+        {showChangeSearch ? (
+          <Button
+            type="button"
+            variant="outline"
+            className={JOB_SEARCH_EMPTY_ACTION_CLASS}
+            onClick={onChangeSearch}
+          >
+            {t("emptyChangeSearch")}
+          </Button>
+        ) : null}
+        {alertButton}
+      </div>
+    </div>
   );
 }

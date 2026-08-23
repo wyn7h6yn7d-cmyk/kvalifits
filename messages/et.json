@@ -428,10 +428,10 @@
   "hero": {
     "badgeBrand": "Kvalifits",
     "badgeMarket": "Eesti tööturg",
-    "headlineBefore": "Leia tööpakkumine, mis",
+    "headlineBefore": "Leia töö, mis sulle päriselt",
     "headlineAccent": "sobib",
     "headlineAfter": "",
-    "subheadline": "Võrdle oma oskusi ja eelistusi tööpakkumise nõuetega.",
+    "subheadline": "Vaata, kui hästi sinu oskused ja soovid tööpakkumisega klapivad.",
     "searchQueryPlaceholder": "Amet, oskus või ettevõte",
     "searchLocationPlaceholder": "Asukoht",
     "searchSubmit": "Otsi",
@@ -531,7 +531,30 @@
     "ctaEmployer": "Olen tööandja"
   },
   "homeJobs": {
-    "featuredTitle": "Esiletõstetud tööpakkumised"
+    "featuredTitle": "Esiletõstetud tööpakkumised",
+    "newTitle": "Uued tööpakkumised",
+    "viewAll": "Vaata kõiki"
+  },
+  "homeBenefits": {
+    "title": "Miks Kvalifits",
+    "b1Title": "Selged nõuded",
+    "b1Desc": "Oskused, keeled ja sertifikaadid on tööpakkumisel eraldi väljad.",
+    "b2Title": "Kontrollitud pädevused",
+    "b2Desc": "Kontrollitud sertifikaadid ja load enne vestlust.",
+    "b3Title": "Selge sobivus",
+    "b3Desc": "Näed, millised nõuded on täidetud."
+  },
+  "homeAudience": {
+    "title": "Kellele Kvalifits sobib",
+    "seekerTitle": "Tööotsijale",
+    "seekerDesc": "Loo profiil, vaata sobivust ja kandideeri kiiremini.",
+    "seekerLink": "Loe lähemalt",
+    "employerTitle": "Tööandjale",
+    "employerDesc": "Leia kandidaadid, kes vastavad sinu nõuetele.",
+    "employerLink": "Loe lähemalt"
+  },
+  "homeMatchDemo": {
+    "title": "Sobivus näites"
   },
   "homeCompanies": {
     "title": "Ettevõtted Kvalifitsis",

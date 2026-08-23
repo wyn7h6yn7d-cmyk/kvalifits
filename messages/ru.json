@@ -428,10 +428,10 @@
   "hero": {
     "badgeBrand": "Kvalifits",
     "badgeMarket": "На рынке труда Эстонии",
-    "headlineBefore": "Найдите вакансию, которая",
-    "headlineAccent": "подходит",
+    "headlineBefore": "Найдите работу, которая",
+    "headlineAccent": "вам действительно подходит",
     "headlineAfter": "",
-    "subheadline": "Сравните свои навыки и предпочтения с требованиями вакансии.",
+    "subheadline": "Посмотрите, насколько ваши навыки и пожелания совпадают с вакансией.",
     "searchQueryPlaceholder": "Должность, навык или компания",
     "searchLocationPlaceholder": "Местоположение",
     "searchSubmit": "Искать",
@@ -531,7 +531,30 @@
     "ctaEmployer": "Я работодатель"
   },
   "homeJobs": {
-    "featuredTitle": "Избранные вакансии"
+    "featuredTitle": "Избранные вакансии",
+    "newTitle": "Новые вакансии",
+    "viewAll": "Смотреть все"
+  },
+  "homeBenefits": {
+    "title": "Почему Kvalifits",
+    "b1Title": "Понятные требования",
+    "b1Desc": "Навыки, языки и сертификаты указаны отдельными полями.",
+    "b2Title": "Проверенные квалификации",
+    "b2Desc": "Проверенные сертификаты и допуски до собеседования.",
+    "b3Title": "Понятное соответствие",
+    "b3Desc": "Видно, какие требования выполнены."
+  },
+  "homeAudience": {
+    "title": "Для кого Kvalifits",
+    "seekerTitle": "Соискателю",
+    "seekerDesc": "Создайте профиль, смотрите соответствие и откликайтесь быстрее.",
+    "seekerLink": "Подробнее",
+    "employerTitle": "Работодателю",
+    "employerDesc": "Находите кандидатов, которые соответствуют вашим требованиям.",
+    "employerLink": "Подробнее"
+  },
+  "homeMatchDemo": {
+    "title": "Пример соответствия"
   },
   "homeCompanies": {
     "title": "Компании на Kvalifits",

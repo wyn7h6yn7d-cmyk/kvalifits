@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import { publicPageMetadata } from "@/lib/seo/site";
+import {
+  SITE_CONTROL_HEIGHT,
+  SITE_EYEBROW,
+  SITE_GRID_GAP_LOOSE,
+  SITE_H2_SECTION,
+  SITE_SECTION_PB,
+  SITE_SECTION_PY,
+} from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -48,15 +57,11 @@ export default async function ToootsijatelePage({ params }: Props) {
     <>
       <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")} />
 
-      <section className="py-10 sm:py-16 lg:py-20">
+      <section className={SITE_SECTION_PY}>
         <Container>
           <div className="mx-auto max-w-3xl">
-            <div className="text-[13px] font-medium uppercase tracking-wide text-white/52">
-              {t("tutorialEyebrow")}
-            </div>
-            <h2 className="mt-3 text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl">
-              {t("tutorialTitle")}
-            </h2>
+            <div className={SITE_EYEBROW}>{t("tutorialEyebrow")}</div>
+            <h2 className={cn("mt-3", SITE_H2_SECTION)}>{t("tutorialTitle")}</h2>
             <ol className="mt-8 list-none space-y-7 sm:space-y-8">
               {tutorialSteps.map((step, index) => (
                 <li key={step.title} className="flex gap-5 sm:gap-6">
@@ -71,7 +76,11 @@ export default async function ToootsijatelePage({ params }: Props) {
               ))}
             </ol>
             <div className="mt-10">
-              <Button asChild variant="primary" size="lg" className="h-12 w-full rounded-2xl px-7 sm:w-auto">
+              <Button
+                asChild
+                variant="primary"
+                className={cn(SITE_CONTROL_HEIGHT, "w-full rounded-2xl px-7 sm:w-auto")}
+              >
                 <Link href="/auth/register?role=seeker">
                   <UserPlus className="h-4 w-4" />
                   {t("tutorialCtaRegister")}
@@ -82,13 +91,11 @@ export default async function ToootsijatelePage({ params }: Props) {
         </Container>
       </section>
 
-      <section className="py-10 sm:py-16 lg:py-20">
+      <section className={SITE_SECTION_PY}>
         <Container>
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.15fr] lg:items-start lg:gap-16">
+          <div className={cn("grid lg:grid-cols-[1fr_1.15fr] lg:items-start", SITE_GRID_GAP_LOOSE)}>
             <div>
-              <h2 className="text-[13px] font-medium uppercase tracking-wide text-white/52">
-                {t("sectionEyebrow")}
-              </h2>
+              <h2 className={SITE_EYEBROW}>{t("sectionEyebrow")}</h2>
               <p className="mt-4 text-lg font-medium leading-snug text-white sm:text-xl">{t("sectionLead")}</p>
               <p className="mt-4 text-[15px] leading-relaxed text-white/62 sm:text-base">{t("sectionBody")}</p>
             </div>
@@ -109,12 +116,10 @@ export default async function ToootsijatelePage({ params }: Props) {
         </Container>
       </section>
 
-      <section className="pb-12 sm:pb-20 lg:pb-24">
+      <section className={SITE_SECTION_PB}>
         <Container>
-          <h2 className="text-center text-[13px] font-medium uppercase tracking-wide text-white/52">
-            {t("pillarsTitle")}
-          </h2>
-          <div className="mx-auto mt-10 grid max-w-4xl gap-8 sm:grid-cols-3 sm:gap-10">
+          <h2 className={cn("text-center", SITE_EYEBROW)}>{t("pillarsTitle")}</h2>
+          <div className={cn("mx-auto mt-10 grid max-w-4xl sm:grid-cols-3", SITE_GRID_GAP_LOOSE)}>
             {highlights.map((x) => (
               <div key={x.title}>
                 <div className="text-[15px] font-medium text-white/88">{x.title}</div>

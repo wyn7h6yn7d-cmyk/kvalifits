@@ -10,7 +10,11 @@ type Props = {
 
 export function PublicSiteShell({ children }: Props) {
   return (
-    <PublicSiteMain navbar={<Navbar />} footer={<Footer />}>
+    <PublicSiteMain
+      navbar={<Navbar />}
+      jobsFooter={<Footer compact />}
+      defaultFooter={<Footer />}
+    >
       {children}
     </PublicSiteMain>
   );

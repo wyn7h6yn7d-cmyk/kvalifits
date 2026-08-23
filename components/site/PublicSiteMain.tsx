@@ -7,13 +7,15 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   navbar: ReactNode;
-  footer: ReactNode;
   children: ReactNode;
+  jobsFooter: ReactNode;
+  defaultFooter: ReactNode;
 };
 
-export function PublicSiteMain({ navbar, footer, children }: Props) {
+export function PublicSiteMain({ navbar, children, jobsFooter, defaultFooter }: Props) {
   const segments = useSelectedLayoutSegments();
   const isHome = segments.length === 0;
+  const isJobsSection = segments[0] === "tood";
 
   return (
     <div className={cn("flex-1", isHome ? "relative bg-surface" : "bg-background")}>
@@ -26,7 +28,7 @@ export function PublicSiteMain({ navbar, footer, children }: Props) {
       >
         {children}
       </main>
-      {footer}
+      {isJobsSection ? jobsFooter : defaultFooter}
     </div>
   );
 }
