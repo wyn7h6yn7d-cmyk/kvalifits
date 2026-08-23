@@ -8,12 +8,13 @@ import {
   JOBS_PAGE_MAIN_GRID,
   JOBS_PAGE_SECTION_GAP,
   JOBS_PAGE_SIDEBAR_PADDING,
+  JOBS_PAGE_TOP,
 } from "@/lib/jobs/jobsPageLayout";
 import { cn } from "@/lib/utils";
 
 export function JobSearchSkeleton({ label, count = 4 }: { label?: string; count?: number }) {
   return (
-    <SkeletonRegion label={label} className="pb-12 sm:pb-12 lg:pb-16">
+    <SkeletonRegion label={label} className={cn(JOBS_PAGE_TOP, "pb-12 sm:pb-12 lg:pb-16")}>
       <Container className={JOBS_PAGE_CONTAINER}>
         <header className="border-b border-white/[0.08] pb-4 md:pb-6 lg:pb-8">
           <Bone className="h-8 w-48 rounded-lg sm:h-9" />

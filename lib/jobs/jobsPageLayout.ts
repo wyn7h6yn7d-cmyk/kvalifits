@@ -8,6 +8,9 @@ import {
 /** Shared spacing tokens for the /tood jobs search page (layout only). */
 export const JOBS_PAGE_CONTAINER = SITE_CONTAINER;
 
+/** Extra space below fixed navbar before page title (main already applies header offset). */
+export const JOBS_PAGE_TOP = "pt-8 sm:pt-10 lg:pt-12";
+
 /** Major section separation: 40–48px mobile, 64–80px desktop. */
 export const JOBS_PAGE_SECTION_GAP = `${SITE_SECTION_GAP} xl:mt-20`;
 

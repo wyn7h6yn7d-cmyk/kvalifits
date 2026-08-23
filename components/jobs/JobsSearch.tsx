@@ -48,6 +48,7 @@ import {
   JOBS_PAGE_MAIN_GRID,
   JOBS_PAGE_SECTION_GAP,
   JOBS_PAGE_SIDEBAR_PADDING,
+  JOBS_PAGE_TOP,
 } from "@/lib/jobs/jobsPageLayout";
 import { SITE_H1_UTILITY } from "@/lib/site/publicPageLayout";
 
@@ -372,7 +373,7 @@ export function JobsSearch({
     ) : null;
 
   return (
-    <section className="pb-[calc(2.5rem+var(--site-bottom-nav-offset,0px))] sm:pb-12 lg:pb-16">
+    <section className={cn(JOBS_PAGE_TOP, "pb-[calc(2.5rem+var(--site-bottom-nav-offset,0px))] sm:pb-12 lg:pb-16")}>
       <Container className={JOBS_PAGE_CONTAINER}>
         <header className="border-b border-white/[0.08] pb-4 md:pb-6 lg:pb-8">
           <h1 className={SITE_H1_UTILITY}>

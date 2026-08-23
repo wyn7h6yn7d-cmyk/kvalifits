@@ -19,13 +19,18 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   quickFilters: HeroQuickFilterId[];
+  publishedJobCount: number;
 };
 
-export function HeroJobSearch({ quickFilters }: Props) {
+export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
   const t = useTranslations("hero");
+  const tJobs = useTranslations("jobs");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
+
+  const submitLabel =
+    publishedJobCount > 0 ? tJobs("showJobs", { count: publishedJobCount }) : t("searchSubmit");
 
   function submit(extra?: Partial<JobSearchUrlParams>) {
     router.push(
@@ -79,9 +84,9 @@ export function HeroJobSearch({ quickFilters }: Props) {
 
           <button
             type="submit"
-            className="inline-flex min-h-14 w-full min-w-0 items-center justify-center bg-gradient-to-r from-violet-500/90 via-fuchsia-500/80 to-[rgba(227,31,141,0.70)] px-4 text-pretty text-[14px] font-medium text-white transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset sm:px-6 sm:text-[15px] lg:h-full lg:min-w-[148px]"
+            className="inline-flex min-h-14 w-full min-w-0 items-center justify-center bg-gradient-to-r from-violet-500/90 via-fuchsia-500/80 to-[rgba(227,31,141,0.70)] px-4 text-pretty text-[14px] font-medium text-white transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset sm:px-6 sm:text-[15px] lg:h-full lg:min-w-[11.5rem] xl:min-w-[13rem]"
           >
-            {t("searchSubmit")}
+            {submitLabel}
           </button>
         </div>
       </form>

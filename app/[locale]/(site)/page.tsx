@@ -7,10 +7,11 @@ import { NewJobsSection } from "@/components/sections/NewJobsSection";
 import { HomepageBenefitsSection } from "@/components/sections/HomepageBenefitsSection";
 import { HomepageCompaniesSection } from "@/components/sections/HomepageCompaniesSection";
 import { HomepageAudienceSection } from "@/components/sections/HomepageAudienceSection";
-import { HomepageMatchDemo } from "@/components/sections/HomepageMatchDemo";
+import { HomepageHeroBand } from "@/components/sections/HomepageHeroBand";
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { WebsiteJsonLd } from "@/components/seo/WebsiteJsonLd";
 import { getHeroQuickFilters } from "@/lib/jobs/getHeroQuickFilters";
+import { getPublishedJobCountForHomepage } from "@/lib/jobs/loadPublishedJobCountForHomepage";
 import { homepageBrandMetadata } from "@/lib/seo/site";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -27,17 +28,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const quickFilters = await getHeroQuickFilters();
+  const publishedJobCount = await getPublishedJobCountForHomepage();
 
   return (
     <>
       <WebsiteJsonLd />
-      <Hero quickFilters={quickFilters} />
-      <FeaturedJobsSection locale={locale} />
-      <NewJobsSection locale={locale} />
-      <HomepageBenefitsSection />
+      <HomepageHeroBand>
+        <Hero
+          quickFilters={quickFilters}
+          publishedJobCount={publishedJobCount}
+          showScrollHint
+          embedded
+        />
+        <div
+          id="home-jobs"
+          className="scroll-mt-[calc(var(--site-header-offset)+1rem)]"
+          aria-hidden
+        />
+        <FeaturedJobsSection locale={locale} embedded />
+        <NewJobsSection locale={locale} embedded />
+      </HomepageHeroBand>
       <HomepageCompaniesSection />
+      <HomepageBenefitsSection />
       <HomepageAudienceSection />
-      <HomepageMatchDemo />
       <FinalCTA />
     </>
   );

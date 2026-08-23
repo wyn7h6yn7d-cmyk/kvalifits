@@ -17,7 +17,7 @@ export async function HomepageBenefitsSection() {
   ] as const;
 
   return (
-    <section className="border-t border-white/[0.06] bg-surface py-10 sm:py-12 lg:py-14">
+    <section className="bg-surface py-8 sm:py-10 lg:py-12">
       <Container>
         <h2 className={SITE_H2_SECTION}>{t("title")}</h2>
         <ul className={cn("mt-6 grid sm:grid-cols-3", SITE_GRID_GAP)}>

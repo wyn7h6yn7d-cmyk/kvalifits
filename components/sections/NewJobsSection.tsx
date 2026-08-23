@@ -7,7 +7,13 @@ import { getNewJobsForHomepage } from "@/lib/jobs/loadNewJobsForHomepage";
 import { SITE_GRID_GAP, SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
-export async function NewJobsSection({ locale }: { locale: string }) {
+export async function NewJobsSection({
+  locale,
+  embedded = false,
+}: {
+  locale: string;
+  embedded?: boolean;
+}) {
   const t = await getTranslations({ locale, namespace: "homeJobs" });
   const { jobs, savedJobIds, canSaveJobs } = await getNewJobsForHomepage(locale);
 
@@ -16,7 +22,13 @@ export async function NewJobsSection({ locale }: { locale: string }) {
   const savedSet = new Set(savedJobIds);
 
   return (
-    <section className="border-b border-white/[0.06] bg-surface py-10 sm:py-12 lg:py-14">
+    <section
+      className={cn(
+        embedded
+          ? "pb-10 sm:pb-12 lg:pb-14"
+          : "border-b border-white/[0.06] bg-surface py-10 sm:py-12 lg:py-14",
+      )}
+    >
       <Container>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 className={SITE_H2_SECTION}>{t("newTitle")}</h2>
