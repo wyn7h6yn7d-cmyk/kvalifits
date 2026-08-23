@@ -28,13 +28,10 @@ type Props = {
 type LuminanceHint = "good" | "needs_plate" | "unknown";
 
 function useAverageLogoLuminance(src: string | null): LuminanceHint {
-  const [hint, setHint] = useState<LuminanceHint>("unknown");
+  const [analyzed, setAnalyzed] = useState<{ src: string; hint: LuminanceHint } | null>(null);
 
   useEffect(() => {
-    if (!src) {
-      setHint("unknown");
-      return;
-    }
+    if (!src) return;
 
     let cancelled = false;
     const img = new Image();
@@ -48,7 +45,7 @@ function useAverageLogoLuminance(src: string | null): LuminanceHint {
         canvas.height = size;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
-          setHint("unknown");
+          setAnalyzed({ src, hint: "unknown" });
           return;
         }
         ctx.drawImage(img, 0, 0, size, size);
@@ -64,17 +61,20 @@ function useAverageLogoLuminance(src: string | null): LuminanceHint {
           count++;
         }
         if (!count) {
-          setHint("unknown");
+          setAnalyzed({ src, hint: "unknown" });
           return;
         }
         const avg = sum / count;
-        setHint(avg >= 198 ? "needs_plate" : avg <= 155 ? "good" : "unknown");
+        setAnalyzed({
+          src,
+          hint: avg >= 198 ? "needs_plate" : avg <= 155 ? "good" : "unknown",
+        });
       } catch {
-        setHint("unknown");
+        setAnalyzed({ src, hint: "unknown" });
       }
     };
     img.onerror = () => {
-      if (!cancelled) setHint("unknown");
+      if (!cancelled) setAnalyzed({ src, hint: "unknown" });
     };
     img.src = src;
 
@@ -83,7 +83,9 @@ function useAverageLogoLuminance(src: string | null): LuminanceHint {
     };
   }, [src]);
 
-  return hint;
+  if (!src) return "unknown";
+  if (!analyzed || analyzed.src !== src) return "unknown";
+  return analyzed.hint;
 }
 
 function DarkLogoPreview({
