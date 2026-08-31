@@ -28,10 +28,10 @@ export function Chip({
       ? "border-[rgba(227,31,141,0.18)] bg-[rgba(227,31,141,0.06)] text-foreground/80"
       : tone === "violet"
         ? "border-[rgba(37,99,235,0.16)] bg-[rgba(37,99,235,0.06)] text-foreground/80"
-        : "border-border bg-[#f8fafc] text-muted";
+        : "border-border bg-white/[0.04] text-muted";
   const selectedCls = selected
-    ? "border-[rgba(37,99,235,0.28)] bg-[rgba(37,99,235,0.08)] text-foreground"
-    : "hover:border-[rgba(37,99,235,0.22)] hover:bg-white";
+    ? "border-violet-400/28 bg-violet-500/10 text-foreground"
+    : "hover:border-white/[0.13] hover:bg-white/[0.05]";
 
   const clickable = typeof onClick === "function";
 

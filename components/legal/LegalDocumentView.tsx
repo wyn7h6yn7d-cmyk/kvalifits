@@ -8,6 +8,7 @@ import { Link } from "@/i18n/routing";
 import type { LegalSection } from "@/lib/content/legal";
 import {
   SITE_BODY,
+  SITE_BODY_LEAD,
   SITE_CONTAINER_PROSE,
   SITE_EYEBROW,
   SITE_H1_HERO,
@@ -88,7 +89,7 @@ export function LegalDocumentView({
 
         <h1 className={SITE_H1_HERO}>{doc.h1}</h1>
         {doc.lead ? (
-          <p className={cn("mt-5", SITE_BODY, "text-muted")}>{doc.lead}</p>
+          <p className={cn("mt-6 max-w-[34rem] text-pretty", SITE_BODY_LEAD)}>{doc.lead}</p>
         ) : null}
 
         {toc ? (
@@ -96,7 +97,7 @@ export function LegalDocumentView({
             <div className={SITE_EYEBROW}>
               {t("contents")}
             </div>
-            <ol className="mt-4 list-decimal space-y-2 pl-5 text-base leading-[1.65] text-body marker:text-muted-2">
+            <ol className={cn("mt-4 list-decimal space-y-2.5 pl-5 marker:text-muted-2", SITE_BODY)}>
               {doc.sections.map((s) => (
                 <li key={s.id}>
                   <a href={`#${s.id}`} className="hover:text-foreground">
@@ -108,11 +109,11 @@ export function LegalDocumentView({
           </div>
         ) : null}
 
-        <div className="mt-12 space-y-12">
+        <div className="mt-14 space-y-14">
           {doc.sections.map((s) => (
             <section key={s.id} id={s.id} className="scroll-mt-28">
               <h2 className={SITE_H2}>{s.title}</h2>
-              <div className={cn("mt-4 space-y-4", SITE_BODY, "text-muted")}>
+              <div className={cn("mt-5 space-y-4", SITE_BODY, "text-muted")}>
                 {s.paragraphs.map((p, i) => (
                   <p key={i}>{renderParagraphWithLinks(p, locale)}</p>
                 ))}

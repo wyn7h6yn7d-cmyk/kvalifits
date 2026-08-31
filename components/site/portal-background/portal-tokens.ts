@@ -4,22 +4,22 @@ export type PortalIntensity = "soft" | "default" | "strong";
 export function portalLayerOpacity(intensity: PortalIntensity): number {
   switch (intensity) {
     case "soft":
-      return 0.55;
+      return 0.42;
     case "strong":
-      return 0.95;
+      return 0.72;
     default:
-      return 0.78;
+      return 0.58;
   }
 }
 
-/** >1 = aeglasem animatsioon (vähem “elav”). */
+/** >1 = slower animation. */
 export function portalDurationScale(intensity: PortalIntensity): number {
   switch (intensity) {
     case "soft":
-      return 1.45;
+      return 1.65;
     case "strong":
-      return 0.88;
+      return 1.1;
     default:
-      return 1;
+      return 1.35;
   }
 }

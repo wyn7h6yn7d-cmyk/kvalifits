@@ -265,7 +265,7 @@ export function HomepageCompanyCarousel({ companies, logoAlt }: Props) {
 
   return (
     <div
-      className="homepage-company-carousel-shell rounded-2xl bg-white/[0.018] px-1 py-4 sm:py-5"
+      className="homepage-company-carousel-shell rounded-2xl border border-white/[0.06] bg-white/[0.02] px-1 py-4 sm:py-5"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}

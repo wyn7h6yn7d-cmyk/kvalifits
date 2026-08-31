@@ -2,10 +2,12 @@ import { getTranslations } from "next-intl/server";
 
 import { JobCard } from "@/components/jobs/JobCard";
 import { JobSearchAlertsButton } from "@/components/jobs/JobSearchAlertsButton";
-import { Container } from "@/components/ui/container";
+import { HomeSectionHeader } from "@/components/sections/home/HomeSectionHeader";
+import { HomeSectionShell } from "@/components/sections/home/HomeSectionShell";
+import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
 import { getNewJobsForHomepage } from "@/lib/jobs/loadNewJobsForHomepage";
-import { SITE_BODY, SITE_GRID_GAP, SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
+import { SITE_BODY, SITE_GRID_GAP, SITE_HOME_CTA_PRIMARY, SITE_HOME_CTA_SECONDARY } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 const EMPTY_ALERT_SNAPSHOT = {
@@ -20,47 +22,40 @@ export async function NewJobsSection({ locale }: { locale: string }) {
   const savedSet = new Set(savedJobIds);
 
   return (
-    <section id="home-jobs" className="border-y border-border bg-surface py-8 sm:py-10 lg:py-12">
-      <Container>
-        <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-3">
-          <h2 className={SITE_H2_SECTION}>{t("newTitle")}</h2>
-          {jobs.length ? (
-            <Link
-              href="/tood"
-              className="inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-muted hover:text-foreground"
-            >
-              {t("viewAll")}
-            </Link>
-          ) : null}
+    <HomeSectionShell id="home-jobs" tone="base" glow="center" aria-labelledby="home-jobs-title">
+      <HomeSectionHeader
+        id="home-jobs-title"
+        title={t("newTitle")}
+        action={
+          jobs.length ? (
+            <Button asChild variant="outline" className={SITE_HOME_CTA_SECONDARY}>
+              <Link href="/tood">{t("viewAll")}</Link>
+            </Button>
+          ) : null
+        }
+      />
+      {jobs.length ? (
+        <div className={cn(SITE_GRID_GAP, "grid")}>
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} saved={savedSet.has(job.id)} canSave={canSaveJobs} />
+          ))}
         </div>
-        {jobs.length ? (
-          <div className={cn("mt-5 sm:mt-6", SITE_GRID_GAP, "grid")}>
-            {jobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                saved={savedSet.has(job.id)}
-                canSave={canSaveJobs}
-              />
-            ))}
-          </div>
-        ) : (
+      ) : (
+        <div className="rounded-2xl border border-white/[0.08] bg-[#13131a]/70 px-5 py-8 sm:px-8 sm:py-10">
+          <p className={cn(SITE_BODY, "text-muted")}>{t("empty")}</p>
           <div className="mt-5">
-            <p className={cn(SITE_BODY, "text-muted")}>{t("empty")}</p>
-            <div className="mt-3">
-              <JobSearchAlertsButton
-                snapshot={EMPTY_ALERT_SNAPSHOT}
-                matchSortAvailable={false}
-                canSave={canSaveJobs}
-                alwaysShow
-                label={t("emptyCta")}
-                variant="outline"
-                className="w-full sm:w-auto"
-              />
-            </div>
+            <JobSearchAlertsButton
+              snapshot={EMPTY_ALERT_SNAPSHOT}
+              matchSortAvailable={false}
+              canSave={canSaveJobs}
+              alwaysShow
+              label={t("emptyCta")}
+              variant="primary"
+              className={cn(SITE_HOME_CTA_PRIMARY, "w-full sm:w-auto")}
+            />
           </div>
-        )}
-      </Container>
-    </section>
+        </div>
+      )}
+    </HomeSectionShell>
   );
 }

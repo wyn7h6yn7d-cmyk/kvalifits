@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { useCurrentAuth } from "@/components/auth/CurrentAuthProvider";
 
 const langTriggerNavbar =
-  "h-11 min-h-11 w-auto shrink-0 rounded-md border-0 bg-transparent px-2.5 py-0 text-[0.9375rem] leading-snug shadow-none ring-0 hover:!bg-surface lg:!h-8 lg:!min-h-0 lg:px-2";
+  "h-11 min-h-11 w-auto shrink-0 rounded-md border-0 bg-transparent px-2.5 py-0 text-[0.9375rem] leading-snug text-white/72 shadow-none ring-0 hover:!bg-white/[0.06] hover:!text-white lg:!h-8 lg:!min-h-0 lg:px-2";
 
 function navIsActive(pathname: string, href: string) {
   if (href === "/tood") return pathname === "/tood" || pathname.startsWith("/tood/");
@@ -46,7 +46,7 @@ function NavLink({
       href={href}
       className={cn(
         "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-2 text-[0.9375rem] font-medium leading-snug transition-colors xl:px-2.5",
-        active ? "bg-primary/[0.08] text-foreground" : "text-muted hover:bg-surface hover:text-foreground",
+        active ? "bg-white/[0.08] text-white" : "text-white/68 hover:bg-white/[0.05] hover:text-white",
         className,
       )}
     >
@@ -89,10 +89,10 @@ function MobileNavLinks({
           href={item.href}
           onClick={onNavigate}
           className={cn(
-            "flex items-center rounded-lg border px-4 py-3.5 text-[15px] transition-colors min-h-11",
+            "flex min-h-11 items-center rounded-lg border px-4 py-3.5 text-[15px] transition-colors",
             navIsActive(pathname, item.href)
-              ? "border-[rgba(37,99,235,0.22)] bg-primary/[0.08] text-foreground"
-              : "border-border bg-white text-foreground/80 hover:bg-surface",
+              ? "border-white/[0.14] bg-white/[0.08] text-white"
+              : "border-white/[0.08] bg-white/[0.03] text-white/82 hover:bg-white/[0.06]",
           )}
         >
           {t(item.key)}
@@ -108,7 +108,15 @@ export function Navbar() {
   const locale = useLocale();
   const pathname = usePathname();
   const { authenticated, role } = useCurrentAuth();
+  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const syncBottomOffset = () => {
@@ -129,19 +137,25 @@ export function Navbar() {
   }, [authenticated, role]);
 
   const desktopNavPaths = resolveDesktopNavItems(pathname, authenticated, role);
-
   const mobileNavPaths = resolveMobileNavItems(pathname, authenticated, role);
-
   const showSeekerBottomNav = authenticated && role === "seeker";
+
+  const headerBar = cn(
+    "flex h-[var(--site-header-bar)] w-full min-w-0 items-center gap-2 border-b pr-4 sm:gap-3 lg:pr-5",
+    "border-white/[0.08] bg-[#09090d]",
+    "lg:overflow-x-clip lg:rounded-[18px] lg:border lg:border-white/[0.10] lg:bg-[#111116] lg:shadow-[0_10px_28px_-18px_rgba(0,0,0,0.62)]",
+    scrolled && "border-white/[0.10] lg:border-white/[0.12] lg:bg-[#131318]",
+  );
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-white">
-        <div className="mx-auto flex h-[var(--site-header-bar)] w-full max-w-[1240px] min-w-0 items-center gap-2 px-4 pr-4 sm:gap-3 md:px-6 lg:px-8 lg:pr-5">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
+        <div className="pointer-events-auto mx-auto w-full max-w-[1120px] px-4 md:px-6 lg:px-8">
+          <div className={headerBar}>
             <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden lg:flex-none lg:shrink-0">
               <Logo
                 className="inline-flex h-full max-w-full items-center"
-                imageClassName="h-8 w-auto max-h-9 sm:h-9 lg:h-10 lg:max-h-10"
+                imageClassName="h-full w-[9rem] max-h-10 object-cover object-left sm:max-h-11 sm:w-[12rem] lg:max-h-[3.625rem] lg:w-[15rem]"
                 priority
               />
             </div>
@@ -163,7 +177,7 @@ export function Navbar() {
                     {role === null ? (
                       <Link
                         href="/account"
-                        className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-muted hover:text-foreground"
+                        className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-white/75 hover:text-white"
                       >
                         {t("account")}
                       </Link>
@@ -171,7 +185,7 @@ export function Navbar() {
                     <form action={`/${locale}/auth/logout`} method="post">
                       <button
                         type="submit"
-                        className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-muted transition-colors hover:text-foreground"
+                        className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-white/75 transition-colors hover:text-white"
                       >
                         {t("logout")}
                       </button>
@@ -179,9 +193,12 @@ export function Navbar() {
                   </>
                 ) : (
                   <>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href="/auth/login">{t("login")}</Link>
-                    </Button>
+                    <Link
+                      href="/auth/login"
+                      className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-white/75 hover:text-white"
+                    >
+                      {t("login")}
+                    </Link>
                     <Button asChild variant="primary" size="sm">
                       <Link href="/auth/register">{t("signup")}</Link>
                     </Button>
@@ -211,14 +228,14 @@ export function Navbar() {
                         onNavigate={() => setMenuOpen(false)}
                       />
 
-                      <div className="border-t border-border pt-4">
-                        <div className="mb-2 text-[0.9375rem] font-medium leading-snug text-muted">
+                      <div className="border-t border-white/[0.08] pt-4">
+                        <div className="mb-2 text-[0.9375rem] font-medium leading-snug text-white/45">
                           {tLang("label")}
                         </div>
-                        <LanguageSwitcher className="w-full" triggerClassName="h-11 min-h-11 justify-start px-4 text-[14px]" />
+                        <LanguageSwitcher className="w-full" triggerClassName="h-11 min-h-11 justify-start px-4 text-[14px] text-white/72" />
                       </div>
 
-                      <div className="flex flex-col gap-2 border-t border-border pt-4">
+                      <div className="flex flex-col gap-2 border-t border-white/[0.08] pt-4">
                         {authenticated ? (
                           <>
                             {role === "employer" ? (
@@ -236,7 +253,7 @@ export function Navbar() {
                           </>
                         ) : (
                           <>
-                            <Button asChild variant="outline" className="w-full">
+                            <Button asChild variant="ghost" className="w-full">
                               <Link href="/auth/login" onClick={() => setMenuOpen(false)}>
                                 {t("login")}
                               </Link>
@@ -254,6 +271,7 @@ export function Navbar() {
                 </Sheet>
               </div>
             </div>
+          </div>
         </div>
       </header>
 

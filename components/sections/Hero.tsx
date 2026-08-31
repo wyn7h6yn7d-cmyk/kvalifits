@@ -1,22 +1,33 @@
 import { Container } from "@/components/ui/container";
 import { HeroContent } from "@/components/sections/HeroContent";
 import type { HeroQuickFilterId } from "@/lib/jobs/heroQuickFilters";
+import { cn } from "@/lib/utils";
 
 export function Hero({
   quickFilters,
-  publishedJobCount = 0,
+  embedded = false,
 }: {
   quickFilters: HeroQuickFilterId[];
-  publishedJobCount?: number;
+  embedded?: boolean;
 }) {
   return (
     <section
       id="avaleht"
-      className="relative scroll-mt-[var(--site-header-offset)] pb-6 sm:pb-7 lg:pb-8"
+      className={cn(
+        "relative scroll-mt-[var(--site-header-offset)]",
+        embedded ? "pb-16 sm:pb-20 lg:pb-24" : "overflow-hidden bg-surface-deep pb-16 sm:pb-20 lg:pb-24",
+      )}
     >
       <Container className="relative z-10">
-        <div style={{ paddingTop: "var(--site-hero-content-top)" }}>
-          <HeroContent quickFilters={quickFilters} publishedJobCount={publishedJobCount} />
+        <div
+          className={cn(
+            "flex flex-col justify-center",
+            embedded &&
+              "min-h-[min(76svh,calc(100svh-var(--site-header-offset)-3rem))] lg:min-h-[min(84svh,calc(100svh-var(--site-header-offset)-4rem))]",
+          )}
+          style={{ paddingTop: "var(--site-hero-content-top)" }}
+        >
+          <HeroContent quickFilters={quickFilters} />
         </div>
       </Container>
     </section>

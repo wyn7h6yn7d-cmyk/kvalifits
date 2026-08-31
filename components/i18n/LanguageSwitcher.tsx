@@ -141,9 +141,9 @@ export function LanguageSwitcher({
         aria-label={t("switchTo")}
         className={cn(
           "inline-flex items-center gap-1.5 rounded-md bg-transparent px-2 font-medium text-muted transition-colors",
-          "hover:bg-[#f5f7fb] hover:text-foreground",
+          "hover:bg-white/[0.06] hover:text-foreground",
           "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30",
-          open && "bg-[#f8fafc] text-foreground",
+          open && "bg-white/[0.06] text-foreground",
           triggerClassName,
         )}
       >
@@ -169,7 +169,7 @@ export function LanguageSwitcher({
           role="menu"
           aria-label={t("switchTo")}
           onKeyDown={onMenuKeyDown}
-          className="w-[160px] rounded-xl border border-border bg-white p-2 shadow-[0_12px_28px_-14px_rgba(15,23,42,0.14)]"
+          className="w-[160px] rounded-xl border border-white/[0.10] bg-[#14141a] p-2 shadow-[0_12px_28px_-14px_rgba(0,0,0,0.55)]"
         >
           {LOCALES.map((item, index) => {
             const active = item.code === current;
@@ -186,8 +186,8 @@ export function LanguageSwitcher({
                 onClick={() => switchLocale(item.code)}
                 className={cn(
                   "flex h-11 w-full items-center gap-2 rounded-md px-2.5 text-left text-[0.9375rem] leading-snug transition-colors lg:h-9",
-                  "text-muted hover:bg-[#f5f7fb] hover:text-foreground",
-                  "focus-visible:bg-[#f5f7fb] focus-visible:text-foreground focus-visible:outline-none",
+                  "text-muted hover:bg-white/[0.06] hover:text-foreground",
+                  "focus-visible:bg-white/[0.06] focus-visible:text-foreground focus-visible:outline-none",
                   active && "text-foreground",
                 )}
               >

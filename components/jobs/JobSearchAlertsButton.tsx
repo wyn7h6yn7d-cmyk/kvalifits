@@ -136,7 +136,7 @@ export function JobSearchAlertsButton({
         variant={variant}
         className={cn(
           "max-w-full shrink-0 px-5 max-lg:min-w-0",
-          variant === "outline" && "bg-[#f8fafc]",
+          variant === "outline" && "bg-white/[0.04]",
           className,
         )}
         onClick={onCtaClick}

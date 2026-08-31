@@ -11,11 +11,11 @@ export const controlTokens = {
   gap: "gap-2",
   icon: "h-4 w-4 shrink-0",
   border: "border border-border-strong",
-  borderHover: "hover:border-[rgba(37,99,235,0.28)]",
-  surface: "bg-white",
-  surfaceMuted: "bg-[#f8fafc]",
+  borderHover: "hover:border-white/[0.14]",
+  surface: "bg-[#12121a]",
+  surfaceMuted: "bg-[#14141f]",
   focus:
-    "outline-none focus-visible:border-[rgba(37,99,235,0.35)] focus-visible:ring-2 focus-visible:ring-primary/20",
+    "outline-none focus-visible:border-violet-400/40 focus-visible:ring-2 focus-visible:ring-violet-400/20",
 } as const;
 
 export function selectControlClassName(className?: string) {
@@ -30,11 +30,11 @@ export function selectControlClassName(className?: string) {
     controlTokens.surfaceMuted,
     controlTokens.text,
     "text-foreground/80 transition-[border-color,background-color]",
-    "[color-scheme:light]",
+    "[color-scheme:dark]",
     controlTokens.focus,
     "disabled:cursor-not-allowed disabled:opacity-50",
     "bg-[length:1rem_1rem] bg-[position:right_0.85rem_center] bg-no-repeat",
-    "bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27rgba(15,23,42,0.45)%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E')]",
+    "bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27rgba(255,255,255,0.45)%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E')]",
     className,
   );
 }
@@ -43,7 +43,7 @@ export function selectControlClassName(className?: string) {
 export function nativeSelectFormClassName(className?: string) {
   return cn(
     controlTokens.height,
-    "w-full rounded-2xl border border-border bg-white px-4 text-base leading-snug text-foreground outline-none transition-[border-color,background-color] focus:border-[rgba(37,99,235,0.35)]",
+    "w-full rounded-2xl border border-border bg-[#12121a] px-4 text-base leading-snug text-foreground outline-none transition-[border-color,background-color] focus:border-violet-400/40",
     className,
   );
 }

@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
 import {
-  SITE_BODY,
+  SITE_BODY_LEAD,
   SITE_EYEBROW,
   SITE_H1_HERO,
   SITE_PAGE_TOP,
@@ -31,8 +31,8 @@ export function PageHero({
           {prepend ? <div className="mb-6 w-full sm:mb-8">{prepend}</div> : null}
           <div className="mx-auto max-w-3xl">
             <div className={SITE_EYEBROW}>{eyebrow}</div>
-            <h1 className={cn("mt-3 sm:mt-4", SITE_H1_HERO)}>{title}</h1>
-            <p className={cn("mt-4 sm:mt-5", SITE_BODY, "text-muted")}>{subtitle}</p>
+            <h1 className={cn("mt-4 sm:mt-5", SITE_H1_HERO)}>{title}</h1>
+            <p className={cn("mt-5 max-w-[34rem] text-pretty sm:mt-6", SITE_BODY_LEAD)}>{subtitle}</p>
           </div>
           {children ? <div className="mt-8 w-full sm:mt-10">{children}</div> : null}
         </div>

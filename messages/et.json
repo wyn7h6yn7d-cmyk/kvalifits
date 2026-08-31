@@ -427,6 +427,8 @@
   },
   "hero": {
     "headline": "Leia töö, mis sulle päriselt sobib",
+    "headlineLead": "Leia töö, mis sulle",
+    "headlineAccent": "päriselt sobib",
     "subheadline": "Otsi tööpakkumisi ja vaata, kui hästi need sinu oskuste ja soovidega sobivad.",
     "searchQueryPlaceholder": "Amet, oskus või ettevõte",
     "searchLocationPlaceholder": "Asukoht",
@@ -586,6 +588,9 @@
     "privacy": "privaatsuspoliitikaga"
   },
   "footer": {
+    "tagline": "Otsi tööpakkumisi ja vaata, kui hästi need sinu oskuste ja soovidega sobivad.",
+    "platformTitle": "Platvorm",
+    "legalTitle": "Õiguslik",
     "privacyPolicy": "Privaatsuspoliitika",
     "terms": "Kasutustingimused",
     "cookies": "Küpsised",

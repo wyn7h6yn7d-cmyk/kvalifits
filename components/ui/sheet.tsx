@@ -50,7 +50,7 @@ export const SheetContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed z-[70] flex flex-col border-border bg-white shadow-[0_16px_48px_-24px_rgba(15,23,42,0.28)]",
+          "fixed z-[70] flex flex-col border-border bg-[#111116] shadow-[0_16px_48px_-24px_rgba(0,0,0,0.55)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           side === "right" &&
             "inset-y-0 right-0 h-dvh w-full max-w-sm overflow-y-auto border-l p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",

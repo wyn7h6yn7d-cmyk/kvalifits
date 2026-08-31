@@ -427,6 +427,8 @@
   },
   "hero": {
     "headline": "Find a job that really fits you",
+    "headlineLead": "Find a job that",
+    "headlineAccent": "really fits you",
     "subheadline": "Search job postings and see how well they match your skills and what you want.",
     "searchQueryPlaceholder": "Job, skill or company",
     "searchLocationPlaceholder": "Location",
@@ -586,6 +588,9 @@
     "privacy": "privacy policy"
   },
   "footer": {
+    "tagline": "Search jobs and see how well they match your skills and preferences.",
+    "platformTitle": "Platform",
+    "legalTitle": "Legal",
     "privacyPolicy": "Privacy policy",
     "terms": "Terms of use",
     "cookies": "Cookies",

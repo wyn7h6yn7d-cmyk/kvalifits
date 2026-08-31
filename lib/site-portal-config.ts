@@ -1,8 +1,6 @@
 import type { PortalBackgroundVariant, PortalIntensity } from "@/components/site/portal-background";
 
-/**
- * Landing visual rhythm — hero carries the “wow”; other sections support it.
- */
+/** Hero motion — readable but visibly alive. */
 export const heroPortal: {
   variant: PortalBackgroundVariant;
   intensity: PortalIntensity;
@@ -10,5 +8,5 @@ export const heroPortal: {
 } = {
   variant: "a",
   intensity: "default",
-  ambientIntensity: "strong",
+  ambientIntensity: "default",
 };

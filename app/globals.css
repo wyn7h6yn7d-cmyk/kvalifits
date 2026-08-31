@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  /* White / off-white surfaces, blue brand, pink as a small accent */
-  --background: #ffffff;
-  --foreground: #1e293b;
+  /* Premium dark base — black / deep blue-violet */
+  --background: #0c0c13;
+  --foreground: #f5f3fa;
   --accent-pink: #e31f8d;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
 
   /* Landing section rhythm */
-  --surface-deep: #ffffff;
-  --surface: #f4f7fb;
-  --surface-elevated: #ffffff;
+  --surface-deep: #07070c;
+  --surface: #0c0c13;
+  --surface-elevated: #14141f;
 
-  /* Fixed navbar — full-width bar, no floating island */
+  /* Fixed navbar — flush on phones; floating bar from lg */
   --site-header-top: 0px;
   --site-header-tail: 0px;
   --site-header-bar: 3.5rem;
@@ -22,30 +22,31 @@
   );
   --site-bottom-nav-height: 3.75rem;
   --site-bottom-nav-offset: 0px;
-  /* Hero: offset below fixed navbar + extra gap */
   --site-hero-content-top: calc(var(--site-header-offset) + 1.25rem);
 
   /* Surfaces */
-  --card: #ffffff;
-  --card-2: #f8fafc;
-  --border: rgba(30, 41, 59, 0.08);
-  --border-strong: rgba(30, 41, 59, 0.14);
+  --card: rgba(255, 255, 255, 0.045);
+  --card-2: rgba(255, 255, 255, 0.065);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.14);
 
-  /* Text */
-  --muted: rgba(30, 41, 59, 0.64);
-  --muted-2: rgba(30, 41, 59, 0.48);
-  --body: rgba(30, 41, 59, 0.7);
+  /* Text — higher contrast for public readability */
+  --muted: rgba(225, 221, 238, 0.9);
+  --muted-2: rgba(198, 194, 214, 0.78);
+  --body: rgba(212, 208, 228, 0.88);
 
-  /* Soft blue wash; pink wash only for tiny accents (legacy token names) */
-  --violet-1: rgba(37, 99, 235, 0.14);
-  --violet-2: rgba(37, 99, 235, 0.07);
-  --violet-3: rgba(227, 31, 141, 0.07);
+  /* Violet / indigo / pink glow */
+  --violet-1: rgba(168, 85, 247, 0.48);
+  --violet-2: rgba(99, 102, 241, 0.34);
+  --violet-3: rgba(236, 72, 153, 0.14);
 }
 
 @media (min-width: 1024px) {
   :root {
-    --site-header-bar: 3.75rem;
-    --site-hero-content-top: calc(var(--site-header-offset) + 1.5rem);
+    --site-header-top: 1.25rem;
+    --site-header-tail: 0.5rem;
+    --site-header-bar: 3.875rem;
+    --site-hero-content-top: calc(var(--site-header-offset) + 6rem);
   }
 }
 
@@ -68,11 +69,9 @@
   --color-violet-1: var(--violet-1);
   --color-violet-2: var(--violet-2);
   --color-violet-3: var(--violet-3);
-  /* IBM Plex Sans: ET / EN / RU, professional UI reading. */
   --font-sans: var(--font-ibm-plex-sans), "IBM Plex Sans", ui-sans-serif, system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
     "Apple Color Emoji", "Segoe UI Emoji";
-  /* System stack only — no second webfont; use `font-mono` for identifiers / env keys. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
 }
@@ -85,7 +84,7 @@ body {
   font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.7;
   letter-spacing: 0;
 }
 
@@ -95,14 +94,13 @@ body {
 }
 
 @media (max-width: 1023px) {
-  .portal-bg-a--lines path.portal-bg-a__path,
-  .portal-bg-a__hub-ring {
-    animation: none !important;
+  .homepage-motion-signal-ring {
+    animation-duration: 32s !important;
   }
 }
 
 ::selection {
-  background: rgba(37, 99, 235, 0.14);
+  background: rgba(255, 255, 255, 0.18);
   color: inherit;
 }
 
@@ -111,37 +109,31 @@ html {
   padding: 0;
   text-rendering: optimizeLegibility;
   background-color: var(--background);
-  color-scheme: light;
+  color-scheme: dark;
 }
 
-/* Accessible focus ring for keyboard users */
 :where(a, button, input, textarea, select, [role="button"], [tabindex]):focus-visible {
-  outline: 2px solid rgba(37, 99, 235, 0.55);
+  outline: 2px solid rgba(168, 85, 247, 0.75);
   outline-offset: 3px;
   border-radius: 12px;
 }
 
-/*
- * Browser autofill paints a bright/yellow-white fill on email fields.
- * Keep inputs on the light surface.
- */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-text-fill-color: var(--foreground) !important;
-  caret-color: var(--foreground);
-  box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  border-color: rgba(15, 23, 42, 0.14) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
+  caret-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 1000px #12121a inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #12121a inset !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   transition: background-color 99999s ease-out 0s;
 }
 
 input:-webkit-autofill:focus-visible {
-  border-color: rgba(37, 99, 235, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
 }
 
-/* Tööportaali tausta animatsioonid (Hero) — ainult transform/opacity/stroke */
 @keyframes portal-dash-flow {
   to {
     stroke-dashoffset: -280;
@@ -151,47 +143,133 @@ input:-webkit-autofill:focus-visible {
 @keyframes portal-pulse-ring {
   0%,
   100% {
-    opacity: 0.22;
+    opacity: 0.18;
   }
   50% {
-    opacity: 0.58;
+    opacity: 0.42;
+  }
+}
+
+@keyframes portal-hub-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes kf-network-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(6px, -4px);
+  }
+}
+
+@keyframes kf-signal-ring {
+  0% {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.11;
+  }
+  55% {
+    opacity: 0.04;
+  }
+  100% {
+    transform: scale(1.14);
+    opacity: 0;
   }
 }
 
 .portal-bg-a--lines path.portal-bg-a__path {
-  stroke-dasharray: 8 14;
+  stroke-dasharray: 6 18;
   stroke-dashoffset: 0;
   animation-name: portal-dash-flow;
-  animation-duration: var(--portal-dash-duration, 48s);
+  animation-duration: var(--portal-dash-duration, 72s);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
 
+.portal-bg-a__path--d1 {
+  animation-delay: 0s;
+}
+
+.portal-bg-a__path--d2 {
+  animation-delay: -14s;
+}
+
+.portal-bg-a__path--d3 {
+  animation-delay: -28s;
+}
+
+.portal-bg-a__path--d4 {
+  animation-delay: -21s;
+}
+
+.portal-bg-a__path--d5 {
+  animation-delay: -35s;
+}
+
 .portal-bg-a__hub-ring {
-  animation: portal-pulse-ring var(--portal-pulse-duration, 22s) ease-in-out infinite;
+  animation: portal-pulse-ring var(--portal-pulse-duration, 36s) ease-in-out infinite;
+}
+
+.portal-bg-a__hub-core {
+  animation: portal-hub-breathe var(--portal-pulse-duration, 36s) ease-in-out infinite;
+}
+
+.homepage-motion-network {
+  animation: kf-network-drift 56s ease-in-out infinite;
+}
+
+.homepage-motion-signal-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kf-signal-ring 27s ease-out infinite;
+}
+
+.homepage-motion-signal-ring--pink {
+  animation-duration: 31s;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .portal-bg-a--lines path.portal-bg-a__path,
-  .portal-bg-a__hub-ring {
+  .portal-bg-a__hub-ring,
+  .portal-bg-a__hub-core,
+  .homepage-motion-network,
+  .homepage-motion-signal-ring {
     animation: none !important;
+  }
+
+  .portal-bg-a__hub-ring {
+    opacity: 0.28;
   }
 }
 
-/* Accent display: solid text only (no background-clip / transparent fill → Word-safe) */
-.text-accent-brand-display {
-  color: var(--primary);
-}
-.text-accent-price-display {
-  color: var(--primary-hover);
+.type-hero-title {
+  text-shadow:
+    0 2px 28px rgba(0, 0, 0, 0.38),
+    0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-/* RU hero mockup: slightly smaller base type so long words fit like EN */
+.text-accent-brand-display {
+  color: #ddd0ff;
+}
+
+.text-accent-price-display {
+  color: #ede4ff;
+}
+
 [data-hero-mock-locale="ru"] {
   font-size: 0.925rem;
 }
 
-/* Lightweight content placeholders — opacity only, no shimmer sweep */
 @keyframes kf-skeleton-pulse {
   0%,
   100% {
@@ -203,7 +281,7 @@ input:-webkit-autofill:focus-visible {
 }
 
 .kf-skeleton {
-  background-color: rgba(15, 23, 42, 0.06);
+  background-color: rgba(255, 255, 255, 0.055);
   animation: kf-skeleton-pulse 1.85s ease-in-out infinite;
 }
 
@@ -215,6 +293,29 @@ input:-webkit-autofill:focus-visible {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes kf-ambient-a {
+  0%,
+  100% {
+    transform: translate(-50%, -4px) scale(1);
+  }
+  50% {
+    transform: translate(-50%, 6px) scale(1.02);
+  }
+}
+
+@keyframes kf-ambient-b {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(-18px, -10px) scale(1.04);
+  }
+  70% {
+    transform: translate(10px, 8px) scale(1);
   }
 }
 
@@ -275,6 +376,10 @@ input:-webkit-autofill:focus-visible {
   animation-iteration-count: infinite;
 }
 
+.kf-ambient-orb {
+  animation: kf-ambient-a 38s ease-in-out infinite;
+}
+
 .homepage-company-carousel-viewport {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -290,7 +395,6 @@ input:-webkit-autofill:focus-visible {
   pointer-events: none;
 }
 
-/* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto !important;
@@ -307,6 +411,7 @@ input:-webkit-autofill:focus-visible {
   .kf-enter,
   .kf-enter-slow,
   .kf-hero-bar,
+  .kf-ambient-orb,
   .kf-portal-b-card,
   .kf-portal-b-pill {
     animation: none !important;

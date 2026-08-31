@@ -1,8 +1,11 @@
+import { Briefcase, Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-import { Container } from "@/components/ui/container";
+import { HomeSectionHeader } from "@/components/sections/home/HomeSectionHeader";
+import { HomeSectionShell } from "@/components/sections/home/HomeSectionShell";
+import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
-import { SITE_BODY, SITE_H3 } from "@/lib/site/publicPageLayout";
+import { SITE_BODY, SITE_H3, SITE_HOME_CARD, SITE_HOME_CTA_PRIMARY, SITE_HOME_CTA_SECONDARY } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 export async function HomepageAudienceSection() {
@@ -10,62 +13,59 @@ export async function HomepageAudienceSection() {
 
   const paths = [
     {
+      icon: Briefcase,
       title: t("seekerTitle"),
       desc: t("seekerDesc"),
       cta: t("seekerLink"),
       ctaHref: "/tood",
-      secondary: t("seekerSecondary"),
-      secondaryHref: "/toootsijatele",
+      primary: true,
     },
     {
+      icon: Building2,
       title: t("employerTitle"),
       desc: t("employerDesc"),
       cta: t("employerLink"),
       ctaHref: "/auth/register?role=employer",
-      secondary: t("employerSecondary"),
-      secondaryHref: "/tooandjatele",
+      primary: false,
     },
   ] as const;
 
   return (
-    <section className="border-t border-border" aria-labelledby="home-audience-title">
-      <Container>
-        <h2 id="home-audience-title" className="sr-only">
-          {t("title")}
-        </h2>
-        <div className="grid sm:grid-cols-2">
-          {paths.map((path, index) => (
-            <div
+    <HomeSectionShell tone="raised" glow="top" aria-labelledby="home-audience-title">
+      <HomeSectionHeader title={t("title")} id="home-audience-title" />
+      <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
+        {paths.map((path) => {
+          const Icon = path.icon;
+          return (
+            <article
               key={path.ctaHref}
-              className={cn(
-                "py-5 sm:py-6",
-                index === 0
-                  ? "border-b border-border sm:border-b-0 sm:border-r sm:border-border sm:pr-8"
-                  : "sm:pl-8",
-              )}
+              className={cn(SITE_HOME_CARD, "relative overflow-hidden p-6 sm:p-7")}
             >
-              <h3 className={SITE_H3}>{path.title}</h3>
-              <p className={cn("mt-1", SITE_BODY, "text-muted")}>{path.desc}</p>
-              <p className="mt-3">
-                <Link
-                  href={path.ctaHref}
-                  className="inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-foreground underline-offset-4 hover:underline"
-                >
-                  {path.cta}
-                </Link>
-              </p>
-              <p>
-                <Link
-                  href={path.secondaryHref}
-                  className="inline-flex min-h-11 items-center text-[0.9375rem] text-muted underline-offset-4 hover:text-foreground hover:underline"
-                >
-                  {path.secondary}
-                </Link>
-              </p>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.12),transparent_70%)]"
+              />
+              <div className="relative">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.12] bg-white/[0.05] text-violet-300">
+                  <Icon className="h-5 w-5" aria-hidden />
+                </div>
+                <h3 className={cn("mt-6", SITE_H3)}>{path.title}</h3>
+                <p className={cn("mt-3 max-w-sm text-pretty", SITE_BODY, "text-muted")}>{path.desc}</p>
+                <div className="mt-6">
+                  <Button
+                    asChild
+                    variant={path.primary ? "primary" : "outline"}
+                    size="lg"
+                    className={cn(path.primary ? SITE_HOME_CTA_PRIMARY : SITE_HOME_CTA_SECONDARY, "w-full sm:w-auto")}
+                  >
+                    <Link href={path.ctaHref}>{path.cta}</Link>
+                  </Button>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </HomeSectionShell>
   );
 }

@@ -18,7 +18,7 @@ export function PublicSiteMain({ navbar, children, jobsFooter, defaultFooter }: 
   const isJobsSection = segments[0] === "tood";
 
   return (
-    <div className={cn("flex-1", isHome ? "relative bg-surface" : "bg-background")}>
+    <div className={cn("flex-1 bg-background")}>
       {navbar}
       <main
         className={cn(
