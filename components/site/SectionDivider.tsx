@@ -20,11 +20,11 @@ export function SectionDivider({
         className={cn(
           "absolute inset-0",
           tone === "deep"
-            ? "bg-gradient-to-b from-transparent via-[#09090D]/35 to-transparent"
-            : "bg-gradient-to-b from-transparent via-white/[0.015] to-transparent",
+            ? "bg-gradient-to-b from-transparent via-slate-200/50 to-transparent"
+            : "bg-gradient-to-b from-transparent via-slate-100/80 to-transparent",
         )}
       />
-      <div className="absolute inset-x-[12%] top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+      <div className="absolute inset-x-[12%] top-1/2 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
     </div>
   );
 }

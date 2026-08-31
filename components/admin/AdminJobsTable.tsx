@@ -105,7 +105,7 @@ export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
 
   if (!jobs.length) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 text-sm text-white/70">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
         {t("noJobs")}
       </div>
     );
@@ -114,13 +114,13 @@ export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
   return (
     <div className="space-y-3">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-3xl border border-white/[0.10]">
-        <div className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-white/[0.10] bg-white/[0.03] px-4 py-3 text-xs font-medium tracking-wide text-white/60">
+      <div className="overflow-hidden rounded-3xl border border-border">
+        <div className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-border bg-[#f8fafc] px-4 py-3 text-[0.9375rem] font-medium leading-snug text-foreground">
           <div>{t("colJob")}</div>
           <div className="hidden sm:block">{t("colCompany")}</div>
           <div>{t("colStatus")}</div>
@@ -130,20 +130,20 @@ export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
         {jobs.map((j) => (
           <div
             key={j.id}
-            className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-white/[0.08] bg-white/[0.02] px-4 py-3 last:border-b-0"
+            className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-border bg-white px-4 py-3 last:border-b-0"
           >
             <div className="min-w-0">
-              <div className="truncate text-sm font-medium text-white/85">{j.title}</div>
-              <div className="mt-1 text-xs text-white/55">
+              <div className="truncate text-sm font-medium text-foreground/80">{j.title}</div>
+              <div className="mt-1 text-xs text-muted-2">
                 {(j.location ?? "").trim() ? j.location : "—"}
               </div>
             </div>
 
             <div className="hidden min-w-0 sm:block">
-              <div className="truncate text-sm text-white/75">{j.employer_name ?? "—"}</div>
+              <div className="truncate text-sm text-muted">{j.employer_name ?? "—"}</div>
             </div>
 
-            <div className="text-sm text-white/75">{statusLabel(j.status)}</div>
+            <div className="text-sm text-muted">{statusLabel(j.status)}</div>
 
             <div className="flex flex-wrap justify-end gap-2">
               {j.status !== "published" ? (

@@ -87,10 +87,10 @@ function ChoiceButton({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "min-h-11 rounded-xl border px-3.5 py-2.5 text-left text-[13px] font-medium leading-snug transition-colors",
+        "min-h-11 rounded-[10px] border px-3.5 py-2.5 text-left text-[0.9375rem] font-medium leading-snug transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
         selected
-          ? "border-white/25 bg-white/[0.12] text-white"
-          : "border-white/[0.10] bg-white/[0.03] text-white/72 hover:border-white/[0.16] hover:bg-white/[0.06]",
+          ? "border-[rgba(37,99,235,0.34)] bg-white text-foreground shadow-[inset_0_0_0_1px_rgba(227,31,141,0.12)]"
+          : "border-[rgba(37,99,235,0.16)] bg-white text-body hover:border-[rgba(37,99,235,0.28)] hover:bg-surface",
         className,
       )}
     >
@@ -635,25 +635,25 @@ export function JobApplyForm({
 
   if (!acceptsApplications) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-        <div className="mt-1 text-sm text-white/60">{t("applyClosedBody")}</div>
-        {applyUntilLabel ? <p className="mt-3 text-sm font-medium text-white/75">{applyUntilLabel}</p> : null}
+      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
+        <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyClosedBody")}</div>
+        {applyUntilLabel ? <p className="mt-3 text-base font-medium text-muted">{applyUntilLabel}</p> : null}
       </div>
     );
   }
 
   if (!authed) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-        <div className="mt-1 text-sm text-white/60">{t("applyLoginHint")}</div>
+      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
+        <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyLoginHint")}</div>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <Link href="/auth/login" className="text-sm font-medium text-white/80 underline hover:text-white">
+          <Link href="/auth/login" className="text-[0.9375rem] font-medium text-foreground underline hover:text-foreground">
             {t("applyLogin")}
           </Link>
-          <span className="hidden text-white/25 sm:inline">•</span>
-          <Link href="/auth/register" className="text-sm font-medium text-white/80 underline hover:text-white">
+          <span className="hidden text-muted sm:inline">•</span>
+          <Link href="/auth/register" className="text-[0.9375rem] font-medium text-foreground underline hover:text-foreground">
             {t("applyRegister")}
           </Link>
         </div>
@@ -663,21 +663,21 @@ export function JobApplyForm({
 
   if (role !== "seeker") {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-        <div className="mt-1 text-sm text-white/60">{t("applyOnlySeekers")}</div>
+      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
+        <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyOnlySeekers")}</div>
       </div>
     );
   }
 
   if (profileCoreComplete === false) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-        <div className="mt-1 text-sm text-white/60">{t("applyProfileRequired")}</div>
+      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
+        <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyProfileRequired")}</div>
         <Link
           href="/account/seeker/profile"
-          className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-white/80 underline hover:text-white"
+          className="mt-4 inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-foreground underline hover:text-foreground"
         >
           {t("applyCompleteProfile")}
         </Link>
@@ -687,11 +687,11 @@ export function JobApplyForm({
 
   if (success) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">
+      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-base font-semibold leading-snug text-foreground">
           {alreadyApplied ? t("applyDuplicate") : t("applySuccessTitle")}
         </div>
-        <div className="mt-1 text-sm text-white/60">
+        <div className="mt-1 text-base leading-[1.65] text-muted">
           {alreadyApplied ? t("applyDuplicateBody") : t("applySuccessBody")}
         </div>
       </div>
@@ -731,10 +731,10 @@ export function JobApplyForm({
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 pb-4 pt-1 sm:px-5">
         {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
 
-        <p className="text-[13px] leading-relaxed text-white/55">{t("quickApplyNoCvHint")}</p>
+        <p className="text-[0.9375rem] leading-[1.6] text-muted">{t("quickApplyNoCvHint")}</p>
 
         <fieldset className="space-y-3">
-          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+          <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">
             {t("applySalaryQuestion")}
           </legend>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -788,12 +788,12 @@ export function JobApplyForm({
             </div>
           ) : null}
           {salaryMode === "negotiable" ? (
-            <p className="text-xs leading-relaxed text-white/45">{t("applySalaryNegotiableHint")}</p>
+            <p className="text-[0.9375rem] leading-[1.6] text-muted">{t("applySalaryNegotiableHint")}</p>
           ) : null}
         </fieldset>
 
         <fieldset className="space-y-3">
-          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+          <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">
             {t("quickApplyStart")}
           </legend>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -813,7 +813,7 @@ export function JobApplyForm({
               value={availabilityStartDate}
               onChange={(e) => setAvailabilityStartDate(e.target.value)}
               aria-label={t("applyAvailableFromDate")}
-              className="min-h-12 [color-scheme:dark]"
+              className="min-h-12 [color-scheme:light]"
               onFocus={scrollApplyFieldIntoView}
             />
           ) : null}
@@ -821,10 +821,10 @@ export function JobApplyForm({
 
         {showNotice ? (
           <div className="space-y-2">
-            <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45" htmlFor="apply-notice">
+            <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="apply-notice">
               {t("applyNoticePeriod")}
             </label>
-            <p className="text-xs text-white/45">{t("applyNoticeHint")}</p>
+            <p className="text-[0.9375rem] leading-[1.6] text-muted">{t("applyNoticeHint")}</p>
             <Input
               id="apply-notice"
               value={noticePeriod}
@@ -836,14 +836,14 @@ export function JobApplyForm({
         ) : null}
 
         <fieldset className="space-y-3">
-          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+          <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">
             {t("quickApplyWorkload")}
           </legend>
-          <label className="text-xs text-white/55" htmlFor="apply-hours">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="apply-hours">
             {t("applyWeeklyHours")}
           </label>
           {advertisedHours ? (
-            <p className="text-xs text-white/45">{t("applyAdvertisedHours", { hours: advertisedHours })}</p>
+            <p className="text-[0.9375rem] leading-[1.6] text-muted">{t("applyAdvertisedHours", { hours: advertisedHours })}</p>
           ) : null}
           <Input
             id="apply-hours"
@@ -855,8 +855,8 @@ export function JobApplyForm({
             placeholder={t("applyWeeklyHoursPlaceholder")}
             onFocus={scrollApplyFieldIntoView}
           />
-          <div className="text-xs text-white/55">{t("applyScheduleFit")}</div>
-          {scheduleHint ? <p className="text-xs text-white/45">{scheduleHint}</p> : null}
+          <div className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("applyScheduleFit")}</div>
+          {scheduleHint ? <p className="text-[0.9375rem] leading-[1.6] text-muted">{scheduleHint}</p> : null}
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {SCHEDULE_FIT_VALUES.map((v) => (
               <ChoiceButton key={v} selected={scheduleFits === v} onClick={() => setScheduleFits(v)}>
@@ -867,10 +867,10 @@ export function JobApplyForm({
         </fieldset>
 
         <fieldset className="space-y-3">
-          <legend className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+          <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">
             {t("applyInterviewPreference")}
           </legend>
-          <p className="text-xs text-white/45">{t("applyInterviewPreferenceHint")}</p>
+          <p className="text-[0.9375rem] leading-[1.6] text-muted">{t("applyInterviewPreferenceHint")}</p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {INTERVIEW_PREFERENCE_VALUES.map((v) => (
               <ChoiceButton key={v} selected={interviewPreferences.includes(v)} onClick={() => toggleInterview(v)}>
@@ -881,7 +881,7 @@ export function JobApplyForm({
         </fieldset>
 
         <div className="space-y-2">
-          <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45" htmlFor="apply-note">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="apply-note">
             {t("applyNoteLabel")}
           </label>
           <textarea
@@ -890,20 +890,20 @@ export function JobApplyForm({
             onChange={(e) => setNoteForEmployer(e.target.value)}
             rows={3}
             maxLength={500}
-            className="min-h-[6.5rem] w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 py-3 text-base text-white/85 placeholder:text-white/35 outline-none transition-colors focus:border-white/[0.18] lg:text-sm"
+            className="min-h-[6.5rem] w-full rounded-2xl border border-border bg-white px-4 py-3 text-base leading-[1.6] text-foreground placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
             placeholder={t("applyNotePlaceholder")}
             onFocus={scrollApplyFieldIntoView}
           />
         </div>
 
         {error ? (
-          <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+          <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-base leading-[1.65] text-muted">
             {error}
           </div>
         ) : null}
       </div>
 
-      <div className="shrink-0 border-t border-white/[0.08] bg-[#121216] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+      <div className="shrink-0 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
         <Button type="submit" variant="primary" size="lg" className="h-12 w-full">
           {t("applyContinueToReview")}
         </Button>
@@ -916,19 +916,19 @@ export function JobApplyForm({
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 pb-4 pt-1 sm:px-5">
         {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
 
-        <dl className="space-y-3 rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-4">
+        <dl className="space-y-3 rounded-2xl border border-border bg-[#f8fafc] px-4 py-4">
           {displayTitle ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("applyReviewJob")}</dt>
-              <dd className="mt-1 text-[15px] font-semibold text-white/90">{displayTitle}</dd>
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">{t("applyReviewJob")}</dt>
+              <dd className="mt-1 text-base font-semibold leading-snug text-foreground">{displayTitle}</dd>
             </div>
           ) : null}
           {displayEmployer ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">
                 {t("applyReviewEmployer")}
               </dt>
-              <dd className="mt-1 text-sm text-white/80">{displayEmployer}</dd>
+              <dd className="mt-1 text-base leading-[1.6] text-foreground">{displayEmployer}</dd>
             </div>
           ) : null}
           <div>
@@ -941,28 +941,28 @@ export function JobApplyForm({
           </div>
           {salaryScan ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("applySalary")}</dt>
-              <dd className="mt-1 text-base font-semibold tabular-nums text-white/90">
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">{t("applySalary")}</dt>
+              <dd className="mt-1 text-base font-semibold tabular-nums text-foreground">
                 {salaryScan.primary}{" "}
-                <span className="text-sm font-normal text-white/55">{salaryScan.basis}</span>
+                <span className="text-[0.9375rem] font-normal text-muted">{salaryScan.basis}</span>
               </dd>
             </div>
           ) : null}
           {startScan ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("quickApplyStart")}</dt>
-              <dd className="mt-1 text-sm text-white/80">{startScan}</dd>
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">{t("quickApplyStart")}</dt>
+              <dd className="mt-1 text-base leading-[1.6] text-foreground">{startScan}</dd>
             </div>
           ) : null}
           {workloadScan ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">
                 {t("quickApplyWorkload")}
               </dt>
-              <dd className="mt-1 text-sm text-white/80">
+              <dd className="mt-1 text-base leading-[1.6] text-foreground">
                 {workloadScan}
                 {reviewAnswers.scheduleFits ? (
-                  <span className="mt-1 block text-xs text-white/50">
+                  <span className="mt-1 block text-[0.9375rem] leading-[1.6] text-muted">
                     {t("applyScheduleFit")}: {t(`applyScheduleFitOption.${reviewAnswers.scheduleFits}`)}
                   </span>
                 ) : null}
@@ -971,25 +971,25 @@ export function JobApplyForm({
           ) : null}
           {interviewScan ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">
                 {t("applyInterviewPreference")}
               </dt>
-              <dd className="mt-1 text-sm text-white/80">{interviewScan.formats}</dd>
+              <dd className="mt-1 text-base leading-[1.6] text-foreground">{interviewScan.formats}</dd>
             </div>
           ) : null}
           {reviewAnswers.noteForEmployer ? (
             <div>
-              <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{t("applyNoteLabel")}</dt>
-              <dd className="mt-1 whitespace-pre-wrap text-sm text-white/75">{reviewAnswers.noteForEmployer}</dd>
+              <dt className="text-[0.9375rem] font-medium leading-snug text-muted">{t("applyNoteLabel")}</dt>
+              <dd className="mt-1 whitespace-pre-wrap text-base leading-[1.6] text-muted">{reviewAnswers.noteForEmployer}</dd>
             </div>
           ) : null}
         </dl>
 
-        <p className="text-[13px] leading-relaxed text-white/50">
+        <p className="text-[0.9375rem] leading-[1.6] text-muted">
           {profileHints.hasCv ? t("quickApplyCvFromProfile") : t("quickApplyNoCvRequired")}
         </p>
 
-        <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-sm text-white/70">
+        <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3 text-base leading-[1.6] text-body">
           <input
             type="checkbox"
             checked={consent}
@@ -1000,19 +1000,19 @@ export function JobApplyForm({
         </label>
 
         {error ? (
-          <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+          <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-base leading-[1.65] text-muted">
             {error}
           </div>
         ) : null}
       </div>
 
-      <div className="shrink-0 space-y-2 border-t border-white/[0.08] bg-[#121216] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+      <div className="shrink-0 space-y-2 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
         <Button type="submit" variant="primary" size="lg" className="h-12 w-full" loading={loading} loadingText={t("applySending")}>
           {t("applyCta")}
         </Button>
         <button
           type="button"
-          className="w-full text-center text-sm text-white/55 underline-offset-4 hover:text-white/80 hover:underline"
+          className="w-full text-center text-[0.9375rem] text-muted underline-offset-4 hover:text-foreground hover:underline"
           onClick={() => {
             applyPrefill(reviewAnswers);
             setConsent(false);
@@ -1035,10 +1035,10 @@ export function JobApplyForm({
       description={panel === "review" ? t("quickApplySummarySubtitle") : t("quickApplySubtitle")}
       closeLabel={t("applySheetClose")}
       trigger={
-        <div className={cn("rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
-          <div className="text-sm font-medium text-white/85">{t("applyTitle")}</div>
-          <div className="mt-1 text-sm text-white/60">{t("applySubtitle")}</div>
-          <p className="mt-3 text-xs leading-relaxed text-white/45">{t("quickApplyNoCvHint")}</p>
+        <div className={cn("rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
+          <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
+          <div className="mt-1 text-base leading-[1.65] text-muted">{t("applySubtitle")}</div>
+          <p className="mt-3 text-[0.9375rem] leading-[1.6] text-muted">{t("quickApplyNoCvHint")}</p>
           <div className="mt-4">
             <SheetTrigger asChild>
               <Button type="button" variant="primary" size="lg" className="w-full" data-testid="quick-apply-open">

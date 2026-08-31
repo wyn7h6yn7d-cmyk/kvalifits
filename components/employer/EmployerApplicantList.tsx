@@ -33,7 +33,7 @@ type ExpFilter = "all" | "first_job" | "entry" | "mid" | "senior" | "lead" | "ex
 type SalaryCap = "all" | "negotiable" | "1500" | "2000" | "2500" | "3000" | "4000";
 
 const filterSelectClass =
-  "h-9 w-full rounded-lg border border-white/[0.10] bg-white/[0.03] px-2.5 text-[12px] text-white/80 outline-none focus:border-white/[0.18]";
+  "h-9 w-full rounded-lg border border-border bg-[#f8fafc] px-2.5 text-[12px] text-foreground/80 outline-none focus:border-[rgba(37,99,235,0.35)]";
 
 function matchesStartFilter(start: string | undefined, filter: StartFilter): boolean {
   if (filter === "all") return true;
@@ -154,8 +154,8 @@ export function EmployerApplicantList({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
-        <label className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/40" htmlFor="inbox-job">
+      <div className="rounded-2xl border border-border bg-white p-4 sm:p-5">
+        <label className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-2" htmlFor="inbox-job">
           {t("inboxSelectJob")}
         </label>
         {jobs.length ? (
@@ -163,16 +163,16 @@ export function EmployerApplicantList({
             id="inbox-job"
             value={jobPostId}
             onChange={(e) => onJobChange(e.target.value)}
-            className="mt-2 h-11 w-full rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-sm font-medium text-white/90 outline-none focus:border-white/[0.18]"
+            className="mt-2 h-11 w-full rounded-xl border border-border bg-[#f8fafc] px-3 text-sm font-medium text-foreground outline-none focus:border-[rgba(37,99,235,0.35)]"
           >
             {jobs.map((j) => (
-              <option key={j.id} value={j.id} className="bg-zinc-900 text-white">
+              <option key={j.id} value={j.id} className="bg-white text-foreground">
                 {t("inboxJobOption", { title: j.title, count: j.applicantCount })}
               </option>
             ))}
           </select>
         ) : (
-          <div className="mt-2 text-base font-semibold text-white/90">
+          <div className="mt-2 text-base font-semibold text-foreground">
             {t("inboxJobOption", {
               title: currentJob?.title ?? t("applicantsForJob"),
               count: headlineCount,
@@ -183,29 +183,29 @@ export function EmployerApplicantList({
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxFilterMinMatch")}
           </span>
           <select className={filterSelectClass} value={minMatch} onChange={(e) => setMinMatch(Number(e.target.value))}>
-            <option value={0} className="bg-zinc-900">
+            <option value={0} className="bg-white">
               {t("inboxFilterAny")}
             </option>
-            <option value={50} className="bg-zinc-900">
+            <option value={50} className="bg-white">
               50%
             </option>
-            <option value={70} className="bg-zinc-900">
+            <option value={70} className="bg-white">
               70%
             </option>
-            <option value={80} className="bg-zinc-900">
+            <option value={80} className="bg-white">
               80%
             </option>
-            <option value={90} className="bg-zinc-900">
+            <option value={90} className="bg-white">
               90%
             </option>
           </select>
         </label>
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxFilterStatus")}
           </span>
           <select
@@ -213,18 +213,18 @@ export function EmployerApplicantList({
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as ApplicationPipelineStatus | "all")}
           >
-            <option value="all" className="bg-zinc-900">
+            <option value="all" className="bg-white">
               {t("applicationPipelineAll")}
             </option>
             {APPLICATION_PIPELINE_STATUSES.map((s) => (
-              <option key={s} value={s} className="bg-zinc-900">
+              <option key={s} value={s} className="bg-white">
                 {t(`applicationPipelineStatus.${s}`)}
               </option>
             ))}
           </select>
         </label>
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxFilterSalary")}
           </span>
           <select
@@ -232,31 +232,31 @@ export function EmployerApplicantList({
             value={salaryCap}
             onChange={(e) => setSalaryCap(e.target.value as SalaryCap)}
           >
-            <option value="all" className="bg-zinc-900">
+            <option value="all" className="bg-white">
               {t("inboxFilterAny")}
             </option>
-            <option value="negotiable" className="bg-zinc-900">
+            <option value="negotiable" className="bg-white">
               {t("applySalaryModeOption.negotiable")}
             </option>
-            <option value="1500" className="bg-zinc-900">
+            <option value="1500" className="bg-white">
               {t("inboxSalaryUpTo", { amount: 1500 })}
             </option>
-            <option value="2000" className="bg-zinc-900">
+            <option value="2000" className="bg-white">
               {t("inboxSalaryUpTo", { amount: 2000 })}
             </option>
-            <option value="2500" className="bg-zinc-900">
+            <option value="2500" className="bg-white">
               {t("inboxSalaryUpTo", { amount: 2500 })}
             </option>
-            <option value="3000" className="bg-zinc-900">
+            <option value="3000" className="bg-white">
               {t("inboxSalaryUpTo", { amount: 3000 })}
             </option>
-            <option value="4000" className="bg-zinc-900">
+            <option value="4000" className="bg-white">
               {t("inboxSalaryUpTo", { amount: 4000 })}
             </option>
           </select>
         </label>
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxFilterStart")}
           </span>
           <select
@@ -264,43 +264,43 @@ export function EmployerApplicantList({
             value={startFilter}
             onChange={(e) => setStartFilter(e.target.value as StartFilter)}
           >
-            <option value="all" className="bg-zinc-900">
+            <option value="all" className="bg-white">
               {t("inboxFilterAny")}
             </option>
-            <option value="immediate" className="bg-zinc-900">
+            <option value="immediate" className="bg-white">
               {t("applyAvailableFromOption.immediate")}
             </option>
-            <option value="soon" className="bg-zinc-900">
+            <option value="soon" className="bg-white">
               {t("inboxStartSoon")}
             </option>
-            <option value="month" className="bg-zinc-900">
+            <option value="month" className="bg-white">
               {t("inboxStartMonth")}
             </option>
-            <option value="date" className="bg-zinc-900">
+            <option value="date" className="bg-white">
               {t("applyAvailableFromOption.specific_date")}
             </option>
-            <option value="agreement" className="bg-zinc-900">
+            <option value="agreement" className="bg-white">
               {t("applyAvailableFromOption.by_agreement")}
             </option>
           </select>
         </label>
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxFilterCertificate")}
           </span>
           <select className={filterSelectClass} value={certFilter} onChange={(e) => setCertFilter(e.target.value)}>
-            <option value="all" className="bg-zinc-900">
+            <option value="all" className="bg-white">
               {t("inboxFilterAny")}
             </option>
             {certOptions.map((name) => (
-              <option key={name} value={name} className="bg-zinc-900">
+              <option key={name} value={name} className="bg-white">
                 {name}
               </option>
             ))}
           </select>
         </label>
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxFilterExperience")}
           </span>
           <select
@@ -308,44 +308,44 @@ export function EmployerApplicantList({
             value={expFilter}
             onChange={(e) => setExpFilter(e.target.value as ExpFilter)}
           >
-            <option value="all" className="bg-zinc-900">
+            <option value="all" className="bg-white">
               {t("inboxFilterAny")}
             </option>
-            <option value="first_job" className="bg-zinc-900">
+            <option value="first_job" className="bg-white">
               {t("applicantCardFirstJob")}
             </option>
-            <option value="entry" className="bg-zinc-900">
+            <option value="entry" className="bg-white">
               {t("inboxExpEntry")}
             </option>
-            <option value="mid" className="bg-zinc-900">
+            <option value="mid" className="bg-white">
               {t("inboxExpMid")}
             </option>
-            <option value="senior" className="bg-zinc-900">
+            <option value="senior" className="bg-white">
               {t("inboxExpSenior")}
             </option>
-            <option value="years_2" className="bg-zinc-900">
+            <option value="years_2" className="bg-white">
               {t("inboxExpYears", { years: 2 })}
             </option>
-            <option value="years_5" className="bg-zinc-900">
+            <option value="years_5" className="bg-white">
               {t("inboxExpYears", { years: 5 })}
             </option>
           </select>
         </label>
         <label className="block min-w-0">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
             {t("inboxSort")}
           </span>
           <select className={filterSelectClass} value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
-            <option value="match" className="bg-zinc-900">
+            <option value="match" className="bg-white">
               {t("inboxSortMatch")}
             </option>
-            <option value="newest" className="bg-zinc-900">
+            <option value="newest" className="bg-white">
               {t("inboxSortNewest")}
             </option>
-            <option value="available" className="bg-zinc-900">
+            <option value="available" className="bg-white">
               {t("inboxSortAvailable")}
             </option>
-            <option value="salary" className="bg-zinc-900">
+            <option value="salary" className="bg-white">
               {t("inboxSortSalary")}
             </option>
           </select>
@@ -358,10 +358,10 @@ export function EmployerApplicantList({
         <EmptyState icon={Filter} title={t("applicationPipelineEmptyFilter")} className="py-8" />
       ) : (
         <>
-          <div className="hidden overflow-x-auto rounded-2xl border border-white/[0.08] lg:block">
+          <div className="hidden overflow-x-auto rounded-2xl border border-border lg:block">
             <table className="w-full min-w-[72rem] border-collapse text-left text-[13px]">
               <thead>
-                <tr className="border-b border-white/[0.08] text-[10px] font-medium uppercase tracking-[0.1em] text-white/40">
+                <tr className="border-b border-border text-[10px] font-medium uppercase tracking-[0.1em] text-muted-2">
                   <th className="px-4 py-3 font-medium">{t("inboxColCandidate")}</th>
                   <th className="px-3 py-3 font-medium">{t("inboxColTitle")}</th>
                   <th className="px-3 py-3 font-medium">{t("inboxColMatch")}</th>
@@ -465,8 +465,8 @@ function ApplicantTableRow({
   return (
     <tr
       className={cn(
-        "cursor-pointer border-b border-white/[0.06] text-white/80 transition-colors hover:bg-white/[0.03]",
-        selected && "bg-white/[0.05]",
+        "cursor-pointer border-b border-border text-foreground/80 transition-colors hover:bg-[#f5f7fb]",
+        selected && "bg-[#f8fafc]",
       )}
       onClick={onOpen}
       onKeyDown={(e) => {
@@ -480,11 +480,11 @@ function ApplicantTableRow({
       <td className="px-4 py-3">
         <div className="flex items-center gap-2.5">
           <Avatar name={scan.name} url={scan.avatarUrl} />
-          <span className="font-medium text-white/90">{scan.name}</span>
+          <span className="font-medium text-foreground">{scan.name}</span>
         </div>
       </td>
-      <td className="max-w-[12rem] truncate px-3 py-3 text-white/70">{scan.profileTitle || "—"}</td>
-      <td className="px-3 py-3 tabular-nums font-medium text-white/90">
+      <td className="max-w-[12rem] truncate px-3 py-3 text-body">{scan.profileTitle || "—"}</td>
+      <td className="px-3 py-3 tabular-nums font-medium text-foreground">
                 {scan.score == null ? "—" : `${scan.score}%`}
       </td>
       <td className="px-3 py-3 tabular-nums">{req}</td>
@@ -492,7 +492,7 @@ function ApplicantTableRow({
         {salaryScan ? (
           <span className="tabular-nums">
             {salaryScan.primary}
-            <span className="ml-1 text-[11px] text-white/45">{salaryScan.basis}</span>
+            <span className="ml-1 text-[11px] text-muted-2">{salaryScan.basis}</span>
           </span>
         ) : (
           "—"
@@ -502,10 +502,10 @@ function ApplicantTableRow({
       <td className="px-3 py-3 tabular-nums">
         {scan.weeklyHours != null ? t("applicantCardHoursPerWeek", { hours: scan.weeklyHours }) : "—"}
       </td>
-      <td className="whitespace-nowrap px-3 py-3 text-white/65">{applied}</td>
+      <td className="whitespace-nowrap px-3 py-3 text-muted">{applied}</td>
       <td className="min-w-[9.5rem] px-3 py-3" onClick={(e) => e.stopPropagation()}>
         <EmployerApplicationStatusSelect applicationId={row.id} status={status} compact onUpdated={onStatusUpdated} />
-        <div className="mt-1 text-[10px] tabular-nums text-white/35">
+        <div className="mt-1 text-[10px] tabular-nums text-muted-2">
           {t("applicationStatusUpdatedAt")}: {formatPipelineTimestamp(locale, statusUpdatedAt)}
         </div>
       </td>
@@ -551,8 +551,8 @@ function ApplicantMobileRow({
     <li>
       <div
         className={cn(
-          "rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4",
-          selected && "border-white/[0.14] bg-white/[0.04]",
+          "rounded-2xl border border-border bg-white p-4",
+          selected && "border-border-strong bg-[#f8fafc]",
         )}
       >
         <button type="button" onClick={onOpen} className="min-h-11 w-full text-left">
@@ -560,41 +560,41 @@ function ApplicantMobileRow({
             <div className="flex min-w-0 items-center gap-2.5">
               <Avatar name={scan.name} url={scan.avatarUrl} />
               <div className="min-w-0">
-                <div className="truncate text-sm font-medium text-white/90">{scan.name}</div>
-                <div className="truncate text-xs text-white/50">{scan.profileTitle || "—"}</div>
+                <div className="truncate text-sm font-medium text-foreground">{scan.name}</div>
+                <div className="truncate text-xs text-muted-2">{scan.profileTitle || "—"}</div>
               </div>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-sm font-medium tabular-nums text-white/90">
+              <div className="text-sm font-medium tabular-nums text-foreground">
                 {scan.score == null ? "—" : `${scan.score}%`}
               </div>
-              <div className="text-[11px] tabular-nums text-white/45">{req}</div>
+              <div className="text-[11px] tabular-nums text-muted-2">{req}</div>
             </div>
           </div>
-          <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[12px] text-white/70">
+          <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[12px] text-body">
             <div>
-              <dt className="text-[10px] uppercase tracking-[0.08em] text-white/35">{t("inboxColSalary")}</dt>
+              <dt className="text-[10px] uppercase tracking-[0.08em] text-muted-2">{t("inboxColSalary")}</dt>
               <dd className="mt-0.5 tabular-nums">{salaryScan ? salaryScan.primary : "—"}</dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase tracking-[0.08em] text-white/35">{t("inboxColStart")}</dt>
+              <dt className="text-[10px] uppercase tracking-[0.08em] text-muted-2">{t("inboxColStart")}</dt>
               <dd className="mt-0.5">{startLabel ?? "—"}</dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase tracking-[0.08em] text-white/35">{t("inboxColWorkload")}</dt>
+              <dt className="text-[10px] uppercase tracking-[0.08em] text-muted-2">{t("inboxColWorkload")}</dt>
               <dd className="mt-0.5">
                 {scan.weeklyHours != null ? t("applicantCardHoursPerWeek", { hours: scan.weeklyHours }) : "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase tracking-[0.08em] text-white/35">{t("inboxColApplied")}</dt>
+              <dt className="text-[10px] uppercase tracking-[0.08em] text-muted-2">{t("inboxColApplied")}</dt>
               <dd className="mt-0.5">{formatApplied(locale, row.created_at)}</dd>
             </div>
           </dl>
         </button>
         <div className="mt-3" onClick={(e) => e.stopPropagation()}>
           <EmployerApplicationStatusSelect applicationId={row.id} status={status} compact onUpdated={onStatusUpdated} />
-          <div className="mt-1 text-[10px] tabular-nums text-white/35">
+          <div className="mt-1 text-[10px] tabular-nums text-muted-2">
             {t("applicationStatusUpdatedAt")}: {formatPipelineTimestamp(locale, statusUpdatedAt)}
           </div>
         </div>
@@ -605,12 +605,12 @@ function ApplicantMobileRow({
 
 function Avatar({ name, url }: { name: string; url: string }) {
   return (
-    <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-white/[0.10] bg-white/[0.03]">
+    <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-border bg-[#f8fafc]">
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt="" className="h-full w-full object-cover" />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-[9px] font-semibold text-white/55">
+        <div className="flex h-full w-full items-center justify-center text-[9px] font-semibold text-muted-2">
           {applicantInitials(name)}
         </div>
       )}

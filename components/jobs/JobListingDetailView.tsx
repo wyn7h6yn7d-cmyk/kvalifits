@@ -79,8 +79,8 @@ export type JobListingDetailEmployer = {
 
 function DetailSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="border-t border-white/[0.08] py-8">
-      <h2 className="text-[15px] font-semibold tracking-tight text-white/90">{title}</h2>
+    <section className="border-t border-border py-8">
+      <h2 className="text-[1.0625rem] font-semibold leading-snug text-foreground">{title}</h2>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -90,8 +90,8 @@ function RequirementList({ items }: { items: { text: string; priority?: string }
   return (
     <ul className="list-none space-y-2 p-0">
       {items.map((item, i) => (
-        <li key={`${i}-${item.text.slice(0, 32)}`} className="flex gap-2.5 text-[15px] leading-snug text-white/75">
-          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-white/35" aria-hidden />
+        <li key={`${i}-${item.text.slice(0, 32)}`} className="flex gap-2.5 text-base leading-[1.65] text-muted">
+          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-border-strong" aria-hidden />
           <span className="min-w-0">{item.text}</span>
         </li>
       ))}
@@ -105,7 +105,7 @@ function ChipList({ items }: { items: string[] }) {
       {items.map((item) => (
         <li
           key={item}
-          className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[13px] text-white/72"
+          className="rounded-lg border border-border bg-[#f8fafc] px-2.5 py-1 text-[0.8125rem] leading-snug text-body"
         >
           {item}
         </li>
@@ -249,9 +249,9 @@ export async function JobListingDetailView({
       )}
     >
       {preview ? (
-        <div className="mb-6 rounded-2xl border border-amber-400/25 bg-amber-500/10 px-4 py-3">
-          <div className="text-sm font-semibold tracking-wide text-amber-100">{tJobs("previewBanner")}</div>
-          <p className="mt-1 text-sm leading-relaxed text-amber-100/80">{tJobs("previewBannerBody")}</p>
+        <div className="mb-6 rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3">
+          <div className="text-base font-semibold leading-snug text-amber-800">{tJobs("previewBanner")}</div>
+          <p className="mt-1 text-base leading-[1.65] text-amber-800">{tJobs("previewBannerBody")}</p>
         </div>
       ) : null}
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_19.5rem] lg:items-start lg:gap-10">
@@ -270,25 +270,25 @@ export async function JobListingDetailView({
                 <img
                   src={(employer?.logo_url ?? "").toString().trim()}
                   alt=""
-                  className="h-10 w-10 shrink-0 rounded-xl border border-white/[0.10] bg-white/[0.04] object-contain"
+                  className="h-10 w-10 shrink-0 rounded-xl border border-border bg-[#f8fafc] object-contain"
                 />
               ) : null}
               <div className="min-w-0">
                 {companyName ? (
-                  <div className="flex flex-wrap items-center gap-2 text-[15px] text-white/80">
+                  <div className="flex flex-wrap items-center gap-2 text-[15px] text-foreground/80">
                     {companySlug && !preview ? (
-                      <Link href={`/ettevotted/${companySlug}`} className="font-medium text-white/88 hover:underline">
+                      <Link href={`/ettevotted/${companySlug}`} className="font-medium text-foreground hover:underline">
                         {companyName}
                       </Link>
                     ) : (
-                      <span className="font-medium text-white/88">{companyName}</span>
+                      <span className="font-medium text-foreground">{companyName}</span>
                     )}
                     {companyVerified ? <CompanyVerifiedBadge label={tJobs("companyVerifiedBadge")} /> : null}
                   </div>
                 ) : null}
                 {location ? (
-                  <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[15px] text-white/62">
-                    <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
+                  <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[15px] text-muted">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-2" aria-hidden />
                     <span className="truncate">{location}</span>
                   </div>
                 ) : null}
@@ -296,14 +296,14 @@ export async function JobListingDetailView({
             </div>
 
             {salary ? (
-              <p className="mt-4 text-[1.15rem] font-semibold tabular-nums tracking-tight text-white">
+              <p className="mt-4 text-[1.125rem] font-semibold tabular-nums text-foreground">
                 {salary}
               </p>
             ) : null}
 
             {workloadLine ? (
-              <p className="mt-2 text-[15px] leading-snug text-white/72">
-                <span className="text-white/45">{tJobs("jobDetailMetaWorkloadAndMode")}: </span>
+              <p className="mt-2 text-base leading-snug text-body">
+                <span className="text-muted-2">{tJobs("jobDetailMetaWorkloadAndMode")}: </span>
                 {workloadLine}
               </p>
             ) : null}
@@ -312,7 +312,7 @@ export async function JobListingDetailView({
           {showBadges ? (
             <div className="mt-4 flex flex-wrap gap-2">
               {(job.experience_level_required ?? "").toString().trim() === "not_required" ? (
-                <span className="inline-flex rounded-full border border-white/[0.10] px-2.5 py-0.5 text-[11px] text-white/60">
+                <span className="inline-flex rounded-[10px] border border-border px-2.5 py-0.5 text-[0.8125rem] text-muted">
                   {tJobs("jobOpenToFirstJobBadge")}
                 </span>
               ) : null}
@@ -329,7 +329,7 @@ export async function JobListingDetailView({
                   {descriptionParts.map((paragraph, index) => (
                     <p
                       key={`desc-${index}`}
-                      className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75"
+                      className="whitespace-pre-wrap text-base leading-[1.65] text-muted"
                     >
                       {paragraph}
                     </p>
@@ -350,7 +350,7 @@ export async function JobListingDetailView({
               </DetailSection>
             ) : legacyRequirements ? (
               <DetailSection title={tJobs("jobDetailSectionMandatory")}>
-                <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75">{legacyRequirements}</p>
+                <p className="whitespace-pre-wrap text-base leading-[1.65] text-muted">{legacyRequirements}</p>
               </DetailSection>
             ) : null}
 
@@ -392,14 +392,14 @@ export async function JobListingDetailView({
 
             {companyDescription ? (
               <DetailSection title={tJobs("jobDetailSectionAboutCompany")}>
-                <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-white/75">{companyDescription}</p>
+                <p className="whitespace-pre-wrap text-base leading-[1.65] text-muted">{companyDescription}</p>
                 {companyWebsite ? (
-                  <p className="mt-3 text-sm">
+                  <p className="mt-3 text-base">
                     <a
                       href={companyWebsite.startsWith("http") ? companyWebsite : `https://${companyWebsite}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white/70 underline-offset-4 hover:text-white/90 hover:underline"
+                      className="text-body underline-offset-4 hover:text-foreground/90 hover:underline"
                     >
                       {companyWebsite}
                     </a>
@@ -409,9 +409,9 @@ export async function JobListingDetailView({
             ) : null}
 
             {applyUntilLabel && acceptsApplications ? (
-              <section className="border-t border-white/[0.08] py-8">
-                <p className="text-[15px] leading-snug text-white/75">
-                  <span className="font-semibold text-white/90">{tJobs("jobDetailMetaDeadline")}: </span>
+              <section className="border-t border-border py-8">
+                <p className="text-base leading-snug text-muted">
+                  <span className="font-semibold text-foreground">{tJobs("jobDetailMetaDeadline")}: </span>
                   {applyUntilLabel}
                 </p>
               </section>

@@ -48,7 +48,7 @@ function useInViewOnce(ref: RefObject<HTMLElement | null>) {
 
 function Tag({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-block max-w-full break-words rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[11px] leading-snug text-white/65">
+    <span className="inline-block max-w-full break-words rounded-md border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.75rem] leading-snug text-muted">
       {children}
     </span>
   );
@@ -70,20 +70,20 @@ function SideCard({
   dense?: boolean;
 }) {
   return (
-    <div className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418] p-3 sm:p-3.5 md:p-4">
-      <div className="text-[11px] font-medium tracking-wide text-white/45">{eyebrow}</div>
+    <div className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-white p-3 sm:p-3.5 md:p-4">
+      <div className="text-[0.8125rem] font-medium leading-snug text-muted">{eyebrow}</div>
       <div
         className={cn(
-          "mt-1.5 text-pretty font-semibold leading-snug tracking-tight text-white/92 break-words",
-          dense ? "text-[13px] sm:text-[14px]" : "text-[14px] sm:text-[15px]",
+          "mt-1.5 text-pretty font-semibold leading-snug text-foreground break-words",
+          dense ? "text-[0.875rem] sm:text-[0.9375rem]" : "text-[0.9375rem] sm:text-base",
         )}
       >
         {title}
       </div>
-      <div className="mt-1 text-pretty text-[12px] leading-snug text-white/62 sm:text-[12.5px] break-words">
+      <div className="mt-1 text-pretty text-[0.8125rem] leading-snug text-muted break-words">
         {subtitle}
       </div>
-      <div className="mt-0.5 text-pretty text-[12px] text-white/45 break-words">{location}</div>
+      <div className="mt-0.5 text-pretty text-[0.8125rem] text-muted-2 break-words">{location}</div>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {tags.map((tag) => (
           <Tag key={tag}>{tag}</Tag>
@@ -103,7 +103,7 @@ function MatchScoreRing() {
       <div className="relative flex h-[128px] w-[128px] items-center justify-center sm:h-[136px] sm:w-[136px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-[-6%] hidden rounded-full bg-[radial-gradient(circle_closest-side,rgba(168,85,247,0.32)_0%,rgba(217,70,239,0.14)_42%,transparent_72%)] lg:block"
+          className="pointer-events-none absolute inset-[-4%] hidden rounded-full bg-[radial-gradient(circle_closest-side,rgba(37,99,235,0.08)_0%,transparent_72%)] lg:block"
         />
         <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 132 132" aria-hidden>
           <circle
@@ -111,7 +111,7 @@ function MatchScoreRing() {
             cy="66"
             r={RING_R}
             fill="none"
-            stroke="rgba(255,255,255,0.14)"
+            stroke="rgba(15,23,42,0.08)"
             strokeWidth={RING_STROKE}
           />
           <circle
@@ -127,22 +127,21 @@ function MatchScoreRing() {
           />
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="rgb(139,92,246)" />
-              <stop offset="55%" stopColor="rgb(217,70,239)" />
-              <stop offset="100%" stopColor="rgba(227,31,141,0.95)" />
+              <stop offset="0%" stopColor="#3b82f6" />
+              <stop offset="100%" stopColor="#2563eb" />
             </linearGradient>
           </defs>
         </svg>
         <div className="relative px-1 text-center">
-          <div className="text-[26px] font-semibold tabular-nums leading-none tracking-tight text-white sm:text-[28px]">
+          <div className="text-[26px] font-semibold tabular-nums leading-none text-foreground sm:text-[28px]">
             {DEMO_SCORE}%
           </div>
-          <div className="mt-1.5 text-[11px] font-medium tracking-wide text-white/50">
+          <div className="mt-1.5 text-[0.8125rem] font-medium leading-snug text-muted">
             {t("fitLabel")}
           </div>
         </div>
       </div>
-      <p className="mt-2 max-w-[10rem] text-pretty text-center text-[11px] leading-snug text-white/55 sm:max-w-[11rem] sm:text-[12px]">
+      <p className="mt-2 max-w-[10rem] text-pretty text-center text-[0.8125rem] leading-snug text-muted sm:max-w-[11rem]">
         {t("reqsFilledShort")}
       </p>
     </div>
@@ -173,8 +172,8 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
       ref={rootRef}
       className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0"
     >
-      <div className="relative min-w-0 overflow-hidden rounded-[24px] border border-white/[0.11] bg-[#101014] p-px sm:rounded-[28px] md:rounded-[32px] lg:bg-gradient-to-b lg:from-white/[0.07] lg:via-[#101014]/80 lg:to-[#09090D]/95 lg:shadow-[0_28px_100px_-40px_rgba(9,9,13,0.8),0_0_0_1px_rgba(255,255,255,0.04)_inset]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-8%,rgba(168,85,247,0.16),transparent_55%)]" />
+      <div className="relative min-w-0 overflow-hidden rounded-[24px] border border-border bg-white p-px shadow-[0_12px_40px_-20px_rgba(15,23,42,0.14)] sm:rounded-[28px] md:rounded-[32px]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-8%,rgba(37,99,235,0.08),transparent_55%)]" />
 
         <div
           {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
@@ -184,10 +183,10 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
           )}
         >
           <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-3">
-            <span className="min-w-0 text-pretty text-[12px] font-medium tracking-wide text-white/55">
+            <span className="min-w-0 text-pretty text-[0.8125rem] font-medium leading-snug text-muted">
               {t("matching")}
             </span>
-            <span className="shrink-0 rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
+            <span className="shrink-0 rounded-full border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.75rem] text-muted">
               {t("sampleBadge")}
             </span>
           </div>
@@ -246,14 +245,14 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
 
           {!compact ? (
             <>
-              <div className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3 sm:p-3.5 md:p-4">
-                <div className="text-pretty text-[13px] font-medium text-white/80">{t("whyTitle")}</div>
+              <div className="min-w-0 overflow-hidden rounded-2xl border border-border bg-[#f8fafc] p-3 sm:p-3.5 md:p-4">
+                <div className="text-pretty text-[0.9375rem] font-medium text-foreground">{t("whyTitle")}</div>
                 <ul className="mt-3 grid min-w-0 gap-2 md:grid-cols-2 md:gap-x-5 md:gap-y-2">
                   {reasons.map((r, i) => (
                     <li
                       key={r.text}
                       className={cn(
-                        "flex min-w-0 items-start gap-2 text-[12.5px] leading-snug text-white/70 sm:text-[13px]",
+                        "flex min-w-0 items-start gap-2 text-[0.8125rem] leading-snug text-body sm:text-[0.875rem]",
                         inView && !reduce && "kf-enter",
                       )}
                       style={
@@ -267,7 +266,7 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
                           <Check className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />
                         </span>
                       ) : (
-                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-violet-300/80">
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-primary/80">
                           <Circle className="h-3 w-3" strokeWidth={2} aria-hidden />
                         </span>
                       )}
@@ -280,24 +279,24 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
               <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start xl:gap-4">
                 <div className="min-w-0 overflow-hidden">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                    <span className="min-w-0 text-pretty text-[13px] font-medium text-white/78">
+                    <span className="min-w-0 text-pretty text-[0.9375rem] font-medium text-foreground">
                       {t("reqsFilledTitle")}
                     </span>
-                    <span className="shrink-0 text-[12px] tabular-nums text-white/50">
+                    <span className="shrink-0 text-[0.8125rem] tabular-nums text-muted">
                       {DEMO_FILLED}/{DEMO_TOTAL}
                     </span>
                   </div>
-                  <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.07]">
-                    <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-violet-500/85 via-fuchsia-500/75 to-[rgba(227,31,141,0.8)]" />
+                  <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f8fafc]">
+                    <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6]" />
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] leading-snug text-white/45">
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[0.8125rem] leading-snug text-muted">
                     <span className="min-w-0 text-pretty">{t("reqsMandatory")}</span>
                     <span className="min-w-0 text-pretty">{t("reqsOptional")}</span>
                   </div>
                 </div>
 
                 <div className="relative inline-flex min-w-0 max-w-full flex-col gap-1.5 overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2.5">
-                  <span className="self-start rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/40">
+                  <span className="self-start rounded-full border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.75rem] text-muted">
                     {t("sampleBadge")}
                   </span>
                   <CertificateVerificationBadge

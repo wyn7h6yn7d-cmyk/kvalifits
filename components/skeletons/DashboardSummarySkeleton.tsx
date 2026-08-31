@@ -2,7 +2,7 @@ import { Bone, SkeletonRegion } from "@/components/ui/Skeleton";
 
 function SummaryCard({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
+    <div className="rounded-2xl border border-border bg-white p-5">
       <div className="flex items-baseline justify-between gap-3">
         <Bone className="h-4 w-36" />
         <Bone className="h-3.5 w-16" />
@@ -25,7 +25,7 @@ function SummaryCard({ lines = 3 }: { lines?: number }) {
 export function DashboardSummarySkeleton({ label }: { label?: string }) {
   return (
     <SkeletonRegion label={label} className="space-y-4">
-      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
+      <div className="rounded-2xl border border-border bg-white p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <Bone className="h-3 w-24" />

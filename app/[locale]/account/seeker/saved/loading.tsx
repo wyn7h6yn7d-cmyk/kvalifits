@@ -6,7 +6,7 @@ export default function SeekerSavedLoading() {
     <AccountAuthLoadingFrame maxWidthClassName="max-w-3xl">
       <SkeletonRegion className="space-y-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-white/[0.08] bg-[#16161b] p-4 sm:p-5">
+          <div key={i} className="rounded-2xl border border-border bg-white p-4 sm:p-5">
             <Bone className="h-5 w-[68%] max-w-sm" />
             <div className="mt-2 flex gap-2">
               <Bone className="h-3.5 w-28" />

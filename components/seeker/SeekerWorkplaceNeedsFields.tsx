@@ -47,15 +47,15 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
   }
 
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-4">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 space-y-4">
       <div>
-        <div className="text-sm font-medium text-white/85">{t("workplaceNeedsTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("workplaceNeedsHint")}</div>
-        <div className="mt-2 text-xs leading-relaxed text-white/45">{t("workplaceNeedsPrivacy")}</div>
-        <div className="mt-2 text-xs leading-relaxed text-white/45">{t("workplaceNeedsNoMedical")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("workplaceNeedsTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("workplaceNeedsHint")}</div>
+        <div className="mt-2 text-xs leading-relaxed text-muted-2">{t("workplaceNeedsPrivacy")}</div>
+        <div className="mt-2 text-xs leading-relaxed text-muted-2">{t("workplaceNeedsNoMedical")}</div>
       </div>
 
-      <label className="flex cursor-pointer select-none items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
+      <label className="flex cursor-pointer select-none items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3">
         <input
           type="checkbox"
           checked={value.share_practical_needs_with_employer}
@@ -66,13 +66,13 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
               shared_with_employer: on ? value.shared_with_employer : [],
             });
           }}
-          className="mt-1 h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+          className="mt-1 h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
         />
         <span>
-          <span className="block text-sm font-medium text-white/80">
+          <span className="block text-sm font-medium text-foreground/80">
             {t("sharePracticalNeedsWithEmployer")}
           </span>
-          <span className="mt-1 block text-xs leading-relaxed text-white/50">
+          <span className="mt-1 block text-xs leading-relaxed text-muted-2">
             {t("sharePracticalNeedsWithEmployerHint")}
           </span>
         </span>
@@ -87,16 +87,16 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
           return (
             <div
               key={key}
-              className="rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 space-y-2"
+              className="rounded-2xl border border-border bg-white px-4 py-3 space-y-2"
             >
               <label className="flex cursor-pointer select-none items-start gap-3">
                 <input
                   type="checkbox"
                   checked={selected}
                   onChange={(e) => setNeed(key, e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+                  className="mt-1 h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
                 />
-                <span className="text-sm font-medium text-white/80">{t(`workplaceNeed.${key}`)}</span>
+                <span className="text-sm font-medium text-foreground/80">{t(`workplaceNeed.${key}`)}</span>
               </label>
 
               {selected && value.share_practical_needs_with_employer ? (
@@ -105,9 +105,9 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
                     type="checkbox"
                     checked={shared}
                     onChange={(e) => setShare(key, e.target.checked)}
-                    className="mt-0.5 h-3.5 w-3.5 rounded border-white/[0.20] bg-white/[0.03]"
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-border-strong bg-[#f8fafc]"
                   />
-                  <span className="text-xs leading-relaxed text-white/55">
+                  <span className="text-xs leading-relaxed text-muted-2">
                     {t("workplaceNeedShareWithEmployer")}
                   </span>
                 </label>
@@ -115,7 +115,7 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
 
               {key === "other_need" && selected ? (
                 <div className="ml-7 space-y-1.5">
-                  <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="wn-other-note">
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="wn-other-note">
                     {t("workplaceNeedOtherNote")}
                   </label>
                   <textarea
@@ -125,9 +125,9 @@ export function SeekerWorkplaceNeedsFields({ value, onChange }: Props) {
                     rows={2}
                     maxLength={500}
                     placeholder={t("workplaceNeedOtherNoteHint")}
-                    className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+                    className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
                   />
-                  <div className="text-xs text-white/40">{t("workplaceNeedOtherNoteNoMedical")}</div>
+                  <div className="text-xs text-muted-2">{t("workplaceNeedOtherNoteNoMedical")}</div>
                 </div>
               ) : null}
             </div>

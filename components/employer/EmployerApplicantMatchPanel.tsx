@@ -221,9 +221,9 @@ export function EmployerApplicantMatchPanel({
   };
 
   const activeTopBlock =
-    "border-white/[0.18] bg-white/[0.07] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_18px_60px_-34px_rgba(0,0,0,0.75)]";
+    "border-border-strong bg-[#f8fafc] shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset,0_18px_60px_-34px_rgba(0,0,0,0.75)]";
   const inactiveTopBlock =
-    "border-white/[0.10] bg-white/[0.05] hover:border-white/[0.14] hover:bg-white/[0.06]";
+    "border-border bg-[#f8fafc] hover:border-border-strong hover:bg-[#f5f7fb]";
 
   function bar(points: number, max: number) {
     const pct = max > 0 ? Math.min(100, Math.round((points / max) * 100)) : 0;
@@ -260,13 +260,13 @@ export function EmployerApplicantMatchPanel({
       .slice(0, 5);
 
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-2">
               {t("applicantMatchScoreBreakdown")}
             </div>
-            <div className="mt-2 text-sm leading-relaxed text-white/60">{t("applicantMatchExplainBreakdownTextCalm")}</div>
+            <div className="mt-2 text-sm leading-relaxed text-muted">{t("applicantMatchExplainBreakdownTextCalm")}</div>
           </div>
         </div>
 
@@ -279,7 +279,7 @@ export function EmployerApplicantMatchPanel({
             showCountsWhenCollapsed
           />
           {bandLabel ? (
-            <div className="mt-3 inline-block rounded-full border border-white/[0.12] bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-medium leading-snug text-white/65">
+            <div className="mt-3 inline-block rounded-full border border-border bg-[#f8fafc] px-2.5 py-0.5 text-[10px] font-medium leading-snug text-muted">
               {bandLabel}
             </div>
           ) : null}
@@ -290,7 +290,7 @@ export function EmployerApplicantMatchPanel({
             <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/90">
               {t("applicantMatchStrengthsHeading")}
             </div>
-            <div className="mt-2 text-[12px] leading-relaxed text-emerald-100/75">{t("applicantMatchPositiveSignalsIntro")}</div>
+            <div className="mt-2 text-[12px] leading-relaxed text-emerald-800">{t("applicantMatchPositiveSignalsIntro")}</div>
             <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[13px] leading-relaxed text-emerald-50/95">
               {highlightLines.map((line, i) => (
                 <li key={`${i}-${line.slice(0, 16)}`}>{line}</li>
@@ -300,21 +300,21 @@ export function EmployerApplicantMatchPanel({
         ) : null}
 
         {Array.isArray(penaltyCodes) && penaltyCodes.length ? (
-          <div className="mt-5 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/50">{t("applicantMatchReducingReasons")}</div>
-            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[12px] leading-relaxed text-white/68">
+          <div className="mt-5 rounded-2xl border border-border bg-white px-4 py-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-2">{t("applicantMatchReducingReasons")}</div>
+            <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[12px] leading-relaxed text-muted">
               {penaltyCodes.map((c) => (
                 <li key={c}>{penaltyLabel(c, t)}</li>
               ))}
             </ul>
-            <p className="mt-3 text-[11px] leading-relaxed text-white/48">{t("applicantMatchReducingHint")}</p>
+            <p className="mt-3 text-[11px] leading-relaxed text-muted-2">{t("applicantMatchReducingHint")}</p>
           </div>
         ) : null}
 
         {weakFiltered.length ? (
-          <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantMatchAxisCheckpoints")}</div>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-white/58">
+          <div className="mt-4 rounded-2xl border border-border bg-white px-4 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-2">{t("applicantMatchAxisCheckpoints")}</div>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-[12px] leading-relaxed text-body">
               {weakFiltered.map((code) => (
                 <li key={code}>{weakAreaLabel(code, t)}</li>
               ))}
@@ -329,31 +329,30 @@ export function EmployerApplicantMatchPanel({
     <div className="relative mx-auto w-full max-w-[min(100%,820px)]">
       <div
         aria-hidden="true"
-        className="absolute -inset-8 rounded-[48px] bg-[conic-gradient(from_140deg_at_50%_50%,rgba(168,85,247,0.45),transparent_42%,rgba(227,31,141,0.22),transparent_78%)] opacity-90 blur-3xl"
+        className="absolute -inset-8 rounded-[48px] bg-[radial-gradient(ellipse_at_center,rgba(37,99,235,0.06),transparent_70%)]"
       />
       <div
         aria-hidden="true"
-        className="absolute -inset-px rounded-[34px] bg-gradient-to-br from-white/[0.18] via-white/[0.04] to-transparent opacity-80"
+        className="absolute -inset-px rounded-[34px] bg-gradient-to-br from-white via-[#f8fafc] to-transparent opacity-80"
       />
 
-      <div className="relative overflow-hidden rounded-[32px] border border-white/[0.14] bg-gradient-to-b from-white/[0.09] via-black/40 to-black/70 p-px shadow-[0_32px_120px_-40px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)_inset] backdrop-blur-2xl">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(168,85,247,0.2),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_100%_100%,rgba(227,31,141,0.1),transparent_50%)]" />
+      <div className="relative overflow-hidden rounded-[32px] border border-border-strong bg-gradient-to-b from-white via-[#f5f7fb] to-white p-px shadow-[0_16px_40px_-20px_rgba(15,23,42,0.16)] backdrop-blur-2xl">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_-10%,rgba(37,99,235,0.05),transparent_55%)]" />
 
         <div className="relative flex flex-col gap-7 p-8 sm:p-9">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.33em] text-white/50">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.33em] text-muted-2">
                 {t("applicantMatchBadge")}
               </span>
-              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-emerald-300/90">
+              <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-emerald-700">
                 {t("applicantMatchSnapshot")}
               </span>
             </div>
           </div>
 
           {isLegacyModel ? (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-100/90">
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-[12px] leading-relaxed text-amber-800">
               {t("applicantMatchLegacyModel")}
             </div>
           ) : null}
@@ -372,17 +371,17 @@ export function EmployerApplicantMatchPanel({
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
+                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-muted-2">
                   {t("applicantMatchCandidate")}
                 </div>
-                <div className="mt-0.5 text-pretty text-[13.5px] font-semibold leading-snug text-white/92 sm:text-[14.5px] md:text-[16px]">
+                <div className="mt-0.5 text-pretty text-[13.5px] font-semibold leading-snug text-foreground sm:text-[14.5px] md:text-[16px]">
                   {seeker.profileTitle || seeker.displayName}
                 </div>
-                <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55">
+                <div className="mt-1 text-pretty text-[11px] leading-snug text-muted-2">
                   {seeker.displayName}
                   {seeker.location ? ` · ${seeker.location}` : ""}
                 </div>
-                <div className="mt-1 text-[11px] text-white/45">{seeker.experienceLabel}</div>
+                <div className="mt-1 text-[11px] text-muted-2">{seeker.experienceLabel}</div>
               </div>
             </button>
 
@@ -393,21 +392,21 @@ export function EmployerApplicantMatchPanel({
               onMouseEnter={() => setActive("fit")}
               onFocus={() => setActive("fit")}
               onClick={() => setActive("fit")}
-              className="group flex flex-col items-center gap-1 rounded-2xl px-1 text-center outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(168,85,247,0.75)] focus-visible:outline-offset-2"
+              className="group flex flex-col items-center gap-1 rounded-2xl px-1 text-center outline-none transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[rgba(37,99,235,0.55)] focus-visible:outline-offset-2"
             >
               <div className="relative hidden h-px w-full min-w-[2.5rem] bg-gradient-to-r from-transparent via-white/35 to-transparent sm:block" />
               <div
                 className={cn(
-                  "flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-2xl border bg-gradient-to-b text-center shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset]",
+                  "flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-2xl border bg-gradient-to-b text-center shadow-[inset_0_0_0_1px_rgba(37,99,235,0.12)]",
                   active === "fit"
-                    ? "border-white/[0.22] from-white/[0.14] to-white/[0.04]"
-                    : "border-white/[0.12] from-white/[0.07] to-white/[0.02] group-hover:border-white/[0.18]"
+                    ? "border-border-strong from-white to-[#f8fafc]"
+                    : "border-border from-white to-white group-hover:border-[rgba(37,99,235,0.26)]"
                 )}
               >
-                <div className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white/45">
+                <div className="text-[9px] font-semibold uppercase tracking-[0.28em] text-muted-2">
                   {t("applicantMatchFit")}
                 </div>
-                <div className="mt-0.5 text-[22px] font-semibold tabular-nums tracking-tight text-white">
+                <div className="mt-0.5 text-[22px] font-semibold tabular-nums tracking-tight text-foreground">
                   {scoreLabel}
                 </div>
               </div>
@@ -427,26 +426,26 @@ export function EmployerApplicantMatchPanel({
               )}
             >
               <div className="min-w-0 flex-1">
-                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-white/50">
+                <div className="whitespace-nowrap text-[10.5px] font-medium uppercase leading-snug tracking-[0.10em] text-muted-2">
                   {t("applicantMatchRole")}
                 </div>
-                <div className="mt-0.5 text-pretty text-[13.5px] font-semibold leading-snug text-white/92 sm:text-[14.5px] md:text-[16px]">
+                <div className="mt-0.5 text-pretty text-[13.5px] font-semibold leading-snug text-foreground sm:text-[14.5px] md:text-[16px]">
                   {job.title}
                 </div>
-                <div className="mt-1 text-pretty text-[11px] leading-snug text-white/55">
+                <div className="mt-1 text-pretty text-[11px] leading-snug text-muted-2">
                   {job.location} · {job.metaLine}
                 </div>
-                <div className="mt-1 text-[11px] text-white/45">{job.experienceLabel}</div>
+                <div className="mt-1 text-[11px] text-muted-2">{job.experienceLabel}</div>
               </div>
             </button>
           </div>
 
           <div
             id={explainId}
-            className="rounded-2xl border border-white/[0.10] bg-black/25 px-4 py-4 sm:px-5"
+            className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-4 sm:px-5"
           >
-            <div className="text-[12px] font-semibold text-white/85">{explain[active].title}</div>
-            <div className="mt-2 text-[13px] leading-relaxed text-white/65">{explain[active].text}</div>
+            <div className="text-[12px] font-semibold text-foreground/80">{explain[active].title}</div>
+            <div className="mt-2 text-[13px] leading-relaxed text-muted">{explain[active].text}</div>
           </div>
 
           <button
@@ -461,7 +460,7 @@ export function EmployerApplicantMatchPanel({
               active === "breakdown" ? activeTopBlock : inactiveTopBlock
             )}
           >
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/50">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-2">
               {t("applicantMatchScoreBreakdown")}
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -478,7 +477,7 @@ export function EmployerApplicantMatchPanel({
               <BreakRow label={`${t("applicantMatchAxisWorkHours")} (${W.workHours})`} {...hoursBar} />
               <BreakRow label={`${t("applicantMatchAxisAvailability")} (${W.availability})`} {...availBar} />
             </div>
-            <div className="mt-4 space-y-2 border-t border-white/[0.08] pt-4 text-[12px] text-white/60">
+            <div className="mt-4 space-y-2 border-t border-border pt-4 text-[12px] text-muted">
               <div>
                 {t("applicantMatchRequirementsCount", {
                   matched: bd.requirementsMatched ?? 0,
@@ -504,11 +503,11 @@ export function EmployerApplicantMatchPanel({
               ) : null}
             </div>
             {(bd.weak_areas?.length ?? 0) > 0 ? (
-              <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+              <div className="mt-4 rounded-2xl border border-border bg-white px-4 py-3">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-2">
                   {t("applicantMatchAxisCheckpoints")}
                 </div>
-                <ul className="mt-2 list-inside list-disc space-y-1 text-[12px] text-white/65">
+                <ul className="mt-2 list-inside list-disc space-y-1 text-[12px] text-muted">
                   {(bd.weak_areas ?? []).map((code) => (
                     <li key={code}>{weakAreaLabel(code, t)}</li>
                   ))}
@@ -518,14 +517,14 @@ export function EmployerApplicantMatchPanel({
           </button>
 
           {job.shortSummary ? (
-            <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-[13px] leading-relaxed text-white/70">
+            <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-[13px] leading-relaxed text-body">
               {job.shortSummary}
             </div>
           ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+            <div className="rounded-2xl border border-border bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-2">
                 {t("applicantMatchSeekerSkills")}
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -533,43 +532,43 @@ export function EmployerApplicantMatchPanel({
                   seeker.skills.slice(0, 14).map((s) => (
                     <span
                       key={s}
-                      className="rounded-full border border-white/[0.10] bg-white/[0.04] px-2.5 py-0.5 text-[11px] text-white/75"
+                      className="rounded-full border border-border bg-[#f8fafc] px-2.5 py-0.5 text-[11px] text-muted"
                     >
                       {s}
                     </span>
                   ))
                 ) : (
-                  <span className="text-[12px] text-white/45">{t("applicantMatchNoSkills")}</span>
+                  <span className="text-[12px] text-muted-2">{t("applicantMatchNoSkills")}</span>
                 )}
               </div>
             </div>
-            <div className="rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+            <div className="rounded-2xl border border-border bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-2">
                 {t("applicantMatchJobRequirements")}
               </div>
-              <ul className="mt-2 list-inside list-disc space-y-1 text-[12px] text-white/70">
+              <ul className="mt-2 list-inside list-disc space-y-1 text-[12px] text-body">
                 {job.requirementLines.slice(0, 8).map((line) => (
                   <li key={line} className="text-pretty [text-wrap:pretty]">
                     {line}
                   </li>
                 ))}
                 {!job.requirementLines.length ? (
-                  <li className="list-none text-white/45">{t("applicantMatchNoRequirementLines")}</li>
+                  <li className="list-none text-muted-2">{t("applicantMatchNoRequirementLines")}</li>
                 ) : null}
               </ul>
             </div>
           </div>
 
           {job.requiredSkills.length ? (
-            <div className="rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+            <div className="rounded-2xl border border-border bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-2">
                 {t("applicantMatchRequiredSkills")}
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {job.requiredSkills.map((s) => (
                   <span
                     key={s}
-                    className="rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-2.5 py-0.5 text-[11px] text-fuchsia-100/90"
+                    className="rounded-full border border-[rgba(227,31,141,0.18)] bg-[rgba(227,31,141,0.06)] px-2.5 py-0.5 text-[11px] text-[#c21875]"
                   >
                     {s}
                   </span>
@@ -579,11 +578,11 @@ export function EmployerApplicantMatchPanel({
           ) : null}
 
           {job.certRequirements ? (
-            <div className="rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+            <div className="rounded-2xl border border-border bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-2">
                 {t("applicantMatchCertExpectations")}
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-white/70">{job.certRequirements}</p>
+              <p className="mt-2 text-[13px] leading-relaxed text-body">{job.certRequirements}</p>
             </div>
           ) : null}
         </div>
@@ -607,15 +606,15 @@ function BreakRow({
 }) {
   return (
     <div className={cn("min-w-0", className)}>
-      <div className="flex items-baseline justify-between gap-2 text-[11px] text-white/55">
+      <div className="flex items-baseline justify-between gap-2 text-[11px] text-muted-2">
         <span>{label}</span>
-        <span className="tabular-nums text-white/70">
+        <span className="tabular-nums text-body">
           {points}/{max}
         </span>
       </div>
-      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.08]">
+      <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#f8fafc]">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-fuchsia-400/80 to-violet-400/80"
+          className="h-full rounded-full bg-gradient-to-r from-[#2563eb] to-[#60a5fa]"
           style={{ width: `${pct}%` }}
         />
       </div>

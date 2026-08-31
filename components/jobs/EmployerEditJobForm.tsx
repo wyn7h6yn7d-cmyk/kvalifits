@@ -497,22 +497,22 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
       }}
       className="space-y-6"
     >
-      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-xs leading-relaxed text-white/50">
+      <div className="rounded-2xl border border-border bg-white px-4 py-3 text-xs leading-relaxed text-muted-2">
         {t("jobFieldGuideEditLead")}
-        {initialJob.status !== "published" ? <div className="mt-2 text-white/55">{t("draftHint")}</div> : null}
+        {initialJob.status !== "published" ? <div className="mt-2 text-muted-2">{t("draftHint")}</div> : null}
       </div>
       {initialJob.status === "published" ? (
         <EmployerJobFeaturedPromo locale={locale} job={initialJob} />
       ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("title")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("title")}</label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </div>
         {taxonomyAvailable ? (
           <>
             <div className="space-y-2">
-              <label className="text-xs font-medium tracking-wide text-white/65">{t("jobIndustry")}</label>
+              <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobIndustry")}</label>
               <TaxonomySelect
                 value={industryId}
                 terms={catalog.industries}
@@ -526,7 +526,7 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium tracking-wide text-white/65">{t("jobProfession")}</label>
+              <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobProfession")}</label>
               <TaxonomySelect
                 value={professionId}
                 required
@@ -543,20 +543,20 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
                   if (prof?.industry_id) setIndustryId(prof.industry_id);
                 }}
               />
-              <div className="text-xs text-white/45">{t("jobProfessionHint")}</div>
+              <div className="text-xs text-muted-2">{t("jobProfessionHint")}</div>
             </div>
           </>
         ) : null}
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("location")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("location")}</label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("workType")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("workType")}</label>
           <select
             value={workType}
             onChange={(e) => setWorkType(e.target.value)}
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-border bg-[#f8fafc] px-4 text-sm text-foreground/80 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           >
             <option value="on_site">{t("workTypeOnSite")}</option>
             <option value="hybrid">{t("workTypeHybrid")}</option>
@@ -564,11 +564,11 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
           </select>
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobType")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobType")}</label>
           <select
             value={jobType}
             onChange={(e) => setJobType(e.target.value)}
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-border bg-[#f8fafc] px-4 text-sm text-foreground/80 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           >
             <option value="full_time">{t("jobTypeFullTime")}</option>
             <option value="part_time">{t("jobTypePartTime")}</option>
@@ -583,28 +583,28 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
       <JobYoungSeekerAutoHint workConditions={workConditions} jobType={jobType} />
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("summary")}</label>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("summary")}</label>
         <textarea
           value={shortSummary}
           onChange={(e) => setShortSummary(e.target.value)}
           rows={2}
           required
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           placeholder={t("summaryPlaceholder")}
         />
-        <div className="text-xs text-white/45">{t("jobFieldGuideSummary")}</div>
+        <div className="text-xs text-muted-2">{t("jobFieldGuideSummary")}</div>
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("jobSectionDescription")}</label>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobSectionDescription")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
           rows={6}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
         />
-        <div className="text-xs text-white/45">{t("jobFieldGuideDescription")}</div>
+        <div className="text-xs text-muted-2">{t("jobFieldGuideDescription")}</div>
       </div>
 
       <JobLinesEditor
@@ -635,7 +635,7 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobRequiredSkills")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobRequiredSkills")}</label>
           {taxonomyAvailable ? (
             <>
               <TaxonomyChipField
@@ -647,29 +647,29 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
                 locale={locale}
                 suggestedIds={suggestedSkillIds(catalog, professionId)}
               />
-              {skillLeftover.length ? <div className="text-xs text-white/45">{t("leftoverTaxonomyHint")}</div> : null}
+              {skillLeftover.length ? <div className="text-xs text-muted-2">{t("leftoverTaxonomyHint")}</div> : null}
             </>
           ) : (
             <>
               <Input value={requiredSkillsCsv} onChange={(e) => setRequiredSkillsCsv(e.target.value)} required />
-              <div className="text-xs text-white/45">{t("jobFieldGuideSkills")}</div>
+              <div className="text-xs text-muted-2">{t("jobFieldGuideSkills")}</div>
             </>
           )}
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobKeywords")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobKeywords")}</label>
           <Input value={keywordsCsv} onChange={(e) => setKeywordsCsv(e.target.value)} required />
-          <div className="text-xs text-white/45">{t("jobFieldGuideKeywords")}</div>
+          <div className="text-xs text-muted-2">{t("jobFieldGuideKeywords")}</div>
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobExperienceRequired")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobExperienceRequired")}</label>
           <select
             value={experienceLevelRequired}
             onChange={(e) =>
               setExperienceLevelRequired(e.target.value as (typeof JOB_EXPERIENCE_LEVEL_VALUES)[number] | "")
             }
             required
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-border bg-[#f8fafc] px-4 text-sm text-foreground/80 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           >
             <option value="">{tOnb("experienceLevelPlaceholder")}</option>
             {JOB_EXPERIENCE_LEVEL_VALUES.map((v) => (
@@ -678,9 +678,9 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
               </option>
             ))}
           </select>
-          <div className="text-xs text-white/45">{t("jobFieldGuideExperience")}</div>
+          <div className="text-xs text-muted-2">{t("jobFieldGuideExperience")}</div>
           {experienceLevelRequired === "not_required" ? (
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs leading-relaxed text-emerald-100/90">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs leading-relaxed text-emerald-800">
               {t("jobExperienceNotRequiredHint")}
             </div>
           ) : null}
@@ -688,7 +688,7 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("jobCertRequirements")}</label>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobCertRequirements")}</label>
         {taxonomyAvailable ? (
           <TaxonomyChipField
             terms={catalog.certificates}
@@ -704,14 +704,14 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
             onChange={(e) => setCertificateRequirements(e.target.value)}
             rows={2}
             placeholder={t("jobCertRequirementsPlaceholder")}
-            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           />
         )}
-        <div className="text-xs text-white/45">{t("jobFieldGuideCert")}</div>
+        <div className="text-xs text-muted-2">{t("jobFieldGuideCert")}</div>
       </div>
       {taxonomyAvailable ? (
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("jobLanguages")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("jobLanguages")}</label>
           <TaxonomyChipField
             terms={catalog.languages}
             selectedIds={languageIds}
@@ -723,14 +723,14 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
         </div>
       ) : null}
 
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("applicationKvalifitsOnlyTitle")}</div>
-        <p className="mt-2 text-sm leading-relaxed text-white/60">{t("applicationKvalifitsOnlyBody")}</p>
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-sm font-medium text-foreground/80">{t("applicationKvalifitsOnlyTitle")}</div>
+        <p className="mt-2 text-sm leading-relaxed text-muted">{t("applicationKvalifitsOnlyBody")}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="edit-application-deadline">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="edit-application-deadline">
             {t("applicationDeadlineLabel")}
           </label>
           <Input
@@ -740,10 +740,10 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
             onChange={(e) => setApplicationDeadline(e.target.value)}
             required
           />
-          <p className="text-xs leading-relaxed text-white/45">{t("applicationDeadlineHint")}</p>
+          <p className="text-xs leading-relaxed text-muted-2">{t("applicationDeadlineHint")}</p>
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="edit-expires-on">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="edit-expires-on">
             {t("expiresOnLabel")}
           </label>
           <Input
@@ -753,28 +753,28 @@ export function EmployerEditJobForm({ locale, initialJob, publishAttempted = fal
             onChange={(e) => setExpiresOn(e.target.value)}
             required
           />
-          <p className="text-xs leading-relaxed text-white/45">{t("expiresOnHint")}</p>
+          <p className="text-xs leading-relaxed text-muted-2">{t("expiresOnHint")}</p>
         </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("salaryMin")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("salaryMin")}</label>
           <Input value={salaryMin} onChange={(e) => setSalaryMin(e.target.value)} inputMode="numeric" />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("salaryMax")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("salaryMax")}</label>
           <Input value={salaryMax} onChange={(e) => setSalaryMax(e.target.value)} inputMode="numeric" />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("salaryCurrency")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("salaryCurrency")}</label>
           <Input value={salaryCurrency} onChange={(e) => setSalaryCurrency(e.target.value)} />
         </div>
-        <div className="text-xs text-white/45 sm:col-span-3">{t("jobFieldGuideSalary")}</div>
+        <div className="text-xs text-muted-2 sm:col-span-3">{t("jobFieldGuideSalary")}</div>
       </div>
 
       {error ? (
-        <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}

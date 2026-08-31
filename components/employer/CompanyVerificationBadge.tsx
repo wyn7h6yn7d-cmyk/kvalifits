@@ -22,10 +22,10 @@ export function CompanyVerificationBadge({
     <div className={cn("min-w-0", className)}>
       <VerificationStatusBadge tone={companyStatusTone(status)} label={statusLine} />
       {hintLine ? (
-        <div className="mt-1.5 text-[11px] leading-snug text-white/45">{hintLine}</div>
+        <div className="mt-1.5 text-[11px] leading-snug text-muted-2">{hintLine}</div>
       ) : null}
       {status === "verified" && metaLine ? (
-        <div className="mt-1 text-[11px] leading-snug text-white/45">{metaLine}</div>
+        <div className="mt-1 text-[11px] leading-snug text-muted-2">{metaLine}</div>
       ) : null}
     </div>
   );

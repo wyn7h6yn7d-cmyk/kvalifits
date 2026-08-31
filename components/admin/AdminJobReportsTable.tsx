@@ -82,7 +82,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
 
   if (!reports.length) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 text-sm text-white/70">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
         {t("noReports")}
       </div>
     );
@@ -91,7 +91,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
   return (
     <div className="space-y-4">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
@@ -99,40 +99,40 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
       {reports.map((r) => (
         <div
           key={r.id}
-          className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
+          className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-sm font-medium text-white/88">
+              <div className="text-sm font-medium text-foreground">
                 {r.job_title ?? r.job_post_id}
               </div>
-              <div className="mt-1 text-xs text-white/55">
+              <div className="mt-1 text-xs text-muted-2">
                 {r.employer_name ?? "—"} ·{" "}
                 <Link href={`/tood/${r.job_post_id}`} className="underline-offset-2 hover:underline">
                   {t("reportsOpenJob")}
                 </Link>
               </div>
             </div>
-            <div className="text-xs tabular-nums text-white/45">
+            <div className="text-xs tabular-nums text-muted-2">
               {new Date(r.created_at).toLocaleString()}
             </div>
           </div>
 
-          <div className="mt-3 text-sm text-white/80">
-            <span className="text-white/50">{t("colReason")}: </span>
+          <div className="mt-3 text-sm text-foreground/80">
+            <span className="text-muted-2">{t("colReason")}: </span>
             {isJobPostReportReason(r.reason)
               ? t(`reportReason.${r.reason}`)
               : r.reason}
           </div>
           {(r.details ?? "").trim() ? (
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-body">
               {r.details}
             </p>
           ) : null}
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-medium tracking-wide text-white/55" htmlFor={`status-${r.id}`}>
+              <label className="text-[0.9375rem] font-medium leading-snug text-foreground-2" htmlFor={`status-${r.id}`}>
                 {t("colStatus")}
               </label>
               <select
@@ -141,7 +141,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
                 onChange={(e) =>
                   setStatusDraft((prev) => ({ ...prev, [r.id]: e.target.value }))
                 }
-                className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2.5 text-sm text-white/85 outline-none"
+                className="w-full rounded-2xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-foreground/80 outline-none"
               >
                 {JOB_POST_REPORT_STATUS_VALUES.map((s) => (
                   <option key={s} value={s}>
@@ -151,7 +151,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
               </select>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <label className="text-xs font-medium tracking-wide text-white/55" htmlFor={`notes-${r.id}`}>
+              <label className="text-[0.9375rem] font-medium leading-snug text-foreground-2" htmlFor={`notes-${r.id}`}>
                 {t("colAdminNotes")}
               </label>
               <textarea
@@ -161,10 +161,10 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
                   setNotesDraft((prev) => ({ ...prev, [r.id]: e.target.value.slice(0, 8000) }))
                 }
                 rows={3}
-                className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2.5 text-sm text-white/85 outline-none"
+                className="w-full rounded-2xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-foreground/80 outline-none"
                 placeholder={t("adminNotesPlaceholder")}
               />
-              <p className="text-[11px] text-white/40">{t("adminNotesPrivateHint")}</p>
+              <p className="text-[11px] text-muted-2">{t("adminNotesPrivateHint")}</p>
             </div>
           </div>
 

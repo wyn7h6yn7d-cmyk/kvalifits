@@ -22,7 +22,7 @@ export default async function KupsisedPage({ params }: Props) {
       doc={doc}
       showToc
       prepend={
-        <CookieSettingsButton className="text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline" />
+        <CookieSettingsButton className="text-sm font-medium text-body underline-offset-4 hover:text-foreground hover:underline" />
       }
     />
   );

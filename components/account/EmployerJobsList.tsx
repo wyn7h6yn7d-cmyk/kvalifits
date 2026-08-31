@@ -144,7 +144,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
   return (
     <div className="space-y-3">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
@@ -152,13 +152,13 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
       {jobs.map((job) => (
         <div
           key={job.id}
-          className="flex flex-col gap-3 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-3 rounded-3xl border border-border bg-[#f8fafc] p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-white/85">{job.title}</div>
-            <div className="mt-1 text-xs text-white/55">
+            <div className="truncate text-sm font-medium text-foreground/80">{job.title}</div>
+            <div className="mt-1 text-xs text-muted-2">
               {t("statusLabel")}:{" "}
-              <span className="text-white/75">{t(`status_${job.status}` as any)}</span>
+              <span className="text-muted">{t(`status_${job.status}` as any)}</span>
             </div>
             {job.status === "published" ? (
               <EmployerJobFeaturedPromo locale={locale} job={job} compact />
@@ -221,7 +221,7 @@ export function EmployerJobsList({ locale, initialJobs }: Props) {
               type="button"
               variant="outline"
               size="sm"
-              className="h-11 w-full rounded-xl border-red-500/45 bg-red-500/[0.12] px-3 text-[13px] text-red-100 hover:bg-red-500/25 hover:text-white sm:h-9 sm:w-auto"
+              className="h-11 w-full rounded-xl border-red-500/45 bg-red-500/[0.12] px-3 text-[13px] text-red-100 hover:bg-red-500/25 hover:text-foreground sm:h-9 sm:w-auto"
               onClick={() => void deleteJob(job.id, job.title)}
               disabled={busyId === job.id}
             >

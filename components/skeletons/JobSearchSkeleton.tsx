@@ -16,16 +16,16 @@ export function JobSearchSkeleton({ label, count = 4 }: { label?: string; count?
   return (
     <SkeletonRegion label={label} className={cn(JOBS_PAGE_TOP, "pb-12 sm:pb-12 lg:pb-16")}>
       <Container className={JOBS_PAGE_CONTAINER}>
-        <header className="border-b border-white/[0.08] pb-4 md:pb-6 lg:pb-8">
+        <header className="border-b border-border pb-4 md:pb-6 lg:pb-8">
           <Bone className="h-8 w-48 rounded-lg sm:h-9" />
-          <Bone className={cn("mt-4 w-full rounded-2xl", JOBS_PAGE_CONTROL_HEIGHT)} />
+          <Bone className={cn("mt-4 w-full rounded-xl", JOBS_PAGE_CONTROL_HEIGHT)} />
           <Bone className="mt-4 h-4 w-32 lg:hidden" />
         </header>
 
         <div
           className={cn(
             JOBS_PAGE_SECTION_GAP,
-            "space-y-3 border-b border-white/[0.08] py-3 lg:hidden",
+            "space-y-3 border-b border-border py-3 lg:hidden",
           )}
         >
           <div className="grid grid-cols-2 gap-2">
@@ -50,7 +50,7 @@ export function JobSearchSkeleton({ label, count = 4 }: { label?: string; count?
               <div
                 className={cn(
                   JOBS_PAGE_SIDEBAR_PADDING,
-                  "rounded-2xl border border-white/[0.08] bg-[#141416]",
+                  "rounded-xl border border-border bg-white",
                 )}
               >
                 <div className="space-y-3">

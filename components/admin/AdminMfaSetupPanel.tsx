@@ -80,7 +80,7 @@ export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: str
   }
 
   if (!ready) {
-    return <div className="text-sm text-white/55">{t("loading")}</div>;
+    return <div className="text-sm text-muted-2">{t("loading")}</div>;
   }
 
   if (hasVerified && !factorId) {
@@ -89,7 +89,7 @@ export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: str
 
   return (
     <div className="space-y-4">
-      <p className="text-sm leading-relaxed text-white/60">{t("adminMfaIntro")}</p>
+      <p className="text-sm leading-relaxed text-muted">{t("adminMfaIntro")}</p>
 
       {!factorId ? (
         <Button
@@ -106,18 +106,18 @@ export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: str
       ) : (
         <div className="space-y-4">
           {qr ? (
-            <div className="flex justify-center rounded-2xl border border-white/[0.10] bg-white p-4">
+            <div className="flex justify-center rounded-2xl border border-border bg-white p-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={qr} alt="" className="h-48 w-48" />
             </div>
           ) : null}
           {secret ? (
-            <p className="break-all text-xs text-white/50">
-              {t("adminMfaSecret")}: <span className="font-mono text-white/75">{secret}</span>
+            <p className="break-all text-xs text-muted-2">
+              {t("adminMfaSecret")}: <span className="font-mono text-muted">{secret}</span>
             </p>
           ) : null}
           <div className="space-y-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">{t("mfaCode")}</label>
+            <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("mfaCode")}</label>
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\s/g, ""))}
@@ -144,7 +144,7 @@ export function AdminMfaSetupPanel({ nextPath }: { locale: string; nextPath: str
       )}
 
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}

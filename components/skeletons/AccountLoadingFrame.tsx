@@ -31,7 +31,7 @@ export function AccountAuthLoadingFrame({
   return (
     <div className="relative flex min-h-[100dvh] items-start justify-center pt-10 pb-16 lg:min-h-[calc(100dvh-var(--site-header-offset))] lg:pt-16 lg:pb-24">
       <div className={cn("relative w-full px-4 sm:px-6", maxWidthClassName ?? "max-w-md")}>
-        <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-8">
+        <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-8">
           <Bone className="h-8 w-44 rounded-lg" />
           <Bone className="mt-3 h-4 w-64 max-w-full" />
           <div className="mt-7">{children}</div>

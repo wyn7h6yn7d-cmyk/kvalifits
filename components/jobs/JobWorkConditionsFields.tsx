@@ -26,15 +26,15 @@ export function JobWorkConditionsFields({ value, onChange }: Props) {
   }
 
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-4">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 space-y-4">
       <div>
-        <div className="text-sm font-medium text-white/85">{t("workConditionsTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("workConditionsHint")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("workConditionsTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("workConditionsHint")}</div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="job-weekly-hours">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="job-weekly-hours">
             {t("weeklyHours")}
           </label>
           <Input
@@ -46,7 +46,7 @@ export function JobWorkConditionsFields({ value, onChange }: Props) {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="job-daily-hours">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="job-daily-hours">
             {t("dailyHours")}
           </label>
           <Input
@@ -58,7 +58,7 @@ export function JobWorkConditionsFields({ value, onChange }: Props) {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="job-shift-start">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="job-shift-start">
             {t("shiftStart")}
           </label>
           <Input
@@ -69,7 +69,7 @@ export function JobWorkConditionsFields({ value, onChange }: Props) {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="job-shift-end">
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="job-shift-end">
             {t("shiftEnd")}
           </label>
           <Input
@@ -86,11 +86,11 @@ export function JobWorkConditionsFields({ value, onChange }: Props) {
           type="checkbox"
           checked={value.includesNightWork}
           onChange={(e) => patch({ includesNightWork: e.target.checked })}
-          className="mt-1 h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+          className="mt-1 h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
         />
         <span>
-          <span className="block text-sm font-medium text-white/80">{t("includesNightWork")}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{t("includesNightWorkHint")}</span>
+          <span className="block text-sm font-medium text-foreground/80">{t("includesNightWork")}</span>
+          <span className="mt-0.5 block text-xs text-muted-2">{t("includesNightWorkHint")}</span>
         </span>
       </label>
 
@@ -99,11 +99,11 @@ export function JobWorkConditionsFields({ value, onChange }: Props) {
           type="checkbox"
           checked={value.isHazardousWork}
           onChange={(e) => patch({ isHazardousWork: e.target.checked })}
-          className="mt-1 h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+          className="mt-1 h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
         />
         <span>
-          <span className="block text-sm font-medium text-white/80">{t("isHazardousWork")}</span>
-          <span className="mt-0.5 block text-xs text-white/45">{t("isHazardousWorkHint")}</span>
+          <span className="block text-sm font-medium text-foreground/80">{t("isHazardousWork")}</span>
+          <span className="mt-0.5 block text-xs text-muted-2">{t("isHazardousWorkHint")}</span>
         </span>
       </label>
     </div>

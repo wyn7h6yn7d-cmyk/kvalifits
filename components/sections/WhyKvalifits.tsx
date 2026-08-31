@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { Fingerprint, Landmark, ShieldCheck } from "lucide-react";
 
 import { Container } from "@/components/ui/container";
+import { SITE_BODY, SITE_EYEBROW, SITE_H2_SECTION, SITE_H3 } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 const ICONS = [Fingerprint, ShieldCheck, Landmark] as const;
 
@@ -23,16 +25,16 @@ export async function WhyKvalifits() {
 
       <Container className="relative z-10">
         <div className="mx-auto max-w-2xl text-center lg:mx-0 lg:max-w-xl lg:text-left">
-          <div className="text-[13px] font-medium uppercase tracking-wide text-muted-2 sm:text-sm">
+          <div className={SITE_EYEBROW}>
             {t("eyebrow")}
           </div>
-          <h2 className="mt-3 text-balance text-[1.625rem] font-semibold leading-tight tracking-tight text-foreground sm:mt-4 sm:text-2xl lg:text-[2.65rem]">
+          <h2 className={cn("mt-3 sm:mt-4", SITE_H2_SECTION)}>
             {t("title")}
             {t("titleMuted").trim() ? (
-              <span className="block text-muted-2"> {t("titleMuted")}</span>
+              <span className="block font-medium text-muted"> {t("titleMuted")}</span>
             ) : null}
           </h2>
-          <p className="mt-3 text-pretty text-base leading-relaxed text-body sm:mt-4 sm:text-lg sm:leading-relaxed">
+          <p className={cn("mt-3 text-pretty sm:mt-4", SITE_BODY)}>
             {t("subtitle")}
           </p>
         </div>
@@ -48,10 +50,10 @@ export async function WhyKvalifits() {
                 <b.icon className="h-5 w-5" strokeWidth={1.6} />
               </div>
               <div className="min-w-0 max-w-xl">
-                <h3 className="text-pretty text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+                <h3 className={SITE_H3}>
                   {b.title}
                 </h3>
-                <p className="mt-2 text-pretty text-[15px] leading-relaxed text-body sm:text-base sm:leading-relaxed">
+                <p className={cn("mt-2 text-pretty", SITE_BODY)}>
                   {b.desc}
                 </p>
               </div>

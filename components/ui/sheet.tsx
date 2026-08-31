@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export const Sheet = DialogPrimitive.Root;
 export const SheetTrigger = DialogPrimitive.Trigger;
@@ -24,7 +25,7 @@ export const SheetOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[70] bg-black/70 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-[70] bg-slate-900/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -49,7 +50,7 @@ export const SheetContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed z-[70] flex flex-col border-white/[0.11] bg-[#0c0c10] shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]",
+          "fixed z-[70] flex flex-col border-border bg-white shadow-[0_16px_48px_-24px_rgba(15,23,42,0.28)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           side === "right" &&
             "inset-y-0 right-0 h-dvh w-full max-w-sm overflow-y-auto border-l p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
@@ -61,11 +62,16 @@ export const SheetContent = React.forwardRef<
       >
         {children}
         {showCloseButton ? (
-          <DialogPrimitive.Close
-            className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.06] text-white/80 hover:bg-white/[0.10] focus-visible:outline-none"
-            aria-label={t("closeMenu")}
-          >
-            <X className="h-4 w-4" />
+          <DialogPrimitive.Close asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="absolute right-3 top-3 h-10 w-10"
+              aria-label={t("closeMenu")}
+            >
+              <X aria-hidden />
+            </Button>
           </DialogPrimitive.Close>
         ) : null}
       </DialogPrimitive.Content>
@@ -80,7 +86,7 @@ export const SheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-base font-semibold tracking-tight text-white", className)}
+    className={cn("text-base font-semibold leading-snug text-foreground", className)}
     {...props}
   />
 ));
@@ -92,7 +98,7 @@ export const SheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm leading-6 text-white/70", className)}
+    className={cn("text-base leading-[1.65] text-body", className)}
     {...props}
   />
 ));

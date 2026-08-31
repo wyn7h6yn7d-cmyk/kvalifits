@@ -19,7 +19,8 @@ const PLATFORM_PATHS = [
   { href: "/ettevotted", key: "companies" as const },
 ] as const;
 
-const footerNavLinkClass = "block text-[15px] leading-6 text-body hover:text-foreground";
+const footerNavLinkClass =
+  "flex min-h-11 items-center text-[15px] leading-6 text-body hover:text-foreground";
 
 type Props = {
   /** Tighter spacing/grid for the jobs listing experience. Layout only — no content changes. */
@@ -33,7 +34,7 @@ export async function Footer({ compact = false }: Props) {
   return (
     <footer
       className={cn(
-        "border-t border-white/[0.06] bg-surface",
+        "border-t border-border bg-surface",
         compact && "-mt-4 sm:-mt-5 lg:-mt-6",
       )}
     >
@@ -58,8 +59,8 @@ export async function Footer({ compact = false }: Props) {
                   className="flex items-start opacity-95"
                   imageClassName={
                     compact
-                      ? "h-9 w-[11.5rem] object-cover object-left sm:h-10 sm:w-[14rem]"
-                      : "h-10 w-[12.5rem] object-cover object-left sm:h-12 sm:w-[16rem]"
+                      ? "h-8 w-auto sm:h-9"
+                      : "h-9 w-auto sm:h-10"
                   }
                 />
               </div>
@@ -92,9 +93,9 @@ export async function Footer({ compact = false }: Props) {
             </div>
           </div>
 
-          <Separator className={cn("bg-white/[0.08]", compact ? "my-6 sm:my-7" : "my-10")} />
+          <Separator className={cn("bg-border", compact ? "my-6 sm:my-7" : "my-10")} />
 
-          <div className="text-sm leading-relaxed text-white/50">
+          <div className="text-[0.9375rem] leading-[1.6] text-muted">
             © {new Date().getFullYear()} Kvalifits
           </div>
         </div>

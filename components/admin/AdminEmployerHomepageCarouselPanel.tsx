@@ -100,9 +100,9 @@ function DarkLogoPreview({
   emptyLabel: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-[#0c0c10] p-3">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-white/45">{label}</div>
-      <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-white/[0.06] bg-[#0f0f16] px-3">
+    <div className="rounded-xl border border-border bg-white p-3">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">{label}</div>
+      <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-border bg-background px-3">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -110,11 +110,11 @@ function DarkLogoPreview({
             alt=""
             className={cn(
               "max-h-14 w-auto max-w-full object-contain",
-              plate && "rounded-md bg-white/[0.08] px-3 py-2",
+              plate && "rounded-md bg-[#f8fafc] px-3 py-2",
             )}
           />
         ) : (
-          <span className="text-xs text-white/40">{emptyLabel}</span>
+          <span className="text-xs text-muted-2">{emptyLabel}</span>
         )}
       </div>
     </div>
@@ -194,21 +194,21 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
   if (disabled) return null;
 
   return (
-    <div className="mt-4 space-y-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3 py-4 sm:px-4">
+    <div className="mt-4 space-y-4 rounded-2xl border border-border bg-white px-3 py-4 sm:px-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-[11px] font-medium uppercase tracking-wide text-white/42">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
             {t("homepageCarouselReviewEyebrow")}
           </div>
-          <div className="mt-1 text-sm font-semibold text-white/90">{companyName}</div>
-          <p className="mt-1 text-xs leading-relaxed text-white/48">{t("homepageCarouselHint")}</p>
+          <div className="mt-1 text-sm font-semibold text-foreground">{companyName}</div>
+          <p className="mt-1 text-xs leading-relaxed text-muted-2">{t("homepageCarouselHint")}</p>
         </div>
         <div
           className={cn(
             "inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-medium",
-            luminanceHint === "good" && "border-emerald-400/25 bg-emerald-500/10 text-emerald-100",
+            luminanceHint === "good" && "border-emerald-400/25 bg-emerald-500/10 text-emerald-800",
             luminanceHint === "needs_plate" && "border-amber-400/25 bg-amber-500/10 text-amber-50",
-            luminanceHint === "unknown" && "border-white/[0.10] bg-white/[0.04] text-white/55",
+            luminanceHint === "unknown" && "border-border bg-[#f8fafc] text-muted-2",
           )}
         >
           {luminanceHint === "good"
@@ -289,7 +289,7 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2 border-t border-white/[0.06] pt-3">
+      <div className="flex flex-wrap gap-2 border-t border-border pt-3">
         <Button
           type="button"
           variant={usePlate ? "primary" : "outline"}
@@ -332,7 +332,7 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
             type="button"
             variant="ghost"
             size="sm"
-            className="h-9 rounded-xl px-3 text-[13px] text-white/60"
+            className="h-9 rounded-xl px-3 text-[13px] text-muted"
             disabled={busy}
             onClick={() => void patch({ clearCarouselLogo: true, homepageLogoApproved: false, showOnHomepage: false })}
           >
@@ -341,23 +341,23 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
         ) : null}
       </div>
 
-      <div className="flex flex-wrap gap-2 text-[11px] text-white/45">
+      <div className="flex flex-wrap gap-2 text-[11px] text-muted-2">
         {isApproved ? (
-          <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-0.5 text-emerald-100">
+          <span className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-0.5 text-emerald-800">
             {t("homepageCarouselStatusApproved")}
           </span>
         ) : (
-          <span className="rounded-full border border-white/[0.08] px-2 py-0.5">{t("homepageCarouselStatusPending")}</span>
+          <span className="rounded-full border border-border px-2 py-0.5">{t("homepageCarouselStatusPending")}</span>
         )}
         {isVisible ? (
-          <span className="rounded-full border border-violet-400/20 bg-violet-500/10 px-2 py-0.5 text-violet-100">
+          <span className="rounded-full border border-[rgba(37,99,235,0.18)] bg-[rgba(37,99,235,0.07)] px-2 py-0.5 text-primary">
             {t("homepageCarouselStatusVisible")}
           </span>
         ) : (
-          <span className="rounded-full border border-white/[0.08] px-2 py-0.5">{t("homepageCarouselStatusHidden")}</span>
+          <span className="rounded-full border border-border px-2 py-0.5">{t("homepageCarouselStatusHidden")}</span>
         )}
         {usePlate ? (
-          <span className="rounded-full border border-white/[0.10] bg-white/[0.04] px-2 py-0.5">
+          <span className="rounded-full border border-border bg-[#f8fafc] px-2 py-0.5">
             {t("homepageCarouselStatusPlate")}
           </span>
         ) : null}

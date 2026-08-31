@@ -2,7 +2,7 @@ import { Bone, SkeletonRegion } from "@/components/ui/Skeleton";
 
 export function CandidateCardSkeleton() {
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <Bone className="h-4 w-40" />
@@ -44,14 +44,14 @@ export function CandidateListSkeleton({
           </div>
         </>
       ) : null}
-      <div className="hidden overflow-hidden rounded-2xl border border-white/[0.08] lg:block">
-        <div className="grid grid-cols-8 gap-3 border-b border-white/[0.08] px-4 py-3">
+      <div className="hidden overflow-hidden rounded-2xl border border-border lg:block">
+        <div className="grid grid-cols-8 gap-3 border-b border-border px-4 py-3">
           {Array.from({ length: 8 }).map((_, i) => (
             <Bone key={i} className="h-2.5 w-16" />
           ))}
         </div>
         {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className="grid grid-cols-8 items-center gap-3 border-b border-white/[0.06] px-4 py-3.5">
+          <div key={i} className="grid grid-cols-8 items-center gap-3 border-b border-border px-4 py-3.5">
             <Bone className="h-3.5 w-28" />
             <Bone className="h-3.5 w-24" />
             <Bone className="h-3.5 w-10" />

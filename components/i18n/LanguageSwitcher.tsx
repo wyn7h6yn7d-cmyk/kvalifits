@@ -140,10 +140,10 @@ export function LanguageSwitcher({
         aria-controls={menuId}
         aria-label={t("switchTo")}
         className={cn(
-          "inline-flex items-center gap-1.5 rounded-md bg-transparent px-2 font-medium tracking-[0.04em] text-white/62 transition-colors",
-          "hover:bg-white/[0.06] hover:text-white/88",
-          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-400/35",
-          open && "bg-white/[0.06] text-white/88",
+          "inline-flex items-center gap-1.5 rounded-md bg-transparent px-2 font-medium text-muted transition-colors",
+          "hover:bg-[#f5f7fb] hover:text-foreground",
+          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary/30",
+          open && "bg-[#f8fafc] text-foreground",
           triggerClassName,
         )}
       >
@@ -169,7 +169,7 @@ export function LanguageSwitcher({
           role="menu"
           aria-label={t("switchTo")}
           onKeyDown={onMenuKeyDown}
-          className="w-[160px] rounded-xl border border-white/[0.10] bg-[#141418] p-2 shadow-[0_16px_40px_-18px_rgba(0,0,0,0.72)]"
+          className="w-[160px] rounded-xl border border-border bg-white p-2 shadow-[0_12px_28px_-14px_rgba(15,23,42,0.14)]"
         >
           {LOCALES.map((item, index) => {
             const active = item.code === current;
@@ -185,18 +185,18 @@ export function LanguageSwitcher({
                 aria-current={active ? "true" : undefined}
                 onClick={() => switchLocale(item.code)}
                 className={cn(
-                  "flex h-11 w-full items-center gap-2 rounded-md px-2.5 text-left text-[13px] leading-none transition-colors lg:h-9",
-                  "text-white/68 hover:bg-white/[0.06] hover:text-white",
-                  "focus-visible:bg-white/[0.06] focus-visible:text-white focus-visible:outline-none",
-                  active && "text-white/92",
+                  "flex h-11 w-full items-center gap-2 rounded-md px-2.5 text-left text-[0.9375rem] leading-snug transition-colors lg:h-9",
+                  "text-muted hover:bg-[#f5f7fb] hover:text-foreground",
+                  "focus-visible:bg-[#f5f7fb] focus-visible:text-foreground focus-visible:outline-none",
+                  active && "text-foreground",
                 )}
               >
                 <span className="min-w-0 flex-1 truncate">{item.nativeName}</span>
-                <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-white/32">
+                <span className="text-[0.75rem] font-medium text-muted">
                   {t(item.code)}
                 </span>
                 <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center">
-                  {active ? <Check className="h-3.5 w-3.5 text-white/80" strokeWidth={2} aria-hidden /> : null}
+                  {active ? <Check className="h-3.5 w-3.5 text-foreground/80" strokeWidth={2} aria-hidden /> : null}
                 </span>
               </button>
             );

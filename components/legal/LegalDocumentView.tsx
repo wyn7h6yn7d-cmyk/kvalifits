@@ -3,12 +3,13 @@
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import type { LegalSection } from "@/lib/content/legal";
 import {
+  SITE_BODY,
   SITE_CONTAINER_PROSE,
+  SITE_EYEBROW,
   SITE_H1_HERO,
   SITE_H2,
   SITE_SECTION_PY,
@@ -66,12 +67,11 @@ export function LegalDocumentView({
   const toc = showToc ?? doc.sections.length >= 5;
 
   return (
-    <div className="relative overflow-hidden">
-      <AmbientBackground intensity="soft" />
-      <Container className={cn("relative", SITE_CONTAINER_PROSE, SITE_SECTION_PY)}>
+    <div>
+      <Container className={cn(SITE_CONTAINER_PROSE, SITE_SECTION_PY)}>
         {prepend ? <div className="mb-6">{prepend}</div> : null}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
+          <p className="text-[0.9375rem] text-muted">
             {t("updated")}{" "}
             <time dateTime={doc.lastUpdated}>
               {new Date(doc.lastUpdated + "T12:00:00").toLocaleDateString(dateLocale, {
@@ -81,25 +81,25 @@ export function LegalDocumentView({
               })}
             </time>
           </p>
-          <Link href="/" className="text-xs font-medium text-white/45 hover:text-white/75">
+          <Link href="/" className="text-[0.9375rem] font-medium text-muted hover:text-foreground">
             {t("backHome")}
           </Link>
         </div>
 
         <h1 className={SITE_H1_HERO}>{doc.h1}</h1>
         {doc.lead ? (
-          <p className="mt-5 text-base leading-relaxed text-white/65">{doc.lead}</p>
+          <p className={cn("mt-5", SITE_BODY, "text-muted")}>{doc.lead}</p>
         ) : null}
 
         {toc ? (
           <div className="mt-10">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+            <div className={SITE_EYEBROW}>
               {t("contents")}
             </div>
-            <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-white/70 marker:text-white/35">
+            <ol className="mt-4 list-decimal space-y-2 pl-5 text-base leading-[1.65] text-body marker:text-muted-2">
               {doc.sections.map((s) => (
                 <li key={s.id}>
-                  <a href={`#${s.id}`} className="hover:text-white">
+                  <a href={`#${s.id}`} className="hover:text-foreground">
                     {s.title}
                   </a>
                 </li>
@@ -112,12 +112,12 @@ export function LegalDocumentView({
           {doc.sections.map((s) => (
             <section key={s.id} id={s.id} className="scroll-mt-28">
               <h2 className={SITE_H2}>{s.title}</h2>
-              <div className="mt-4 space-y-4 text-sm leading-relaxed text-white/65">
+              <div className={cn("mt-4 space-y-4", SITE_BODY, "text-muted")}>
                 {s.paragraphs.map((p, i) => (
                   <p key={i}>{renderParagraphWithLinks(p, locale)}</p>
                 ))}
                 {s.listItems?.length ? (
-                  <ul className="list-disc space-y-2 pl-5 marker:text-white/35">
+                  <ul className="list-disc space-y-2 pl-5 marker:text-muted-2">
                     {s.listItems.map((item, i) => (
                       <li key={i}>{renderParagraphWithLinks(item, locale)}</li>
                     ))}
@@ -129,7 +129,7 @@ export function LegalDocumentView({
         </div>
 
         {doc.footnote ? (
-          <p className="mt-14 text-xs leading-relaxed text-white/40">
+          <p className="mt-14 text-xs leading-relaxed text-muted-2">
             {doc.footnote}
           </p>
         ) : null}
@@ -147,7 +147,7 @@ function renderParagraphWithLinks(text: string, locale: string) {
         <Link
           key={i}
           href={href}
-          className="text-white/80 underline decoration-white/25 underline-offset-2 hover:decoration-white/50"
+          className="text-foreground/80 underline decoration-border-strong underline-offset-2 hover:decoration-foreground/40"
         >
           {part}
         </Link>

@@ -25,12 +25,12 @@ export function AdminShell({
           <AdminSubnav />
           <div
             className={cn(
-              "mt-5 rounded-3xl border border-white/[0.10] bg-[#14141a] p-6 shadow-[0_24px_80px_-40px_rgba(0,0,0,0.9)] sm:p-8",
+              "mt-5 rounded-3xl border border-border bg-white p-6 shadow-[0_12px_32px_-18px_rgba(15,23,42,0.16)] sm:p-8",
               maxWidthClassName,
             )}
           >
-            <h1 className="text-balance text-2xl font-semibold tracking-tight text-white">{title}</h1>
-            {subtitle ? <p className="mt-2 text-sm leading-relaxed text-white/60">{subtitle}</p> : null}
+            <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+            {subtitle ? <p className="mt-2 text-sm leading-relaxed text-muted">{subtitle}</p> : null}
             <div className="mt-7">{children}</div>
           </div>
         </div>

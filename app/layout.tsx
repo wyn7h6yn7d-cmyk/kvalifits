@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { IBM_Plex_Sans } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import { ConsentedAnalytics } from "@/components/cookies/ConsentedAnalytics";
 import { SEO_DEFAULT_LOCALE, SITE_NAME, SITE_ORIGIN } from "@/lib/seo/site";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-ibm-plex-sans",
+  subsets: ["latin", "latin-ext", "cyrillic"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -45,7 +46,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${geistSans.variable} h-full font-sans antialiased overflow-x-hidden`}
+      className={`${ibmPlexSans.variable} h-full font-sans overflow-x-hidden`}
     >
       <body className="m-0 min-h-[100dvh] overflow-x-hidden bg-background p-0 text-foreground">
         <div className="flex min-h-[100dvh] flex-col">

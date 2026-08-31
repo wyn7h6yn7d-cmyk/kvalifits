@@ -155,10 +155,10 @@ export function EmployerApplicantDetailDrawer({
         )}
       >
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
-          <SheetTitle className="pr-10 text-[17px] font-semibold tracking-tight text-white/92">
+          <SheetTitle className="pr-10 text-[17px] font-semibold tracking-tight text-foreground">
             {scan?.name ?? t("applicantsTitle")}
           </SheetTitle>
-          <SheetDescription className="mt-1 text-sm text-white/55">
+          <SheetDescription className="mt-1 text-sm text-muted-2">
             {scan?.profileTitle || t("applicantsNoTitle")}
           </SheetDescription>
 
@@ -166,7 +166,7 @@ export function EmployerApplicantDetailDrawer({
             <div className="mt-5 space-y-5">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                  <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                     {t("applicationPipelineStatusLabel")}
                   </div>
                   <EmployerApplicationStatusSelect
@@ -175,7 +175,7 @@ export function EmployerApplicantDetailDrawer({
                     status={status}
                     onUpdated={onStatusUpdated}
                   />
-                  <p className="mt-1.5 text-[11px] tabular-nums text-white/40">
+                  <p className="mt-1.5 text-[11px] tabular-nums text-muted-2">
                     {t("applicationStatusUpdatedAt")}: {formatPipelineTimestamp(locale, statusUpdatedAt)}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export function EmployerApplicantDetailDrawer({
                     <PrivateCvOpenLink
                       cvRef={cvUrl}
                       errorLabel={t("applicantCvOpenFailed")}
-                      className="inline-flex h-10 items-center rounded-xl border border-white/[0.12] bg-white/[0.04] px-3 text-[13px] font-medium text-white/80 hover:bg-white/[0.07] disabled:opacity-60"
+                      className="inline-flex h-10 items-center rounded-xl border border-border bg-[#f8fafc] px-3 text-[13px] font-medium text-foreground/80 hover:bg-[#f5f7fb] disabled:opacity-60"
                     >
                       {t("applicantDetailViewCv")}
                     </PrivateCvOpenLink>
@@ -192,7 +192,7 @@ export function EmployerApplicantDetailDrawer({
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+              <div className="rounded-2xl border border-border bg-white p-4">
                 <FitScoreExplain
                   score={scan.score}
                   lazySource={{ applicationId: row.id }}
@@ -203,22 +203,22 @@ export function EmployerApplicantDetailDrawer({
               </div>
 
               <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                   {t("applicantCardExperience")}
                 </h3>
-                <p className="mt-1.5 text-sm text-white/80">{experienceLabel}</p>
+                <p className="mt-1.5 text-sm text-foreground/80">{experienceLabel}</p>
               </section>
 
               {scan.skills.length ? (
                 <section>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                     {t("applicantDetailSkills")}
                   </h3>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {scan.skills.slice(0, 18).map((s) => (
                       <span
                         key={s}
-                        className="rounded-full border border-white/[0.10] bg-white/[0.03] px-2.5 py-0.5 text-[12px] text-white/70"
+                        className="rounded-full border border-border bg-[#f8fafc] px-2.5 py-0.5 text-[12px] text-body"
                       >
                         {s}
                       </span>
@@ -228,16 +228,16 @@ export function EmployerApplicantDetailDrawer({
               ) : null}
 
               <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                   {t("applicantCardLanguages")}
                 </h3>
-                <p className="mt-1.5 text-sm text-white/80">
+                <p className="mt-1.5 text-sm text-foreground/80">
                   {scan.languages.length ? scan.languages.join(" · ") : "—"}
                 </p>
               </section>
 
               <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                   {t("applicantDetailCertificates")}
                 </h3>
                 {certRows.filter((c) => {
@@ -283,85 +283,85 @@ export function EmployerApplicantDetailDrawer({
                       })}
                   </ul>
                 ) : (
-                  <p className="mt-1.5 text-sm text-white/50">{t("applicantDetailNoCertificates")}</p>
+                  <p className="mt-1.5 text-sm text-muted-2">{t("applicantDetailNoCertificates")}</p>
                 )}
               </section>
 
               <ApplicantEducationList raw={seeker.education} variant="drawer" />
 
               <section>
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                   {t("applyInterviewPreference")}
                 </h3>
                 {interviewScan ? (
-                  <p className="mt-1.5 text-sm text-white/80">
+                  <p className="mt-1.5 text-sm text-foreground/80">
                     {interviewScan.formats}
                     {interviewScan.preferOnline ? (
-                      <span className="mt-1 block text-xs text-white/55">{t("applicantCardPreferOnlineShort")}</span>
+                      <span className="mt-1 block text-xs text-muted-2">{t("applicantCardPreferOnlineShort")}</span>
                     ) : null}
                   </p>
                 ) : (
-                  <p className="mt-1.5 text-sm text-white/50">—</p>
+                  <p className="mt-1.5 text-sm text-muted-2">—</p>
                 )}
               </section>
 
               {answers ? (
-                <section className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                <section className="rounded-2xl border border-border bg-white p-4">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                     {t("applicationAnswersTitle")}
                   </h3>
                   <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                     <div>
-                      <dt className="text-[11px] text-white/40">{t("applySalary")}</dt>
-                      <dd className="mt-0.5 tabular-nums text-white/80">
+                      <dt className="text-[11px] text-muted-2">{t("applySalary")}</dt>
+                      <dd className="mt-0.5 tabular-nums text-foreground/80">
                         {salaryScan ? `${salaryScan.primary} ${salaryScan.basis}` : "—"}
                       </dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] text-white/40">{t("applyAvailableFrom")}</dt>
-                      <dd className="mt-0.5 text-white/80">{startLabel ?? "—"}</dd>
+                      <dt className="text-[11px] text-muted-2">{t("applyAvailableFrom")}</dt>
+                      <dd className="mt-0.5 text-foreground/80">{startLabel ?? "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] text-white/40">{t("applyWeeklyHours")}</dt>
-                      <dd className="mt-0.5 text-white/80">{answers.weeklyHoursDesired}</dd>
+                      <dt className="text-[11px] text-muted-2">{t("applyWeeklyHours")}</dt>
+                      <dd className="mt-0.5 text-foreground/80">{answers.weeklyHoursDesired}</dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] text-white/40">{t("applyNoticePeriod")}</dt>
-                      <dd className="mt-0.5 text-white/80">{answers.noticePeriod || "—"}</dd>
+                      <dt className="text-[11px] text-muted-2">{t("applyNoticePeriod")}</dt>
+                      <dd className="mt-0.5 text-foreground/80">{answers.noticePeriod || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[11px] text-white/40">{t("applyScheduleFit")}</dt>
-                      <dd className="mt-0.5 text-white/80">{t(`applyScheduleFitOption.${answers.scheduleFits}`)}</dd>
+                      <dt className="text-[11px] text-muted-2">{t("applyScheduleFit")}</dt>
+                      <dd className="mt-0.5 text-foreground/80">{t(`applyScheduleFitOption.${answers.scheduleFits}`)}</dd>
                     </div>
                   </dl>
                   {answers.noteForEmployer ? (
-                    <div className="mt-3 border-t border-white/[0.08] pt-3">
-                      <div className="text-[11px] text-white/40">{t("applyNoteLabel")}</div>
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-white/75">{answers.noteForEmployer}</p>
+                    <div className="mt-3 border-t border-border pt-3">
+                      <div className="text-[11px] text-muted-2">{t("applyNoteLabel")}</div>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{answers.noteForEmployer}</p>
                     </div>
                   ) : null}
                 </section>
               ) : row.cover_letter ? (
                 <section>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                     {t("applicationsMessage")}
                   </h3>
-                  <p className="mt-1.5 whitespace-pre-wrap text-sm text-white/75">{row.cover_letter}</p>
+                  <p className="mt-1.5 whitespace-pre-wrap text-sm text-muted">{row.cover_letter}</p>
                 </section>
               ) : null}
 
               {needs.length ? (
                 <section>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                     {t("applicantWorkplaceNeedsTitle")}
                   </h3>
-                  <p className="mt-1 text-[12px] leading-relaxed text-white/45">{t("applicantWorkplaceNeedsHint")}</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-white/75">
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted-2">{t("applicantWorkplaceNeedsHint")}</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted">
                     {needs.map((item) => (
                       <li key={item.key}>
                         {workplaceNeedLabel(item.key, t)}
                         {item.key === "other_need" && item.note ? (
-                          <span className="text-white/50"> — {item.note}</span>
+                          <span className="text-muted-2"> — {item.note}</span>
                         ) : null}
                       </li>
                     ))}
@@ -371,10 +371,10 @@ export function EmployerApplicantDetailDrawer({
 
               {about ? (
                 <section>
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
                     {t("applicantDetailIntro")}
                   </h3>
-                  <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+                  <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-body">
                     {about.length > 340 ? `${about.slice(0, 340)}…` : about}
                   </p>
                 </section>
@@ -387,7 +387,7 @@ export function EmployerApplicantDetailDrawer({
                     className="rounded-2xl p-4"
                   />
               ) : (
-                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-5">
+                <div className="rounded-2xl border border-border bg-white px-4 py-5">
                   <Bone className="h-3 w-28" />
                   <Bone className="mt-3 h-16 w-full rounded-xl" />
                 </div>
@@ -401,7 +401,7 @@ export function EmployerApplicantDetailDrawer({
 
               <Link
                 href={`/account/employer/jobs/${jobPostId}/applicants/${row.id}`}
-                className="inline-flex text-sm font-medium text-white/65 underline-offset-4 hover:text-white hover:underline"
+                className="inline-flex text-sm font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
               >
                 {t("inboxOpenFullPage")}
               </Link>

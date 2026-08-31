@@ -89,15 +89,15 @@ export default async function SeekerSavedPage({ params, searchParams }: Props) {
           {paginated.totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between text-sm">
               {paginated.page > 1 ? (
-                <a href={`/${locale}/account/seeker/saved?page=${paginated.page - 1}`} className="text-white/70 hover:text-white">
+                <a href={`/${locale}/account/seeker/saved?page=${paginated.page - 1}`} className="text-body hover:text-foreground">
                   ← {t("paginationPrev")}
                 </a>
               ) : <span />}
-              <span className="text-white/50 tabular-nums">
+              <span className="text-muted-2 tabular-nums">
                 {t("paginationStatus", { page: paginated.page, totalPages: paginated.totalPages, totalCount: paginated.totalCount })}
               </span>
               {paginated.page < paginated.totalPages ? (
-                <a href={`/${locale}/account/seeker/saved?page=${paginated.page + 1}`} className="text-white/70 hover:text-white">
+                <a href={`/${locale}/account/seeker/saved?page=${paginated.page + 1}`} className="text-body hover:text-foreground">
                   {t("paginationNext")} →
                 </a>
               ) : <span />}

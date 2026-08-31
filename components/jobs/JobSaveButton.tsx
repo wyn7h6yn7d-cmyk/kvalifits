@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useRouter } from "@/i18n/routing";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -79,16 +80,16 @@ export function JobSaveButton({
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size={variant === "labeled" ? "default" : "icon"}
       onClick={onClick}
       disabled={busy}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/[0.14] bg-white/[0.03] text-sm font-medium leading-none text-white/55 transition-[color,background-color,border-color] hover:border-white/[0.20] hover:bg-white/[0.06] hover:text-white/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/[0.16] disabled:opacity-60",
-        variant === "labeled"
-          ? "h-11 min-w-0 whitespace-nowrap px-5"
-          : "h-11 w-11 px-0",
-        saved && "border-white/[0.16] bg-white/[0.07] text-white/90",
+        "shrink-0",
+        variant === "labeled" && "min-w-0 whitespace-nowrap",
+        saved && "border-[rgba(37,99,235,0.32)] text-foreground",
         className,
       )}
       aria-pressed={saved}
@@ -97,6 +98,6 @@ export function JobSaveButton({
     >
       <Bookmark className={cn("h-4 w-4", saved && "fill-current")} aria-hidden />
       {variant === "labeled" ? <span>{label}</span> : null}
-    </button>
+    </Button>
   );
 }

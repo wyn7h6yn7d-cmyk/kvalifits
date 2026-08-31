@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand + soft dark base (avoid pure black) */
-  --background: #0f0f16;
-  --foreground: #f0eef6;
+  /* White / off-white surfaces, blue brand, pink as a small accent */
+  --background: #ffffff;
+  --foreground: #1e293b;
   --accent-pink: #e31f8d;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
 
   /* Landing section rhythm */
-  --surface-deep: #09090d;
-  --surface: #0f0f16;
-  --surface-elevated: #15151f;
+  --surface-deep: #ffffff;
+  --surface: #f4f7fb;
+  --surface-elevated: #ffffff;
 
-  /* Fixed navbar — flush on phones; floating bar restored from lg */
+  /* Fixed navbar — full-width bar, no floating island */
   --site-header-top: 0px;
   --site-header-tail: 0px;
   --site-header-bar: 3.5rem;
@@ -24,28 +26,26 @@
   --site-hero-content-top: calc(var(--site-header-offset) + 1.25rem);
 
   /* Surfaces */
-  --card: rgba(255, 255, 255, 0.045);
-  --card-2: rgba(255, 255, 255, 0.065);
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  --card: #ffffff;
+  --card-2: #f8fafc;
+  --border: rgba(30, 41, 59, 0.08);
+  --border-strong: rgba(30, 41, 59, 0.14);
 
-  /* Text — headings near white; body muted lavender-gray */
-  --muted: rgba(214, 210, 228, 0.78);
-  --muted-2: rgba(188, 184, 208, 0.68);
-  --body: rgba(198, 194, 218, 0.72);
+  /* Text */
+  --muted: rgba(30, 41, 59, 0.64);
+  --muted-2: rgba(30, 41, 59, 0.48);
+  --body: rgba(30, 41, 59, 0.7);
 
-  /* Violet glow — softer defaults; strong only where intentional */
-  --violet-1: rgba(168, 85, 247, 0.42);
-  --violet-2: rgba(99, 102, 241, 0.28);
-  --violet-3: rgba(236, 72, 153, 0.12);
+  /* Soft blue wash; pink wash only for tiny accents (legacy token names) */
+  --violet-1: rgba(37, 99, 235, 0.14);
+  --violet-2: rgba(37, 99, 235, 0.07);
+  --violet-3: rgba(227, 31, 141, 0.07);
 }
 
 @media (min-width: 1024px) {
   :root {
-    --site-header-top: 1.25rem;
-    --site-header-tail: 0.5rem;
-    --site-header-bar: 3.875rem;
-    --site-hero-content-top: calc(var(--site-header-offset) + 5rem);
+    --site-header-bar: 3.75rem;
+    --site-hero-content-top: calc(var(--site-header-offset) + 1.5rem);
   }
 }
 
@@ -63,13 +63,15 @@
   --color-muted-2: var(--muted-2);
   --color-body: var(--body);
   --color-accent-pink: var(--accent-pink);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-violet-1: var(--violet-1);
   --color-violet-2: var(--violet-2);
   --color-violet-3: var(--violet-3);
-  /* One loaded family (Geist); fallbacks keep text stable if the variable is slow. */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji",
-    "Segoe UI Emoji";
+  /* IBM Plex Sans: ET / EN / RU, professional UI reading. */
+  --font-sans: var(--font-ibm-plex-sans), "IBM Plex Sans", ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
   /* System stack only — no second webfont; use `font-mono` for identifiers / env keys. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
@@ -81,6 +83,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0;
 }
 
 html,
@@ -95,48 +101,46 @@ body {
   }
 }
 
-/* Lighter selection: dark pink can surface in Word as odd shading when pasting from HTML */
 ::selection {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(37, 99, 235, 0.14);
   color: inherit;
 }
 
-/* Slightly smoother text rendering on dark; match body so no seam at viewport top */
 html {
   margin: 0;
   padding: 0;
-  text-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
   background-color: var(--background);
+  color-scheme: light;
 }
 
 /* Accessible focus ring for keyboard users */
 :where(a, button, input, textarea, select, [role="button"], [tabindex]):focus-visible {
-  outline: 2px solid rgba(168, 85, 247, 0.75);
+  outline: 2px solid rgba(37, 99, 235, 0.55);
   outline-offset: 3px;
   border-radius: 12px;
 }
 
 /*
  * Browser autofill paints a bright/yellow-white fill on email fields.
- * Force dark inputs so email + password stay visually consistent.
+ * Keep inputs on the light surface.
  */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.85) !important;
-  caret-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 0 1000px #12121a inset !important;
-  -webkit-box-shadow: 0 0 0 1000px #12121a inset !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  caret-color: var(--foreground);
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  border-color: rgba(15, 23, 42, 0.14) !important;
   transition: background-color 99999s ease-out 0s;
 }
 
 input:-webkit-autofill:focus-visible {
-  border-color: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(37, 99, 235, 0.35) !important;
 }
 
-/* Premium display: gradient accent on key words */
 /* Tööportaali tausta animatsioonid (Hero) — ainult transform/opacity/stroke */
 @keyframes portal-dash-flow {
   to {
@@ -176,10 +180,10 @@ input:-webkit-autofill:focus-visible {
 
 /* Accent display: solid text only (no background-clip / transparent fill → Word-safe) */
 .text-accent-brand-display {
-  color: #e4e0f4;
+  color: var(--primary);
 }
 .text-accent-price-display {
-  color: #ece8f8;
+  color: var(--primary-hover);
 }
 
 /* RU hero mockup: slightly smaller base type so long words fit like EN */
@@ -199,7 +203,7 @@ input:-webkit-autofill:focus-visible {
 }
 
 .kf-skeleton {
-  background-color: rgba(255, 255, 255, 0.055);
+  background-color: rgba(15, 23, 42, 0.06);
   animation: kf-skeleton-pulse 1.85s ease-in-out infinite;
 }
 
@@ -211,32 +215,6 @@ input:-webkit-autofill:focus-visible {
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-@keyframes kf-ambient-a {
-  0%,
-  100% {
-    transform: translate(-50%, -8px) scale(1);
-  }
-  33% {
-    transform: translate(-48%, 6px) scale(1.03);
-  }
-  66% {
-    transform: translate(-52%, -10px) scale(0.99);
-  }
-}
-
-@keyframes kf-ambient-b {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  40% {
-    transform: translate(-18px, -10px) scale(1.04);
-  }
-  70% {
-    transform: translate(10px, 8px) scale(1);
   }
 }
 
@@ -297,15 +275,6 @@ input:-webkit-autofill:focus-visible {
   animation-iteration-count: infinite;
 }
 
-@media (min-width: 1024px) {
-  .kf-ambient-orb {
-    animation: kf-ambient-a 18s ease-in-out infinite;
-  }
-  .kf-ambient-orb-b {
-    animation: kf-ambient-b 22s ease-in-out infinite;
-  }
-}
-
 .homepage-company-carousel-viewport {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -338,8 +307,6 @@ input:-webkit-autofill:focus-visible {
   .kf-enter,
   .kf-enter-slow,
   .kf-hero-bar,
-  .kf-ambient-orb,
-  .kf-ambient-orb-b,
   .kf-portal-b-card,
   .kf-portal-b-pill {
     animation: none !important;

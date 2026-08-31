@@ -34,8 +34,8 @@ export function AdminSubnav() {
               className={cn(
                 "inline-flex h-9 shrink-0 items-center rounded-xl px-3 text-[13px] font-medium transition-colors",
                 active
-                  ? "bg-white/[0.10] text-white"
-                  : "text-white/60 hover:bg-white/[0.05] hover:text-white/85",
+                  ? "bg-[#f8fafc] text-foreground"
+                  : "text-muted hover:bg-[#f5f7fb] hover:text-foreground/85",
               )}
             >
               {t(item.key)}

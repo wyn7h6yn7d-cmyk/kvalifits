@@ -8,7 +8,7 @@ export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
     <div
       className={cn(
         JOBS_PAGE_CARD_PADDING,
-        "rounded-2xl border border-white/[0.08] bg-[#16161b]",
+        "rounded-xl border border-border bg-white",
       )}
     >
       <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_12.75rem] lg:items-stretch lg:gap-x-6 lg:gap-y-3">
@@ -32,7 +32,7 @@ export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
         </div>
 
         {withMatch ? (
-          <div className="lg:col-start-2 lg:row-start-1 lg:self-start lg:border-l lg:border-white/[0.06] lg:pl-6">
+          <div className="lg:col-start-2 lg:row-start-1 lg:self-start lg:border-l lg:border-border lg:pl-6">
             <MatchPanelSkeleton compact />
           </div>
         ) : null}

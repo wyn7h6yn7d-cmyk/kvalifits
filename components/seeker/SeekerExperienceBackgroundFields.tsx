@@ -26,11 +26,11 @@ export function SeekerExperienceBackgroundFields({ value, onChange }: Props) {
   }
 
   return (
-    <div className="space-y-4 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 sm:col-span-2">
+    <div className="space-y-4 rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 sm:col-span-2">
       <div>
-        <div className="text-sm font-medium text-white/85">{t("experienceBackgroundTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("experienceBackgroundHint")}</div>
-        <div className="mt-2 text-xs leading-relaxed text-white/45">{t("experienceBackgroundZeroOk")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("experienceBackgroundTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("experienceBackgroundHint")}</div>
+        <div className="mt-2 text-xs leading-relaxed text-muted-2">{t("experienceBackgroundZeroOk")}</div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -40,15 +40,15 @@ export function SeekerExperienceBackgroundFields({ value, onChange }: Props) {
               type="checkbox"
               checked={Boolean(value[key])}
               onChange={(e) => setFlag(key, e.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+              className="mt-1 h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
             />
-            <span className="text-sm font-medium text-white/80">{t(`experienceBackground.${key}`)}</span>
+            <span className="text-sm font-medium text-foreground/80">{t(`experienceBackground.${key}`)}</span>
           </label>
         ))}
       </div>
 
       <div className="space-y-2 max-w-xs">
-        <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="exp-duration-years">
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="exp-duration-years">
           {t("experienceDurationYears")}
         </label>
         <Input
@@ -58,7 +58,7 @@ export function SeekerExperienceBackgroundFields({ value, onChange }: Props) {
           inputMode="decimal"
           placeholder={t("experienceDurationYearsHint")}
         />
-        <div className="text-xs text-white/45">{t("experienceDurationYearsHelp")}</div>
+        <div className="text-xs text-muted-2">{t("experienceDurationYearsHelp")}</div>
       </div>
     </div>
   );

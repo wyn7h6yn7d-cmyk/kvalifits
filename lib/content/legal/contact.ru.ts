@@ -12,11 +12,11 @@ export const contactRU: ContactPageContent = {
   metaTitle: "Контакты",
   metaDescription: "Свяжитесь с нами — отвечаем в рабочие дни.",
   h1: "Контакты",
-  lead: "Вопрос о платформе или просто хотите написать? Используйте форму ниже. Ответим в рабочие дни как можно скорее.",
+  lead: "Вопрос о Kvalifits? Используйте форму ниже. Ответим в рабочие дни.",
   lastUpdated: LEGAL_COPY_UPDATED,
   blocks: [
     {
-      title: "Платформа",
+      title: "Kvalifits",
       lines: companyIdentityLines("ru"),
       icon: "building2",
       span: 2,

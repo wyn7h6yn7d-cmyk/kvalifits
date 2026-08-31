@@ -18,23 +18,23 @@ export function ApplicantEducationList({
 
   const headingClass =
     variant === "drawer"
-      ? "text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40"
-      : "text-xs font-medium tracking-wide text-white/55";
+      ? "text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2"
+      : "text-[0.9375rem] font-medium leading-snug text-foreground-2";
 
   return (
     <section className={variant === "drawer" ? undefined : "mt-5"}>
       <h3 className={headingClass}>{tJobs("applicantDetailEducation")}</h3>
-      <ul className="mt-2 space-y-2 text-sm text-white/70">
+      <ul className="mt-2 space-y-2 text-sm text-body">
         {rows.map((row, i) => (
           <li key={`${i}-${row.institution.slice(0, 24)}-${row.start_year}`}>
-            <div className="font-medium text-white/85">{row.institution}</div>
-            <div className="text-[13px] text-white/60">
+            <div className="font-medium text-foreground/80">{row.institution}</div>
+            <div className="text-[13px] text-muted">
               {t(`level.${row.degree_or_level}`)}
               {row.field_of_study ? ` · ${row.field_of_study}` : ""}
               {` · ${educationPeriodLabel(row)}`}
               {row.currently_studying ? ` · ${t("currentlyStudying")}` : ""}
             </div>
-            {row.description ? <p className="mt-0.5 text-[13px] leading-relaxed text-white/50">{row.description}</p> : null}
+            {row.description ? <p className="mt-0.5 text-[13px] leading-relaxed text-muted-2">{row.description}</p> : null}
           </li>
         ))}
       </ul>

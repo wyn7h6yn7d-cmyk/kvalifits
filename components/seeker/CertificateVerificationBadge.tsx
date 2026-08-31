@@ -34,19 +34,19 @@ export function CertificateVerificationBadge({
   const meta = [sourceLine, verifiedOnLine, validUntilLine, previouslyVerifiedLine].filter(Boolean) as string[];
   return (
     <div className={cn("min-w-0", className)}>
-      {name ? <div className="text-sm font-medium leading-snug text-white/88">{name}</div> : null}
+      {name ? <div className="text-base font-medium leading-snug text-foreground">{name}</div> : null}
       <div className={name ? "mt-1.5" : undefined}>
         <VerificationStatusBadge tone={status} label={statusLabel} />
       </div>
       {meta.length ? (
-        <div className="mt-1 space-y-0.5 text-[11px] leading-snug text-white/45">
+        <div className="mt-1 space-y-0.5 text-[0.8125rem] leading-snug text-muted">
           {meta.map((line) => (
             <div key={line}>{line}</div>
           ))}
         </div>
       ) : null}
       {warningLine ? (
-        <div className="mt-1 text-[11px] leading-snug text-amber-200/85">{warningLine}</div>
+        <div className="mt-1 text-[0.8125rem] leading-snug text-amber-800">{warningLine}</div>
       ) : null}
     </div>
   );

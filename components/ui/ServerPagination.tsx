@@ -28,7 +28,7 @@ export function ServerPagination({
       ) : (
         <span />
       )}
-      <p className="text-[13px] tabular-nums text-white/50">{labels.status}</p>
+      <p className="text-[13px] tabular-nums text-muted-2">{labels.status}</p>
       {page < totalPages ? (
         <Button asChild variant="outline" size="sm">
           <Link href={buildHref(page + 1)}>

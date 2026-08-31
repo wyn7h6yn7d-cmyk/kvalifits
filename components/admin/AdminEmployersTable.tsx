@@ -124,7 +124,7 @@ export function AdminEmployersTable({
 
   if (!employers.length) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 text-sm text-white/70">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
         {t("noEmployers")}
       </div>
     );
@@ -133,22 +133,22 @@ export function AdminEmployersTable({
   return (
     <div className="space-y-4">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
 
-      <p className="text-xs leading-relaxed text-white/50">{t("employersVerificationHint")}</p>
+      <p className="text-xs leading-relaxed text-muted-2">{t("employersVerificationHint")}</p>
 
       {employers.map((e) => {
         const name = (e.company_name ?? "").toString().trim() || "—";
         return (
           <div
             key={e.id}
-            className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
+            className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
           >
             <div className="min-w-0">
-              <div className="text-sm font-medium text-white/88">{name}</div>
+              <div className="text-sm font-medium text-foreground">{name}</div>
               <div className="mt-2">
                 <CompanyVerificationBadge
                   status={parseEmployerCompanyVerificationStatus(e.verification_status)}
@@ -157,7 +157,7 @@ export function AdminEmployersTable({
                   )}
                 />
               </div>
-              <div className="mt-1 text-xs text-white/55">
+              <div className="mt-1 text-xs text-muted-2">
                 {(e.registry_code ?? "").toString().trim() || "—"}
                 {e.contact_email ? ` · ${e.contact_email}` : ""}
                 {typeof e.job_count === "number" ? ` · ${t("jobsCount", { count: e.job_count })}` : ""}
@@ -173,7 +173,7 @@ export function AdminEmployersTable({
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="min-w-0 flex-1 space-y-1.5">
                 <label
-                  className="text-xs font-medium tracking-wide text-white/55"
+                  className="text-[0.9375rem] font-medium leading-snug text-foreground-2"
                   htmlFor={`company-status-${e.id}`}
                 >
                   {t("colVerification")}
@@ -187,7 +187,7 @@ export function AdminEmployersTable({
                       [e.id]: ev.target.value as EmployerCompanyVerificationStatus,
                     }))
                   }
-                  className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-3 py-2.5 text-sm text-white/85 outline-none"
+                  className="w-full rounded-2xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-foreground/80 outline-none"
                 >
                   {EMPLOYER_COMPANY_VERIFICATION_STATUS_VALUES.map((s) => (
                     <option key={s} value={s}>

@@ -139,12 +139,12 @@ export function SeekerWorkPreferencesFields({
   }
 
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-5">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 space-y-5">
       <div>
-        <div className="text-sm font-medium text-white/85">{t("workPreferencesTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("workPreferencesHint")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("workPreferencesTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("workPreferencesHint")}</div>
         {weeklyCap !== null ? (
-          <div className="mt-2 text-xs leading-relaxed text-white/45">
+          <div className="mt-2 text-xs leading-relaxed text-muted-2">
             {t("workPreferencesMinorCapHint", { max: weeklyCap })}
           </div>
         ) : null}
@@ -169,12 +169,12 @@ export function SeekerWorkPreferencesFields({
                     if (disabledReason) return;
                     patch({ [key]: e.target.checked } as Partial<WorkPreferencesFormValue>);
                   }}
-                  className="mt-1 h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+                  className="mt-1 h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
                 />
-                <span className="text-sm font-medium text-white/80">{t(`workPrefToggle.${key}`)}</span>
+                <span className="text-sm font-medium text-foreground/80">{t(`workPrefToggle.${key}`)}</span>
               </label>
               {disabledReason ? (
-                <div className="pl-7 text-xs leading-relaxed text-white/50">{disabledReason}</div>
+                <div className="pl-7 text-xs leading-relaxed text-muted-2">{disabledReason}</div>
               ) : null}
             </div>
           );
@@ -192,7 +192,7 @@ export function SeekerWorkPreferencesFields({
           const restriction = activeRestrictions.find((r) => r.field === field);
           return (
             <div key={field} className="space-y-2">
-              <label className="text-xs font-medium tracking-wide text-white/65" htmlFor={`wp-${field}`}>
+              <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor={`wp-${field}`}>
                 {t(`workPrefHours.${labelKey}`)}
               </label>
               <Input
@@ -203,7 +203,7 @@ export function SeekerWorkPreferencesFields({
                 placeholder={t("workPrefHoursPlaceholder")}
               />
               {restriction ? (
-                <div className="text-xs leading-relaxed text-amber-100/80">
+                <div className="text-xs leading-relaxed text-amber-800">
                   {restrictionMessage(restriction.code, restriction.maxWeeklyHoursLimit)}
                 </div>
               ) : null}

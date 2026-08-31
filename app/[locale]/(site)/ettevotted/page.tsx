@@ -107,13 +107,13 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
               {totalPages > 1 && (
                 <div className="mx-auto mt-6 flex max-w-4xl items-center justify-between text-sm">
                   {currentPage > 1 ? (
-                    <a href={buildCompanyPageUrl(q, industry, location, currentPage - 1)} className="text-white/70 hover:text-white">← {tUi("paginationPrev")}</a>
+                    <a href={buildCompanyPageUrl(q, industry, location, currentPage - 1)} className="text-body hover:text-foreground">← {tUi("paginationPrev")}</a>
                   ) : <span />}
-                  <span className="text-white/50 tabular-nums">
+                  <span className="text-muted-2 tabular-nums">
                     {tUi("paginationStatus", { page: currentPage, totalPages, totalCount })}
                   </span>
                   {currentPage < totalPages ? (
-                    <a href={buildCompanyPageUrl(q, industry, location, currentPage + 1)} className="text-white/70 hover:text-white">{tUi("paginationNext")} →</a>
+                    <a href={buildCompanyPageUrl(q, industry, location, currentPage + 1)} className="text-body hover:text-foreground">{tUi("paginationNext")} →</a>
                   ) : <span />}
                 </div>
               )}

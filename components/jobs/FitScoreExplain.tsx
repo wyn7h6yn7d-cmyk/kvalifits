@@ -111,7 +111,7 @@ export function FitScoreExplain({
   }, [open, explanation, jobId, applicationId]);
 
   const counts = (
-    <ul className={cn("space-y-0.5 tabular-nums text-white/55", compact ? "text-[11px]" : "text-[13px]")}>
+    <ul className={cn("space-y-0.5 tabular-nums text-muted-2", compact ? "text-[11px]" : "text-[13px]")}>
       {mandTotal > 0 ? (
         <li>
           {t("matchExplainMandatoryCount", {
@@ -138,12 +138,12 @@ export function FitScoreExplain({
       onPointerDown={(e) => e.stopPropagation()}
     >
       {label ? (
-        <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">{label}</div>
+        <div className="text-[0.8125rem] font-medium leading-snug text-muted">{label}</div>
       ) : null}
       <div className={cn("flex flex-wrap items-baseline gap-x-3 gap-y-1", label ? "mt-1" : "")}>
         <div
           className={cn(
-            "font-semibold tabular-nums tracking-tight text-white",
+            "font-semibold tabular-nums text-foreground",
             compact ? "text-xl leading-none" : "text-[1.65rem] leading-none",
           )}
         >
@@ -152,7 +152,7 @@ export function FitScoreExplain({
         {hasScore ? (
           <button
             type="button"
-            className="relative z-[2] inline-flex min-h-11 items-center text-sm text-white/55 underline-offset-4 hover:text-white/85 hover:underline lg:min-h-0"
+            className="relative z-[2] inline-flex min-h-11 items-center text-sm text-muted-2 underline-offset-4 hover:text-foreground/85 hover:underline lg:min-h-0"
             aria-expanded={open}
             onClick={(e) => {
               e.preventDefault();
@@ -172,9 +172,9 @@ export function FitScoreExplain({
       {open && hasScore ? (
         <div
           className={cn(
-            "mt-3 space-y-3 rounded-2xl border border-white/[0.08] bg-black/20 px-3.5 py-3",
+            "mt-3 space-y-3 rounded-xl border border-border bg-[#f8fafc] px-3.5 py-3",
             compact &&
-              "max-lg:relative max-lg:right-auto max-lg:mt-2 max-lg:w-full max-lg:shadow-none lg:absolute lg:right-0 lg:z-30 lg:w-[min(20.5rem,calc(100vw-2rem))] lg:border-white/[0.12] lg:bg-[#16161b] lg:shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)]",
+              "max-lg:relative max-lg:right-auto max-lg:mt-2 max-lg:w-full max-lg:shadow-none lg:absolute lg:right-0 lg:z-30 lg:w-[min(20.5rem,calc(100vw-2rem))] lg:border-border lg:bg-white lg:shadow-[0_12px_32px_-16px_rgba(15,23,42,0.14)]",
           )}
         >
           {loading && !explanation ? (
@@ -195,9 +195,9 @@ export function FitScoreExplain({
                       <span
                         className={cn(
                           "mt-px shrink-0 font-semibold",
-                          row.status === "pass" && "text-emerald-300/90",
+                          row.status === "pass" && "text-emerald-700",
                           row.status === "partial" && "text-amber-200/80",
-                          row.status === "gap" && "text-white/35",
+                          row.status === "gap" && "text-muted-2",
                         )}
                         aria-hidden
                       >
@@ -206,9 +206,9 @@ export function FitScoreExplain({
                       <span
                         className={cn(
                           "min-w-0 flex-1",
-                          row.status === "pass" && "text-white/82",
-                          row.status === "partial" && "text-white/65",
-                          row.status === "gap" && "text-white/48",
+                          row.status === "pass" && "text-foreground/80",
+                          row.status === "partial" && "text-muted",
+                          row.status === "gap" && "text-muted-2",
                         )}
                       >
                         {criterionText(t, row)}
@@ -217,8 +217,8 @@ export function FitScoreExplain({
                         className={cn(
                           "mt-0.5 shrink-0 rounded-md border px-1.5 py-px text-[10px] font-medium",
                           row.priority === "mandatory"
-                            ? "border-white/[0.12] text-white/55"
-                            : "border-white/[0.08] text-white/40",
+                            ? "border-border text-muted-2"
+                            : "border-border text-muted-2",
                         )}
                       >
                         {row.priority === "mandatory" ? t("matchPriorityMandatory") : t("matchPriorityPreferred")}
@@ -227,7 +227,7 @@ export function FitScoreExplain({
                   ))}
                 </ul>
               ) : (
-                <p className="text-[13px] leading-snug text-white/55">{t("matchExplainFallback")}</p>
+                <p className="text-[13px] leading-snug text-muted-2">{t("matchExplainFallback")}</p>
               )}
             </>
           )}

@@ -22,16 +22,16 @@ export function Chip({
 }) {
   const t = useTranslations("jobsSearch");
   const base =
-    "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3 py-2 text-[13px] leading-tight transition-colors lg:min-h-0 lg:py-1.5";
+    "inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border px-3 py-2 text-[0.9375rem] leading-snug transition-colors lg:min-h-0 lg:py-1.5";
   const toneCls =
     tone === "pink"
-      ? "border-white/[0.12] bg-[rgba(227,31,141,0.10)] text-white/85"
+      ? "border-[rgba(227,31,141,0.18)] bg-[rgba(227,31,141,0.06)] text-foreground/80"
       : tone === "violet"
-        ? "border-white/[0.12] bg-gradient-to-r from-violet-500/18 via-fuchsia-500/10 to-transparent text-white/85"
-        : "border-white/[0.10] bg-white/[0.03] text-white/75";
+        ? "border-[rgba(37,99,235,0.16)] bg-[rgba(37,99,235,0.06)] text-foreground/80"
+        : "border-border bg-[#f8fafc] text-muted";
   const selectedCls = selected
-    ? "bg-white/[0.06] border-white/[0.16] text-white/90"
-    : "hover:bg-white/[0.05] hover:border-white/[0.14]";
+    ? "border-[rgba(37,99,235,0.28)] bg-[rgba(37,99,235,0.08)] text-foreground"
+    : "hover:border-[rgba(37,99,235,0.22)] hover:bg-white";
 
   const clickable = typeof onClick === "function";
 
@@ -51,7 +51,7 @@ export function Chip({
       {onRemove ? (
         <button
           type="button"
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/55 hover:text-white/80 lg:h-5 lg:w-5"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted-2 hover:text-foreground lg:h-5 lg:w-5"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();

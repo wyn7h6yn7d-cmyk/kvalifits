@@ -52,19 +52,19 @@ export function JobYoungSeekerAutoHint({ workConditions, jobType }: Props) {
   }, [passes, workConditions, jobType]);
 
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-3">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 space-y-3">
       <div>
-        <div className="text-sm font-medium text-white/85">{t("youngSeekerAutoTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("youngSeekerAutoHint")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("youngSeekerAutoTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("youngSeekerAutoHint")}</div>
       </div>
 
       {passes ? (
         <div className="space-y-2">
           <YoungSeekerJobBadge />
-          <p className="text-xs leading-relaxed text-white/50">{t("youngSeekerAutoWillShow")}</p>
+          <p className="text-xs leading-relaxed text-muted-2">{t("youngSeekerAutoWillShow")}</p>
         </div>
       ) : (
-        <p className="text-xs leading-relaxed text-white/50">
+        <p className="text-xs leading-relaxed text-muted-2">
           {check?.blockingIssues.includes("missing_schedule_data")
             ? t("youngSeekerAutoNeedSchedule")
             : t("youngSeekerAutoNotYet")}

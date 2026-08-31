@@ -49,9 +49,9 @@ export function MfaChallengeForm({ nextPath }: { locale: string; nextPath: strin
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <p className="text-sm leading-relaxed text-white/60">{t("mfaChallengeHint")}</p>
+      <p className="text-sm leading-relaxed text-muted">{t("mfaChallengeHint")}</p>
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("mfaCode")}</label>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("mfaCode")}</label>
         <Input
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\s/g, ""))}
@@ -64,7 +64,7 @@ export function MfaChallengeForm({ nextPath }: { locale: string; nextPath: strin
         />
       </div>
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}

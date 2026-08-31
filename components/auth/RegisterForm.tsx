@@ -117,11 +117,11 @@ export function RegisterForm({
     <form onSubmit={onSubmit} className="space-y-4">
       {roleLocked ? null : (
         <fieldset className="space-y-2">
-          <legend className="text-xs font-medium tracking-wide text-white/65">
+          <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">
             {t("roleLabel")}
           </legend>
           <div className="grid grid-cols-2 gap-3">
-            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/75">
+            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
               <input
                 type="radio"
                 name="role"
@@ -129,9 +129,9 @@ export function RegisterForm({
                 checked={role === "seeker"}
                 onChange={() => setRole("seeker")}
               />
-              <span className="font-medium text-white/85">{t("roleSeeker")}</span>
+              <span className="font-medium text-foreground/80">{t("roleSeeker")}</span>
             </label>
-            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/75">
+            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
               <input
                 type="radio"
                 name="role"
@@ -139,14 +139,14 @@ export function RegisterForm({
                 checked={role === "employer"}
                 onChange={() => setRole("employer")}
               />
-              <span className="font-medium text-white/85">{t("roleEmployer")}</span>
+              <span className="font-medium text-foreground/80">{t("roleEmployer")}</span>
             </label>
           </div>
         </fieldset>
       )}
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">
           {t("email")}
         </label>
         <Input
@@ -160,7 +160,7 @@ export function RegisterForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">
           {t("password")}
         </label>
         <Input
@@ -175,7 +175,7 @@ export function RegisterForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">
           {t("passwordConfirm")}
         </label>
         <Input
@@ -189,7 +189,7 @@ export function RegisterForm({
         />
       </div>
 
-      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 text-sm leading-relaxed text-white/70">
+      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3 text-base leading-[1.65] text-body">
         <input
           type="checkbox"
           checked={termsAccepted}
@@ -205,7 +205,7 @@ export function RegisterForm({
                 href="/tingimused"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-white/85 underline decoration-white/30 underline-offset-2 hover:decoration-white/55"
+                className="font-medium text-foreground/80 underline decoration-white/30 underline-offset-2 hover:decoration-white/55"
                 onClick={(e) => e.stopPropagation()}
               >
                 {chunks}
@@ -216,7 +216,7 @@ export function RegisterForm({
                 href="/privaatsus"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-white/85 underline decoration-white/30 underline-offset-2 hover:decoration-white/55"
+                className="font-medium text-foreground/80 underline decoration-white/30 underline-offset-2 hover:decoration-white/55"
                 onClick={(e) => e.stopPropagation()}
               >
                 {chunks}
@@ -227,7 +227,7 @@ export function RegisterForm({
       </label>
 
       {error ? (
-        <div className="whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
@@ -244,8 +244,8 @@ export function RegisterForm({
         {t("registerCta")}
       </Button>
 
-      <div className="text-center text-xs text-white/55">
-        <a href={`/${locale}/auth/login`} className="hover:text-white/75">
+      <div className="text-center text-[0.9375rem] text-muted">
+        <a href={`/${locale}/auth/login`} className="hover:text-foreground">
           {t("alreadyHaveAccount")}
         </a>
       </div>

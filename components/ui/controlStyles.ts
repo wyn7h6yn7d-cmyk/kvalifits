@@ -7,15 +7,15 @@ export const controlTokens = {
   px: "px-5",
   pxCompact: "px-4",
   radius: "rounded-xl",
-  text: "font-sans text-sm font-medium leading-none",
+  text: "font-sans text-[0.9375rem] font-medium leading-snug",
   gap: "gap-2",
   icon: "h-4 w-4 shrink-0",
-  border: "border border-white/[0.14]",
-  borderHover: "hover:border-white/[0.20]",
-  surface: "bg-[#12121a]",
-  surfaceMuted: "bg-white/[0.04]",
+  border: "border border-border-strong",
+  borderHover: "hover:border-[rgba(37,99,235,0.28)]",
+  surface: "bg-white",
+  surfaceMuted: "bg-[#f8fafc]",
   focus:
-    "outline-none focus-visible:border-white/[0.22] focus-visible:ring-2 focus-visible:ring-white/[0.12]",
+    "outline-none focus-visible:border-[rgba(37,99,235,0.35)] focus-visible:ring-2 focus-visible:ring-primary/20",
 } as const;
 
 export function selectControlClassName(className?: string) {
@@ -29,12 +29,12 @@ export function selectControlClassName(className?: string) {
     controlTokens.borderHover,
     controlTokens.surfaceMuted,
     controlTokens.text,
-    "text-white/85 transition-[border-color,background-color]",
-    "[color-scheme:dark]",
+    "text-foreground/80 transition-[border-color,background-color]",
+    "[color-scheme:light]",
     controlTokens.focus,
     "disabled:cursor-not-allowed disabled:opacity-50",
     "bg-[length:1rem_1rem] bg-[position:right_0.85rem_center] bg-no-repeat",
-    "bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27rgba(255,255,255,0.55)%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E')]",
+    "bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27rgba(15,23,42,0.45)%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E')]",
     className,
   );
 }
@@ -43,7 +43,7 @@ export function selectControlClassName(className?: string) {
 export function nativeSelectFormClassName(className?: string) {
   return cn(
     controlTokens.height,
-    "w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 text-base text-white/85 outline-none transition-[border-color,background-color] focus:border-white/[0.18] lg:text-sm",
+    "w-full rounded-2xl border border-border bg-white px-4 text-base leading-snug text-foreground outline-none transition-[border-color,background-color] focus:border-[rgba(37,99,235,0.35)]",
     className,
   );
 }

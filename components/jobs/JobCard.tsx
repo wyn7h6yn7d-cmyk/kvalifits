@@ -47,7 +47,7 @@ function formatPostedRelative(
 function CompanyLogo({ url, company }: { url?: string | null; company: string }) {
   const letter = (company || "?").trim().charAt(0).toUpperCase() || "?";
   const box =
-    "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.04] text-[12px] font-semibold text-white/70 lg:h-11 lg:w-11";
+    "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-[#f8fafc] text-[12px] font-semibold text-body lg:h-11 lg:w-11";
 
   if (!url) {
     return (
@@ -119,13 +119,13 @@ function JobCardComponent({
     <article
       className={cn(
         JOBS_PAGE_CARD_PADDING,
-        "group relative overflow-visible rounded-2xl border border-white/[0.08] bg-[#16161b] transition-[border-color,background-color] duration-200",
-        "hover:border-white/[0.14] hover:bg-[#1a1a20]",
+        "group relative overflow-visible rounded-xl border border-border bg-white transition-colors duration-200",
+        "hover:border-border-strong",
       )}
     >
       <Link
         href={href}
-        className="absolute inset-0 z-0 rounded-2xl"
+        className="absolute inset-0 z-0 rounded-xl"
         aria-label={`${job.title} — ${job.company}`}
       />
 
@@ -134,36 +134,36 @@ function JobCardComponent({
           <div className="flex gap-3">
             <CompanyLogo url={job.companyLogoUrl} company={job.company} />
             <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <h2 className="min-w-0 text-pretty text-[1rem] font-semibold leading-snug tracking-tight text-white sm:text-[1.05rem]">
+              <div className="flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
+                <h2 className="min-w-0 flex-1 text-pretty text-[1.0625rem] font-semibold leading-snug text-foreground">
                   {job.title}
                 </h2>
                 {featured ? (
-                  <span className="shrink-0 rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-[11px] font-medium leading-snug text-white/55">
+                  <span className="shrink-0 rounded-full border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.8125rem] font-medium leading-snug text-muted">
                     {t("featuredBadge")}
                   </span>
                 ) : null}
               </div>
-              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-white/62">
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.9375rem] text-muted">
                 {job.companySlug ? (
                   <Link
                     href={`/ettevotted/${job.companySlug}`}
-                    className="relative z-[2] truncate font-medium text-white/72 hover:text-white hover:underline"
+                    className="relative z-[2] truncate font-medium text-body hover:text-foreground hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {job.company}
                   </Link>
                 ) : (
-                  <span className="truncate font-medium text-white/72">{job.company}</span>
+                  <span className="truncate font-medium text-body">{job.company}</span>
                 )}
                 {job.companyVerified ? (
                   <CompanyVerifiedBadge label={t("companyVerifiedBadge")} />
                 ) : null}
-                <span className="text-white/25" aria-hidden>
+                <span className="text-muted-2" aria-hidden>
                   ·
                 </span>
-                <span className="inline-flex min-w-0 items-center gap-1 text-white/55">
-                  <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
+                <span className="inline-flex min-w-0 items-center gap-1 text-muted-2">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-2" aria-hidden />
                   <span className="truncate">{job.location}</span>
                 </span>
               </div>
@@ -171,7 +171,7 @@ function JobCardComponent({
           </div>
 
           {job.salary ? (
-            <p className="mt-2.5 text-[1rem] font-semibold tabular-nums tracking-tight text-white">
+            <p className="mt-2.5 text-base font-semibold tabular-nums text-foreground">
               {job.salary}
             </p>
           ) : null}
@@ -181,13 +181,13 @@ function JobCardComponent({
               {badges.map((b) => (
                 <span
                   key={b}
-                  className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-[12px] text-white/62"
+                  className="rounded-md border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.8125rem] text-muted"
                 >
                   {b}
                 </span>
               ))}
               {job.openToFirstJob ? (
-                <span className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-[12px] text-white/62">
+                <span className="rounded-md border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.8125rem] text-muted">
                   {t("openToFirstJobBadge")}
                 </span>
               ) : null}
@@ -197,13 +197,13 @@ function JobCardComponent({
         </div>
 
         {hasMatch ? (
-          <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:self-start lg:justify-self-start lg:border-l lg:border-white/[0.06] lg:pl-6 lg:pr-2">
+          <div className="min-w-0 lg:col-start-2 lg:row-start-1 lg:self-start lg:justify-self-start lg:border-l lg:border-border lg:pl-6 lg:pr-2">
             <MatchPanel jobId={job.id} score={job.matchScore!} />
           </div>
         ) : null}
 
         {(posted || deadline) && (
-          <p className="flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-white/45 lg:col-start-1 lg:row-start-2">
+          <p className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] leading-snug text-muted lg:col-start-1 lg:row-start-2">
             {posted ? <span>{posted}</span> : null}
             {deadline ? (
               <span>
@@ -214,7 +214,7 @@ function JobCardComponent({
         )}
 
         {job.summary ? (
-          <p className="hidden line-clamp-2 max-w-2xl text-[13px] leading-snug text-white/50 lg:col-start-1 lg:row-start-3 lg:block">
+          <p className="hidden line-clamp-2 max-w-2xl text-[0.9375rem] leading-[1.6] text-muted lg:col-start-1 lg:row-start-3 lg:block">
             {job.summary}
           </p>
         ) : null}
@@ -224,13 +224,13 @@ function JobCardComponent({
             {visibleTags.map((tag) => (
               <span
                 key={tag}
-                className="max-w-[11rem] truncate rounded-md px-1.5 py-0.5 text-[11px] text-white/45"
+                className="max-w-[11rem] truncate rounded-md px-1.5 py-0.5 text-[0.8125rem] text-muted"
               >
                 {tag}
               </span>
             ))}
             {extraTags > 0 ? (
-              <span className="text-[11px] tabular-nums text-white/35">+{extraTags}</span>
+              <span className="text-[0.8125rem] tabular-nums text-muted">+{extraTags}</span>
             ) : null}
           </div>
         ) : null}
@@ -242,7 +242,7 @@ function JobCardComponent({
               initialSaved={saved}
               className={cn(
                 "relative z-[1] shrink-0 lg:col-start-2 lg:row-start-1 lg:justify-self-end lg:self-start",
-                !hasMatch && "lg:border-l lg:border-white/[0.06] lg:pl-6",
+                !hasMatch && "lg:border-l lg:border-border lg:pl-6",
               )}
             />
             <Button
@@ -250,7 +250,7 @@ function JobCardComponent({
               variant="outline"
               className={cn(
                 "relative z-[1] min-w-0 flex-1 lg:col-start-2 lg:row-start-1 lg:row-end-[-1] lg:w-full lg:flex-none lg:self-end",
-                !hasMatch && "lg:border-l lg:border-white/[0.06] lg:pl-6",
+                !hasMatch && "lg:border-l lg:border-border lg:pl-6",
               )}
             >
               <Link href={href}>{t("openJob")}</Link>
@@ -260,7 +260,7 @@ function JobCardComponent({
           <Button
             asChild
             variant="outline"
-            className="relative z-[1] w-full lg:col-start-2 lg:row-start-1 lg:row-end-[-1] lg:self-end lg:border-l lg:border-white/[0.06] lg:pl-6"
+            className="relative z-[1] w-full lg:col-start-2 lg:row-start-1 lg:row-end-[-1] lg:self-end lg:border-l lg:border-border lg:pl-6"
           >
             <Link href={href}>{t("openJob")}</Link>
           </Button>

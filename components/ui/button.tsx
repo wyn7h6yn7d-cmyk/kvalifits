@@ -19,18 +19,21 @@ function Spinner({ className }: { className?: string }) {
   );
 }
 
+/** Secondary CTA: white surface, blue + pink edge, no fill shout. */
+const secondarySurface =
+  "border border-[rgba(37,99,235,0.22)] bg-white text-foreground shadow-[inset_0_0_0_1px_rgba(227,31,141,0.1)] hover:border-[rgba(37,99,235,0.38)] hover:bg-surface hover:shadow-[inset_0_0_0_1px_rgba(227,31,141,0.16)] active:bg-[#eef2f7]";
+
 const buttonVariants = cva(
-  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-sans text-sm font-medium leading-none transition-[color,background-color,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/[0.16] disabled:pointer-events-none disabled:opacity-50 max-lg:whitespace-normal [&_svg]:pointer-events-none [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
+  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] font-sans text-[0.9375rem] font-medium leading-snug transition-[color,background-color,border-color,box-shadow] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:pointer-events-none disabled:opacity-50 max-lg:whitespace-normal [&_svg]:pointer-events-none [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default:
-          "border border-white/[0.14] bg-white/[0.08] text-white hover:bg-white/[0.12]",
         primary:
-          "overflow-hidden border border-transparent bg-transparent text-white shadow-[0_12px_40px_rgba(168,85,247,0.25)] hover:shadow-[0_16px_60px_rgba(168,85,247,0.33)] ring-1 ring-white/[0.14] ring-inset before:content-[''] before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-gradient-to-r before:from-violet-500/90 before:via-fuchsia-500/80 before:to-[rgba(227,31,141,0.70)] after:content-[''] after:absolute after:inset-[1px] after:-z-10 after:rounded-[calc(0.75rem-1px)] after:bg-[rgba(0,0,0,0.10)]",
-        outline:
-          "border border-white/[0.14] bg-transparent text-white hover:bg-white/[0.06]",
-        ghost: "border border-transparent bg-transparent text-white/90 hover:bg-white/[0.06]",
+          "border border-[rgba(29,78,216,0.9)] bg-primary text-white shadow-[inset_0_0_0_1px_rgba(227,31,141,0.18)] hover:border-[rgba(30,64,175,1)] hover:bg-primary-hover hover:shadow-[inset_0_0_0_1px_rgba(227,31,141,0.24)] active:bg-[#1e40af]",
+        default: secondarySurface,
+        outline: secondarySurface,
+        ghost:
+          "border border-transparent bg-transparent text-muted shadow-none hover:bg-surface hover:text-foreground",
       },
       size: {
         /** Standard page control — shared height/padding for primary + secondary. */

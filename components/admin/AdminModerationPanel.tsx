@@ -160,32 +160,32 @@ export function AdminModerationPanel({
   return (
     <div className="space-y-10">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-medium text-white/90">{t("modQueueReports")}</h2>
-          <p className="mt-1 text-sm text-white/55">{t("modQueueReportsHint")}</p>
+          <h2 className="text-base font-medium text-foreground">{t("modQueueReports")}</h2>
+          <p className="mt-1 text-sm text-muted-2">{t("modQueueReportsHint")}</p>
         </div>
         {!reports.length ? (
-          <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/65">
+          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
             {t("modEmptyReports")}
           </div>
         ) : (
           reports.map((r) => (
             <div
               key={r.id}
-              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
+              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-white/88">
+                  <div className="text-sm font-medium text-foreground">
                     {r.job_title ?? r.job_post_id}
                   </div>
-                  <div className="mt-1 text-xs text-white/55">
+                  <div className="mt-1 text-xs text-muted-2">
                     {r.employer_name ?? "—"} ·{" "}
                     <Link
                       href={`/tood/${r.job_post_id}`}
@@ -199,18 +199,18 @@ export function AdminModerationPanel({
                       : r.status}
                   </div>
                 </div>
-                <div className="text-xs tabular-nums text-white/45">
+                <div className="text-xs tabular-nums text-muted-2">
                   {new Date(r.created_at).toLocaleString()}
                 </div>
               </div>
-              <div className="mt-3 text-sm text-white/80">
-                <span className="text-white/50">{t("colReason")}: </span>
+              <div className="mt-3 text-sm text-foreground/80">
+                <span className="text-muted-2">{t("colReason")}: </span>
                 {isJobPostReportReason(r.reason)
                   ? t(`reportReason.${r.reason as JobPostReportReason}`)
                   : r.reason}
               </div>
               {(r.details ?? "").trim() ? (
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-body">
                   {r.details}
                 </p>
               ) : null}
@@ -229,18 +229,18 @@ export function AdminModerationPanel({
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-medium text-white/90">{t("modQueueCertificates")}</h2>
-          <p className="mt-1 text-sm text-white/55">{t("modQueueCertificatesHint")}</p>
+          <h2 className="text-base font-medium text-foreground">{t("modQueueCertificates")}</h2>
+          <p className="mt-1 text-sm text-muted-2">{t("modQueueCertificatesHint")}</p>
         </div>
         {!certificates.length ? (
-          <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/65">
+          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
             {t("modEmptyCertificates")}
           </div>
         ) : (
           certificates.map((c) => (
             <div
               key={c.id}
-              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
+              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
             >
               <CertificateStatusBlock
                 name={(c.certificate_name ?? "").trim() || "—"}
@@ -254,7 +254,7 @@ export function AdminModerationPanel({
                 labels={certificateViewLabelsFromT((key, values) => tOnb(key, values))}
                 locale={locale}
               />
-              <div className="mt-1 text-xs text-white/55">
+              <div className="mt-1 text-xs text-muted-2">
                 {[
                   (c.certificate_issuer ?? "").trim(),
                   c.owner_email,
@@ -277,20 +277,20 @@ export function AdminModerationPanel({
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-medium text-white/90">{t("modQueueCompanies")}</h2>
-          <p className="mt-1 text-sm text-white/55">{t("modQueueCompaniesHint")}</p>
+          <h2 className="text-base font-medium text-foreground">{t("modQueueCompanies")}</h2>
+          <p className="mt-1 text-sm text-muted-2">{t("modQueueCompaniesHint")}</p>
         </div>
         {!companies.length ? (
-          <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/65">
+          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
             {t("modEmptyCompanies")}
           </div>
         ) : (
           companies.map((e) => (
             <div
               key={e.id}
-              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
+              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
             >
-              <div className="text-sm font-medium text-white/88">
+              <div className="text-sm font-medium text-foreground">
                 {(e.company_name ?? "").trim() || "—"}
               </div>
               <div className="mt-2">
@@ -301,7 +301,7 @@ export function AdminModerationPanel({
                   )}
                 />
               </div>
-              <div className="mt-1 text-xs text-white/55">
+              <div className="mt-1 text-xs text-muted-2">
                 {(e.registry_code ?? "").toString().trim() || "—"}
                 {e.contact_email ? ` · ${e.contact_email}` : ""}
               </div>
@@ -320,21 +320,21 @@ export function AdminModerationPanel({
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-medium text-white/90">{t("modQueueBlocked")}</h2>
-          <p className="mt-1 text-sm text-white/55">{t("modQueueBlockedHint")}</p>
+          <h2 className="text-base font-medium text-foreground">{t("modQueueBlocked")}</h2>
+          <p className="mt-1 text-sm text-muted-2">{t("modQueueBlockedHint")}</p>
         </div>
         {!blockedUsers.length ? (
-          <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 text-sm text-white/65">
+          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
             {t("modEmptyBlocked")}
           </div>
         ) : (
           blockedUsers.map((u) => (
             <div
               key={u.id}
-              className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5"
+              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
             >
-              <div className="text-sm font-medium text-white/88">{u.email ?? u.id}</div>
-              <div className="mt-1 text-xs text-white/55">
+              <div className="text-sm font-medium text-foreground">{u.email ?? u.id}</div>
+              <div className="mt-1 text-xs text-muted-2">
                 {u.role ?? "—"}
                 {u.created_at ? ` · ${u.created_at.slice(0, 10)}` : ""}
               </div>

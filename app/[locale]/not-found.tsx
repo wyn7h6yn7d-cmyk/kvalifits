@@ -20,8 +20,8 @@ export default async function LocaleNotFound() {
 
   return (
     <main className="mx-auto max-w-lg px-6 py-24">
-      <h1 className="text-2xl font-semibold tracking-tight text-white">{t("notFoundTitle")}</h1>
-      <p className="mt-3 text-sm leading-6 text-white/70">{t("notFoundBody")}</p>
+      <h1 className="text-2xl font-semibold leading-snug text-foreground">{t("notFoundTitle")}</h1>
+      <p className="mt-3 text-base leading-[1.65] text-body">{t("notFoundBody")}</p>
       <Button asChild className="mt-8">
         <Link href="/">{t("notFoundHome")}</Link>
       </Button>

@@ -14,12 +14,12 @@ export type VerificationTone =
   | "unverified";
 
 export const VERIFICATION_TONE_CLASS: Record<VerificationTone, string> = {
-  verified: "border-emerald-400/30 bg-emerald-500/12 text-emerald-100/90",
-  under_review: "border-amber-400/30 bg-amber-500/10 text-amber-100/90",
-  submitted: "border-white/[0.12] bg-white/[0.04] text-white/65",
-  unverified: "border-white/[0.12] bg-white/[0.04] text-white/65",
-  rejected: "border-rose-400/30 bg-rose-500/10 text-rose-100/90",
-  expired: "border-orange-400/30 bg-orange-500/10 text-orange-100/90",
+  verified: "border-emerald-200 bg-emerald-50 text-emerald-800",
+  under_review: "border-amber-200 bg-amber-50 text-amber-800",
+  submitted: "border-border bg-[#f8fafc] text-muted",
+  unverified: "border-border bg-[#f8fafc] text-muted",
+  rejected: "border-rose-200 bg-rose-50 text-rose-800",
+  expired: "border-orange-200 bg-orange-50 text-orange-800",
 };
 
 export const VERIFICATION_TONE_ICON: Record<VerificationTone, LucideIcon> = {

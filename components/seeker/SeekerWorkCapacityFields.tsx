@@ -16,12 +16,12 @@ export function SeekerWorkCapacityFields({ value, onChange }: Props) {
   const t = useTranslations("onboarding");
 
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-4">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 space-y-4">
       <div>
-        <div className="text-sm font-medium text-white/85">{t("workCapacityTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("workCapacityHint")}</div>
-        <div className="mt-2 text-xs leading-relaxed text-white/45">{t("workCapacityPrivacy")}</div>
-        <div className="mt-2 text-xs leading-relaxed text-white/45">{t("workCapacityNoMedical")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("workCapacityTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("workCapacityHint")}</div>
+        <div className="mt-2 text-xs leading-relaxed text-muted-2">{t("workCapacityPrivacy")}</div>
+        <div className="mt-2 text-xs leading-relaxed text-muted-2">{t("workCapacityNoMedical")}</div>
       </div>
 
       <fieldset className="space-y-2">
@@ -29,16 +29,16 @@ export function SeekerWorkCapacityFields({ value, onChange }: Props) {
         {WORK_CAPACITY_STATUS_VALUES.map((status) => (
           <label
             key={status}
-            className="flex cursor-pointer select-none items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3"
+            className="flex cursor-pointer select-none items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3"
           >
             <input
               type="radio"
               name="work-capacity-status"
               checked={value === status}
               onChange={() => onChange(status)}
-              className="mt-1 h-4 w-4 border-white/[0.20] bg-white/[0.03]"
+              className="mt-1 h-4 w-4 border-border-strong bg-[#f8fafc]"
             />
-            <span className="text-sm font-medium text-white/80">{t(`workCapacityOption.${status}`)}</span>
+            <span className="text-sm font-medium text-foreground/80">{t(`workCapacityOption.${status}`)}</span>
           </label>
         ))}
       </fieldset>

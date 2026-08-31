@@ -15,7 +15,7 @@ test.describe("Quick Apply sheet keyboard accessibility", () => {
     await trigger.focus();
     await trigger.press("Enter");
 
-    const dialog = page.getByRole("dialog", { name: "Quick apply" });
+    const dialog = page.getByRole("dialog", { name: "Apply" });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute("aria-modal", "true");
     await expect(dialog.getByText(/already on your profile/i)).toBeVisible();

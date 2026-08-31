@@ -10,11 +10,11 @@ export function HomepageScrollHint() {
     <div className="mt-8 flex justify-center sm:mt-10 lg:mt-12">
       <a
         href="#home-jobs"
-        className="group inline-flex flex-col items-center gap-1.5 text-[13px] font-medium text-white/45 transition-colors hover:text-white/72"
+        className="group inline-flex flex-col items-center gap-1.5 text-[13px] font-medium text-muted-2 transition-colors hover:text-foreground/72"
       >
         <span>{t("scrollToJobs")}</span>
         <ChevronDown
-          className="h-4 w-4 animate-bounce text-white/40 group-hover:text-white/65 motion-reduce:animate-none"
+          className="h-4 w-4 animate-bounce text-muted-2 group-hover:text-foreground/65 motion-reduce:animate-none"
           aria-hidden
         />
       </a>

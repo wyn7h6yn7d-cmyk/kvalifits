@@ -18,12 +18,12 @@ type Props = {
 };
 
 function stageTone(status: ApplicationPipelineStatus, active: boolean) {
-  if (!active) return "border-white/[0.10] bg-white/[0.02] text-white/55 hover:border-white/[0.14] hover:text-white/75";
+  if (!active) return "border-border bg-white text-muted-2 hover:border-border-strong hover:text-foreground";
   switch (status) {
     case "new":
       return "border-sky-400/35 bg-sky-500/15 text-sky-50";
     case "reviewing":
-      return "border-violet-400/35 bg-violet-500/15 text-violet-50";
+      return "border-[rgba(37,99,235,0.28)] bg-[rgba(37,99,235,0.08)] text-primary";
     case "interview":
     case "interview_2":
       return "border-amber-400/35 bg-amber-500/15 text-amber-50";
@@ -33,9 +33,9 @@ function stageTone(status: ApplicationPipelineStatus, active: boolean) {
       return "border-emerald-400/40 bg-emerald-500/18 text-emerald-50";
     case "rejected":
     case "withdrawn":
-      return "border-white/[0.16] bg-white/[0.07] text-white/85";
+      return "border-border-strong bg-[#f8fafc] text-foreground/80";
     default:
-      return "border-white/[0.16] bg-white/[0.08] text-white/90";
+      return "border-border-strong bg-[#f8fafc] text-foreground";
   }
 }
 
@@ -47,13 +47,13 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
   const t = useTranslations("jobs");
 
   return (
-    <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-4 sm:p-5">
+    <div className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="min-w-0">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-2">
             {t("applicationPipelineTitle")}
           </div>
-          <p className="mt-1 text-xs leading-relaxed text-white/50">{t("applicationPipelineHint")}</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-2">{t("applicationPipelineHint")}</p>
         </div>
         <button
           type="button"
@@ -61,8 +61,8 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
           className={cn(
             "shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors",
             filter === "all"
-              ? "border-white/[0.18] bg-white/[0.08] text-white/90"
-              : "border-white/[0.10] bg-white/[0.02] text-white/55 hover:border-white/[0.14] hover:text-white/75"
+              ? "border-border-strong bg-[#f8fafc] text-foreground"
+              : "border-border bg-white text-muted-2 hover:border-border-strong hover:text-foreground"
           )}
         >
           {t("applicationPipelineAll")} · {total}
@@ -71,7 +71,7 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
 
       {/* Active path */}
       <div className="mt-4">
-        <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">
+        <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-2">
           {t("applicationPipelinePathLabel")}
         </div>
         <div className="mt-2 flex items-stretch gap-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -89,7 +89,7 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
                 <div className="mt-1 text-lg font-semibold tabular-nums leading-none">{counts[s]}</div>
               </button>
               {i < APPLICATION_PIPELINE_ACTIVE.length - 1 ? (
-                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-white/25" aria-hidden />
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-2" aria-hidden />
               ) : null}
             </div>
           ))}
@@ -97,8 +97,8 @@ export function EmployerApplicationPipeline({ total, counts, filter, onFilterCha
       </div>
 
       {/* Terminal outcomes */}
-      <div className="mt-4 border-t border-white/[0.08] pt-3">
-        <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">
+      <div className="mt-4 border-t border-border pt-3">
+        <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-2">
           {t("applicationPipelineOutcomesLabel")}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">

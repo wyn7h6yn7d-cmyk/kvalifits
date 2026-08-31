@@ -46,13 +46,13 @@ export function ContactForm({
       className={cn(
         SITE_CARD_SURFACE,
         SITE_CARD_PADDING,
-        "flex min-h-0 flex-col border-white/[0.10] bg-white/[0.03]",
+        "flex min-h-0 flex-col border-border bg-[#f8fafc]",
         className,
       )}
     >
       <div className="grid min-h-0 flex-1 auto-rows-max grid-cols-1 content-start gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-1">
-          <span className="text-xs font-medium text-white/50">{form.nameLabel}</span>
+          <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{form.nameLabel}</span>
           <Input
             className="mt-2"
             value={name}
@@ -62,7 +62,7 @@ export function ContactForm({
           />
         </label>
         <label className="block sm:col-span-1">
-          <span className="text-xs font-medium text-white/50">{form.emailLabel}</span>
+          <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{form.emailLabel}</span>
           <Input
             type="email"
             className="mt-2"
@@ -73,7 +73,7 @@ export function ContactForm({
           />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-xs font-medium text-white/50">{form.subjectLabel}</span>
+          <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{form.subjectLabel}</span>
           <Input
             className="mt-2"
             value={subject}
@@ -81,9 +81,9 @@ export function ContactForm({
           />
         </label>
         <label className="block sm:col-span-2">
-          <span className="text-xs font-medium text-white/50">{form.messageLabel}</span>
+          <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{form.messageLabel}</span>
           <textarea
-            className="mt-2 min-h-[140px] w-full resize-y rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="mt-2 min-h-[140px] w-full resize-y rounded-xl border border-border bg-white px-4 py-3 text-base leading-[1.6] text-foreground placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
@@ -91,15 +91,15 @@ export function ContactForm({
         </label>
       </div>
       <div className="mt-auto shrink-0">
-        <p className="mt-4 text-xs leading-relaxed text-white/40">{form.privacyHint}</p>
+        <p className="mt-4 text-[0.9375rem] leading-[1.6] text-muted">{form.privacyHint}</p>
         <Button
           type="submit"
           variant="primary"
-          className={cn(SITE_CONTROL_HEIGHT, "mt-6 w-full rounded-2xl px-8 sm:w-auto")}
+          className={cn(SITE_CONTROL_HEIGHT, "mt-6 w-full sm:w-auto")}
         >
           {form.submitLabel}
         </Button>
-        {hint ? <p className="mt-3 text-xs text-white/50">{hint}</p> : null}
+        {hint ? <p className="mt-3 text-[0.9375rem] leading-[1.6] text-muted">{hint}</p> : null}
       </div>
     </form>
   );

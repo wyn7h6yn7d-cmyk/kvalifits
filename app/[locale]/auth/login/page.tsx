@@ -33,7 +33,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
   return (
     <AuthShell title={t("loginTitle")} subtitle={t("loginSubtitle")}>
       {notice ? (
-        <div className="mb-4 rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="mb-4 rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {notice}
         </div>
       ) : null}

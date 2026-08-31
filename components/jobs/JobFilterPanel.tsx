@@ -102,8 +102,8 @@ export function FilterCheckboxOption({
     <label
       className={cn(
         "group/opt flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-1.5 py-2.5 transition-colors duration-150 lg:min-h-0 lg:py-1.5",
-        "hover:bg-white/[0.04]",
-        checked ? "bg-white/[0.03]" : "bg-transparent",
+        "hover:bg-[#f5f7fb]",
+        checked ? "bg-[#f8fafc]" : "bg-transparent",
       )}
     >
       <span className="relative inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center">
@@ -117,11 +117,11 @@ export function FilterCheckboxOption({
           aria-hidden
           className={cn(
             "pointer-events-none flex h-[20px] w-[20px] items-center justify-center rounded-[6px] border transition-all duration-150",
-            "bg-white/[0.04]",
+            "bg-[#f8fafc]",
             checked
-              ? "border-transparent bg-gradient-to-br from-violet-500 to-[rgba(227,31,141,0.92)] shadow-[0_0_0_1px_rgba(168,85,247,0.18),0_0_12px_rgba(168,85,247,0.18)]"
-              : "border-white/[0.14] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] group-hover/opt:border-violet-400/45 group-hover/opt:shadow-[0_0_10px_rgba(168,85,247,0.12)]",
-            "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-violet-400/70",
+              ? "border-transparent bg-primary"
+              : "border-border-strong shadow-none group-hover/opt:border-[rgba(37,99,235,0.32)]",
+            "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary/50",
           )}
         >
           <Check
@@ -135,14 +135,14 @@ export function FilterCheckboxOption({
       </span>
       <span
         className={cn(
-          "min-w-0 flex-1 text-[13px] leading-snug transition-colors duration-150",
-          checked ? "text-zinc-100" : "text-zinc-400 group-hover/opt:text-zinc-300",
+          "min-w-0 flex-1 text-[0.9375rem] leading-snug transition-colors duration-150",
+          checked ? "text-foreground" : "text-muted group-hover/opt:text-foreground",
         )}
       >
         {label}
       </span>
       {typeof count === "number" ? (
-        <span className="shrink-0 tabular-nums text-[12px] text-zinc-500">{count}</span>
+        <span className="shrink-0 tabular-nums text-[0.8125rem] text-muted">{count}</span>
       ) : null}
     </label>
   );
@@ -160,17 +160,17 @@ function FilterGroupShell({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-white/[0.06] last:border-b-0">
+    <div className="border-b border-border last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex min-h-11 w-full items-center justify-between gap-2 py-3 text-left lg:min-h-0"
         aria-expanded={open}
       >
-        <span className="text-[13px] font-medium text-white/78">{title}</span>
+        <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{title}</span>
         <ChevronDown
           className={cn(
-            "h-3.5 w-3.5 shrink-0 text-white/40 transition-transform duration-200",
+            "h-3.5 w-3.5 shrink-0 text-muted-2 transition-transform duration-200",
             open && "rotate-180",
           )}
           aria-hidden
@@ -242,7 +242,7 @@ export function FacetFilterGroup({
     <FilterGroupShell title={title} defaultOpen={defaultOpen}>
       {searchable ? (
         <div className="relative mb-2">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/35" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-2" />
           <Input
             value={search}
             onChange={(e) => {
@@ -250,12 +250,12 @@ export function FacetFilterGroup({
               setExpanded(false);
             }}
             placeholder={searchPlaceholder ?? t("facetSearchPlaceholder")}
-            className="h-11 rounded-lg border-white/[0.08] bg-white/[0.03] pl-8 text-base lg:h-9 lg:text-[13px]"
+            className="h-11 rounded-lg border-border bg-[#f8fafc] pl-8 text-base lg:h-9 lg:text-[13px]"
           />
           {search ? (
             <button
               type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-white/40 hover:text-white/70"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-2 hover:text-foreground/70"
               onClick={() => setSearch("")}
               aria-label={t("clearFacetSearch")}
             >
@@ -276,7 +276,7 @@ export function FacetFilterGroup({
           />
         ))}
         {!visible.length && !remoteLoading ? (
-          <p className="px-1 py-1 text-[12px] text-white/40">{t("facetNoMatches")}</p>
+          <p className="px-1 py-1 text-[0.8125rem] text-muted">{t("facetNoMatches")}</p>
         ) : null}
         {remoteLoading ? (
           <div className="space-y-1.5 px-1 py-1" aria-busy="true">
@@ -290,7 +290,7 @@ export function FacetFilterGroup({
       {canShowMore ? (
         <button
           type="button"
-          className="mt-2 inline-flex min-h-11 items-center px-1 text-[13px] font-medium text-fuchsia-300/80 transition-colors hover:text-fuchsia-200"
+          className="mt-2 inline-flex min-h-11 items-center px-1 text-[0.9375rem] font-medium text-primary transition-colors hover:text-primary-hover"
           onClick={() => setExpanded(true)}
         >
           {t("showMore")}
@@ -298,7 +298,7 @@ export function FacetFilterGroup({
       ) : null}
 
       {remainingHint ? (
-        <p className="mt-2 px-1 text-[12px] leading-snug text-white/40">{t("facetSearchToFindMore")}</p>
+        <p className="mt-2 px-1 text-[0.8125rem] leading-snug text-muted">{t("facetSearchToFindMore")}</p>
       ) : null}
     </FilterGroupShell>
   );
@@ -330,11 +330,11 @@ export function JobFiltersBody({
     <div>
       {showHeader ? (
         <div className="mb-1 flex items-center justify-between gap-2 px-1 pb-2">
-          <div className="text-[13px] font-medium text-white/80">{t("filters")}</div>
+          <div className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("filters")}</div>
           {activeCount ? (
             <button
               type="button"
-              className="text-[12px] text-white/45 transition-colors hover:text-white/75"
+              className="text-[0.9375rem] font-medium text-muted transition-colors hover:text-foreground"
               onClick={onClear}
             >
               {t("clearAll")}
@@ -355,8 +355,8 @@ export function JobFiltersBody({
       ))}
 
       {moreGroups.length ? (
-        <div className="border-t border-white/[0.06] pt-1">
-          <div className="px-1 py-2 text-[11px] font-medium uppercase tracking-wide text-white/42">
+        <div className="border-t border-border pt-1">
+          <div className="px-1 py-2 text-[0.9375rem] font-medium leading-snug text-muted">
             {t("moreFilters")}
           </div>
           {moreGroups.map((g) => (

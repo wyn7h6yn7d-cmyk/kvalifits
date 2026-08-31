@@ -44,17 +44,19 @@ export default function GlobalError({
         style={{
           margin: 0,
           minHeight: "100vh",
-          background: "#0f0f16",
-          color: "#f0eef6",
+          background: "#ffffff",
+          color: "#1e293b",
           fontFamily:
-            "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+            '"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+          fontSize: "1rem",
+          lineHeight: 1.65,
         }}
       >
         <main style={{ maxWidth: 32 * 16, margin: "0 auto", padding: "4rem 1.5rem" }}>
           <h1 style={{ fontSize: "1.5rem", fontWeight: 600, margin: "0 0 0.75rem" }}>
             {copy.title}
           </h1>
-          <p style={{ color: "rgba(198, 194, 218, 0.82)", lineHeight: 1.5, margin: "0 0 1.5rem" }}>
+          <p style={{ color: "rgba(30, 41, 59, 0.7)", lineHeight: 1.65, margin: "0 0 1.5rem" }}>
             {copy.body}
           </p>
           <button
@@ -63,10 +65,13 @@ export default function GlobalError({
             style={{
               height: 44,
               padding: "0 1.25rem",
-              borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.14)",
-              background: "rgba(255,255,255,0.08)",
+              borderRadius: 10,
+              border: "1px solid rgba(29,78,216,0.9)",
+              boxShadow: "inset 0 0 0 1px rgba(227,31,141,0.18)",
+              background: "#2563eb",
               color: "#fff",
+              fontSize: "0.9375rem",
+              fontWeight: 500,
               cursor: "pointer",
             }}
           >

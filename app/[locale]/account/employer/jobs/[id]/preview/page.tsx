@@ -78,9 +78,9 @@ export default async function EmployerJobPreviewPage({ params }: Props) {
         />
       }
       sidebar={
-        <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5">
-          <div className="text-sm font-medium text-white/85">{tJobs("previewBanner")}</div>
-          <p className="mt-2 text-sm leading-relaxed text-white/60">{tJobs("previewBannerBody")}</p>
+        <div className="rounded-3xl border border-border bg-[#f8fafc] p-5">
+          <div className="text-sm font-medium text-foreground/80">{tJobs("previewBanner")}</div>
+          <p className="mt-2 text-sm leading-relaxed text-muted">{tJobs("previewBannerBody")}</p>
           <div className="mt-4">
             <EmployerJobPreviewActions
               locale={locale}

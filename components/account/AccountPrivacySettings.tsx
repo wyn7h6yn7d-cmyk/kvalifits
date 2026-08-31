@@ -109,10 +109,10 @@ export function AccountPrivacySettings({ locale, className }: Props) {
 
   return (
     <div className={className}>
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("title")}</div>
-        <p className="mt-1.5 text-xs leading-relaxed text-white/55">{t("subtitle")}</p>
-        <p className="mt-2 text-[11px] leading-relaxed text-white/40">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-sm font-medium text-foreground/80">{t("title")}</div>
+        <p className="mt-1.5 text-xs leading-relaxed text-muted-2">{t("subtitle")}</p>
+        <p className="mt-2 text-[11px] leading-relaxed text-muted-2">
           {t.rich("legalHint", {
             rights: (chunks) => (
               <Link href="/andmekaitse" className="underline-offset-2 hover:underline">
@@ -125,8 +125,8 @@ export function AccountPrivacySettings({ locale, className }: Props) {
         <div className="mt-5 space-y-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="text-sm text-white/80">{t("downloadTitle")}</div>
-              <div className="mt-0.5 text-xs text-white/50">{t("downloadHint")}</div>
+              <div className="text-sm text-foreground/80">{t("downloadTitle")}</div>
+              <div className="mt-0.5 text-xs text-muted-2">{t("downloadHint")}</div>
             </div>
             <Button
               type="button"
@@ -144,15 +144,15 @@ export function AccountPrivacySettings({ locale, className }: Props) {
             <p className="text-xs text-rose-200/90">{exportError}</p>
           ) : null}
 
-          <div className="border-t border-white/[0.08] pt-4">
-            <div className="text-sm text-white/80">{t("deleteTitle")}</div>
-            <div className="mt-0.5 text-xs leading-relaxed text-white/50">{t("deleteHint")}</div>
+          <div className="border-t border-border pt-4">
+            <div className="text-sm text-foreground/80">{t("deleteTitle")}</div>
+            <div className="mt-0.5 text-xs leading-relaxed text-muted-2">{t("deleteHint")}</div>
             {!deleteOpen ? (
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="mt-3 h-9 rounded-xl px-3 text-[13px] text-rose-100/90"
+                className="mt-3 h-9 rounded-xl px-3 text-[13px] text-rose-800"
                 onClick={() => {
                   setDeleteOpen(true);
                   setDeleteError(null);
@@ -164,18 +164,18 @@ export function AccountPrivacySettings({ locale, className }: Props) {
               </Button>
             ) : (
               <div className="mt-4 space-y-3 rounded-2xl border border-rose-400/20 bg-rose-500/[0.06] p-4">
-                <p className="text-xs leading-relaxed text-white/70">{t("deleteConfirmIntro")}</p>
-                <label className="flex items-start gap-2.5 text-xs leading-relaxed text-white/70">
+                <p className="text-xs leading-relaxed text-body">{t("deleteConfirmIntro")}</p>
+                <label className="flex items-start gap-2.5 text-xs leading-relaxed text-body">
                   <input
                     type="checkbox"
                     checked={acknowledged}
                     onChange={(e) => setAcknowledged(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/[0.20] bg-white/[0.03]"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong bg-[#f8fafc]"
                   />
                   <span>{t("deleteAcknowledge")}</span>
                 </label>
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-medium tracking-wide text-white/55" htmlFor="delete-confirm-word">
+                  <label className="text-[11px] font-medium tracking-wide text-muted-2" htmlFor="delete-confirm-word">
                     {t("deleteTypeWord", { word: ACCOUNT_DELETE_CONFIRM_WORD })}
                   </label>
                   <Input

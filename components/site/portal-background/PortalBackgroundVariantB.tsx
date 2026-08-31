@@ -37,7 +37,7 @@ export function PortalBackgroundVariantB({
         <div
           key={i}
           className={cn(
-            "kf-portal-b-card portal-bg-b__card absolute border border-white/[0.16] bg-gradient-to-br from-white/[0.06] to-transparent",
+            "kf-portal-b-card portal-bg-b__card absolute border border-border-strong bg-gradient-to-br from-white to-transparent",
             c.className,
           )}
           style={{
@@ -47,24 +47,24 @@ export function PortalBackgroundVariantB({
         />
       ))}
 
-      <div className="pointer-events-none absolute right-[14%] top-[38%] h-[3px] w-[12%] rounded-full bg-white/[0.14]" />
+      <div className="pointer-events-none absolute right-[14%] top-[38%] h-[3px] w-[12%] rounded-full bg-[#f8fafc]" />
       <div className="pointer-events-none absolute left-[12%] bottom-[30%] h-[3px] w-[9%] rounded-full bg-white/[0.1]" />
 
       <div
-        className="kf-portal-b-pill pointer-events-none absolute right-[22%] top-[48%] flex items-center gap-1 rounded-full border border-white/[0.14] bg-black/35 px-2 py-0.5"
+        className="kf-portal-b-pill pointer-events-none absolute right-[22%] top-[48%] flex items-center gap-1 rounded-full border border-border bg-white px-2 py-0.5"
         style={{ animationDuration: `${14 * dur}s` }}
       >
         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/75" />
-        <span className="text-[9px] font-medium uppercase tracking-wider text-white/55">
+        <span className="text-[9px] font-medium uppercase tracking-wider text-muted-2">
           {t("certPill")}
         </span>
       </div>
 
       <div
-        className="kf-portal-b-pill pointer-events-none absolute left-[26%] top-[58%] flex items-center gap-1 rounded-full border border-white/[0.12] bg-black/30 px-2 py-0.5"
+        className="kf-portal-b-pill pointer-events-none absolute left-[26%] top-[58%] flex items-center gap-1 rounded-full border border-border bg-white px-2 py-0.5"
         style={{ animationDuration: `${17 * dur}s`, animationDelay: "3s" }}
       >
-        <span className="text-[9px] font-medium uppercase tracking-wider text-white/50">
+        <span className="text-[9px] font-medium uppercase tracking-wider text-muted-2">
           {t("fitPill")}
         </span>
       </div>

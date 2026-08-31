@@ -79,22 +79,33 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
 
   return (
     <div className={cn("min-w-0", className)}>
-      <button
-        type="button"
-        onClick={() => {
-          setOpen(true);
-          setDone(false);
-          setError(null);
-        }}
-        className={
-          variant === "toolbar"
-            ? "inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/55 transition-colors hover:border-white/[0.16] hover:bg-white/[0.06] hover:text-white/85 lg:h-9"
-            : "text-sm font-medium text-white/50 underline-offset-4 transition-colors hover:text-white/75 hover:underline"
-        }
-      >
-        {variant === "toolbar" ? <Flag className="h-4 w-4" aria-hidden /> : null}
-        {variant === "toolbar" ? t("jobDetailReportCta") : t("jobReportLink")}
-      </button>
+      {variant === "toolbar" ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setOpen(true);
+            setDone(false);
+            setError(null);
+          }}
+        >
+          <Flag aria-hidden />
+          {t("jobDetailReportCta")}
+        </Button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            setDone(false);
+            setError(null);
+          }}
+          className="text-sm font-medium text-muted-2 underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          {t("jobReportLink")}
+        </button>
+      )}
 
       {open ? (
         <div
@@ -105,17 +116,17 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
           onClick={close}
         >
           <div
-            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-3xl border border-white/[0.12] bg-zinc-950 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:max-h-[min(90dvh,36rem)] sm:max-w-md sm:rounded-3xl sm:p-6 sm:pb-6"
+            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-xl border border-border bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-h-[min(90dvh,36rem)] sm:max-w-md sm:rounded-xl sm:p-6 sm:pb-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div id="job-report-title" className="text-sm font-semibold text-white/90">
+            <div id="job-report-title" className="text-sm font-semibold text-foreground">
               {t("jobReportTitle")}
             </div>
-            <p className="mt-1.5 text-xs leading-relaxed text-white/55">{t("jobReportHint")}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-2">{t("jobReportHint")}</p>
 
             {done ? (
               <div className="mt-5 space-y-4">
-                <p className="text-sm leading-relaxed text-emerald-100/90">{t("jobReportThanks")}</p>
+                <p className="text-sm leading-relaxed text-emerald-800">{t("jobReportThanks")}</p>
                   <Button type="button" variant="outline" className="w-full" onClick={close}>
                     {t("jobReportClose")}
                   </Button>
@@ -123,28 +134,28 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
             ) : (
               <form onSubmit={onSubmit} className="mt-5 space-y-4">
                 <fieldset className="space-y-2">
-                  <legend className="text-xs font-medium tracking-wide text-white/65">
+                  <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">
                     {t("jobReportReasonLabel")}
                   </legend>
                   {reasons.map((code) => (
                     <label
                       key={code}
-                      className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-2.5"
+                      className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-3.5 py-2.5"
                     >
                       <input
                         type="radio"
                         name="job-report-reason"
                         checked={reason === code}
                         onChange={() => setReason(code)}
-                        className="mt-1 h-4 w-4 border-white/[0.20] bg-white/[0.03]"
+                        className="mt-1 h-4 w-4 border-border-strong bg-[#f8fafc]"
                       />
-                      <span className="text-sm text-white/80">{t(`jobReportReason.${code}`)}</span>
+                      <span className="text-sm text-foreground/80">{t(`jobReportReason.${code}`)}</span>
                     </label>
                   ))}
                 </fieldset>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium tracking-wide text-white/65" htmlFor="job-report-details">
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground" htmlFor="job-report-details">
                     {t("jobReportDetailsLabel")}
                   </label>
                   <textarea
@@ -154,7 +165,7 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
                     rows={3}
                     maxLength={2000}
                     placeholder={t("jobReportDetailsPlaceholder")}
-                    className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 outline-none focus:border-white/[0.18]"
+                    className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 outline-none focus:border-[rgba(37,99,235,0.35)]"
                   />
                 </div>
 

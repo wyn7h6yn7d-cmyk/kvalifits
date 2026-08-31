@@ -16,7 +16,7 @@ export default function QuickApplyA11yHarnessPage() {
 
   return (
     <main className="mx-auto flex min-h-[100dvh] max-w-lg flex-col justify-center gap-4 p-6">
-      <h1 className="text-sm font-medium text-white/70">Quick apply a11y harness</h1>
+      <h1 className="text-sm font-medium text-body">Quick apply a11y harness</h1>
       <QuickApplyA11yHarness />
     </main>
   );

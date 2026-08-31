@@ -322,7 +322,7 @@ export default async function JobDetailPage({ params }: Props) {
           </>
         }
         applySection={
-          <div id="kandideeri" className="scroll-mt-[calc(var(--site-header-offset)+1rem)] border-t border-white/[0.08] pt-8">
+          <div id="kandideeri" className="scroll-mt-[calc(var(--site-header-offset)+1rem)] border-t border-border pt-8">
             <JobApplyForm {...applyFormProps} />
           </div>
         }

@@ -54,8 +54,8 @@ export default async function EmployerAccountPage({ params }: Props) {
           <div className="space-y-10">
             <section className="space-y-4">
               <div>
-                <div className="text-sm font-medium text-white/85">{tEmployer("companyProfile")}</div>
-                <div className="mt-1 text-sm text-white/60">{tEmployer("companyProfileSubtitle")}</div>
+                <div className="text-sm font-medium text-foreground/80">{tEmployer("companyProfile")}</div>
+                <div className="mt-1 text-sm text-muted">{tEmployer("companyProfileSubtitle")}</div>
               </div>
               <EmployerProfileForm locale={locale} initial={(employer as EmployerProfile | null) ?? null} />
             </section>
@@ -63,8 +63,8 @@ export default async function EmployerAccountPage({ params }: Props) {
             <section className="space-y-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <div className="text-sm font-medium text-white/85">{tJobs("myJobs")}</div>
-                  <div className="mt-1 text-sm text-white/60">{tJobs("myJobsSubtitle")}</div>
+                  <div className="text-sm font-medium text-foreground/80">{tJobs("myJobs")}</div>
+                  <div className="mt-1 text-sm text-muted">{tJobs("myJobsSubtitle")}</div>
                 </div>
               </div>
               <EmployerJobsList locale={locale} initialJobs={(jobs ?? []) as any} />

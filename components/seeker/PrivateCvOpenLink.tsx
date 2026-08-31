@@ -39,7 +39,7 @@ export function PrivateCvOpenLink({ cvRef, className, errorLabel, children }: Pr
       <button type="button" onClick={() => void onOpen()} disabled={busy} className={className}>
         {children}
       </button>
-      {error ? <span className="text-xs text-white/55">{error}</span> : null}
+      {error ? <span className="text-xs text-muted-2">{error}</span> : null}
     </span>
   );
 }

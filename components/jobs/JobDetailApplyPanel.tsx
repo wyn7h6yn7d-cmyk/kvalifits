@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { Button } from "@/components/ui/button";
 import { FitScoreExplain } from "@/components/jobs/FitScoreExplain";
 import { JobSaveButton } from "@/components/jobs/JobSaveButton";
 import { Link } from "@/i18n/routing";
@@ -73,7 +74,7 @@ export function JobDetailApplyPanel({
     return (
       <div
         className={cn(
-          "fixed inset-x-0 z-40 border-t border-white/[0.10] bg-[#0c0c10] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
+          "fixed inset-x-0 z-40 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
           className,
         )}
         style={{ bottom: "var(--site-bottom-nav-offset, 0px)" }}
@@ -89,30 +90,30 @@ export function JobDetailApplyPanel({
               className="h-12 min-w-0 flex-1 whitespace-normal px-3 text-center"
             />
           ) : null}
-          <a
-            href={applyHref}
-            onClick={applyClick}
-            className="flex h-12 min-w-0 flex-[1.15] items-center justify-center rounded-xl bg-white px-3 text-center text-[15px] font-semibold leading-tight text-black transition hover:bg-white/90"
+          <Button
+            asChild
+            variant="primary"
+            className="h-12 min-w-0 flex-[1.15] px-3 text-center"
           >
-            {t("jobDetailApplyTopCta")}
-          </a>
+            <a href={applyHref} onClick={applyClick}>
+              {t("jobDetailApplyTopCta")}
+            </a>
+          </Button>
         </div>
       </div>
     );
   }
 
   const applyButton = acceptsApplications ? (
-    <a
-      href={applyHref}
-      onClick={applyClick}
-      className="flex h-11 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90"
-    >
-      {t("jobDetailApplyTopCta")}
-    </a>
+    <Button asChild variant="primary" className="w-full">
+      <a href={applyHref} onClick={applyClick}>
+        {t("jobDetailApplyTopCta")}
+      </a>
+    </Button>
   ) : (
-    <div className="rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 py-2.5 text-[13px] leading-relaxed text-white/65">
+    <div className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2.5 text-[0.9375rem] leading-[1.6] text-muted">
       {applyClosedBody}
-      {applyUntilLabel ? <span className="mt-1 block font-medium text-white/80">{applyUntilLabel}</span> : null}
+      {applyUntilLabel ? <span className="mt-1 block font-medium text-foreground/80">{applyUntilLabel}</span> : null}
     </div>
   );
 
@@ -129,13 +130,13 @@ export function JobDetailApplyPanel({
 
   if (variant === "inline") {
     return (
-      <div className={cn("rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4", className)}>
+      <div className={cn("rounded-xl border border-border bg-[#f8fafc] p-4", className)}>
         {match ? <MatchLines match={match} /> : null}
         {showCreateProfileCta ? (
           <Link
             href={profileHref}
             className={cn(
-              "text-sm leading-relaxed text-white/70 underline-offset-4 hover:text-white hover:underline",
+              "text-base leading-[1.65] text-body underline-offset-4 hover:text-foreground hover:underline",
               match ? "mt-3 block" : "",
             )}
           >
@@ -143,25 +144,24 @@ export function JobDetailApplyPanel({
           </Link>
         ) : null}
         {acceptsApplications ? (
-          <a
-            href={applyHref}
-            onClick={applyClick}
-            className={cn(
-              "flex h-11 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90",
-              match || showCreateProfileCta ? "mt-4" : "",
-            )}
+          <Button
+            asChild
+            variant="primary"
+            className={cn("w-full", match || showCreateProfileCta ? "mt-4" : "")}
           >
-            {t("jobDetailApplyTopCta")}
-          </a>
+            <a href={applyHref} onClick={applyClick}>
+              {t("jobDetailApplyTopCta")}
+            </a>
+          </Button>
         ) : (
           <div
             className={cn(
-              "rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 py-2.5 text-[13px] leading-relaxed text-white/65",
+              "rounded-xl border border-border bg-[#f8fafc] px-3 py-2.5 text-[0.9375rem] leading-[1.6] text-muted",
               match || showCreateProfileCta ? "mt-4" : "",
             )}
           >
             {applyClosedBody}
-            {applyUntilLabel ? <span className="mt-1 block font-medium text-white/80">{applyUntilLabel}</span> : null}
+            {applyUntilLabel ? <span className="mt-1 block font-medium text-foreground/80">{applyUntilLabel}</span> : null}
           </div>
         )}
       </div>
@@ -171,7 +171,7 @@ export function JobDetailApplyPanel({
   return (
     <aside
       className={cn(
-        "rounded-2xl border border-white/[0.08] bg-[#141416] p-5",
+        "rounded-xl border border-border bg-white p-5",
         className,
       )}
     >
@@ -179,7 +179,7 @@ export function JobDetailApplyPanel({
       {showCreateProfileCta ? (
         <Link
           href={profileHref}
-          className="block text-sm leading-relaxed text-white/68 underline-offset-4 hover:text-white/90 hover:underline"
+          className="block text-base leading-[1.65] text-muted underline-offset-4 hover:text-foreground hover:underline"
         >
           {t("jobDetailCreateProfileCta")}
         </Link>

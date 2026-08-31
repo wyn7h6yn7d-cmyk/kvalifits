@@ -87,18 +87,18 @@ export default async function AdminUsersPage({ params, searchParams }: Props) {
   return (
     <AdminShell title={t("usersTitle")} subtitle={t("usersSubtitle")}>
       {!isUsingAdmin ? (
-        <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-[12.5px] leading-relaxed text-white/70">
-          <div className="font-semibold text-white/85">{t("limitedViewTitle")}</div>
+        <div className="mb-4 rounded-2xl border border-amber-400/20 bg-amber-400/5 px-4 py-3 text-[12.5px] leading-relaxed text-body">
+          <div className="font-semibold text-foreground/80">{t("limitedViewTitle")}</div>
           <div className="mt-1">{t("limitedViewBody")}</div>
         </div>
       ) : null}
       <div className="mb-4 flex items-center justify-between text-sm">
         {pagination.page > 1 ? (
-          <a href={`/${locale}/admin/users?page=${pagination.page - 1}`} className="text-white/70 hover:text-white">← {t("paginationPrev")}</a>
+          <a href={`/${locale}/admin/users?page=${pagination.page - 1}`} className="text-body hover:text-foreground">← {t("paginationPrev")}</a>
         ) : <span />}
-        <span className="text-white/50 tabular-nums">{t("paginationStatus", { page: pagination.page, totalPages: "?", totalCount: ids.length })}</span>
+        <span className="text-muted-2 tabular-nums">{t("paginationStatus", { page: pagination.page, totalPages: "?", totalCount: ids.length })}</span>
         {ids.length >= pagination.pageSize ? (
-          <a href={`/${locale}/admin/users?page=${pagination.page + 1}`} className="text-white/70 hover:text-white">{t("paginationNext")} →</a>
+          <a href={`/${locale}/admin/users?page=${pagination.page + 1}`} className="text-body hover:text-foreground">{t("paginationNext")} →</a>
         ) : <span />}
       </div>
       <AdminUsersTable

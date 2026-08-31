@@ -27,8 +27,8 @@ export default function AccountError({
 
   return (
     <main className="mx-auto max-w-lg px-6 py-24">
-      <h1 className="text-2xl font-semibold tracking-tight text-white">{t("title")}</h1>
-      <p className="mt-3 text-sm leading-6 text-white/70">{t("body")}</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t("title")}</h1>
+      <p className="mt-3 text-sm leading-6 text-body">{t("body")}</p>
 
       <div className="mt-8 flex flex-col gap-3">
         <Button type="button" onClick={() => reset()}>

@@ -34,7 +34,7 @@ export type OverviewDeadline = {
 const GAP_HREF = PROFILE_GAP_HREF;
 
 function surfaceClass() {
-  return "rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5";
+  return "rounded-2xl border border-border bg-white p-4 sm:p-5";
 }
 
 function fmtDate(locale: string, iso: string | null) {
@@ -77,20 +77,20 @@ export async function SeekerOverview({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0">
             {firstName ? (
-              <p className="text-xs text-white/45">{t("greeting", { name: firstName })}</p>
+              <p className="text-xs text-muted-2">{t("greeting", { name: firstName })}</p>
             ) : null}
-            <h2 className="mt-1 text-[17px] font-semibold tracking-tight text-white/92">
+            <h2 className="mt-1 text-[17px] font-semibold tracking-tight text-foreground">
               {t("profileReady", { percent })}
             </h2>
           </div>
           <Link
             href="/account/seeker/profile"
-            className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline sm:min-h-0"
+            className="inline-flex min-h-11 shrink-0 items-center text-sm font-medium text-body underline-offset-4 hover:text-foreground hover:underline sm:min-h-0"
           >
             {t("profileCta")}
           </Link>
         </div>
-        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.08]" aria-hidden>
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-[#f8fafc]" aria-hidden>
           <div className="h-full rounded-full bg-white/45" style={{ width: `${Math.min(100, Math.max(0, percent))}%` }} />
         </div>
         {shownGaps.length ? (
@@ -99,7 +99,7 @@ export async function SeekerOverview({
               <li key={gap}>
                 <Link
                   href={GAP_HREF[gap]}
-                  className="text-sm leading-relaxed text-white/62 underline-offset-4 hover:text-white/85 hover:underline"
+                  className="text-sm leading-relaxed text-muted underline-offset-4 hover:text-foreground/85 hover:underline"
                 >
                   {t(`gap.${gap}`)}
                 </Link>
@@ -107,31 +107,31 @@ export async function SeekerOverview({
             ))}
           </ul>
         ) : (
-          <p className="mt-4 text-sm text-white/55">{t("profileComplete")}</p>
+          <p className="mt-4 text-sm text-muted-2">{t("profileComplete")}</p>
         )}
       </section>
 
       <section className={surfaceClass()}>
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white/90">{t("matchesTitle")}</h2>
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{t("matchesTitle")}</h2>
           <Link
             href="/account/seeker/matches"
-            className="text-sm font-medium text-white/60 underline-offset-4 hover:text-white hover:underline"
+            className="text-sm font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
           >
             {t("matchesAll")}
           </Link>
         </div>
         {!matchSortAvailable ? (
-          <p className="mt-3 text-sm leading-relaxed text-white/55">
+          <p className="mt-3 text-sm leading-relaxed text-muted-2">
             {t("matchesEmptyProfile")}{" "}
-            <Link href="/account/seeker/profile" className="font-medium text-white/75 underline-offset-4 hover:underline">
+            <Link href="/account/seeker/profile" className="font-medium text-muted underline-offset-4 hover:underline">
               {t("profileCta")}
             </Link>
           </p>
         ) : !matches.length ? (
-          <p className="mt-3 text-sm leading-relaxed text-white/55">
+          <p className="mt-3 text-sm leading-relaxed text-muted-2">
             {t("matchesEmpty")}{" "}
-            <Link href="/account/seeker/profile" className="font-medium text-white/75 underline-offset-4 hover:underline">
+            <Link href="/account/seeker/profile" className="font-medium text-muted underline-offset-4 hover:underline">
               {t("profileCta")}
             </Link>
           </p>
@@ -141,14 +141,14 @@ export async function SeekerOverview({
               <li key={job.id}>
                 <Link href={`/tood/${job.id}`} className="flex items-center justify-between gap-3 py-3 first:pt-1 last:pb-0">
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-white/88">{job.title}</span>
-                    <span className="mt-0.5 block truncate text-xs text-white/45">
+                    <span className="block truncate text-sm font-medium text-foreground">{job.title}</span>
+                    <span className="mt-0.5 block truncate text-xs text-muted-2">
                       {job.company}
                       {job.location ? ` · ${job.location}` : ""}
                     </span>
                   </span>
                   {typeof job.matchScore === "number" ? (
-                    <span className="shrink-0 tabular-nums text-sm font-medium text-white/70">{job.matchScore}%</span>
+                    <span className="shrink-0 tabular-nums text-sm font-medium text-body">{job.matchScore}%</span>
                   ) : null}
                 </Link>
               </li>
@@ -159,18 +159,18 @@ export async function SeekerOverview({
 
       <section className={surfaceClass()}>
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-[15px] font-semibold tracking-tight text-white/90">{t("applicationsTitle")}</h2>
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{t("applicationsTitle")}</h2>
           <Link
             href="/account/seeker/applications"
-            className="text-sm font-medium text-white/60 underline-offset-4 hover:text-white hover:underline"
+            className="text-sm font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
           >
             {t("applicationsAll")}
           </Link>
         </div>
         {!applications.length ? (
-          <p className="mt-3 text-sm leading-relaxed text-white/55">
+          <p className="mt-3 text-sm leading-relaxed text-muted-2">
             {t("applicationsEmpty")}{" "}
-            <Link href="/account/seeker/matches" className="font-medium text-white/75 underline-offset-4 hover:underline">
+            <Link href="/account/seeker/matches" className="font-medium text-muted underline-offset-4 hover:underline">
               {t("viewMatchingJobs")}
             </Link>
           </p>
@@ -183,14 +183,14 @@ export async function SeekerOverview({
                   className="flex items-start justify-between gap-3 py-3 first:pt-1 last:pb-0"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-white/88">{row.jobTitle}</span>
-                    <span className="mt-0.5 block truncate text-xs text-white/45">{row.employerName}</span>
+                    <span className="block truncate text-sm font-medium text-foreground">{row.jobTitle}</span>
+                    <span className="mt-0.5 block truncate text-xs text-muted-2">{row.employerName}</span>
                   </span>
                   <span className="shrink-0 text-right">
-                    <span className="block text-xs font-medium text-white/70">
+                    <span className="block text-xs font-medium text-body">
                       {tJobs(seekerApplicationStatusLabelKey(row.status))}
                     </span>
-                    <span className="mt-0.5 block text-[11px] text-white/40">{fmtDate(locale, row.updatedAt)}</span>
+                    <span className="mt-0.5 block text-[11px] text-muted-2">{fmtDate(locale, row.updatedAt)}</span>
                   </span>
                 </Link>
               </li>
@@ -202,17 +202,17 @@ export async function SeekerOverview({
       {certWarnings.length ? (
         <section className={cn(surfaceClass(), "border-amber-500/20 bg-amber-500/[0.04]")}>
           <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-[15px] font-semibold tracking-tight text-white/90">{t("certsTitle")}</h2>
+            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{t("certsTitle")}</h2>
             <Link
               href="/account/seeker/certificates"
-              className="text-sm font-medium text-white/60 underline-offset-4 hover:text-white hover:underline"
+              className="text-sm font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
             >
               {t("certsCta")}
             </Link>
           </div>
           <ul className="mt-3 space-y-2">
             {certWarnings.map((c) => (
-              <li key={c.id} className="text-sm leading-relaxed text-white/70">
+              <li key={c.id} className="text-sm leading-relaxed text-body">
                 {c.kind === "expired"
                   ? t("certExpired", { name: c.name })
                   : c.kind === "today"
@@ -227,10 +227,10 @@ export async function SeekerOverview({
       {deadlines.length ? (
         <section className={surfaceClass()}>
           <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-[15px] font-semibold tracking-tight text-white/90">{t("deadlinesTitle")}</h2>
+            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">{t("deadlinesTitle")}</h2>
             <Link
               href="/account/seeker/saved"
-              className="text-sm font-medium text-white/60 underline-offset-4 hover:text-white hover:underline"
+              className="text-sm font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
             >
               {t("deadlinesAll")}
             </Link>
@@ -240,12 +240,12 @@ export async function SeekerOverview({
               <li key={row.id}>
                 <Link href={`/tood/${row.jobPostId}`} className="flex items-start justify-between gap-3 py-3 first:pt-1 last:pb-0">
                   <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-white/88">{row.title}</span>
-                    <span className="mt-0.5 block truncate text-xs text-white/45">{row.company}</span>
+                    <span className="block truncate text-sm font-medium text-foreground">{row.title}</span>
+                    <span className="mt-0.5 block truncate text-xs text-muted-2">{row.company}</span>
                   </span>
-                  <span className="shrink-0 text-right text-xs font-medium text-white/70">
+                  <span className="shrink-0 text-right text-xs font-medium text-body">
                     {row.days === 0 ? t("deadlineToday") : t("deadlineDays", { days: row.days })}
-                    <span className="mt-0.5 block font-normal text-[11px] text-white/40">{row.dateLabel}</span>
+                    <span className="mt-0.5 block font-normal text-[11px] text-muted-2">{row.dateLabel}</span>
                   </span>
                 </Link>
               </li>

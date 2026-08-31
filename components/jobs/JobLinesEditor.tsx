@@ -49,8 +49,8 @@ export function JobLinesEditor({
     <div className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="min-w-0">
-          <label className="text-xs font-medium tracking-wide text-white/65">{title}</label>
-          <p className="mt-1 text-xs leading-relaxed text-white/45">{help}</p>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{title}</label>
+          <p className="mt-1 text-xs leading-relaxed text-muted-2">{help}</p>
         </div>
         <Button
           type="button"
@@ -70,7 +70,7 @@ export function JobLinesEditor({
           {value.map((row, index) => (
             <li
               key={`line-${index}`}
-              className="flex items-start gap-2 rounded-2xl border border-white/[0.10] bg-white/[0.02] p-3"
+              className="flex items-start gap-2 rounded-2xl border border-border bg-white p-3"
             >
               <Input
                 value={row}
@@ -85,7 +85,7 @@ export function JobLinesEditor({
                 type="button"
                 disabled={disabled}
                 onClick={() => removeAt(index)}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] text-white/45 transition-colors hover:border-white/[0.16] hover:bg-white/[0.04] hover:text-white/75 disabled:opacity-35"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border text-muted-2 transition-colors hover:border-[rgba(37,99,235,0.24)] hover:bg-[#f5f7fb] hover:text-foreground disabled:opacity-35"
                 aria-label={t("jobContentLineRemove")}
               >
                 <Trash2 className="h-3.5 w-3.5" aria-hidden />
@@ -98,7 +98,7 @@ export function JobLinesEditor({
           type="button"
           disabled={disabled}
           onClick={addRow}
-          className="w-full rounded-2xl border border-dashed border-white/[0.12] bg-white/[0.01] px-4 py-6 text-center text-sm text-white/50 transition-colors hover:border-white/[0.18] hover:bg-white/[0.03] hover:text-white/70"
+          className="w-full rounded-2xl border border-dashed border-border bg-white/[0.01] px-4 py-6 text-center text-sm text-muted-2 transition-colors hover:border-[rgba(37,99,235,0.26)] hover:bg-[#f5f7fb] hover:text-foreground/70"
         >
           {addFirstLabel}
         </button>

@@ -1,54 +1,65 @@
 import { getTranslations } from "next-intl/server";
 
 import { JobCard } from "@/components/jobs/JobCard";
+import { JobSearchAlertsButton } from "@/components/jobs/JobSearchAlertsButton";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import { getNewJobsForHomepage } from "@/lib/jobs/loadNewJobsForHomepage";
-import { SITE_GRID_GAP, SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
+import { SITE_BODY, SITE_GRID_GAP, SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
-export async function NewJobsSection({
-  locale,
-  embedded = false,
-}: {
-  locale: string;
-  embedded?: boolean;
-}) {
+const EMPTY_ALERT_SNAPSHOT = {
+  query: "",
+  requirePublicSalary: false,
+  filters: [],
+};
+
+export async function NewJobsSection({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "homeJobs" });
   const { jobs, savedJobIds, canSaveJobs } = await getNewJobsForHomepage(locale);
-
-  if (!jobs.length) return null;
-
   const savedSet = new Set(savedJobIds);
 
   return (
-    <section
-      className={cn(
-        embedded
-          ? "pb-10 sm:pb-12 lg:pb-14"
-          : "border-b border-white/[0.06] bg-surface py-10 sm:py-12 lg:py-14",
-      )}
-    >
+    <section id="home-jobs" className="border-y border-border bg-surface py-8 sm:py-10 lg:py-12">
       <Container>
-        <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-col items-start gap-1 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-3">
           <h2 className={SITE_H2_SECTION}>{t("newTitle")}</h2>
-          <Link
-            href="/tood"
-            className="text-[14px] font-medium text-white/55 hover:text-white/85"
-          >
-            {t("viewAll")}
-          </Link>
+          {jobs.length ? (
+            <Link
+              href="/tood"
+              className="inline-flex min-h-11 items-center text-[0.9375rem] font-medium text-muted hover:text-foreground"
+            >
+              {t("viewAll")}
+            </Link>
+          ) : null}
         </div>
-        <div className={cn("mt-5 sm:mt-6", SITE_GRID_GAP, "grid")}>
-          {jobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              saved={savedSet.has(job.id)}
-              canSave={canSaveJobs}
-            />
-          ))}
-        </div>
+        {jobs.length ? (
+          <div className={cn("mt-5 sm:mt-6", SITE_GRID_GAP, "grid")}>
+            {jobs.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                saved={savedSet.has(job.id)}
+                canSave={canSaveJobs}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-5">
+            <p className={cn(SITE_BODY, "text-muted")}>{t("empty")}</p>
+            <div className="mt-3">
+              <JobSearchAlertsButton
+                snapshot={EMPTY_ALERT_SNAPSHOT}
+                matchSortAvailable={false}
+                canSave={canSaveJobs}
+                alwaysShow
+                label={t("emptyCta")}
+                variant="outline"
+                className="w-full sm:w-auto"
+              />
+            </div>
+          </div>
+        )}
       </Container>
     </section>
   );

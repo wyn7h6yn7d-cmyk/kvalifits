@@ -104,11 +104,11 @@ export function SeekerSavedSearchesList({ searches }: { searches: SavedJobSearch
 
   return (
     <div className="space-y-4">
-      <p className="text-sm leading-relaxed text-white/55">
+      <p className="text-sm leading-relaxed text-muted-2">
         {SAVED_SEARCH_ALERTS_DELIVERY_ENABLED ? t("deliveryLiveNote") : t("deliveryPendingNote")}
       </p>
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
@@ -121,7 +121,7 @@ export function SeekerSavedSearchesList({ searches }: { searches: SavedJobSearch
             <li key={row.id}>
               <article
                 className={cn(
-                  "rounded-2xl border border-white/[0.08] bg-[#16161b] p-4 sm:p-5",
+                  "rounded-2xl border border-border bg-white p-4 sm:p-5",
                   !row.enabled && "opacity-70",
                 )}
               >
@@ -149,19 +149,19 @@ export function SeekerSavedSearchesList({ searches }: { searches: SavedJobSearch
                   />
                 </label>
 
-                <p className="mt-2 text-[13px] leading-relaxed text-white/55">
-                  {row.query ? <span className="text-white/70">{row.query}</span> : t("anyQuery")}
+                <p className="mt-2 text-[13px] leading-relaxed text-muted-2">
+                  {row.query ? <span className="text-body">{row.query}</span> : t("anyQuery")}
                   {filterLabels.length ? ` · ${filterLabels.join(" · ")}` : null}
                   {row.require_public_salary ? ` · ${t("publicSalary")}` : null}
                 </p>
-                <p className="mt-1 text-[12px] text-white/40">
+                <p className="mt-1 text-[12px] text-muted-2">
                   {row.min_match_percent != null
                     ? t("minMatchSummary", { threshold: row.min_match_percent })
                     : t("minMatchNone")}
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <label className="inline-flex items-center gap-2 text-[13px] text-white/70">
+                  <label className="inline-flex items-center gap-2 text-[13px] text-body">
                     <span>{t("frequencyLabel")}</span>
                     <select
                       value={row.frequency}
@@ -170,7 +170,7 @@ export function SeekerSavedSearchesList({ searches }: { searches: SavedJobSearch
                         const frequency = parseSavedSearchFrequency(e.target.value);
                         void patch(row.id, { frequency });
                       }}
-                      className="h-9 rounded-xl border border-white/[0.10] bg-white/[0.04] px-2 text-[13px] text-white/85 outline-none"
+                      className="h-9 rounded-xl border border-border bg-[#f8fafc] px-2 text-[13px] text-foreground/80 outline-none"
                     >
                       {SAVED_SEARCH_FREQUENCIES.map((freq) => (
                         <option key={freq} value={freq}>
@@ -179,7 +179,7 @@ export function SeekerSavedSearchesList({ searches }: { searches: SavedJobSearch
                       ))}
                     </select>
                   </label>
-                  <label className="inline-flex items-center gap-2 text-[13px] text-white/70">
+                  <label className="inline-flex items-center gap-2 text-[13px] text-body">
                     <input
                       type="checkbox"
                       checked={row.enabled}

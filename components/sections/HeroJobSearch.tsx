@@ -6,6 +6,7 @@ import { MapPin, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Link, useRouter } from "@/i18n/routing";
 import {
   buildJobSearchUrl,
@@ -22,15 +23,11 @@ type Props = {
   publishedJobCount: number;
 };
 
-export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
+export function HeroJobSearch({ quickFilters }: Props) {
   const t = useTranslations("hero");
-  const tJobs = useTranslations("jobs");
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
-
-  const submitLabel =
-    publishedJobCount > 0 ? tJobs("showJobs", { count: publishedJobCount }) : t("searchSubmit");
 
   function submit(extra?: Partial<JobSearchUrlParams>) {
     router.push(
@@ -51,43 +48,44 @@ export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
     <div className="mt-6 min-w-0 sm:mt-7 lg:mt-8">
       <form
         onSubmit={onSubmit}
-        className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.28] bg-[#121216] shadow-[0_20px_60px_-32px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.10)] ring-1 ring-white/[0.12] lg:bg-[#121216]"
+        className="min-w-0 overflow-hidden rounded-xl border border-border bg-white"
       >
         <div className="grid min-h-14 min-w-0 items-stretch gap-0 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
-          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+          <label className="relative flex min-h-14 min-w-0 items-center border-b border-border transition-colors focus-within:bg-[#f8fafc] lg:border-b-0 lg:border-r lg:border-border">
             <span className="sr-only">{t("searchQueryPlaceholder")}</span>
             <Search
-              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-2"
               aria-hidden
             />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("searchQueryPlaceholder")}
-              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
+              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-base leading-snug shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
             />
           </label>
 
-          <label className="relative flex min-h-14 min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+          <label className="relative flex min-h-14 min-w-0 items-center border-b border-border transition-colors focus-within:bg-[#f8fafc] lg:border-b-0 lg:border-r lg:border-border">
             <span className="sr-only">{t("searchLocationPlaceholder")}</span>
             <MapPin
-              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-2"
               aria-hidden
             />
             <Input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder={t("searchLocationPlaceholder")}
-              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-[15px] shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
+              className="h-14 min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-base leading-snug shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
             />
           </label>
 
-          <button
+          <Button
             type="submit"
-            className="inline-flex min-h-14 w-full min-w-0 items-center justify-center bg-gradient-to-r from-violet-500/90 via-fuchsia-500/80 to-[rgba(227,31,141,0.70)] px-4 text-pretty text-[14px] font-medium text-white transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-inset sm:px-6 sm:text-[15px] lg:h-full lg:min-w-[11.5rem] xl:min-w-[13rem]"
+            variant="primary"
+            className="h-14 min-h-14 w-full rounded-none px-4 text-pretty text-center text-base shadow-none focus-visible:ring-inset focus-visible:ring-offset-0 sm:px-6 lg:h-full lg:min-w-[11.5rem] xl:min-w-[13rem]"
           >
-            {submitLabel}
-          </button>
+            {t("searchSubmit")}
+          </Button>
         </div>
       </form>
 
@@ -107,9 +105,9 @@ export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
                 key={id}
                 href={buildJobSearchUrl(params)}
                 className={cn(
-                  "inline-flex min-h-11 max-w-full items-center rounded-full border border-white/[0.10] bg-white/[0.04] px-3 py-2 sm:px-3.5",
-                  "text-pretty text-[12px] font-medium leading-snug text-white/72 sm:text-[13px]",
-                  "transition-colors hover:border-white/[0.16] hover:bg-white/[0.07] hover:text-white",
+                  "inline-flex min-h-11 max-w-full items-center rounded-[10px] border border-border bg-white px-3 py-2 sm:px-3.5",
+                  "text-pretty text-[0.9375rem] font-medium leading-snug text-body",
+                  "transition-colors hover:border-[rgba(37,99,235,0.24)] hover:bg-[#f5f7fb] hover:text-foreground",
                 )}
               >
                 {t(labelKey)}
@@ -119,9 +117,12 @@ export function HeroJobSearch({ quickFilters, publishedJobCount }: Props) {
         </div>
       ) : null}
 
-      <p className="mt-3 text-pretty text-[13px] leading-relaxed text-white/45 sm:mt-4">
-        {t("employerHint")}{" "}
-        <Link href="/tooandjatele" className="font-medium text-white/68 underline-offset-4 hover:text-white hover:underline">
+      <p className="mt-4 flex flex-wrap items-center gap-x-1 text-[0.9375rem] leading-[1.6] text-muted sm:mt-5">
+        <span className="text-pretty">{t("employerHint")}</span>
+        <Link
+          href="/tooandjatele"
+          className="inline-flex min-h-11 items-center font-medium text-muted underline-offset-4 hover:text-foreground hover:underline"
+        >
           {t("ctaEmployer")}
         </Link>
       </p>

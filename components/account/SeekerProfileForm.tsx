@@ -848,7 +848,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
     <form noValidate onSubmit={onSubmit} className="space-y-6">
       <div ref={statusRef} className="scroll-mt-24 space-y-3" aria-live="polite">
         {error ? (
-          <div className="whitespace-pre-line rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+          <div className="whitespace-pre-line rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
             {error}
           </div>
         ) : null}
@@ -858,20 +858,20 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
 
       {showProfile ? (
       <>
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <div className="text-sm font-medium text-white/85">{t("visibilityTitle")}</div>
-            <div className="mt-1 text-sm leading-relaxed text-white/60">{t("visibilityHint")}</div>
+            <div className="text-sm font-medium text-foreground/80">{t("visibilityTitle")}</div>
+            <div className="mt-1 text-sm leading-relaxed text-muted">{t("visibilityHint")}</div>
           </div>
           <label className="inline-flex shrink-0 cursor-pointer select-none items-center gap-2">
             <input
               type="checkbox"
               checked={profileVisible}
               onChange={(e) => setProfileVisible(e.target.checked)}
-              className="h-4 w-4 rounded border-white/[0.20] bg-white/[0.03]"
+              className="h-4 w-4 rounded border-border-strong bg-[#f8fafc]"
             />
-            <span className="text-sm font-medium text-white/75">
+            <span className="text-sm font-medium text-muted">
               {profileVisible ? t("visibilityOn") : t("visibilityOff")}
             </span>
           </label>
@@ -879,76 +879,76 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("avatar")}</label>
-        <div className="text-xs leading-relaxed text-white/45">{t("avatarFileOnlyHint")}</div>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("avatar")}</label>
+        <div className="text-xs leading-relaxed text-muted-2">{t("avatarFileOnlyHint")}</div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-xs text-white/55">{t("avatarUpload")}</span>
+          <span className="text-xs text-muted-2">{t("avatarUpload")}</span>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => void onAvatarFileChange(e.target.files?.[0] ?? null)}
-            className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+            className="block w-full text-xs text-muted file:mr-3 file:rounded-xl file:border-0 file:bg-[#f8fafc] file:px-3 file:py-2 file:text-xs file:font-medium file:text-foreground/80 hover:file:bg-[#f8fafc] sm:w-auto"
             required={!isSeekerAvatarFromStorageUpload(avatarUrl)}
           />
         </div>
         {avatarUploading ? (
           <div className="space-y-2">
-            <div className="text-xs text-white/55">{t("avatarUploading")}</div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.08]">
-              <div className="h-full w-1/2 animate-pulse rounded-full bg-gradient-to-r from-violet-400/70 via-fuchsia-400/60 to-pink-400/60" />
+            <div className="text-xs text-muted-2">{t("avatarUploading")}</div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#f8fafc]">
+              <div className="h-full w-1/2 animate-pulse rounded-full bg-primary/70" />
             </div>
           </div>
         ) : null}
         {avatarUrl ? (
           <div className="flex items-center gap-3 pt-1">
-            <div className="h-12 w-12 overflow-hidden rounded-2xl border border-white/[0.10] bg-white/[0.03]">
+            <div className="h-12 w-12 overflow-hidden rounded-2xl border border-border bg-[#f8fafc]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={avatarPreviewUrl ?? avatarUrl} alt={t("avatar")} className="h-full w-full object-cover" />
             </div>
-            <div className="text-xs text-white/55">{t("avatarReady")}</div>
+            <div className="text-xs text-muted-2">{t("avatarReady")}</div>
           </div>
         ) : null}
       </div>
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("linkedinUrl")}</label>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("linkedinUrl")}</label>
         <Input value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} placeholder={t("linkedinUrlHint")} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("firstName")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("firstName")}</label>
           <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("lastName")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("lastName")}</label>
           <Input value={lastName} onChange={(e) => setLastName(e.target.value)} required />
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("email")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("email")}</label>
           <Input value={email} readOnly aria-readonly="true" />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("phone")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("phone")}</label>
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} required />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("location")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("location")}</label>
           <Input value={location} onChange={(e) => setLocation(e.target.value)} required />
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("profileTitle")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("profileTitle")}</label>
           <Input
             value={profileTitle}
             onChange={(e) => setProfileTitle(e.target.value)}
             required
             placeholder={t("profileTitleHint")}
           />
-          <div className="text-xs text-white/45">{t("profileTitleHelp")}</div>
+          <div className="text-xs text-muted-2">{t("profileTitleHelp")}</div>
         </div>
         {taxonomyAvailable ? (
           <div className="space-y-2 sm:col-span-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">{t("profession")}</label>
+            <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("profession")}</label>
             <TaxonomySelect
               value={professionId}
               terms={catalog.professions}
@@ -956,7 +956,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
               placeholder={t("taxonomyPlaceholder")}
               onChange={setProfessionId}
             />
-            <div className="text-xs text-white/45">{t("professionHint")}</div>
+            <div className="text-xs text-muted-2">{t("professionHint")}</div>
           </div>
         ) : null}
       </div>
@@ -971,28 +971,28 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       />
 
       <div className="space-y-2">
-        <label className="text-xs font-medium tracking-wide text-white/65">{t("about")}</label>
+        <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("about")}</label>
         <textarea
           value={about}
           onChange={(e) => setAbout(e.target.value)}
           required
           rows={4}
           placeholder={t("aboutHint")}
-          className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+          className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
         />
-        <div className="text-xs text-white/45">{t("aboutHelp")}</div>
+        <div className="text-xs text-muted-2">{t("aboutHelp")}</div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("experienceLevel")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("experienceLevel")}</label>
           <select
             value={experienceLevel}
             onChange={(e) =>
               setExperienceLevel(e.target.value as (typeof EXPERIENCE_LEVEL_VALUES)[number] | "")
             }
             required
-            className="h-11 w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 text-sm text-white/85 outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="h-11 w-full rounded-2xl border border-border bg-[#f8fafc] px-4 text-sm text-foreground/80 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           >
             <option value="">{t("experienceLevelPlaceholder")}</option>
             {EXPERIENCE_LEVEL_VALUES.map((v) => (
@@ -1001,10 +1001,10 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
               </option>
             ))}
           </select>
-          <div className="text-xs text-white/45">{t("experienceLevelHint")}</div>
+          <div className="text-xs text-muted-2">{t("experienceLevelHint")}</div>
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("skills")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("skills")}</label>
           {taxonomyAvailable ? (
             <>
               <TaxonomyChipField
@@ -1016,18 +1016,18 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
                 locale={locale}
                 suggestedIds={suggestedSkillIds(catalog, professionId)}
               />
-              <div className="text-xs text-white/45">{t("skillsHelp")}</div>
+              <div className="text-xs text-muted-2">{t("skillsHelp")}</div>
             </>
           ) : (
             <>
               <Input value={skillsCsv} onChange={(e) => setSkillsCsv(e.target.value)} required placeholder={t("csvHint")} />
-              <div className="text-xs text-white/45">{t("skillsHelp")}</div>
+              <div className="text-xs text-muted-2">{t("skillsHelp")}</div>
             </>
           )}
         </div>
         {taxonomyAvailable ? (
           <div className="space-y-2 sm:col-span-2">
-            <label className="text-xs font-medium tracking-wide text-white/65">{t("languages")}</label>
+            <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("languages")}</label>
             <TaxonomyChipField
               terms={catalog.languages}
               selectedIds={languageIds}
@@ -1036,19 +1036,19 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
               onChangeLeftover={() => undefined}
               locale={locale}
             />
-            <div className="text-xs text-white/45">{t("languagesHint")}</div>
+            <div className="text-xs text-muted-2">{t("languagesHint")}</div>
           </div>
         ) : null}
         <SeekerExperienceBackgroundFields value={experienceBackground} onChange={setExperienceBackground} />
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredJobTypes")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("preferredJobTypes")}</label>
           <Input value={preferredJobTypesCsv} onChange={(e) => setPreferredJobTypesCsv(e.target.value)} required placeholder={t("csvHint")} />
-          <div className="text-xs text-white/45">{t("preferredJobTypesHelp")}</div>
+          <div className="text-xs text-muted-2">{t("preferredJobTypesHelp")}</div>
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("preferredLocations")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("preferredLocations")}</label>
           <Input value={preferredLocationsCsv} onChange={(e) => setPreferredLocationsCsv(e.target.value)} required placeholder={t("csvHint")} />
-          <div className="text-xs text-white/45">{t("preferredLocationsHelp")}</div>
+          <div className="text-xs text-muted-2">{t("preferredLocationsHelp")}</div>
         </div>
       </div>
 
@@ -1067,7 +1067,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("salaryExpectation")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("salaryExpectation")}</label>
           <Input
             value={salaryExpectation}
             onChange={(e) => setSalaryExpectation(e.target.value)}
@@ -1075,28 +1075,28 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           />
         </div>
         <div className="space-y-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("cvUrl")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("cvUrl")}</label>
           <input
             type="file"
             accept="application/pdf"
             onChange={(e) => void onCvFileChange(e.target.files?.[0] ?? null)}
-            className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+            className="block w-full text-xs text-muted file:mr-3 file:rounded-xl file:border-0 file:bg-[#f8fafc] file:px-3 file:py-2 file:text-xs file:font-medium file:text-foreground/80 hover:file:bg-[#f8fafc] sm:w-auto"
           />
-          <div className="text-xs text-white/45">{t("cvUrlHint")}</div>
-          {cvUploading ? <div className="text-xs text-white/55">{t("cvUploading")}</div> : null}
+          <div className="text-xs text-muted-2">{t("cvUrlHint")}</div>
+          {cvUploading ? <div className="text-xs text-muted-2">{t("cvUploading")}</div> : null}
           {!cvUploading && cvUrl ? (
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/55">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-2">
               {cvFileName ? <span>{cvFileName}</span> : null}
               <PrivateCvOpenLink
                 cvRef={cvUrl}
                 errorLabel={t("cvOpenFailed")}
-                className="underline hover:text-white/80 disabled:opacity-60"
+                className="underline hover:text-foreground disabled:opacity-60"
               >
                 {t("cvOpen")}
               </PrivateCvOpenLink>
               <button
                 type="button"
-                className="underline hover:text-white/80"
+                className="underline hover:text-foreground"
                 onClick={() => {
                   void (async () => {
                     await removeCvStorageObject(supabase, cvUrl);
@@ -1111,13 +1111,13 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
           ) : null}
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <label className="text-xs font-medium tracking-wide text-white/65">{t("workAuthorization")}</label>
+          <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("workAuthorization")}</label>
           <textarea
             value={workAuthNotes}
             onChange={(e) => setWorkAuthNotes(e.target.value)}
             rows={2}
             placeholder={t("workAuthorizationHint")}
-            className="w-full rounded-2xl border border-white/[0.10] bg-white/[0.03] px-4 py-3 text-sm text-white/85 placeholder:text-white/35 shadow-[0_1px_0_rgba(255,255,255,0.04)] outline-none transition-colors focus:border-white/[0.18] focus:bg-white/[0.04]"
+            className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none transition-colors focus:border-[rgba(37,99,235,0.35)] focus:bg-[#f8fafc]"
           />
         </div>
       </div>
@@ -1125,9 +1125,9 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       ) : null}
 
       {showCertificates ? (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <div className="text-sm font-medium text-white/85">{t("certificateSection")}</div>
+          <div className="text-sm font-medium text-foreground/80">{t("certificateSection")}</div>
           <Button
             type="button"
             variant="outline"
@@ -1155,19 +1155,19 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
             {t("addCertificate")}
           </Button>
         </div>
-        <div className="mt-2 text-xs leading-relaxed text-white/55">{t("certificateSectionHelp")}</div>
+        <div className="mt-2 text-xs leading-relaxed text-muted-2">{t("certificateSectionHelp")}</div>
 
-        <div className="mt-4 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+        <div className="mt-4 rounded-2xl border border-border bg-white p-4">
           <label className="flex cursor-pointer select-none items-start gap-3">
             <input
               type="checkbox"
               checked={hasBCategoryDriversLicense}
               onChange={(e) => setHasBCategoryDriversLicense(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/[0.20] bg-white/[0.03]"
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong bg-[#f8fafc]"
             />
             <span className="min-w-0">
-              <span className="block text-sm font-medium text-white/80">{t("bCategoryDriversLicense")}</span>
-              <span className="mt-1 block text-xs leading-relaxed text-white/50">{t("bCategoryDriversLicenseHint")}</span>
+              <span className="block text-sm font-medium text-foreground/80">{t("bCategoryDriversLicense")}</span>
+              <span className="mt-1 block text-xs leading-relaxed text-muted-2">{t("bCategoryDriversLicenseHint")}</span>
             </span>
           </label>
         </div>
@@ -1186,10 +1186,10 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
               expiresInDays: (days) => t("certificateExpiresInDays", { days }),
             });
             return (
-            <div key={idx} className="rounded-2xl border border-white/[0.10] bg-white/[0.02] p-4">
+            <div key={idx} className="rounded-2xl border border-border bg-white p-4">
               <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 space-y-1.5">
-                  <div className="text-xs font-medium tracking-wide text-white/55">
+                  <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">
                     {t("certificate")} #{idx + 1}
                   </div>
                   <CertificateStatusBlock
@@ -1203,7 +1203,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
                 {certificates.length > 1 ? (
                   <button
                     type="button"
-                    className="text-xs font-medium text-white/55 hover:text-white/75"
+                    className="text-xs font-medium text-muted-2 hover:text-foreground"
                     onClick={() => setCertificates((prev) => prev.filter((_, i) => i !== idx))}
                   >
                     {t("remove")}
@@ -1213,7 +1213,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateName")}</label>
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("certificateName")}</label>
                   {taxonomyAvailable ? (
                     <TaxonomySelect
                       value={c.certificate_id ?? ""}
@@ -1250,31 +1250,31 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
                   ) : null}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateNumber")}</label>
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("certificateNumber")}</label>
                   <Input value={c.certificate_number} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_number: e.target.value } : x)))} />
-                  <div className="text-xs text-white/45">{t("certificateNumberOptionalHint")}</div>
+                  <div className="text-xs text-muted-2">{t("certificateNumberOptionalHint")}</div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateIssuer")}</label>
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("certificateIssuer")}</label>
                   <Input value={c.certificate_issuer} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_issuer: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidFrom")}</label>
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("certificateValidFrom")}</label>
                   <Input type="date" value={c.certificate_valid_from} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_from: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateValidUntil")}</label>
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("certificateValidUntil")}</label>
                   <Input type="date" value={c.certificate_valid_until} onChange={(e) => setCertificates((prev) => prev.map((x, i) => (i === idx ? { ...x, certificate_valid_until: e.target.value } : x)))} />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <label className="text-xs font-medium tracking-wide text-white/65">{t("certificateImage")}</label>
+                  <label className="text-[0.9375rem] font-medium leading-snug text-foreground">{t("certificateImage")}</label>
                   <input
                     type="file"
                     accept="image/*,application/pdf"
                     onChange={(e) => void onCertificateFileChange(idx, e.target.files?.[0] ?? null)}
-                    className="block w-full text-xs text-white/65 file:mr-3 file:rounded-xl file:border-0 file:bg-white/[0.06] file:px-3 file:py-2 file:text-xs file:font-medium file:text-white/80 hover:file:bg-white/[0.10] sm:w-auto"
+                    className="block w-full text-xs text-muted file:mr-3 file:rounded-xl file:border-0 file:bg-[#f8fafc] file:px-3 file:py-2 file:text-xs file:font-medium file:text-foreground/80 hover:file:bg-[#f8fafc] sm:w-auto"
                   />
-                  <div className="text-xs text-white/45">{t("certificateImageUploadHint")}</div>
+                  <div className="text-xs text-muted-2">{t("certificateImageUploadHint")}</div>
                   {(c.certificate_image_url ?? "").toString().trim() ? (
                     <div className="text-xs text-emerald-200/80">{t("certificateImageReady")}</div>
                   ) : null}
@@ -1300,21 +1300,21 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       </Button>
 
       {showProfile ? (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-        <div className="text-sm font-medium text-white/85">{t("accountTitle")}</div>
-        <div className="mt-1 text-sm leading-relaxed text-white/60">{t("accountHint")}</div>
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+        <div className="text-sm font-medium text-foreground/80">{t("accountTitle")}</div>
+        <div className="mt-1 text-sm leading-relaxed text-muted">{t("accountHint")}</div>
 
-        <div className="mt-5 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
-          <div className="text-sm font-medium text-white/85">{t("passwordChangeTitle")}</div>
-          <div className="mt-1 text-xs leading-relaxed text-white/55">{t("passwordChangeHint")}</div>
+        <div className="mt-5 rounded-2xl border border-border bg-white p-4">
+          <div className="text-sm font-medium text-foreground/80">{t("passwordChangeTitle")}</div>
+          <div className="mt-1 text-xs leading-relaxed text-muted-2">{t("passwordChangeHint")}</div>
 
           {passwordSuccess ? (
-            <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] px-3 py-2 text-xs text-emerald-100/95">
+            <div className="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] px-3 py-2 text-xs text-emerald-800/95">
               {t("passwordChangedSuccess")}
             </div>
           ) : null}
           {passwordError ? (
-            <div className="mt-3 rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2 text-xs text-white/75">
+            <div className="mt-3 rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-xs text-muted">
               {passwordError}
             </div>
           ) : null}

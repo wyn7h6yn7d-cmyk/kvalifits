@@ -108,11 +108,11 @@ export function CookieConsent() {
           aria-modal="false"
           aria-labelledby="cookie-consent-title"
         >
-          <div className="mx-auto max-w-3xl rounded-3xl border border-white/[0.12] bg-zinc-950 p-5 sm:p-6">
-            <div id="cookie-consent-title" className="text-sm font-semibold text-white/90">
+          <div className="mx-auto max-w-3xl rounded-xl border border-border bg-white p-5 sm:p-6">
+            <div id="cookie-consent-title" className="text-sm font-semibold text-foreground">
               {t("title")}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-white/60">
+            <p className="mt-2 text-xs leading-relaxed text-muted">
               {t("body")}{" "}
               <Link href="/kupsised" className="underline-offset-2 hover:underline">
                 {t("policyLink")}
@@ -147,13 +147,13 @@ export function CookieConsent() {
           onClick={() => setSettingsOpen(false)}
         >
           <div
-            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-3xl border border-white/[0.12] bg-zinc-950 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:max-h-none sm:max-w-md sm:rounded-3xl sm:p-6 sm:pb-6"
+            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-xl border border-border bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-h-none sm:max-w-md sm:rounded-xl sm:p-6 sm:pb-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div id="cookie-settings-title" className="text-sm font-semibold text-white/90">
+            <div id="cookie-settings-title" className="text-sm font-semibold text-foreground">
               {t("settingsTitle")}
             </div>
-            <p className="mt-1.5 text-xs leading-relaxed text-white/55">{t("settingsHint")}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-2">{t("settingsHint")}</p>
 
             <div className="mt-4 space-y-3">
               <CategoryRow
@@ -216,20 +216,20 @@ function CategoryRow({
   return (
     <label
       className={cn(
-        "flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-3.5 py-3",
+        "flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-3.5 py-3",
         disabled && "cursor-default opacity-80"
       )}
     >
       <input
         type="checkbox"
-        className="mt-1 h-5 w-5 shrink-0 border-white/[0.20] bg-white/[0.03]"
+        className="mt-1 h-5 w-5 shrink-0 border-border-strong bg-[#f8fafc]"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}
       />
       <span className="min-w-0">
-        <span className="block text-sm text-white/85">{title}</span>
-        <span className="mt-0.5 block text-[11px] leading-snug text-white/50">{description}</span>
+        <span className="block text-sm text-foreground/80">{title}</span>
+        <span className="mt-0.5 block text-[11px] leading-snug text-muted-2">{description}</span>
       </span>
     </label>
   );

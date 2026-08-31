@@ -4,7 +4,6 @@ import { getTranslations } from "next-intl/server";
 import { Navbar } from "@/components/sections/Navbar";
 import { Footer } from "@/components/sections/Footer";
 import { PageHero } from "@/components/site/PageHero";
-import { Container } from "@/components/ui/container";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -31,30 +30,14 @@ export default async function HinnakiriPage({ params }: Props) {
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
         <PageHero eyebrow={t("heroEyebrow")} title={t("pricingTitle")} subtitle={t("ctaHint")}>
-          <div className="max-w-xl rounded-3xl border border-white/[0.10] bg-white/[0.04] p-6 backdrop-blur-md">
-            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
-              {t("pricingTitle")}
-            </div>
-
-            <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm font-medium text-white/85">
-                {t("pricingDuration30")}
-              </div>
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm font-medium text-white/85">
-                {t("pricingDuration90")}
-              </div>
-            </div>
-            <p className="mt-4 text-sm leading-relaxed text-white/55">{t("pricingNotChargedYet")}</p>
+          <div className="max-w-xl">
+            <ul className="space-y-2 text-base font-medium text-foreground">
+              <li>{t("pricingDuration30")}</li>
+              <li>{t("pricingDuration90")}</li>
+            </ul>
+            <p className="mt-4 text-base leading-[1.65] text-muted">{t("pricingNotChargedYet")}</p>
           </div>
         </PageHero>
-
-        <section className="border-t border-white/[0.06] py-14 sm:py-20">
-          <Container>
-            <div className="mx-auto max-w-2xl text-center text-sm leading-relaxed text-white/55">
-              {t("pricingNotChargedYet")}
-            </div>
-          </Container>
-        </section>
       </main>
       <Footer />
     </div>

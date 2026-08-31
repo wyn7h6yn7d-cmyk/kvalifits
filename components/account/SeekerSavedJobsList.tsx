@@ -49,37 +49,37 @@ export function SeekerSavedJobsList({ items }: { items: SavedJobListItem[] }) {
           <li key={row.id}>
             <article
               className={cn(
-                "relative rounded-2xl border border-white/[0.08] bg-[#16161b] p-4 sm:p-5",
+                "relative rounded-2xl border border-border bg-white p-4 sm:p-5",
                 !row.active && "opacity-80",
               )}
             >
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-pretty text-[1.05rem] font-semibold leading-snug tracking-tight text-white">
+                    <h2 className="text-pretty text-[1.05rem] font-semibold leading-snug tracking-tight text-foreground">
                       {row.title}
                     </h2>
                     {!row.active ? (
-                      <span className="inline-flex rounded-md border border-amber-500/25 bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold tracking-wide text-amber-100/90">
+                      <span className="inline-flex rounded-md border border-amber-500/25 bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold tracking-wide text-amber-800">
                         {t("inactive")}
                       </span>
                     ) : null}
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-white/62">
-                    <span className="truncate font-medium text-white/72">{row.company}</span>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[13px] text-muted">
+                    <span className="truncate font-medium text-body">{row.company}</span>
                     {row.location ? (
                       <>
-                        <span className="text-white/25" aria-hidden>
+                        <span className="text-muted-2" aria-hidden>
                           ·
                         </span>
-                        <span className="inline-flex min-w-0 items-center gap-1 text-white/55">
-                          <MapPin className="h-3.5 w-3.5 shrink-0 text-white/35" aria-hidden />
+                        <span className="inline-flex min-w-0 items-center gap-1 text-muted-2">
+                          <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-2" aria-hidden />
                           <span className="truncate">{row.location}</span>
                         </span>
                       </>
                     ) : null}
                   </div>
-                  <p className="mt-1.5 text-[12px] text-white/45">
+                  <p className="mt-1.5 text-[12px] text-muted-2">
                     {deadline ? `${t("deadline")} ${deadline}` : t("deadlineUnknown")}
                   </p>
                   <div className="mt-3">

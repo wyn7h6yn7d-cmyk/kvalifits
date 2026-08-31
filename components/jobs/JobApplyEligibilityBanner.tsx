@@ -22,12 +22,12 @@ type Props = {
 
 function statusTone(status: ApplyEligibilityStatus) {
   if (status === "eligible") {
-    return "border-emerald-400/20 bg-emerald-400/[0.06] text-emerald-100/90";
+    return "border-emerald-400/20 bg-emerald-400/[0.06] text-emerald-800";
   }
   if (status === "attention") {
-    return "border-amber-400/20 bg-amber-400/[0.06] text-amber-100/90";
+    return "border-amber-400/20 bg-amber-400/[0.06] text-amber-800";
   }
-  return "border-rose-400/20 bg-rose-400/[0.06] text-rose-100/90";
+  return "border-rose-400/20 bg-rose-400/[0.06] text-rose-800";
 }
 
 function issueLabel(code: ApplyEligibilityIssue["code"], t: (key: string) => string) {
@@ -118,15 +118,15 @@ export function JobApplyEligibilityBanner({ result, className }: Props) {
     .filter(Boolean);
 
   return (
-    <div className={cn("rounded-3xl border px-4 py-3.5 sm:px-5 sm:py-4", statusTone(result.status), className)}>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] opacity-70">
+    <div className={cn("rounded-xl border px-4 py-3.5 sm:px-5 sm:py-4", statusTone(result.status), className)}>
+      <div className="text-[0.9375rem] font-medium leading-snug opacity-80">
         {result.legalBlock || detailCodes.length
           ? t("applyEligibilityLegalLabel")
           : t("applyEligibilityLabel")}
       </div>
-      <div className="mt-1 text-sm font-semibold leading-snug">{title}</div>
+      <div className="mt-1 text-base font-semibold leading-snug">{title}</div>
       {legalLines.length ? (
-        <ul className="mt-2.5 list-none space-y-1.5 p-0 text-[13px] leading-snug opacity-90">
+        <ul className="mt-2.5 list-none space-y-1.5 p-0 text-[0.9375rem] leading-[1.6] opacity-90">
           {legalLines.map((line) => (
             <li key={line} className="flex gap-2">
               <span className="shrink-0 opacity-70" aria-hidden>
@@ -138,7 +138,7 @@ export function JobApplyEligibilityBanner({ result, className }: Props) {
         </ul>
       ) : null}
       {otherLines.length ? (
-        <ul className="mt-2.5 list-none space-y-1.5 p-0 text-[13px] leading-snug opacity-90">
+        <ul className="mt-2.5 list-none space-y-1.5 p-0 text-[0.9375rem] leading-[1.6] opacity-90">
           {otherLines.map((line) => (
             <li key={line} className="flex gap-2">
               <span className="shrink-0 opacity-70" aria-hidden>
@@ -150,12 +150,12 @@ export function JobApplyEligibilityBanner({ result, className }: Props) {
         </ul>
       ) : null}
       {!legalLines.length && !otherLines.length && result.status === "eligible" ? (
-        <p className="mt-1.5 text-[13px] leading-snug opacity-80">{t("applyEligibilityEligibleHint")}</p>
+        <p className="mt-1.5 text-[0.9375rem] leading-[1.6] opacity-80">{t("applyEligibilityEligibleHint")}</p>
       ) : null}
       {result.legalBlock ? (
-        <p className="mt-2.5 text-[11px] leading-snug opacity-65">{t("applyEligibilityBlockedHint")}</p>
+        <p className="mt-2.5 text-[0.9375rem] leading-[1.6] opacity-80">{t("applyEligibilityBlockedHint")}</p>
       ) : (
-        <p className="mt-2.5 text-[11px] leading-snug opacity-65">{t("applyEligibilityCanStillApply")}</p>
+        <p className="mt-2.5 text-[0.9375rem] leading-[1.6] opacity-80">{t("applyEligibilityCanStillApply")}</p>
       )}
     </div>
   );

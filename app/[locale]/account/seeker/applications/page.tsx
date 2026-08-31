@@ -60,21 +60,21 @@ export default async function SeekerApplicationsPage({ params, searchParams }: P
           {paginated.totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between text-sm">
               {paginated.page > 1 ? (
-                <a href={`/${locale}/account/seeker/applications?page=${paginated.page - 1}`} className="text-white/70 hover:text-white">
+                <a href={`/${locale}/account/seeker/applications?page=${paginated.page - 1}`} className="text-body hover:text-foreground">
                   ← {tJobs("paginationPrev")}
                 </a>
               ) : <span />}
-              <span className="text-white/50 tabular-nums">
+              <span className="text-muted-2 tabular-nums">
                 {tJobs("paginationStatus", { page: paginated.page, totalPages: paginated.totalPages, totalCount: paginated.totalCount })}
               </span>
               {paginated.page < paginated.totalPages ? (
-                <a href={`/${locale}/account/seeker/applications?page=${paginated.page + 1}`} className="text-white/70 hover:text-white">
+                <a href={`/${locale}/account/seeker/applications?page=${paginated.page + 1}`} className="text-body hover:text-foreground">
                   {tJobs("paginationNext")} →
                 </a>
               ) : <span />}
             </div>
           )}
-          <div className="mt-8 text-xs text-white/40">{tJobs("seekerApplicationsPrivacyNote")}</div>
+          <div className="mt-8 text-xs text-muted-2">{tJobs("seekerApplicationsPrivacyNote")}</div>
         </AuthShell>
   );
 }

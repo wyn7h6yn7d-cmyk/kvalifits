@@ -364,7 +364,7 @@ export function JobsSearch({
         </div>
         <button
           type="button"
-          className="inline-flex h-11 shrink-0 items-center px-1 text-[13px] font-medium text-white/50 hover:text-white/78 lg:h-auto"
+          className="inline-flex h-11 shrink-0 items-center px-1 text-[13px] font-medium text-muted-2 hover:text-foreground/78 lg:h-auto"
           onClick={clearAll}
         >
           {t("clearAll")}
@@ -375,19 +375,19 @@ export function JobsSearch({
   return (
     <section className={cn(JOBS_PAGE_TOP, "pb-[calc(2.5rem+var(--site-bottom-nav-offset,0px))] sm:pb-12 lg:pb-16")}>
       <Container className={JOBS_PAGE_CONTAINER}>
-        <header className="border-b border-white/[0.08] pb-4 md:pb-6 lg:pb-8">
+        <header className="border-b border-border pb-4 md:pb-6 lg:pb-8">
           <h1 className={SITE_H1_UTILITY}>
             {pageTitle}
           </h1>
 
           <form
             onSubmit={onSearchSubmit}
-            className="mt-4 overflow-hidden rounded-2xl border border-white/[0.10] bg-[#141418]"
+            className="mt-4 overflow-hidden rounded-xl border border-border bg-white"
           >
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_auto]">
-              <label className="relative block border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+              <label className="relative block border-b border-border transition-colors focus-within:bg-[#f8fafc] lg:border-b-0 lg:border-r lg:border-border">
                 <span className="sr-only">{t("searchPlaceholder")}</span>
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/38" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-2" />
                 <Input
                   id="job-search-query"
                   value={query}
@@ -401,9 +401,9 @@ export function JobsSearch({
                   )}
                 />
               </label>
-              <label className="relative block border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+              <label className="relative block border-b border-border transition-colors focus-within:bg-[#f8fafc] lg:border-b-0 lg:border-r lg:border-border">
                 <span className="sr-only">{t("locationPlaceholder")}</span>
-                <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/38" />
+                <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-2" />
                 <Input
                   value={locationInput}
                   onChange={(e) => setLocationInput(e.target.value)}
@@ -430,7 +430,7 @@ export function JobsSearch({
           </form>
 
           <p
-            className="mt-4 text-[15px] font-medium text-white/88 lg:hidden"
+            className="mt-4 text-[15px] font-medium text-foreground lg:hidden"
             aria-live="polite"
           >
             {resultsLabel}
@@ -440,7 +440,7 @@ export function JobsSearch({
         <div
           className={cn(
             JOBS_PAGE_SECTION_GAP,
-            "sticky top-[var(--site-header-offset)] z-30 space-y-3 border-b border-white/[0.08] bg-background py-3 lg:hidden",
+            "sticky top-[var(--site-header-offset)] z-30 space-y-3 border-b border-border bg-background py-3 lg:hidden",
           )}
         >
           <Button
@@ -457,8 +457,8 @@ export function JobsSearch({
             </span>
           </Button>
           <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-            <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#141418] px-3">
-              <span className="shrink-0 text-[12px] text-white/45">{t("sortLabel")}</span>
+            <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-border bg-white px-3">
+              <span className="shrink-0 text-[0.9375rem] font-medium text-muted">{t("sortLabel")}</span>
               <Select
                 value={sort}
                 onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
@@ -483,19 +483,19 @@ export function JobsSearch({
 
         <div className={JOBS_PAGE_SECTION_GAP}>
           <div className={JOBS_PAGE_MAIN_GRID}>
-            <div className="hidden h-11 items-center text-[13px] font-medium leading-none text-white/80 lg:flex">
+            <div className="hidden h-11 items-center text-[13px] font-medium leading-none text-foreground/80 lg:flex">
               {t("filters")}
             </div>
             <div className="hidden h-11 min-w-0 items-center justify-between gap-3 lg:flex">
               <p
-                className="min-w-0 truncate pr-2 text-[15px] font-medium text-white/88"
+                className="min-w-0 truncate pr-2 text-[15px] font-medium text-foreground"
                 aria-live="polite"
               >
                 {resultsLabel}
               </p>
               <div className="flex shrink-0 items-center gap-3">
                 <label className="inline-flex items-center gap-2">
-                  <span className="shrink-0 text-[12px] text-white/45">{t("sortLabel")}</span>
+                  <span className="shrink-0 text-[0.9375rem] font-medium text-muted">{t("sortLabel")}</span>
                   <Select
                     value={sort}
                     onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
@@ -522,7 +522,7 @@ export function JobsSearch({
               <div
                 className={cn(
                   JOBS_PAGE_SIDEBAR_PADDING,
-                  "max-h-[calc(100vh-var(--site-header-offset)-1.5rem)] overflow-y-auto rounded-2xl border border-white/[0.08] bg-[#141416]",
+                  "max-h-[calc(100vh-var(--site-header-offset)-1.5rem)] overflow-y-auto rounded-xl border border-border bg-white",
                 )}
               >
                 <JobFiltersBody
@@ -609,7 +609,7 @@ export function JobsSearch({
                   ) : (
                     <span />
                   )}
-                  <p className="text-[13px] text-white/50">
+                  <p className="text-[13px] text-muted-2">
                     {t("pageStatus", { page: currentPage, pages: totalPages, size: pageSize })}
                   </p>
                   {currentPage < totalPages ? (
@@ -645,13 +645,13 @@ export function JobsSearch({
           <DialogPrimitive.Content
             className={cn(
               "fixed inset-0 z-[90] lg:hidden",
-              "flex h-dvh flex-col bg-[#121214]",
+              "flex h-dvh flex-col bg-white",
             )}
           >
             <DialogPrimitive.Title className="sr-only">{t("filters")}</DialogPrimitive.Title>
 
-            <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-              <div className="text-[15px] font-medium text-white/90">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+              <div className="text-[15px] font-medium text-foreground">
                 {activeFilterCount
                   ? t("filtersWithCount", { count: activeFilterCount })
                   : t("filters")}
@@ -676,7 +676,7 @@ export function JobsSearch({
               />
             </div>
 
-            <div className="border-t border-white/[0.08] space-y-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="border-t border-border space-y-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               {activeFilterCount ? (
                 <Button
                   type="button"
@@ -736,14 +736,14 @@ function JobSearchEmptyState({
   const showChangeSearch = !showAdjustFilters;
 
   return (
-    <div className="mx-auto w-full max-w-sm rounded-2xl border border-white/[0.08] bg-white/[0.02] px-5 py-5 text-center sm:px-6 sm:py-6">
+    <div className="mx-auto w-full max-w-sm rounded-xl border border-border bg-white px-5 py-5 text-center sm:px-6 sm:py-6">
       <div
-        className="mx-auto mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40"
+        className="mx-auto mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-[#f8fafc] text-muted-2"
         aria-hidden
       >
         <Search className="h-4 w-4" strokeWidth={1.75} />
       </div>
-      <p className="mx-auto max-w-[18rem] text-[15px] font-medium leading-snug tracking-tight text-white/88">
+      <p className="mx-auto max-w-[18rem] text-base font-medium leading-snug text-foreground">
         {catalogEmpty && !hasConstraints ? t("emptyCatalog") : t("noResults")}
       </p>
       <div className="mt-3.5 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">

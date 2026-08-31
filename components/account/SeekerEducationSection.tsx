@@ -154,11 +154,11 @@ export function SeekerEducationSection({
   const showForm = editingId != null;
 
   return (
-    <div className="space-y-4 rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
+    <div className="space-y-4 rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="text-sm font-medium text-white/85">{t("title")}</div>
-          <p className="mt-1 text-sm leading-relaxed text-white/60">{t("hint")}</p>
+          <div className="text-sm font-medium text-foreground/80">{t("title")}</div>
+          <p className="mt-1 text-sm leading-relaxed text-muted">{t("hint")}</p>
         </div>
         {!showForm ? (
           <Button type="button" variant="outline" size="sm" onClick={startAdd} disabled={busy || rows.length >= EDUCATION_MAX_ROWS}>
@@ -168,23 +168,23 @@ export function SeekerEducationSection({
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2 text-sm text-white/75">{error}</div>
+        <div className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-sm text-muted">{error}</div>
       ) : null}
 
       {rows.length ? (
         <ul className="space-y-3">
           {rows.map((row) => (
-            <li key={row.id} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
+            <li key={row.id} className="rounded-2xl border border-border bg-white px-4 py-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-white/88">{row.institution}</div>
-                  <div className="mt-0.5 text-[13px] text-white/60">
+                  <div className="text-sm font-medium text-foreground">{row.institution}</div>
+                  <div className="mt-0.5 text-[13px] text-muted">
                     {t(`level.${row.degree_or_level}`)}
                     {row.field_of_study ? ` · ${row.field_of_study}` : ""}
                     {` · ${educationPeriodLabel(row)}`}
                     {row.currently_studying ? ` · ${t("currentlyStudying")}` : ""}
                   </div>
-                  {row.description ? <p className="mt-1 text-[13px] leading-relaxed text-white/50">{row.description}</p> : null}
+                  {row.description ? <p className="mt-1 text-[13px] leading-relaxed text-muted-2">{row.description}</p> : null}
                 </div>
                 <div className="flex shrink-0 gap-2">
                   <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-[13px]" disabled={busy} onClick={() => startEdit(row)}>
@@ -199,7 +199,7 @@ export function SeekerEducationSection({
           ))}
         </ul>
       ) : !showForm ? (
-        <p className="text-sm text-white/45">{t("empty")}</p>
+        <p className="text-sm text-muted-2">{t("empty")}</p>
       ) : null}
 
       {showForm ? (
@@ -213,7 +213,7 @@ export function SeekerEducationSection({
           }}
         >
           <label className="block sm:col-span-2">
-            <span className="text-[12px] font-medium text-white/55">{t("institution")}</span>
+            <span className="text-[12px] font-medium text-muted-2">{t("institution")}</span>
             <Input
               className="mt-1.5 h-10 rounded-xl"
               value={form.institution}
@@ -222,7 +222,7 @@ export function SeekerEducationSection({
             />
           </label>
           <label className="block">
-            <span className="text-[12px] font-medium text-white/55">{t("field")}</span>
+            <span className="text-[12px] font-medium text-muted-2">{t("field")}</span>
             <Input
               className="mt-1.5 h-10 rounded-xl"
               value={form.field_of_study}
@@ -231,13 +231,13 @@ export function SeekerEducationSection({
             />
           </label>
           <label className="block">
-            <span className="text-[12px] font-medium text-white/55">{t("degree")}</span>
+            <span className="text-[12px] font-medium text-muted-2">{t("degree")}</span>
             <select
               value={form.degree_or_level}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, degree_or_level: e.target.value as EducationLevel | "" }))
               }
-              className="mt-1.5 h-10 w-full rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 text-[13px] text-white/85 outline-none"
+              className="mt-1.5 h-10 w-full rounded-xl border border-border bg-[#f8fafc] px-3 text-[13px] text-foreground/80 outline-none"
             >
               <option value="">{t("degreePlaceholder")}</option>
               {EDUCATION_LEVELS.map((level) => (
@@ -248,7 +248,7 @@ export function SeekerEducationSection({
             </select>
           </label>
           <label className="block">
-            <span className="text-[12px] font-medium text-white/55">{t("startYear")}</span>
+            <span className="text-[12px] font-medium text-muted-2">{t("startYear")}</span>
             <Input
               className="mt-1.5 h-10 rounded-xl"
               inputMode="numeric"
@@ -257,7 +257,7 @@ export function SeekerEducationSection({
             />
           </label>
           <label className="block">
-            <span className="text-[12px] font-medium text-white/55">{t("endYear")}</span>
+            <span className="text-[12px] font-medium text-muted-2">{t("endYear")}</span>
             <Input
               className="mt-1.5 h-10 rounded-xl"
               inputMode="numeric"
@@ -266,7 +266,7 @@ export function SeekerEducationSection({
               onChange={(e) => setForm((prev) => ({ ...prev, end_year: e.target.value }))}
             />
           </label>
-          <label className="flex items-center gap-2 sm:col-span-2 text-[13px] text-white/70">
+          <label className="flex items-center gap-2 sm:col-span-2 text-[13px] text-body">
             <input
               type="checkbox"
               checked={form.currently_studying}
@@ -282,13 +282,13 @@ export function SeekerEducationSection({
             {t("currentlyStudying")}
           </label>
           <label className="block sm:col-span-2">
-            <span className="text-[12px] font-medium text-white/55">{t("description")}</span>
+            <span className="text-[12px] font-medium text-muted-2">{t("description")}</span>
             <textarea
               value={form.description}
               maxLength={400}
               rows={2}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
-              className="mt-1.5 w-full rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2 text-[13px] text-white/85 outline-none"
+              className="mt-1.5 w-full rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-[13px] text-foreground/80 outline-none"
             />
           </label>
           <div className="flex justify-end gap-2 sm:col-span-2">

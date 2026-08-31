@@ -17,7 +17,7 @@ export default async function EmployerMessagesPage({ params }: Props) {
 
   return (
     <AuthShell title={t("employerMessages")} subtitle={t("employerMessagesSubtitle")}>
-          <p className="text-sm leading-relaxed text-white/65">{t("areaNotImplementedYet")}</p>
+          <p className="text-sm leading-relaxed text-muted">{t("areaNotImplementedYet")}</p>
         </AuthShell>
   );
 }

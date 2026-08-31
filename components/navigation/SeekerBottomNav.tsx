@@ -34,7 +34,7 @@ export function SeekerBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-white/[0.08] bg-[#08080c] pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
       aria-label={t("seekerMobileNav")}
     >
       <div className="mx-auto grid h-[var(--site-bottom-nav-height)] max-w-lg grid-cols-4">
@@ -47,10 +47,10 @@ export function SeekerBottomNav() {
               href={item.href}
               className={cn(
                 "flex min-h-[var(--site-bottom-nav-height)] min-w-0 flex-col items-center justify-center gap-1 px-1 text-[11px] font-medium leading-none transition-colors",
-                active ? "text-white" : "text-white/55 hover:text-white/80",
+                active ? "text-foreground" : "text-muted-2 hover:text-foreground",
               )}
             >
-              <Icon className={cn("h-[18px] w-[18px] shrink-0", active && "text-violet-300")} aria-hidden />
+              <Icon className={cn("h-[18px] w-[18px] shrink-0", active && "text-primary")} aria-hidden />
               <span className="max-w-full truncate">{t(item.key)}</span>
             </Link>
           );

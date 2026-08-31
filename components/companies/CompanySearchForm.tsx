@@ -6,12 +6,9 @@ import { SITE_CONTROL_HEIGHT } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 const fieldLabelClass =
-  "mb-1.5 block text-[11px] font-medium uppercase tracking-[0.1em] text-white/40";
+  "mb-1.5 block text-[0.9375rem] font-medium leading-snug text-foreground";
 
-const actionClass = cn(
-  SITE_CONTROL_HEIGHT,
-  "w-full rounded-2xl px-5 ring-0 shadow-none after:hidden before:rounded-2xl",
-);
+const actionClass = cn(SITE_CONTROL_HEIGHT, "w-full");
 
 export function CompanySearchForm({
   q,
@@ -50,11 +47,11 @@ export function CompanySearchForm({
       <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.industry}</span>
         <select name="industry" defaultValue={industry} className={nativeSelectFormClassName()}>
-          <option value="" className="bg-zinc-900">
+          <option value="" className="bg-white">
             {labels.all}
           </option>
           {industries.map((v) => (
-            <option key={v} value={v} className="bg-zinc-900">
+            <option key={v} value={v} className="bg-white">
               {v}
             </option>
           ))}
@@ -63,11 +60,11 @@ export function CompanySearchForm({
       <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.location}</span>
         <select name="location" defaultValue={location} className={nativeSelectFormClassName()}>
-          <option value="" className="bg-zinc-900">
+          <option value="" className="bg-white">
             {labels.all}
           </option>
           {locations.map((v) => (
-            <option key={v} value={v} className="bg-zinc-900">
+            <option key={v} value={v} className="bg-white">
               {v}
             </option>
           ))}
@@ -78,7 +75,7 @@ export function CompanySearchForm({
           {labels.submit}
         </Button>
         {filtered ? (
-          <Button asChild variant="ghost" className={`${actionClass} px-4 text-white/70`}>
+          <Button asChild variant="ghost" className={`${actionClass} px-4 text-body`}>
             <Link href="/ettevotted">{labels.reset}</Link>
           </Button>
         ) : null}

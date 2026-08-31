@@ -34,21 +34,21 @@ function fmtDate(locale: string, iso: string | null) {
 function statusTone(status: string | null | undefined) {
   const v = (status ?? "").toString().trim().toLowerCase();
   if (v === "withdrawn" || v === "rejected") {
-    return "border-white/[0.10] bg-white/[0.03] text-white/55";
+    return "border-border bg-[#f8fafc] text-muted-2";
   }
   if (v === "hired") {
-    return "border-emerald-500/25 bg-emerald-500/10 text-emerald-100/90";
+    return "border-emerald-500/25 bg-emerald-500/10 text-emerald-800";
   }
   if (v === "offer") {
-    return "border-emerald-500/20 bg-emerald-500/10 text-emerald-100/80";
+    return "border-emerald-500/20 bg-emerald-500/10 text-emerald-800";
   }
   if (v === "interview" || v === "interview_2") {
-    return "border-amber-500/20 bg-amber-500/10 text-amber-100/85";
+    return "border-amber-500/20 bg-amber-500/10 text-amber-800";
   }
   if (v === "reviewing") {
     return "border-sky-500/20 bg-sky-500/10 text-sky-100/85";
   }
-  return "border-white/[0.12] bg-white/[0.04] text-white/75";
+  return "border-border bg-[#f8fafc] text-muted";
 }
 
 function isClosed(status: string | null | undefined) {
@@ -161,7 +161,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
   return (
     <div className="space-y-4">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
@@ -178,24 +178,24 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
             <li key={r.id}>
               <article
                 className={cn(
-                  "rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6",
+                  "rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6",
                   "transition-[border-color,background-color] duration-200",
-                  "hover:border-white/[0.16] hover:bg-white/[0.045]"
+                  "hover:border-[rgba(37,99,235,0.24)] hover:bg-white/[0.045]"
                 )}
               >
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/35">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-2">
                       {t("seekerMetaCompany")}
                     </p>
-                    <p className="mt-1 text-sm text-white/70">{meta.employerName}</p>
-                    <h3 className="mt-3 text-[15px] font-semibold tracking-tight text-white/92 sm:text-[16px]">
+                    <p className="mt-1 text-sm text-body">{meta.employerName}</p>
+                    <h3 className="mt-3 text-[15px] font-semibold tracking-tight text-foreground sm:text-[16px]">
                       <span className="sr-only">{t("seekerMetaRole")}: </span>
                       {meta.jobTitle}
                     </h3>
                   </div>
                   <div className="mt-2 flex shrink-0 flex-col items-start gap-1 sm:mt-0 sm:items-end">
-                    <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/35">
+                    <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-2">
                       {t("seekerMetaStatus")}
                     </span>
                     <span
@@ -209,18 +209,18 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                   </div>
                 </div>
 
-                <dl className="mt-5 grid gap-4 border-t border-white/[0.06] pt-4 sm:grid-cols-2">
+                <dl className="mt-5 grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
                   <div>
-                    <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/35">
+                    <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-2">
                       {t("seekerMetaAppliedAt")}
                     </dt>
-                    <dd className="mt-1 text-sm text-white/80">{applied}</dd>
+                    <dd className="mt-1 text-sm text-foreground/80">{applied}</dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/35">
+                    <dt className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-2">
                       {t("seekerMetaLastUpdate")}
                     </dt>
-                    <dd className="mt-1 text-sm text-white/80">{updated}</dd>
+                    <dd className="mt-1 text-sm text-foreground/80">{updated}</dd>
                   </div>
                 </dl>
 
@@ -228,7 +228,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                   {meta.jobId ? (
                     <Link
                       href={`/tood/${meta.jobId}`}
-                      className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-white/[0.10] bg-white/[0.03] px-3 text-[13px] font-medium text-white/75 hover:border-white/[0.16] hover:bg-white/[0.05] sm:w-auto lg:h-9"
+                      className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-border bg-[#f8fafc] px-3 text-[13px] font-medium text-muted hover:border-[rgba(37,99,235,0.24)] hover:bg-[#f5f7fb] sm:w-auto lg:h-9"
                     >
                       {t("seekerViewJob")} <ChevronRight className="h-4 w-4" aria-hidden />
                     </Link>
@@ -240,7 +240,7 @@ export function SeekerApplicationsList({ locale, applications }: { locale: strin
                       onClick={() => void withdraw(r.id)}
                       className={cn(
                         "h-11 w-full rounded-xl px-3 text-[13px] font-medium transition-colors sm:w-auto lg:h-9",
-                        "border-white/[0.10] bg-white/[0.03] text-rose-100/75 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-100/90",
+                        "border-border bg-[#f8fafc] text-rose-700 hover:border-rose-500/30 hover:bg-rose-500/10 hover:text-rose-800",
                         busyId === r.id && "opacity-60"
                       )}
                       loading={busyId === r.id}

@@ -12,11 +12,11 @@ export const contactEN: ContactPageContent = {
   metaTitle: "Contact",
   metaDescription: "Get in touch — we read every message and reply on business days.",
   h1: "Contact",
-  lead: "Question about the platform, or just want to say hello? Use the form below. We reply on business days as soon as we can.",
+  lead: "Question about Kvalifits? Use the form below. We reply on business days.",
   lastUpdated: LEGAL_COPY_UPDATED,
   blocks: [
     {
-      title: "Platform",
+      title: "Kvalifits",
       lines: companyIdentityLines("en"),
       icon: "building2",
       span: 2,

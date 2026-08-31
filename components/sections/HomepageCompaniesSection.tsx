@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { HomepageCompanyCarousel } from "@/components/sections/HomepageCompanyCarousel";
 import { Container } from "@/components/ui/container";
 import { getHomepageShowcaseCompanies } from "@/lib/companies/loadHomepageShowcaseCompanies";
+import { SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 export async function HomepageCompaniesSection() {
   const companies = await getHomepageShowcaseCompanies();
@@ -12,13 +14,13 @@ export async function HomepageCompaniesSection() {
 
   return (
     <section
-      className="border-b border-white/[0.04] bg-surface py-9 sm:py-11 lg:py-12"
+      className="border-b border-border bg-surface py-9 sm:py-11 lg:py-12"
       aria-labelledby="home-companies-title"
     >
       <Container>
         <h2
           id="home-companies-title"
-          className="text-balance text-center text-lg font-medium tracking-tight text-white/78 sm:text-xl"
+          className={cn("text-center", SITE_H2_SECTION)}
         >
           {t("title")}
         </h2>

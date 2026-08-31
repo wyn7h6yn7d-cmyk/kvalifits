@@ -12,11 +12,11 @@ export const contactET: ContactPageContent = {
   metaTitle: "Kontakt",
   metaDescription: "Võta meiega ühendust — loeme kirjad ja vastame tööpäeviti.",
   h1: "Kontakt",
-  lead: "Küsimus platvormi kohta või tahad lihtsalt kirjutada? Kasuta allolevat vormi. Vastame tööpäeviti nii kiiresti kui saame.",
+  lead: "Küsimus Kvalifitsi kohta? Kasuta allolevat vormi. Vastame tööpäeviti.",
   lastUpdated: LEGAL_COPY_UPDATED,
   blocks: [
     {
-      title: "Platvorm",
+      title: "Kvalifits",
       lines: companyIdentityLines("et"),
       icon: "building2",
       span: 2,

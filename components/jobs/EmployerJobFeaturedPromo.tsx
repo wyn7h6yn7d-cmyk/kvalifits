@@ -45,7 +45,7 @@ export function EmployerJobFeaturedPromo({ locale, job, compact = false }: Props
   if (compact) {
     if (display.kind !== "active" || !untilFormatted) return null;
     return (
-      <div className="mt-1 text-xs text-violet-200/85">
+      <div className="mt-1 text-xs text-primary">
         {t("featuredStatusActive", { date: untilFormatted })}
       </div>
     );
@@ -53,25 +53,25 @@ export function EmployerJobFeaturedPromo({ locale, job, compact = false }: Props
 
   return (
     <>
-      <section className="rounded-2xl border border-violet-400/20 bg-violet-500/[0.06] px-4 py-4 sm:px-5 sm:py-5">
+      <section className="rounded-2xl border border-[rgba(37,99,235,0.18)] bg-[rgba(37,99,235,0.05)] px-4 py-4 sm:px-5 sm:py-5">
         <div className="flex items-start gap-3">
           <div
-            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-violet-300/20 bg-violet-500/10 text-violet-200"
+            className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(37,99,235,0.16)] bg-[rgba(37,99,235,0.07)] text-primary"
             aria-hidden
           >
             <Sparkles className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1 space-y-3">
             <div>
-              <h2 className="text-sm font-semibold text-white">{t("featuredPromoTitle")}</h2>
-              <p className="mt-1 text-sm leading-relaxed text-white/65">{t("featuredPromoDescription")}</p>
+              <h2 className="text-sm font-semibold text-foreground">{t("featuredPromoTitle")}</h2>
+              <p className="mt-1 text-sm leading-relaxed text-muted">{t("featuredPromoDescription")}</p>
             </div>
 
             <div
               className={
                 display.kind === "active"
-                  ? "inline-flex rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-100"
-                  : "inline-flex rounded-full border border-white/[0.10] bg-white/[0.04] px-3 py-1 text-xs font-medium text-white/60"
+                  ? "inline-flex rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-800"
+                  : "inline-flex rounded-full border border-border bg-[#f8fafc] px-3 py-1 text-xs font-medium text-muted"
               }
             >
               {display.kind === "active" && untilFormatted
@@ -80,21 +80,21 @@ export function EmployerJobFeaturedPromo({ locale, job, compact = false }: Props
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/[0.08] bg-black/20 px-3 py-3">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-white/45">
+              <div className="rounded-xl border border-border bg-[#f8fafc] px-3 py-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
                   {t("featuredListingPriceLabel")}
                 </div>
-                <div className="mt-1 text-sm font-medium text-white/85">{t("featuredListingPrice")}</div>
+                <div className="mt-1 text-sm font-medium text-foreground/80">{t("featuredListingPrice")}</div>
               </div>
-              <div className="rounded-xl border border-violet-300/15 bg-violet-500/[0.08] px-3 py-3">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-violet-200/55">
+              <div className="rounded-xl border border-[rgba(37,99,235,0.14)] bg-[rgba(37,99,235,0.06)] px-3 py-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-primary/70">
                   {t("featuredAddonPriceLabel")}
                 </div>
-                <div className="mt-1 text-sm font-medium text-white/90">{t("featuredAddonPrice")}</div>
+                <div className="mt-1 text-sm font-medium text-foreground">{t("featuredAddonPrice")}</div>
               </div>
             </div>
 
-            <p className="text-xs leading-relaxed text-white/45">{t("featuredPricingNote")}</p>
+            <p className="text-xs leading-relaxed text-muted-2">{t("featuredPricingNote")}</p>
 
             {display.kind === "inactive" ? (
               <Button type="button" variant="primary" size="sm" onClick={() => setSheetOpen(true)}>
@@ -113,20 +113,20 @@ export function EmployerJobFeaturedPromo({ locale, job, compact = false }: Props
               <SheetDescription className="mt-2">{t("featuredSheetLead")}</SheetDescription>
             </div>
 
-            <p className="text-sm leading-relaxed text-white/70">{t("featuredSheetPricingLead")}</p>
+            <p className="text-sm leading-relaxed text-body">{t("featuredSheetPricingLead")}</p>
 
             <div className="space-y-3">
-              <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-white/45">
+              <div className="rounded-xl border border-border bg-[#f8fafc] px-4 py-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
                   {t("featuredListingPriceLabel")}
                 </div>
-                <div className="mt-1 text-sm font-medium text-white/85">{t("featuredListingPrice")}</div>
+                <div className="mt-1 text-sm font-medium text-foreground/80">{t("featuredListingPrice")}</div>
               </div>
-              <div className="rounded-xl border border-violet-300/15 bg-violet-500/[0.08] px-4 py-3">
-                <div className="text-[11px] font-medium uppercase tracking-wide text-violet-200/55">
+              <div className="rounded-xl border border-[rgba(37,99,235,0.14)] bg-[rgba(37,99,235,0.06)] px-4 py-3">
+                <div className="text-[11px] font-medium uppercase tracking-wide text-primary/70">
                   {t("featuredAddonPriceLabel")}
                 </div>
-                <div className="mt-1 text-sm font-medium text-white/90">{t("featuredAddonPrice")}</div>
+                <div className="mt-1 text-sm font-medium text-foreground">{t("featuredAddonPrice")}</div>
               </div>
             </div>
 
@@ -134,7 +134,7 @@ export function EmployerJobFeaturedPromo({ locale, job, compact = false }: Props
               {t("featuredSheetNotAvailableYet")}
             </p>
 
-            <p className="text-xs leading-relaxed text-white/45">{t("featuredPricingNote")}</p>
+            <p className="text-xs leading-relaxed text-muted-2">{t("featuredPricingNote")}</p>
 
             <Button type="button" variant="outline" size="lg" className="w-full" onClick={() => setSheetOpen(false)}>
               {t("featuredSheetClose")}

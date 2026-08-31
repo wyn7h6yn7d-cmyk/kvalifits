@@ -27,7 +27,7 @@ export function SectionHeading({
       ) : null}
       <h2 className={cn("mt-3", SITE_H2_SECTION)}>{title}</h2>
       {subtitle ? (
-        <p className="mt-3 text-base leading-7 text-body">{subtitle}</p>
+        <p className="mt-3 text-base leading-[1.65] text-body">{subtitle}</p>
       ) : null}
     </div>
   );

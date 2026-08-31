@@ -308,7 +308,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
           <div className="space-y-6">
             <Link
               href={`/account/employer/jobs/${id}/applicants`}
-              className="inline-flex text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+              className="inline-flex text-sm font-medium text-body underline-offset-4 hover:text-foreground hover:underline"
             >
               ← {t("applicantMatchBack")}
             </Link>
@@ -317,55 +317,55 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
               <EmployerLegalRepresentativeConsentNotice locale={locale} />
             ) : null}
 
-            <div className="rounded-3xl border border-white/[0.10] bg-gradient-to-b from-white/[0.05] to-white/[0.02] p-5 sm:p-6">
+            <div className="rounded-3xl border border-border bg-gradient-to-b from-white to-white p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex min-w-0 items-start gap-4">
-                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-3xl border border-white/[0.10] bg-white/[0.03]">
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-3xl border border-border bg-[#f8fafc]">
                     {avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-white/55">
+                      <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-muted-2">
                         {initialsFromName(name)}
                       </div>
                     )}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailHeader")}</div>
-                    <div className="mt-2 text-lg font-semibold leading-snug tracking-tight text-white/92">{name}</div>
-                    <div className="mt-1 text-sm text-white/65">{profileTitle}</div>
-                    <div className="mt-2 text-sm text-white/55">
+                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-2">{t("applicantDetailHeader")}</div>
+                    <div className="mt-2 text-lg font-semibold leading-snug tracking-tight text-foreground">{name}</div>
+                    <div className="mt-1 text-sm text-muted">{profileTitle}</div>
+                    <div className="mt-2 text-sm text-muted-2">
                       {location} · {mapExperience(seeker.experience_level as string | undefined, tOnb)}
                     </div>
-                    <div className="mt-3 text-xs text-white/45">
+                    <div className="mt-3 text-xs text-muted-2">
                       {t("applicantDetailAppliedTo", { company: employerName, title: job.title })} ·{" "}
                       {t("applicantsApplied")}:{" "}
                       {app.created_at ? new Date(app.created_at as string).toLocaleString() : "—"}
                     </div>
                     {interviewScan ? (
-                      <div className="mt-4 rounded-2xl border border-white/[0.12] bg-white/[0.05] px-3.5 py-3">
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                      <div className="mt-4 rounded-2xl border border-border bg-[#f8fafc] px-3.5 py-3">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-2">
                           {t("applyInterviewPreference")}
                         </div>
-                        <div className="mt-1.5 text-sm font-medium leading-snug text-white/90">
+                        <div className="mt-1.5 text-sm font-medium leading-snug text-foreground">
                           {interviewScan.formats}
                         </div>
                         {interviewScan.preferOnline ? (
-                          <div className="mt-2 inline-flex rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-100/90">
+                          <div className="mt-2 inline-flex rounded-full border border-emerald-400/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-800">
                             {interviewScan.preferOnlineLabel}
                           </div>
                         ) : null}
                       </div>
                     ) : null}
                     <div className="mt-4 max-w-xs">
-                      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-2">
                         {t("applicationPipelineStatusLabel")}
                       </div>
                       <EmployerApplicationStatusSelect
                         applicationId={String(app.id)}
                         status={(app as { status?: string | null }).status}
                       />
-                      <p className="mt-1.5 text-[11px] tabular-nums text-white/40">
+                      <p className="mt-1.5 text-[11px] tabular-nums text-muted-2">
                         {t("applicationStatusUpdatedAt")}:{" "}
                         {formatPipelineTimestamp(
                           locale,
@@ -379,43 +379,43 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                 <div className="flex shrink-0 flex-col gap-3 sm:items-end">
                   {salaryScan ? (
-                    <div className="rounded-3xl border border-white/[0.12] bg-white/[0.05] px-5 py-4 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                    <div className="rounded-3xl border border-border bg-[#f8fafc] px-5 py-4 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-2">
                         {t("applySalary")}
                       </div>
-                      <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-white/95">
+                      <div className="mt-1 text-3xl font-semibold tabular-nums tracking-tight text-foreground">
                         {salaryScan.primary}
                       </div>
-                      <div className="mt-1 text-[12px] text-white/50">{salaryScan.basis}</div>
+                      <div className="mt-1 text-[12px] text-muted-2">{salaryScan.basis}</div>
                     </div>
                   ) : null}
-                  <div className="rounded-3xl border border-white/[0.10] bg-black/25 px-5 py-4 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                  <div className="rounded-3xl border border-border bg-[#f8fafc] px-5 py-4 text-right shadow-[0_0_0_1px_rgba(255,255,255,0.05)_inset]">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-2">
                       {t("applicantDetailSuitability")}
                     </div>
-                    <div className="mt-1 text-4xl font-semibold tabular-nums tracking-tight text-white">
+                    <div className="mt-1 text-4xl font-semibold tabular-nums tracking-tight text-foreground">
                       {score == null ? "—" : `${score}%`}
                     </div>
-                    <div className="mt-1 text-[12px] text-white/50">{t("applicantDetailSuitabilityHint")}</div>
+                    <div className="mt-1 text-[12px] text-muted-2">{t("applicantDetailSuitabilityHint")}</div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 border-t border-white/[0.10] pt-5">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45">{t("applicantDetailCv")}</div>
+              <div className="mt-5 border-t border-border pt-5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-2">{t("applicantDetailCv")}</div>
                 {cvUrl ? (
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                     <PrivateCvOpenLink
                       cvRef={cvUrl}
                       errorLabel={t("applicantCvOpenFailed")}
-                      className="inline-flex w-full items-center justify-center rounded-2xl border border-violet-400/35 bg-gradient-to-r from-violet-500/25 to-fuchsia-500/20 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)_inset] transition-colors hover:border-violet-400/50 hover:from-violet-500/35 hover:to-fuchsia-500/28 disabled:opacity-60 sm:w-auto"
+                      className="inline-flex w-full items-center justify-center rounded-2xl border border-[rgba(37,99,235,0.28)] bg-primary/[0.08] px-5 py-3.5 text-sm font-semibold text-foreground shadow-[inset_0_0_0_1px_rgba(37,99,235,0.12)] transition-colors hover:border-[rgba(37,99,235,0.36)] hover:bg-primary/[0.12] disabled:opacity-60 sm:w-auto"
                     >
                       {t("applicantDetailDownloadCv")}
                     </PrivateCvOpenLink>
-                    <p className="text-[12px] leading-relaxed text-white/45 sm:ml-1">{t("applicantDetailCvHint")}</p>
+                    <p className="text-[12px] leading-relaxed text-muted-2 sm:ml-1">{t("applicantDetailCvHint")}</p>
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm leading-relaxed text-white/50">{t("applicantDetailNoCv")}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-2">{t("applicantDetailNoCv")}</p>
                 )}
               </div>
 
@@ -426,7 +426,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                       <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200/85">
                         {t("applicantDetailWhyStrong")}
                       </div>
-                      <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] leading-relaxed text-emerald-100/85">
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] leading-relaxed text-emerald-800/85">
                         {highlightCodes
                           .map((c) => highlightLabel(c, t))
                           .filter(Boolean)
@@ -440,10 +440,10 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                   {weakCodes.length ? (
                     <div className="rounded-2xl border border-amber-500/18 bg-amber-500/10 px-4 py-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-100/85">
+                      <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-800">
                         {t("applicantDetailWhyWeak")}
                       </div>
-                      <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] leading-relaxed text-amber-100/85">
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] leading-relaxed text-amber-800">
                         {weakCodes
                           .map((code) => {
                             const k = `applicantMatchWeak_${code}` as any;
@@ -474,15 +474,15 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
             />
 
             <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
-              <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailSeeker")}</div>
+              <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-2">{t("applicantDetailSeeker")}</div>
 
                 {skills.length ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailSkills")}</div>
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicantDetailSkills")}</div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {skills.slice(0, 18).map((s, i) => (
-                        <span key={`${i}-${s}`} className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/70">
+                        <span key={`${i}-${s}`} className="rounded-full border border-border bg-[#f8fafc] px-3 py-1 text-xs text-body">
                           {s}
                         </span>
                       ))}
@@ -492,8 +492,8 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                 {about ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailIntro")}</div>
-                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicantDetailIntro")}</div>
+                    <div className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-body">
                       {about.length > 340 ? `${about.slice(0, 340)}…` : about}
                     </div>
                   </div>
@@ -501,18 +501,18 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                 {workplaceNeedsShared.length ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">
                       {t("applicantWorkplaceNeedsTitle")}
                     </div>
-                    <div className="mt-1 text-[12px] leading-relaxed text-white/45">
+                    <div className="mt-1 text-[12px] leading-relaxed text-muted-2">
                       {t("applicantWorkplaceNeedsHint")}
                     </div>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-white/72">
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-body">
                       {workplaceNeedsShared.map((item) => (
                         <li key={item.key}>
                           {workplaceNeedLabel(item.key, t)}
                           {item.key === "other_need" && item.note ? (
-                            <span className="text-white/55"> — {item.note}</span>
+                            <span className="text-muted-2"> — {item.note}</span>
                           ) : null}
                         </li>
                       ))}
@@ -524,8 +524,8 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                 {certs.filter((c) => (c.certificate_name ?? "").toString().trim()).length ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailCertificates")}</div>
-                    <ul className="mt-2 space-y-3 text-sm text-white/65">
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicantDetailCertificates")}</div>
+                    <ul className="mt-2 space-y-3 text-sm text-muted">
                       {certs
                         .filter((c) => (c.certificate_name ?? "").toString().trim())
                         .slice(0, 8)
@@ -561,17 +561,17 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                 ) : null}
               </section>
 
-              <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">{t("applicantDetailJob")}</div>
-                <div className="mt-2 text-base font-semibold leading-snug tracking-tight text-white/90">{job.title}</div>
-                <div className="mt-2 text-sm text-white/60">
+              <section className="flex min-h-0 w-full min-w-0 flex-1 basis-0 flex-col rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+                <div className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-2">{t("applicantDetailJob")}</div>
+                <div className="mt-2 text-base font-semibold leading-snug tracking-tight text-foreground">{job.title}</div>
+                <div className="mt-2 text-sm text-muted">
                   {employerName} · {(job.location ?? "—").toString()} · {metaLine || "—"}
                 </div>
 
                 {requirementLines.length ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailRequirements")}</div>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-white/70">
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicantDetailRequirements")}</div>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-body">
                       {requirementLines.slice(0, 14).map((line, i) => (
                         <li key={`${i}-${line.slice(0, 24)}`}>{line}</li>
                       ))}
@@ -581,10 +581,10 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                 {requiredSkills.length ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailRequiredSkills")}</div>
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicantDetailRequiredSkills")}</div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {requiredSkills.slice(0, 14).map((s, i) => (
-                        <span key={`${i}-${s}`} className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/70">
+                        <span key={`${i}-${s}`} className="rounded-full border border-border bg-[#f8fafc] px-3 py-1 text-xs text-body">
                           {s}
                         </span>
                       ))}
@@ -594,10 +594,10 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
 
                 {Array.isArray(job.keywords) && (job.keywords as string[]).filter(Boolean).length ? (
                   <div className="mt-5">
-                    <div className="text-xs font-medium tracking-wide text-white/55">{t("applicantDetailKeywords")}</div>
+                    <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicantDetailKeywords")}</div>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {(job.keywords as string[]).filter(Boolean).slice(0, 14).map((s, i) => (
-                        <span key={`${i}-${s}`} className="rounded-full border border-white/[0.10] bg-white/[0.03] px-3 py-1 text-xs text-white/60">
+                        <span key={`${i}-${s}`} className="rounded-full border border-border bg-[#f8fafc] px-3 py-1 text-xs text-muted">
                           {s}
                         </span>
                       ))}
@@ -608,7 +608,7 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
             </div>
 
             <div>
-              <div className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+              <div className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-muted-2">
                 {t("applicantDetailScore")}
               </div>
               <EmployerApplicantMatchPanel
@@ -637,11 +637,11 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
             </div>
 
             {answers ? (
-              <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6 space-y-4">
-                <div className="text-xs font-medium tracking-wide text-white/55">{t("applicationAnswersTitle")}</div>
-                <dl className="grid gap-2 text-sm text-white/75 sm:grid-cols-2">
+              <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6 space-y-4">
+                <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicationAnswersTitle")}</div>
+                <dl className="grid gap-2 text-sm text-muted sm:grid-cols-2">
                   <div>
-                    <dt className="text-xs text-white/45">{t("applyAvailableFrom")}</dt>
+                    <dt className="text-xs text-muted-2">{t("applyAvailableFrom")}</dt>
                     <dd className="mt-0.5">
                       {formatAvailabilityStartDisplay(answers, (code) =>
                         t(`applyAvailableFromOption.${code}`)
@@ -649,19 +649,19 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-white/45">{t("applyNoticePeriod")}</dt>
+                    <dt className="text-xs text-muted-2">{t("applyNoticePeriod")}</dt>
                     <dd className="mt-0.5">{answers.noticePeriod}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-white/45">{t("applyWeeklyHours")}</dt>
+                    <dt className="text-xs text-muted-2">{t("applyWeeklyHours")}</dt>
                     <dd className="mt-0.5">{answers.weeklyHoursDesired}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-white/45">{t("applyScheduleFit")}</dt>
+                    <dt className="text-xs text-muted-2">{t("applyScheduleFit")}</dt>
                     <dd className="mt-0.5">{t(`applyScheduleFitOption.${answers.scheduleFits}`)}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-white/45">{t("applyInterviewPreference")}</dt>
+                    <dt className="text-xs text-muted-2">{t("applyInterviewPreference")}</dt>
                     <dd className="mt-0.5">
                       {formatInterviewPreferencesDisplay(
                         answers,
@@ -669,22 +669,22 @@ export default async function EmployerApplicantDetailPage({ params }: Props) {
                         t("applyPreferFirstInterviewOnline")
                       ).formats}
                       {answers.prefer_first_interview_online ? (
-                        <div className="mt-1 text-xs text-emerald-100/80">{t("applyPreferFirstInterviewOnline")}</div>
+                        <div className="mt-1 text-xs text-emerald-800">{t("applyPreferFirstInterviewOnline")}</div>
                       ) : null}
                     </dd>
                   </div>
                 </dl>
                 {answers.noteForEmployer ? (
-                  <div className="border-t border-white/[0.08] pt-3">
-                    <div className="text-xs text-white/45">{t("applyNoteLabel")}</div>
-                    <div className="mt-1 whitespace-pre-wrap text-sm text-white/75">{answers.noteForEmployer}</div>
+                  <div className="border-t border-border pt-3">
+                    <div className="text-xs text-muted-2">{t("applyNoteLabel")}</div>
+                    <div className="mt-1 whitespace-pre-wrap text-sm text-muted">{answers.noteForEmployer}</div>
                   </div>
                 ) : null}
               </div>
             ) : app.cover_letter ? (
-              <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6">
-                <div className="text-xs font-medium tracking-wide text-white/55">{t("applicationsMessage")}</div>
-                <div className="mt-2 whitespace-pre-wrap text-sm text-white/75">{app.cover_letter as string}</div>
+              <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+                <div className="text-[0.9375rem] font-medium leading-snug text-foreground-2">{t("applicationsMessage")}</div>
+                <div className="mt-2 whitespace-pre-wrap text-sm text-muted">{app.cover_letter as string}</div>
               </div>
             ) : null}
           </div>

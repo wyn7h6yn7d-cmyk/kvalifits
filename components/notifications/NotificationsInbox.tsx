@@ -128,7 +128,7 @@ export function NotificationsInbox({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-white/55">
+        <p className="text-sm text-muted-2">
           {unread > 0 ? t("unreadCount", { count: unread }) : t("allRead")}
         </p>
         {unread > 0 ? (
@@ -145,7 +145,7 @@ export function NotificationsInbox({
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
@@ -161,9 +161,9 @@ export function NotificationsInbox({
             <>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-sm font-medium text-white/88">{title}</div>
-                  {body ? <p className="mt-1 text-sm leading-relaxed text-white/55">{body}</p> : null}
-                  <p className="mt-1.5 text-xs text-white/40">{formatWhen(row.created_at, locale)}</p>
+                  <div className="text-sm font-medium text-foreground">{title}</div>
+                  {body ? <p className="mt-1 text-sm leading-relaxed text-muted-2">{body}</p> : null}
+                  <p className="mt-1.5 text-xs text-muted-2">{formatWhen(row.created_at, locale)}</p>
                 </div>
                 {unreadRow ? (
                   <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-fuchsia-400" aria-hidden />
@@ -181,8 +181,8 @@ export function NotificationsInbox({
                   className={cn(
                     "block rounded-2xl border px-4 py-3.5 transition-colors",
                     unreadRow
-                      ? "border-white/[0.14] bg-white/[0.05] hover:bg-white/[0.07]"
-                      : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04]",
+                      ? "border-border-strong bg-[#f8fafc] hover:bg-[#f5f7fb]"
+                      : "border-border bg-white hover:bg-[#f5f7fb]",
                   )}
                 >
                   {inner}
@@ -194,8 +194,8 @@ export function NotificationsInbox({
                   className={cn(
                     "block w-full rounded-2xl border px-4 py-3.5 text-left transition-colors",
                     unreadRow
-                      ? "border-white/[0.14] bg-white/[0.05]"
-                      : "border-white/[0.08] bg-white/[0.02]",
+                      ? "border-border-strong bg-[#f8fafc]"
+                      : "border-border bg-white",
                   )}
                 >
                   {inner}

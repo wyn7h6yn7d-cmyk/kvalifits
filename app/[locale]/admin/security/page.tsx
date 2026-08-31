@@ -26,8 +26,8 @@ export default async function AdminSecurityPage({ params, searchParams }: Props)
       <p
         className={
           mfa.hasVerifiedTotp
-            ? "text-sm text-emerald-100/90"
-            : "mb-4 text-sm text-white/55"
+            ? "text-sm text-emerald-800"
+            : "mb-4 text-sm text-muted-2"
         }
       >
         {mfa.hasVerifiedTotp ? tAuth("adminMfaAlreadyEnabled") : tAuth("adminMfaStatusOff")}

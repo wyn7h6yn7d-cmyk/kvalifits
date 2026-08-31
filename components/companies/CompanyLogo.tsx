@@ -20,7 +20,7 @@ export function CompanyLogo({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden border border-white/[0.10] bg-white/[0.04] font-semibold text-white/70",
+        "flex shrink-0 items-center justify-center overflow-hidden border border-border bg-[#f8fafc] font-semibold text-body",
         box,
       )}
       aria-hidden

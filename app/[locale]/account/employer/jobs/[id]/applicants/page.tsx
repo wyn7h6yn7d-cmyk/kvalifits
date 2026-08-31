@@ -143,18 +143,18 @@ export default async function EmployerJobApplicantsPage({ params, searchParams }
               {paginatedMeta.page > 1 ? (
                 <a
                   href={`/${locale}/account/employer/jobs/${id}/applicants?page=${paginatedMeta.page - 1}`}
-                  className="text-white/70 hover:text-white"
+                  className="text-body hover:text-foreground"
                 >
                   ← {t("paginationPrev")}
                 </a>
               ) : <span />}
-              <span className="text-white/50 tabular-nums">
+              <span className="text-muted-2 tabular-nums">
                 {t("paginationStatus", { page: paginatedMeta.page, totalPages: paginatedMeta.totalPages, totalCount: paginatedMeta.totalCount })}
               </span>
               {paginatedMeta.page < paginatedMeta.totalPages ? (
                 <a
                   href={`/${locale}/account/employer/jobs/${id}/applicants?page=${paginatedMeta.page + 1}`}
-                  className="text-white/70 hover:text-white"
+                  className="text-body hover:text-foreground"
                 >
                   {t("paginationNext")} →
                 </a>

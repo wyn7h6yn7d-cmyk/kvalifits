@@ -84,7 +84,7 @@ export function NotificationBell() {
     <Link
       href="/account/notifications"
       aria-label={label}
-      className="relative inline-flex h-11 w-11 items-center justify-center rounded-md text-white/75 transition-colors hover:bg-white/[0.06] hover:text-white lg:h-8 lg:w-8"
+      className="relative inline-flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:bg-[#f5f7fb] hover:text-foreground lg:h-8 lg:w-8"
     >
       <Bell className="h-4 w-4" strokeWidth={1.75} aria-hidden />
       {badge ? (

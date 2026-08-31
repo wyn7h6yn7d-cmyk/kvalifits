@@ -3,7 +3,6 @@
 import { Building2, Clock, Mail, Phone, Share2, type LucideIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { AmbientBackground } from "@/components/site/AmbientBackground";
 import { Container } from "@/components/ui/container";
 import type { ContactBlock, ContactPageContent } from "@/lib/content/legal";
 import { contactFormMailto } from "@/lib/content/legal";
@@ -58,16 +57,15 @@ function ContactInfoSection({ block }: { block: ContactBlock }) {
   return (
     <div className="flex min-w-0 items-start gap-3 sm:gap-4">
       {Icon ? (
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/12 text-violet-200/90 ring-1 ring-white/[0.06]"
+        <Icon
+          className="mt-0.5 h-4 w-4 shrink-0 text-muted-2"
+          strokeWidth={1.75}
           aria-hidden
-        >
-          <Icon className="h-[1.125rem] w-[1.125rem]" strokeWidth={1.75} />
-        </div>
+        />
       ) : null}
       <div className="min-w-0 flex-1">
-        <h3 className="text-sm font-semibold tracking-wide text-white/90">{block.title}</h3>
-        <ul className="mt-2.5 space-y-1.5 text-sm leading-relaxed text-white/60">
+        <h3 className="text-[1.0625rem] font-semibold leading-snug text-foreground">{block.title}</h3>
+        <ul className="mt-2.5 space-y-1.5 text-base leading-[1.65] text-muted">
           {block.lines.map((line, i) => (
             <li key={i} className="break-words">
               {line}
@@ -85,11 +83,10 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
   const dateLocale = DATE_LOCALE[locale] ?? "et-EE";
 
   return (
-    <div className="relative overflow-hidden">
-      <AmbientBackground intensity="soft" />
-      <Container className={cn("relative", SITE_SECTION_PY)}>
+    <div>
+      <Container className={SITE_SECTION_PY}>
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <p className="text-xs text-white/40">
+          <p className="text-[0.9375rem] text-muted">
             {t("updated")}{" "}
             <time dateTime={content.lastUpdated}>
               {new Date(content.lastUpdated + "T12:00:00").toLocaleDateString(dateLocale, {
@@ -99,13 +96,13 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
               })}
             </time>
           </p>
-          <Link href="/" className="text-xs font-medium text-white/45 hover:text-white/75">
+          <Link href="/" className="text-[0.9375rem] font-medium text-muted hover:text-foreground">
             {t("backHome")}
           </Link>
         </div>
 
         <h1 className={SITE_H1_HERO}>{content.h1}</h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/60 sm:text-[17px]">
+        <p className="mt-4 max-w-2xl text-base leading-[1.65] text-muted">
           {content.lead}
         </p>
 
@@ -119,7 +116,7 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
             {content.blocksAside ? (
               <header className="mb-8">
                 <h2 className={SITE_H2}>{content.blocksAside.title}</h2>
-                <p className="mt-2 text-sm leading-relaxed text-white/55">{content.blocksAside.lead}</p>
+                <p className="mt-2 text-base leading-[1.65] text-muted">{content.blocksAside.lead}</p>
               </header>
             ) : null}
             <div className="space-y-8">
@@ -148,7 +145,7 @@ export function ContactPageView({ content }: { content: ContactPageContent }) {
         </div>
 
         {content.footnote ? (
-          <p className="mt-14 max-w-3xl text-xs leading-relaxed text-white/40">
+          <p className="mt-14 max-w-3xl text-xs leading-relaxed text-muted-2">
             {content.footnote}
           </p>
         ) : null}

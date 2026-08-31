@@ -26,20 +26,20 @@ function tone(status: ApplicationPipelineStatus) {
     case "new":
       return "border-sky-400/25 bg-sky-500/10 text-sky-100/90";
     case "reviewing":
-      return "border-violet-400/25 bg-violet-500/10 text-violet-100/90";
+      return "border-[rgba(37,99,235,0.22)] bg-[rgba(37,99,235,0.07)] text-primary";
     case "interview":
     case "interview_2":
-      return "border-amber-400/25 bg-amber-500/10 text-amber-100/90";
+      return "border-amber-400/25 bg-amber-500/10 text-amber-800";
     case "offer":
-      return "border-emerald-400/25 bg-emerald-500/10 text-emerald-100/90";
+      return "border-emerald-400/25 bg-emerald-500/10 text-emerald-800";
     case "hired":
       return "border-emerald-400/35 bg-emerald-500/15 text-emerald-50";
     case "rejected":
-      return "border-white/[0.12] bg-white/[0.04] text-white/55";
+      return "border-border bg-[#f8fafc] text-muted-2";
     case "withdrawn":
-      return "border-white/[0.10] bg-white/[0.03] text-white/45";
+      return "border-border bg-[#f8fafc] text-muted-2";
     default:
-      return "border-white/[0.10] bg-white/[0.04] text-white/70";
+      return "border-border bg-[#f8fafc] text-body";
   }
 }
 
@@ -112,7 +112,7 @@ export function EmployerApplicationStatusSelect({
         onClick={(e) => e.stopPropagation()}
         className={cn(
           "w-full rounded-xl border px-2.5 font-medium outline-none transition-colors",
-          "focus:border-white/[0.20]",
+          "focus:border-border-strong",
           compact ? "h-11 text-[13px] lg:h-9 lg:text-[11px]" : "h-11 text-sm lg:h-10 lg:text-xs",
           tone(value),
           saving && "opacity-70"
@@ -120,14 +120,14 @@ export function EmployerApplicationStatusSelect({
       >
         <optgroup label={t("applicationPipelinePathLabel")}>
           {APPLICATION_PIPELINE_ACTIVE.map((s) => (
-            <option key={s} value={s} className="bg-zinc-900 text-white">
+            <option key={s} value={s} className="bg-white text-foreground">
               {t(`applicationPipelineStatus.${s}`)}
             </option>
           ))}
         </optgroup>
         <optgroup label={t("applicationPipelineOutcomesLabel")}>
           {APPLICATION_PIPELINE_TERMINAL.map((s) => (
-            <option key={s} value={s} className="bg-zinc-900 text-white">
+            <option key={s} value={s} className="bg-white text-foreground">
               {t(`applicationPipelineStatus.${s}`)}
             </option>
           ))}

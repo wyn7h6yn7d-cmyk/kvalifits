@@ -13,10 +13,10 @@ export function JobRequirementPriorityBadge({ priority, label, className }: Prop
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[10px] font-semibold tracking-wide",
+        "inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[0.75rem] font-medium leading-snug",
         mandatory
-          ? "border-rose-400/35 bg-rose-500/15 text-rose-100/95"
-          : "border-sky-400/30 bg-sky-500/10 text-sky-100/85",
+          ? "border-rose-400/35 bg-rose-500/15 text-rose-800"
+          : "border-sky-400/30 bg-sky-500/10 text-sky-800",
         className
       )}
     >

@@ -87,7 +87,7 @@ export function EmployerJobPreviewActions({ locale, jobId, status, job }: Props)
           {t("publishNow")}
         </Button>
       ) : null}
-      {error ? <p className="w-full text-sm text-white/70">{error}</p> : null}
+      {error ? <p className="w-full text-sm text-body">{error}</p> : null}
     </div>
   );
 }

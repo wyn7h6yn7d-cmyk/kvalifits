@@ -31,10 +31,10 @@ export function YoungSeekerJobBadge({ className, compact }: Props) {
         title={tip}
         aria-label={`${label}. ${tip}`}
         className={cn(
-          "inline-flex cursor-help rounded-full border border-sky-400/25 bg-sky-500/10 font-semibold tracking-wide text-sky-100/90 outline-none focus-visible:ring-2 focus-visible:ring-sky-400/40",
+          "inline-flex cursor-help rounded-full border border-sky-400/25 bg-sky-500/10 font-medium leading-snug text-sky-800 outline-none focus-visible:ring-2 focus-visible:ring-sky-400/40",
           compact
-            ? "px-2.5 py-0.5 text-[10px]"
-            : "px-3 py-1 text-[11px]"
+            ? "px-2.5 py-0.5 text-[0.75rem]"
+            : "px-3 py-1 text-[0.8125rem]"
         )}
       >
         {label}
@@ -42,7 +42,7 @@ export function YoungSeekerJobBadge({ className, compact }: Props) {
       <span
         role="tooltip"
         className={cn(
-          "pointer-events-none absolute left-0 top-full z-20 mt-2 w-64 max-w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-white/[0.12] bg-zinc-950/95 px-3 py-2.5 text-left text-[11px] font-normal leading-relaxed tracking-normal text-white/75 shadow-lg backdrop-blur-md",
+          "pointer-events-none absolute left-0 top-full z-20 mt-2 w-64 max-w-[min(18rem,calc(100vw-2rem))] rounded-xl border border-border bg-white px-3 py-2.5 text-left text-[0.8125rem] font-normal leading-[1.6] text-muted",
           "invisible opacity-0 transition-[opacity,visibility] duration-150",
           "group-hover/ysb:visible group-hover/ysb:opacity-100 group-focus-within/ysb:visible group-focus-within/ysb:opacity-100"
         )}

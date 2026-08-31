@@ -16,9 +16,9 @@ export default async function BlockedPage({ params }: Props) {
       <Navbar />
       <main className="pt-[var(--site-header-offset)]">
         <AuthShell title={t("accessBlockedTitle")} subtitle={t("accessBlockedSubtitle")}>
-          <div className="space-y-4 text-sm text-white/70">
+          <div className="space-y-4 text-sm text-body">
             <p>{t("accessBlockedBody")}</p>
-            <Link href="/kontakt" className="text-white/90 underline decoration-white/25 underline-offset-2 hover:decoration-white/50">
+            <Link href="/kontakt" className="text-foreground underline decoration-border-strong underline-offset-2 hover:decoration-foreground/40">
               {t("accessBlockedContactCta")}
             </Link>
           </div>

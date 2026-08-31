@@ -83,18 +83,18 @@ export function EmployerApplicationInternalNotes({ applicationId, initialNote, c
   return (
     <section
       className={cn(
-        "rounded-3xl border border-white/[0.10] bg-white/[0.03] p-5 sm:p-6",
+        "rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6",
         className
       )}
     >
       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-2">
             {t("applicantInternalNotesTitle")}
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-white/55">{t("applicantInternalNotesHint")}</p>
+          <p className="mt-2 text-sm leading-relaxed text-muted-2">{t("applicantInternalNotesHint")}</p>
         </div>
-        <span className="mt-2 inline-flex w-fit shrink-0 rounded-full border border-white/[0.10] bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-white/45 sm:mt-0">
+        <span className="mt-2 inline-flex w-fit shrink-0 rounded-full border border-border bg-[#f8fafc] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-muted-2 sm:mt-0">
           {t("applicantInternalNotesPrivateBadge")}
         </span>
       </div>
@@ -114,18 +114,18 @@ export function EmployerApplicationInternalNotes({ applicationId, initialNote, c
         maxLength={MAX_LEN + 200}
         placeholder={t("applicantInternalNotesPlaceholder")}
         className={cn(
-          "mt-4 w-full resize-y rounded-2xl border border-white/[0.10] bg-black/20 px-3.5 py-3",
-          "text-sm leading-relaxed text-white/85 placeholder:text-white/35",
-          "outline-none transition-colors focus:border-white/[0.18]"
+          "mt-4 w-full resize-y rounded-2xl border border-border bg-[#f8fafc] px-3.5 py-3",
+          "text-sm leading-relaxed text-foreground/80 placeholder:text-muted-2",
+          "outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
         )}
       />
 
       <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="text-[12px] text-white/40">
+        <div className="text-[12px] text-muted-2">
           {overLimit ? (
             <span className="text-rose-200/80">{t("applicantInternalNotesTooLong")}</span>
           ) : savedFlash && !dirty ? (
-            <span className="text-emerald-100/70">{t("applicantInternalNotesSaved")}</span>
+            <span className="text-emerald-700">{t("applicantInternalNotesSaved")}</span>
           ) : dirty ? (
             <span>{t("applicantInternalNotesUnsaved")}</span>
           ) : (
@@ -140,7 +140,7 @@ export function EmployerApplicationInternalNotes({ applicationId, initialNote, c
           loadingText={t("saving")}
           className={cn(
             "h-9 rounded-xl px-4 text-[13px] font-medium",
-            "border-white/[0.12] bg-white/[0.06] text-white/85 hover:bg-white/[0.10]",
+            "border-border bg-[#f8fafc] text-foreground/80 hover:bg-[#f1f4f9]",
             (!dirty || overLimit) && "opacity-50"
           )}
         >

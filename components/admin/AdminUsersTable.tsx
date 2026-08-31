@@ -100,7 +100,7 @@ export function AdminUsersTable({
 
   if (!users.length) {
     return (
-      <div className="rounded-3xl border border-white/[0.10] bg-white/[0.03] p-6 text-sm text-white/70">
+      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
         {t("noUsers")}
       </div>
     );
@@ -109,13 +109,13 @@ export function AdminUsersTable({
   return (
     <div className="space-y-3">
       {error ? (
-        <div className="rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {error}
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-3xl border border-white/[0.10]">
-        <div className="grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 border-b border-white/[0.10] bg-white/[0.03] px-4 py-3 text-xs font-medium tracking-wide text-white/60">
+      <div className="overflow-hidden rounded-3xl border border-border">
+        <div className="grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 border-b border-border bg-[#f8fafc] px-4 py-3 text-[0.9375rem] font-medium leading-snug text-foreground">
           <div>{t("colEmail")}</div>
           <div>{t("colRole")}</div>
           <div>{t("colProfiles")}</div>
@@ -127,11 +127,11 @@ export function AdminUsersTable({
           return (
             <div
               key={u.id}
-              className="grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 border-b border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-white/75 last:border-b-0"
+              className="grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 border-b border-border bg-white px-4 py-3 text-sm text-muted last:border-b-0"
             >
               <div className="min-w-0 truncate">{u.email ?? "—"}</div>
-              <div className="text-xs text-white/65">{u.role ?? "—"}</div>
-              <div className="text-xs text-white/60">
+              <div className="text-xs text-muted">{u.role ?? "—"}</div>
+              <div className="text-xs text-muted">
                 <div>{u.has_seeker_profile ? t("hasSeeker") : t("noSeeker")}</div>
                 <div>{u.has_employer_profile ? t("hasEmployer") : t("noEmployer")}</div>
                 {u.has_seeker_profile ? (
@@ -165,7 +165,7 @@ export function AdminUsersTable({
                     {t("delete")}
                   </Button>
                 ) : null}
-                <div className="hidden text-right text-xs text-white/50 sm:block">{fmtDate(u.created_at)}</div>
+                <div className="hidden text-right text-xs text-muted-2 sm:block">{fmtDate(u.created_at)}</div>
               </div>
             </div>
           );

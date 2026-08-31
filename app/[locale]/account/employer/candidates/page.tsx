@@ -47,20 +47,20 @@ export default async function EmployerCandidatesPage({ params, searchParams }: P
   return (
     <AuthShell title={t("candidates")} subtitle={t("candidatesSubtitle")} maxWidthClassName="max-w-6xl">
       {inboxJob ? (
-        <div className="mb-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] px-4 py-3 text-sm text-white/70">
+        <div className="mb-6 rounded-2xl border border-border bg-white px-4 py-3 text-sm text-body">
           <Link
             href={`/account/employer/jobs/${inboxJob.id}/applicants`}
-            className="font-medium text-white/85 underline-offset-4 hover:text-white hover:underline"
+            className="font-medium text-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
           >
             {tJobs("inboxOpenFromDiscovery")}
           </Link>
-          <span className="mt-1 block text-xs text-white/45">
+          <span className="mt-1 block text-xs text-muted-2">
             {tJobs("inboxJobOption", { title: inboxJob.title, count: inboxJob.applicantCount })}
           </span>
         </div>
       ) : null}
       {discovery.errorMessage || discovery.schemaMissing ? (
-        <div className="mb-6 whitespace-pre-wrap rounded-2xl border border-white/[0.10] bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+        <div className="mb-6 whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
           {tOnboarding("unknownError")}
           {schemaHint ? `\n\n${schemaHint}` : null}
         </div>

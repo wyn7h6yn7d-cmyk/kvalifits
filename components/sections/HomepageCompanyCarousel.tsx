@@ -12,7 +12,7 @@ type Props = {
 };
 
 /** Shared slot height — every logo occupies the same vertical space in the carousel. */
-const LOGO_SLOT_CLASS = "h-10 sm:h-11 lg:h-12";
+const LOGO_SLOT_CLASS = "h-11 lg:h-12";
 const LOGO_IMAGE_CLASS =
   "max-h-full w-auto max-w-[min(100%,9.5rem)] object-contain object-center [image-rendering:auto]";
 
@@ -47,7 +47,7 @@ function HomepageCarouselLogo({
         <div
           className={cn(
             "inline-flex max-w-[min(100%,10.5rem)] items-center justify-center rounded-full",
-            "border border-white/[0.12] bg-[#f3f3f5] px-3.5 py-1.5",
+            "border border-border bg-[#f3f3f5] px-3.5 py-1.5",
             "shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_2px_8px_rgba(0,0,0,0.14)]",
             "sm:px-4 sm:py-2",
           )}

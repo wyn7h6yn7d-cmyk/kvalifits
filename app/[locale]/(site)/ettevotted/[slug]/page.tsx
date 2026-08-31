@@ -70,7 +70,7 @@ export default async function CompanyProfilePage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptHtml(jsonLd) }} />
-      <section className={cn("border-b border-white/[0.06] pb-10 sm:pb-12", SITE_PAGE_TOP)}>
+      <section className={cn("border-b border-border pb-10 sm:pb-12", SITE_PAGE_TOP)}>
         <Container>
           <div className="mx-auto max-w-3xl">
             <div className="flex gap-4 sm:gap-5">
@@ -80,10 +80,10 @@ export default async function CompanyProfilePage({ params }: Props) {
                   <h1 className={SITE_H1_HERO}>{company.name}</h1>
                   {company.verified ? <CompanyVerifiedBadge label={tUi("verifiedBadge")} /> : null}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-white/60">
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-base text-muted">
                   {company.location ? (
                     <span className="inline-flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-white/35" aria-hidden />
+                      <MapPin className="h-4 w-4 text-muted-2" aria-hidden />
                       {company.location}
                     </span>
                   ) : null}
@@ -93,9 +93,9 @@ export default async function CompanyProfilePage({ params }: Props) {
                       href={company.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-white/70 hover:text-white hover:underline"
+                      className="inline-flex items-center gap-1.5 text-body hover:text-foreground hover:underline"
                     >
-                      <Globe className="h-4 w-4 text-white/35" aria-hidden />
+                      <Globe className="h-4 w-4 text-muted-2" aria-hidden />
                       {tUi("website")}
                       <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                     </a>
@@ -106,10 +106,10 @@ export default async function CompanyProfilePage({ params }: Props) {
 
             {company.description ? (
               <div className="mt-8">
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                <h2 className="text-[1.0625rem] font-semibold leading-snug text-foreground">
                   {tUi("aboutTitle")}
                 </h2>
-                <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-white/72">
+                <p className="mt-2 whitespace-pre-wrap text-base leading-[1.65] text-body">
                   {company.description}
                 </p>
               </div>

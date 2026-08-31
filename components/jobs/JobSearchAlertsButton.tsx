@@ -136,7 +136,7 @@ export function JobSearchAlertsButton({
         variant={variant}
         className={cn(
           "max-w-full shrink-0 px-5 max-lg:min-w-0",
-          variant === "outline" && "bg-white/[0.03]",
+          variant === "outline" && "bg-[#f8fafc]",
           className,
         )}
         onClick={onCtaClick}
@@ -149,19 +149,19 @@ export function JobSearchAlertsButton({
         <DialogPrimitive.Portal>
           <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-black/70" />
           <DialogPrimitive.Content
-            className="fixed inset-x-0 bottom-0 z-[90] max-h-[min(90dvh,36rem)] w-full overflow-y-auto rounded-t-2xl border border-white/[0.10] bg-[#121214] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[min(90dvh,36rem)] sm:w-[min(28rem,calc(100vw-1.5rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-5"
+            className="fixed inset-x-0 bottom-0 z-[90] max-h-[min(90dvh,36rem)] w-full overflow-y-auto rounded-t-2xl border border-border bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[min(90dvh,36rem)] sm:w-[min(28rem,calc(100vw-1.5rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-5"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
-            <DialogPrimitive.Title className="text-[16px] font-semibold text-white/92">
+            <DialogPrimitive.Title className="text-[16px] font-semibold text-foreground">
               {tSaved("dialogTitle")}
             </DialogPrimitive.Title>
-            <DialogPrimitive.Description className="mt-2 text-sm leading-relaxed text-white/55">
+            <DialogPrimitive.Description className="mt-2 text-sm leading-relaxed text-muted-2">
               {SAVED_SEARCH_ALERTS_DELIVERY_ENABLED ? tSaved("dialogBodyLive") : tSaved("dialogBodyPending")}
             </DialogPrimitive.Description>
 
             {savedOk ? (
               <div className="mt-5 space-y-4">
-                <p className="rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2.5 text-sm text-white/75">
+                <p className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-muted">
                   {tSaved(SAVED_SEARCH_ALERTS_DELIVERY_ENABLED ? "savedOkDelivery" : "savedPendingDelivery")}
                 </p>
                 <div className="flex flex-wrap justify-end gap-2">
@@ -182,9 +182,9 @@ export function JobSearchAlertsButton({
                 }}
               >
                 <label className="block">
-                  <span className="text-[12px] font-medium text-white/55">{tSaved("nameLabel")}</span>
+                  <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{tSaved("nameLabel")}</span>
                   <Input
-                    className="mt-1.5 h-10 rounded-xl"
+                    className="mt-1.5 h-11 rounded-2xl"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     maxLength={120}
@@ -193,12 +193,12 @@ export function JobSearchAlertsButton({
                 </label>
 
                 <fieldset className="block">
-                  <legend className="text-[12px] font-medium text-white/55">{tSaved("frequencyLabel")}</legend>
+                  <legend className="text-[0.9375rem] font-medium leading-snug text-foreground">{tSaved("frequencyLabel")}</legend>
                   <div className="mt-2 grid gap-1.5">
                     {SAVED_SEARCH_FREQUENCIES.map((freq) => (
                       <label
                         key={freq}
-                        className="flex cursor-pointer items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/80"
+                        className="flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-base text-foreground"
                       >
                         <input
                           type="radio"
@@ -215,7 +215,7 @@ export function JobSearchAlertsButton({
 
                 {matchSortAvailable ? (
                   <label className="block">
-                    <span className="text-[12px] font-medium text-white/55">{tSaved("minMatchLabel")}</span>
+                    <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{tSaved("minMatchLabel")}</span>
                     <Select
                       value={minMatch}
                       onChange={(e) => setMinMatch(e.target.value)}
@@ -232,7 +232,7 @@ export function JobSearchAlertsButton({
                 ) : null}
 
                 {error ? (
-                  <p className="rounded-xl border border-white/[0.10] bg-white/[0.04] px-3 py-2 text-sm text-white/75">
+                  <p className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-sm text-muted">
                     {error}
                   </p>
                 ) : null}

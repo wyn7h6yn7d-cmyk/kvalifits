@@ -72,11 +72,11 @@ export function EmployerApplicationStatusHistory({
 
   return (
     <section className={className}>
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-2">
         {t("applicationStatusHistoryTitle")}
       </h3>
       {events.length === 0 ? (
-        <p className="mt-1.5 text-sm text-white/50">{t("applicationStatusHistoryEmpty")}</p>
+        <p className="mt-1.5 text-sm text-muted-2">{t("applicationStatusHistoryEmpty")}</p>
       ) : (
         <ol className="mt-2 space-y-2">
           {events.map((e) => {
@@ -84,7 +84,7 @@ export function EmployerApplicationStatusHistory({
             const important = isApplicationPipelineStatus(to) && isImportantPipelineStatus(to as ApplicationPipelineStatus);
             return (
               <li key={e.id} className="flex items-start justify-between gap-3 text-[13px]">
-                <div className={cn("min-w-0", important ? "text-white/85" : "text-white/65")}>
+                <div className={cn("min-w-0", important ? "text-foreground/80" : "text-muted")}>
                   {e.from_status
                     ? t("applicationStatusHistoryChange", {
                         from: label(e.from_status),
@@ -92,7 +92,7 @@ export function EmployerApplicationStatusHistory({
                       })
                     : label(e.to_status)}
                 </div>
-                <div className="shrink-0 tabular-nums text-[11px] text-white/40">
+                <div className="shrink-0 tabular-nums text-[11px] text-muted-2">
                   {formatPipelineTimestamp(locale, e.created_at)}
                 </div>
               </li>
