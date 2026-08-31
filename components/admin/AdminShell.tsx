@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { AdminSubnav } from "@/components/admin/AdminSubnav";
 import { Footer } from "@/components/sections/Footer";
 import { Navbar } from "@/components/sections/Navbar";
+import { SITE_DARK_CARD } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 export function AdminShell({
@@ -25,7 +26,8 @@ export function AdminShell({
           <AdminSubnav />
           <div
             className={cn(
-              "mt-5 rounded-3xl border border-border bg-white p-6 shadow-[0_12px_32px_-18px_rgba(15,23,42,0.16)] sm:p-8",
+              "mt-5 rounded-3xl p-6 sm:p-8",
+              SITE_DARK_CARD,
               maxWidthClassName,
             )}
           >

@@ -313,7 +313,6 @@ input:-webkit-autofill:focus-visible {
 }
 
 .homepage-hero-radar-sweep {
-  transform-box: fill-box;
   transform-origin: 0 0;
   animation: kf-hero-radar-sweep 34s linear infinite;
   will-change: transform;

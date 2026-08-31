@@ -1,9 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
-import { AdminMfaSetupPanel } from "@/components/admin/AdminMfaSetupPanel";
+import { AccountMfaSettings } from "@/components/account/AccountMfaSettings";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { requireAdminIdentity } from "@/lib/admin/requireAdmin";
-import { getAdminMfaStatus } from "@/lib/auth/adminMfa";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -13,26 +12,16 @@ type Props = {
 export default async function AdminSecurityPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const sp = await searchParams;
-  const { supabase } = await requireAdminIdentity(locale);
+  await requireAdminIdentity(locale);
   const t = await getTranslations({ locale, namespace: "admin" });
-  const tAuth = await getTranslations({ locale, namespace: "auth" });
-  const mfa = await getAdminMfaStatus(supabase);
 
   const nextRaw = (sp.next ?? `/${locale}/admin`).toString();
   const nextPath = nextRaw.startsWith(`/${locale}/`) ? nextRaw : `/${locale}/admin`;
+  const redirectAfterEnroll = sp.setup === "1" ? nextPath : undefined;
 
   return (
     <AdminShell title={t("securityTitle")} subtitle={t("securitySubtitle")} maxWidthClassName="max-w-md">
-      <p
-        className={
-          mfa.hasVerifiedTotp
-            ? "text-sm text-emerald-800"
-            : "mb-4 text-sm text-muted-2"
-        }
-      >
-        {mfa.hasVerifiedTotp ? tAuth("adminMfaAlreadyEnabled") : tAuth("adminMfaStatusOff")}
-      </p>
-      <AdminMfaSetupPanel locale={locale} nextPath={nextPath} />
+      <AccountMfaSettings nextPath={redirectAfterEnroll} />
     </AdminShell>
   );
 }

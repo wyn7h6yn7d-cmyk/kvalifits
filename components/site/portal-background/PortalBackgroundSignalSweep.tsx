@@ -19,6 +19,14 @@ export function PortalBackgroundSignalSweep({ className }: { className?: string 
         aria-hidden="true"
       >
         <g transform="translate(500 280)">
+          <g className="homepage-hero-radar-sweep">
+            <path
+              d="M 0 0 L 0 -84 A 84 84 0 0 1 84 0 Z"
+              fill="rgba(99,102,241,0.12)"
+              stroke="rgba(168,85,247,0.22)"
+              strokeWidth="0.5"
+            />
+          </g>
           {RINGS.map((ring) => (
             <circle
               key={ring.r}

@@ -2,7 +2,9 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Link } from "@/i18n/routing";
+import { SITE_DARK_CARD, SITE_DARK_CARD_HOVER } from "@/lib/site/publicPageLayout";
 import { requireAdmin } from "@/lib/admin/requireAdmin";
+import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -18,7 +20,12 @@ function HubCard({
   return (
     <Link
       href={href}
-      className="rounded-2xl border border-border bg-[#f8fafc] p-5 text-sm text-foreground/80 transition-colors hover:bg-[#f5f7fb]"
+      className={cn(
+        "block p-5 text-sm text-foreground/80",
+        SITE_DARK_CARD,
+        SITE_DARK_CARD_HOVER,
+        "rounded-2xl",
+      )}
     >
       <div className="font-medium text-foreground">{title}</div>
       <div className="mt-1 text-sm leading-relaxed text-muted-2">{body}</div>

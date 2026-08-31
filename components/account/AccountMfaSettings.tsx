@@ -19,14 +19,20 @@ import {
 } from "@/lib/auth/accountMfa";
 import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { KF_RADIX_OVERLAY } from "@/lib/site/microMotion";
+import {
+  SITE_DARK_INSET,
+  SITE_DARK_MODAL,
+} from "@/lib/site/publicPageLayout";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
 
 type Props = {
   className?: string;
+  /** After first successful enroll, navigate here (admin setup redirect). */
+  nextPath?: string;
 };
 
-export function AccountMfaSettings({ className }: Props) {
+export function AccountMfaSettings({ className, nextPath }: Props) {
   const t = useTranslations("accountSecurity");
   const tAuth = useTranslations("auth");
   const router = useRouter();
@@ -112,6 +118,9 @@ export function AccountMfaSettings({ className }: Props) {
       setEnrollCode("");
       setSuccess(t("enableSuccess"));
       router.refresh();
+      if (nextPath) {
+        router.replace(nextPath);
+      }
     } catch (err) {
       setError(isInvalidMfaCode(err) ? t("errInvalidCode") : mapAuthError(err, tAuth));
     } finally {
@@ -193,22 +202,22 @@ export function AccountMfaSettings({ className }: Props) {
   }
 
   return (
-    <div className={cn("rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6", className)}>
+    <div className={cn(SITE_DARK_INSET, "rounded-3xl p-5 sm:p-6", className)}>
       <div className="text-sm font-medium text-foreground/80">{t("mfaTitle")}</div>
       <p className="mt-1.5 text-xs leading-relaxed text-muted-2">{t("mfaSubtitle")}</p>
 
       {success ? (
-        <div className="mt-4 rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] px-3 py-2 text-xs text-emerald-800/95">
+        <div className="mt-4 rounded-xl border border-emerald-400/25 bg-emerald-500/[0.08] px-3 py-2 text-xs text-emerald-300">
           {success}
         </div>
       ) : null}
 
       {hasVerified ? (
         <div className="mt-5 space-y-4">
-          <div className="rounded-2xl border border-border bg-white px-4 py-3">
+          <div className={cn(SITE_DARK_INSET, "rounded-2xl px-4 py-3")}>
             <div className="text-sm font-medium text-foreground/85">{t("mfaTitle")}</div>
             <div className="mt-1 text-xs text-muted-2">
-              {t("statusLabel")}: <span className="font-medium text-emerald-800/90">{t("statusActive")}</span>
+              {t("statusLabel")}: <span className="font-medium text-emerald-400">{t("statusActive")}</span>
             </div>
             {verifiedFactors.length > 1 ? (
               <p className="mt-2 text-[11px] leading-relaxed text-muted-2">{t("multipleFactorsHint")}</p>
@@ -227,7 +236,7 @@ export function AccountMfaSettings({ className }: Props) {
         </div>
       ) : (
         <div className="mt-5 space-y-4">
-          <div className="rounded-2xl border border-border bg-white px-4 py-3">
+          <div className={cn(SITE_DARK_INSET, "rounded-2xl px-4 py-3")}>
             <div className="text-sm font-medium text-foreground/85">{t("mfaTitle")}</div>
             <div className="mt-1 text-xs text-muted-2">
               {t("statusLabel")}: <span className="font-medium text-muted">{t("statusInactive")}</span>
@@ -251,7 +260,7 @@ export function AccountMfaSettings({ className }: Props) {
           ) : (
             <div className="space-y-4">
               {qr ? (
-                <div className="flex justify-center rounded-2xl border border-border bg-white p-4">
+                <div className={cn("flex justify-center rounded-2xl p-4", SITE_DARK_INSET)}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={qr} alt="" className="h-48 w-48" />
                 </div>
@@ -291,7 +300,7 @@ export function AccountMfaSettings({ className }: Props) {
       )}
 
       {error && !disableOpen ? (
-        <div className="mt-4 rounded-2xl border border-border bg-white px-4 py-3 text-sm text-muted">{error}</div>
+        <div className={cn("mt-4 rounded-2xl px-4 py-3 text-sm text-muted", SITE_DARK_INSET)}>{error}</div>
       ) : null}
 
       <DialogPrimitive.Root open={disableOpen} onOpenChange={setDisableOpen}>
@@ -299,7 +308,8 @@ export function AccountMfaSettings({ className }: Props) {
           <DialogPrimitive.Overlay className={cn("fixed inset-0 z-[80] bg-black/70", KF_RADIX_OVERLAY)} />
           <DialogPrimitive.Content
             className={cn(
-              "fixed left-1/2 top-1/2 z-[90] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border bg-[#f8fafc] p-5 shadow-xl sm:p-6",
+              "fixed left-1/2 top-1/2 z-[90] w-[min(calc(100vw-2rem),28rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl p-5 shadow-xl sm:p-6",
+              SITE_DARK_MODAL,
               "kf-dialog-sheet",
             )}
           >
@@ -319,7 +329,7 @@ export function AccountMfaSettings({ className }: Props) {
                   id="mfa-verify-factor"
                   value={verifyFactorId ?? ""}
                   onChange={(e) => setVerifyFactorId(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground/85 outline-none focus:border-[rgba(37,99,235,0.35)]"
+                  className="h-10 w-full rounded-xl border border-white/[0.10] bg-[#12121a] px-3 text-sm text-foreground/85 outline-none focus:border-[rgba(37,99,235,0.35)]"
                 >
                   {verifiedFactors.map((factor) => (
                     <option key={factor.id} value={factor.id}>
@@ -348,7 +358,7 @@ export function AccountMfaSettings({ className }: Props) {
             </div>
 
             {error && disableOpen ? (
-              <div className="mt-3 rounded-xl border border-border bg-white px-3 py-2 text-xs text-muted">{error}</div>
+              <div className={cn("mt-3 rounded-xl px-3 py-2 text-xs text-muted", SITE_DARK_INSET)}>{error}</div>
             ) : null}
 
             <div className="mt-5 flex flex-wrap gap-2">

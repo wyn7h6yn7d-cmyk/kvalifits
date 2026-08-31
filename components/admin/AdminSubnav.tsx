@@ -32,10 +32,10 @@ export function AdminSubnav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "inline-flex h-9 shrink-0 items-center rounded-xl px-3 text-[13px] font-medium transition-colors",
+                "inline-flex h-9 shrink-0 items-center rounded-xl border px-3 text-[13px] font-medium transition-colors",
                 active
-                  ? "bg-[#f8fafc] text-foreground"
-                  : "text-muted hover:bg-[#f5f7fb] hover:text-foreground/85",
+                  ? "border-white/[0.14] bg-white/[0.08] text-foreground"
+                  : "border-transparent text-muted hover:border-white/[0.08] hover:bg-white/[0.05] hover:text-foreground/85",
               )}
             >
               {t(item.key)}
