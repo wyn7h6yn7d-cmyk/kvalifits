@@ -10,26 +10,23 @@ export async function FinalCTA() {
   const t = await getTranslations("finalCta");
 
   return (
-    <HomeSectionShell id="registreeru" tone="deep" narrow className="scroll-mt-[var(--site-header-offset)] overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_95%_75%_at_50%_100%,rgba(99,102,241,0.22),transparent_65%)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent-pink)]/35 to-transparent"
-      />
+    <HomeSectionShell
+      id="registreeru"
+      tone="base"
+      contentWidth="cta"
+      className="scroll-mt-[var(--site-header-offset)]"
+    >
       <div className="relative text-center">
         <div
           aria-hidden
-          className="mx-auto mb-6 h-px w-12 bg-gradient-to-r from-violet-400/70 via-[var(--accent-pink)]/50 to-transparent"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-52 w-[min(100%,26rem)] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.05),transparent_74%)] sm:h-56 sm:w-[min(100%,30rem)] lg:h-60 lg:w-[34rem]"
         />
-        <h2 className={SITE_H2_HOME}>{t("title")}</h2>
-        <div className="mt-10 flex flex-col gap-3.5 sm:flex-row sm:justify-center sm:gap-4">
-          <Button asChild variant="primary" size="lg" className={cn(SITE_HOME_CTA_PRIMARY, "w-full min-w-0 sm:w-auto sm:min-w-[12rem]")}>
+        <h2 className={cn("relative", SITE_H2_HOME)}>{t("title")}</h2>
+        <div className="relative mt-10 flex flex-col gap-4 sm:mt-11 sm:flex-row sm:justify-center lg:mt-12 lg:gap-5">
+          <Button asChild variant="primary" size="lg" className={cn(SITE_HOME_CTA_PRIMARY, "w-full min-w-0 sm:w-auto sm:min-w-[13.5rem]")}>
             <Link href="/tood">{t("ctaSeeker")}</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className={cn(SITE_HOME_CTA_SECONDARY, "w-full min-w-0 sm:w-auto sm:min-w-[12rem]")}>
+          <Button asChild variant="outline" size="lg" className={cn(SITE_HOME_CTA_SECONDARY, "w-full min-w-0 sm:w-auto sm:min-w-[13.5rem]")}>
             <Link href="/auth/register?role=employer">{t("ctaEmployer")}</Link>
           </Button>
         </div>

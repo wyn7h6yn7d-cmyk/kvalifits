@@ -6,26 +6,28 @@ import {
   JOBS_PAGE_CONTROL_HEIGHT,
   JOBS_PAGE_LIST_GAP,
   JOBS_PAGE_MAIN_GRID,
+  JOBS_PAGE_SEARCH_BAR,
   JOBS_PAGE_SECTION_GAP,
   JOBS_PAGE_SIDEBAR_PADDING,
+  JOBS_PAGE_SIDEBAR_SURFACE,
   JOBS_PAGE_TOP,
 } from "@/lib/jobs/jobsPageLayout";
 import { cn } from "@/lib/utils";
 
 export function JobSearchSkeleton({ label, count = 4 }: { label?: string; count?: number }) {
   return (
-    <SkeletonRegion label={label} className={cn(JOBS_PAGE_TOP, "pb-12 sm:pb-12 lg:pb-16")}>
+    <SkeletonRegion label={label} className={cn(JOBS_PAGE_TOP, "bg-background pb-8 sm:pb-10 lg:pb-11")}>
       <Container className={JOBS_PAGE_CONTAINER}>
-        <header className="border-b border-border pb-4 md:pb-6 lg:pb-8">
-          <Bone className="h-8 w-48 rounded-lg sm:h-9" />
-          <Bone className={cn("mt-4 w-full rounded-xl", JOBS_PAGE_CONTROL_HEIGHT)} />
+        <header className="border-b border-white/[0.08] pb-4 md:pb-5 lg:pb-6">
+          <Bone className="h-8 w-48 rounded-lg sm:h-9 lg:h-10" />
+          <Bone className={cn("mt-4 w-full rounded-xl", JOBS_PAGE_SEARCH_BAR, JOBS_PAGE_CONTROL_HEIGHT)} />
           <Bone className="mt-4 h-4 w-32 lg:hidden" />
         </header>
 
         <div
           className={cn(
             JOBS_PAGE_SECTION_GAP,
-            "space-y-3 border-b border-border py-3 lg:hidden",
+            "space-y-3 border-b border-white/[0.08] py-3 lg:hidden",
           )}
         >
           <div className="grid grid-cols-2 gap-2">
@@ -47,12 +49,7 @@ export function JobSearchSkeleton({ label, count = 4 }: { label?: string; count?
             </div>
 
             <div className="hidden lg:block">
-              <div
-                className={cn(
-                  JOBS_PAGE_SIDEBAR_PADDING,
-                  "rounded-xl border border-border bg-white",
-                )}
-              >
+              <div className={cn(JOBS_PAGE_SIDEBAR_PADDING, JOBS_PAGE_SIDEBAR_SURFACE)}>
                 <div className="space-y-3">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="space-y-2">

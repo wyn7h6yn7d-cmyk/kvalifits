@@ -10,8 +10,9 @@ export function AmbientBackground({
   className?: string;
   intensity?: "soft" | "default" | "strong";
 }) {
-  const opacity = intensity === "soft" ? 0.16 : intensity === "strong" ? 0.26 : 0.21;
-  const pinkOpacity = intensity === "soft" ? 0.08 : intensity === "strong" ? 0.14 : 0.11;
+  const opacity = intensity === "soft" ? 0.22 : intensity === "strong" ? 0.34 : 0.28;
+  const pinkOpacity = intensity === "soft" ? 0.12 : intensity === "strong" ? 0.2 : 0.16;
+  const sideOpacity = intensity === "soft" ? 0.14 : intensity === "strong" ? 0.22 : 0.18;
 
   return (
     <div
@@ -23,14 +24,22 @@ export function AmbientBackground({
         style={{
           opacity,
           background:
-            "radial-gradient(circle at 50% 42%, rgba(99,102,241,0.28), rgba(129,140,248,0.12), rgba(168,85,247,0.06), rgba(7,7,12,0) 68%)",
+            "radial-gradient(circle at 50% 42%, rgba(99,102,241,0.38), rgba(129,140,248,0.18), rgba(168,85,247,0.1), rgba(7,7,12,0) 68%)",
         }}
       />
       <div
-        className="absolute -bottom-16 right-[8%] h-48 w-48 rounded-full blur-3xl lg:-bottom-8 lg:right-[12%] lg:h-56 lg:w-56"
+        className="kf-ambient-orb-b absolute -bottom-16 right-[8%] h-48 w-48 rounded-full blur-3xl lg:-bottom-8 lg:right-[12%] lg:h-56 lg:w-56"
         style={{
           opacity: pinkOpacity,
-          background: "radial-gradient(circle, rgba(227,31,141,0.35), transparent 70%)",
+          background: "radial-gradient(circle, rgba(227,31,141,0.42), rgba(168,85,247,0.12), transparent 72%)",
+        }}
+      />
+      <div
+        className="kf-ambient-orb-c absolute -left-12 top-[38%] h-56 w-56 rounded-full blur-3xl sm:-left-6 sm:h-64 sm:w-64 lg:left-[4%] lg:h-72 lg:w-72"
+        style={{
+          opacity: sideOpacity,
+          background:
+            "radial-gradient(circle, rgba(79,70,229,0.32), rgba(99,102,241,0.14), transparent 70%)",
         }}
       />
     </div>

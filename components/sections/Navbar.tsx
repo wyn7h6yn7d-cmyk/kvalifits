@@ -16,11 +16,12 @@ import {
   resolveMobileNavItems,
   type NavItem,
 } from "@/lib/navigation/navConfig";
+import { SITE_CONTAINER } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 import { useCurrentAuth } from "@/components/auth/CurrentAuthProvider";
 
 const langTriggerNavbar =
-  "h-11 min-h-11 w-auto shrink-0 rounded-md border-0 bg-transparent px-2.5 py-0 text-[0.9375rem] leading-snug text-white/72 shadow-none ring-0 hover:!bg-white/[0.06] hover:!text-white lg:!h-8 lg:!min-h-0 lg:px-2";
+  "h-11 min-h-11 w-auto shrink-0 rounded-md border-0 bg-transparent px-2.5 py-0 text-[0.9375rem] leading-snug text-white/72 shadow-none ring-0 hover:!bg-white/[0.06] hover:!text-white lg:!h-10 lg:px-3 lg:text-base";
 
 function navIsActive(pathname: string, href: string) {
   if (href === "/tood") return pathname === "/tood" || pathname.startsWith("/tood/");
@@ -45,7 +46,7 @@ function NavLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-2 text-[0.9375rem] font-medium leading-snug transition-colors xl:px-2.5",
+        "inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-md px-2.5 text-[0.9375rem] font-medium leading-snug transition-colors lg:px-3 lg:text-base",
         active ? "bg-white/[0.08] text-white" : "text-white/68 hover:bg-white/[0.05] hover:text-white",
         className,
       )}
@@ -150,12 +151,12 @@ export function Navbar() {
   return (
     <>
       <header className="pointer-events-none fixed inset-x-0 top-0 z-50 pb-[var(--site-header-tail)] pt-[var(--site-header-top)]">
-        <div className="pointer-events-auto mx-auto w-full max-w-[1120px] px-4 md:px-6 lg:px-8">
+        <div className={cn("pointer-events-auto w-full", SITE_CONTAINER)}>
           <div className={headerBar}>
             <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden lg:flex-none lg:shrink-0">
               <Logo
                 className="inline-flex h-full max-w-full items-center"
-                imageClassName="h-full w-[9rem] max-h-10 object-cover object-left sm:max-h-11 sm:w-[12rem] lg:max-h-[3.625rem] lg:w-[15rem]"
+                imageClassName="h-8 w-auto max-h-8 sm:h-9 sm:max-h-9 lg:h-[4.125rem] lg:max-h-[4.125rem] xl:h-[4.375rem] xl:max-h-[4.375rem]"
                 priority
               />
             </div>
@@ -170,14 +171,14 @@ export function Navbar() {
                 {authenticated ? (
                   <>
                     {role === "employer" ? (
-                      <Button asChild variant="primary" size="sm">
+                      <Button asChild variant="primary">
                         <Link href="/account/employer/jobs/new">{t("addJob")}</Link>
                       </Button>
                     ) : null}
                     {role === null ? (
                       <Link
                         href="/account"
-                        className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-white/75 hover:text-white"
+                        className="inline-flex h-10 items-center px-3 text-[0.9375rem] font-medium text-white/75 hover:text-white lg:text-base"
                       >
                         {t("account")}
                       </Link>
@@ -185,7 +186,7 @@ export function Navbar() {
                     <form action={`/${locale}/auth/logout`} method="post">
                       <button
                         type="submit"
-                        className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-white/75 transition-colors hover:text-white"
+                        className="inline-flex h-10 items-center px-3 text-[0.9375rem] font-medium text-white/75 transition-colors hover:text-white lg:text-base"
                       >
                         {t("logout")}
                       </button>
@@ -195,11 +196,11 @@ export function Navbar() {
                   <>
                     <Link
                       href="/auth/login"
-                      className="inline-flex h-8 items-center px-2 text-[0.9375rem] font-medium text-white/75 hover:text-white"
+                      className="inline-flex h-10 items-center px-3 text-[0.9375rem] font-medium text-white/75 hover:text-white lg:text-base"
                     >
                       {t("login")}
                     </Link>
-                    <Button asChild variant="primary" size="sm">
+                    <Button asChild variant="primary">
                       <Link href="/auth/register">{t("signup")}</Link>
                     </Button>
                   </>

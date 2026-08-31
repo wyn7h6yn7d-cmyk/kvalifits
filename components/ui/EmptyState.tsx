@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { SITE_DARK_EMPTY_ICON, SITE_DARK_EMPTY_STATE } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 export function EmptyState({
@@ -17,17 +18,9 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-border bg-white px-5 py-10 text-center sm:px-8",
-        className,
-      )}
-    >
+    <div className={cn(SITE_DARK_EMPTY_STATE, className)}>
       {Icon ? (
-        <div
-          className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-[#f8fafc] text-muted-2"
-          aria-hidden
-        >
+        <div className={SITE_DARK_EMPTY_ICON} aria-hidden>
           <Icon className="h-4 w-4" strokeWidth={1.75} />
         </div>
       ) : null}

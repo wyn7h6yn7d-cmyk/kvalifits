@@ -73,6 +73,7 @@ import {
   certificateViewLabelsFromT,
 } from "@/components/seeker/CertificateVerificationBadge";
 import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
+import { Link } from "@/i18n/routing";
 import { SeekerCompletenessPanel } from "@/components/account/SeekerCompletenessPanel";
 import {
   computeSeekerProfileCompleteness,
@@ -162,6 +163,7 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
   const showProfile = section !== "certificates";
   const showCertificates = section !== "profile";
   const t = useTranslations("onboarding");
+  const tSecurity = useTranslations("accountSecurity");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
@@ -1303,6 +1305,11 @@ export function SeekerProfileForm({ locale, initial, section = "full" }: Props) 
       <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
         <div className="text-sm font-medium text-foreground/80">{t("accountTitle")}</div>
         <div className="mt-1 text-sm leading-relaxed text-muted">{t("accountHint")}</div>
+        <p className="mt-2 text-xs">
+          <Link href="/account/security" className="font-medium text-muted underline-offset-4 hover:underline">
+            {tSecurity("securitySettingsLink")}
+          </Link>
+        </p>
 
         <div className="mt-5 rounded-2xl border border-border bg-white p-4">
           <div className="text-sm font-medium text-foreground/80">{t("passwordChangeTitle")}</div>

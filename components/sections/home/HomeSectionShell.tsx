@@ -2,36 +2,38 @@ import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
 import {
-  SITE_HOME_INNER,
+  SITE_HOME_INNER_CTA,
+  SITE_HOME_INNER_FAQ,
   SITE_HOME_SECTION,
-  SITE_HOME_SECTION_DEEP,
-  SITE_HOME_SECTION_RAISED,
 } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 type Tone = "base" | "raised" | "deep";
 type Glow = "none" | "top" | "center";
+type ContentWidth = "full" | "cta" | "faq";
 
+/** All tones map to the same canvas — avoids banded section backgrounds. */
 const TONE_CLASS: Record<Tone, string> = {
   base: SITE_HOME_SECTION,
-  raised: SITE_HOME_SECTION_RAISED,
-  deep: SITE_HOME_SECTION_DEEP,
+  raised: SITE_HOME_SECTION,
+  deep: SITE_HOME_SECTION,
 };
 
-const GLOW_CLASS: Record<Exclude<Glow, "none">, string> = {
-  top: "pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(ellipse_80%_100%_at_50%_0%,rgba(99,102,241,0.09),transparent_72%)]",
-  center:
-    "pointer-events-none absolute inset-x-0 top-1/2 h-64 -translate-y-1/2 bg-[radial-gradient(ellipse_70%_80%_at_50%_50%,rgba(99,102,241,0.06),transparent_70%)]",
+const CONTENT_WIDTH_CLASS: Record<Exclude<ContentWidth, "full">, string> = {
+  cta: SITE_HOME_INNER_CTA,
+  faq: SITE_HOME_INNER_FAQ,
 };
 
 type Props = {
   children: ReactNode;
   id?: string;
   tone?: Tone;
+  /** @deprecated Section-wide glow bands removed — use focal glows in section content. */
   glow?: Glow;
+  contentWidth?: ContentWidth;
   className?: string;
   containerClassName?: string;
-  /** Narrower inner column for text-heavy blocks (FAQ, CTA). */
+  /** @deprecated Use contentWidth="cta" | "faq" */
   narrow?: boolean;
   "aria-labelledby"?: string;
 };
@@ -40,17 +42,19 @@ export function HomeSectionShell({
   children,
   id,
   tone = "base",
-  glow = "none",
+  glow: _glow = "none",
+  contentWidth = "full",
   className,
   containerClassName,
   narrow = false,
   "aria-labelledby": ariaLabelledby,
 }: Props) {
+  const width = narrow ? "cta" : contentWidth;
+
   return (
-    <section id={id} aria-labelledby={ariaLabelledby} className={cn(TONE_CLASS[tone], "overflow-hidden", className)}>
-      {glow !== "none" ? <div aria-hidden className={GLOW_CLASS[glow]} /> : null}
+    <section id={id} aria-labelledby={ariaLabelledby} className={cn(TONE_CLASS[tone], className)}>
       <Container className={cn("relative", containerClassName)}>
-        <div className={cn(narrow && SITE_HOME_INNER)}>{children}</div>
+        <div className={cn(width !== "full" && CONTENT_WIDTH_CLASS[width])}>{children}</div>
       </Container>
     </section>
   );

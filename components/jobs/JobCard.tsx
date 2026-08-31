@@ -119,8 +119,7 @@ function JobCardComponent({
     <article
       className={cn(
         JOBS_PAGE_CARD_PADDING,
-        "group relative overflow-visible rounded-xl border border-white/[0.09] bg-[linear-gradient(165deg,rgba(22,22,32,0.96)_0%,rgba(14,14,21,0.94)_100%)] shadow-[0_16px_48px_-32px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.06)] transition-[border-color,box-shadow] duration-300",
-        "hover:border-violet-400/18 hover:shadow-[0_20px_52px_-28px_rgba(79,70,229,0.2),inset_0_1px_0_rgba(255,255,255,0.08)]",
+        "group relative overflow-visible rounded-xl border border-white/[0.09] bg-[linear-gradient(165deg,rgba(22,22,32,0.96)_0%,rgba(14,14,21,0.94)_100%)] shadow-[0_16px_48px_-32px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.06)] transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-violet-400/18 hover:shadow-[0_20px_52px_-28px_rgba(79,70,229,0.2),inset_0_1px_0_rgba(255,255,255,0.08)] motion-reduce:hover:translate-y-0",
       )}
     >
       <Link

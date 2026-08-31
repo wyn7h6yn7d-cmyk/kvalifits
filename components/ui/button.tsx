@@ -28,7 +28,7 @@ const secondarySurface =
   "border border-white/[0.09] bg-white/[0.035] text-foreground/92 shadow-none hover:border-white/[0.14] hover:bg-white/[0.055] hover:text-foreground active:bg-white/[0.03]";
 
 const buttonVariants = cva(
-  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] font-sans text-[0.9375rem] font-medium leading-snug transition-[color,background-color,border-color,box-shadow] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 max-lg:whitespace-normal [&_svg]:pointer-events-none [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
+  "relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] font-sans text-[0.9375rem] font-medium leading-snug transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px active:translate-y-0 motion-reduce:hover:translate-y-0 motion-reduce:active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 max-lg:whitespace-normal [&_svg]:pointer-events-none [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {

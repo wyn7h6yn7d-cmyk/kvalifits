@@ -16,11 +16,14 @@ import {
   heroQuickFilterToSearchParams,
   type HeroQuickFilterId,
 } from "@/lib/jobs/heroQuickFilters";
+import { SITE_HERO_SEARCH_HEIGHT } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 type Props = {
   quickFilters: HeroQuickFilterId[];
 };
+
+const fieldClass = cn(SITE_HERO_SEARCH_HEIGHT, "min-w-0 rounded-none border-0 bg-transparent text-base text-white shadow-none placeholder:text-white/38 focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none lg:text-[1.0625rem]");
 
 export function HeroJobSearch({ quickFilters }: Props) {
   const t = useTranslations("hero");
@@ -44,7 +47,7 @@ export function HeroJobSearch({ quickFilters }: Props) {
   }
 
   return (
-    <div className="mt-8 min-w-0 sm:mt-9 lg:mt-10">
+    <div className="mt-8 min-w-0 sm:mt-9 lg:mt-11">
       <div className="relative">
         <div
           aria-hidden
@@ -52,41 +55,41 @@ export function HeroJobSearch({ quickFilters }: Props) {
         />
         <form
           onSubmit={onSubmit}
-          className="relative min-w-0 overflow-hidden rounded-2xl border border-white/[0.22] bg-[#121216]/95 shadow-[0_24px_80px_-36px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.12)] ring-1 ring-white/[0.10] backdrop-blur-sm"
+          className="relative min-w-0 overflow-hidden rounded-2xl border border-white/[0.22] bg-[#121216]/95 shadow-[0_24px_80px_-36px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.12)] ring-1 ring-white/[0.10] backdrop-blur-sm lg:rounded-[1.125rem]"
         >
-          <div className="grid min-h-[3.75rem] min-w-0 items-stretch gap-0 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_auto]">
-            <label className="relative flex min-h-[3.75rem] min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+          <div className={cn("grid min-w-0 items-stretch gap-0 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_auto]", SITE_HERO_SEARCH_HEIGHT)}>
+            <label className={cn("relative flex min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]", SITE_HERO_SEARCH_HEIGHT)}>
               <span className="sr-only">{t("searchQueryPlaceholder")}</span>
               <Search
-                className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-300/50"
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-violet-300/50 lg:left-5"
                 aria-hidden
               />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("searchQueryPlaceholder")}
-                className="h-[3.75rem] min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-base text-white placeholder:text-white/38 shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
+                className={cn(fieldClass, "pl-12 pr-4 lg:pl-14 lg:pr-5")}
               />
             </label>
 
-            <label className="relative flex min-h-[3.75rem] min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]">
+            <label className={cn("relative flex min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]", SITE_HERO_SEARCH_HEIGHT)}>
               <span className="sr-only">{t("searchLocationPlaceholder")}</span>
               <MapPin
-                className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-violet-300/50"
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-violet-300/50 lg:left-5"
                 aria-hidden
               />
               <Input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder={t("searchLocationPlaceholder")}
-                className="h-[3.75rem] min-w-0 rounded-none border-0 bg-transparent pl-11 pr-4 text-base text-white placeholder:text-white/38 shadow-none focus:bg-transparent focus-visible:rounded-none focus-visible:outline-none"
+                className={cn(fieldClass, "pl-12 pr-4 lg:pl-14 lg:pr-5")}
               />
             </label>
 
             <Button
               type="submit"
               variant="primary"
-              className="h-[3.75rem] min-h-[3.75rem] w-full min-w-0 rounded-none px-5 text-pretty text-base font-semibold focus-visible:ring-inset focus-visible:ring-offset-0 lg:h-full lg:min-w-[13rem] xl:min-w-[14.5rem]"
+              className={cn(SITE_HERO_SEARCH_HEIGHT, "w-full min-w-0 rounded-none px-6 text-pretty text-base font-semibold focus-visible:ring-inset focus-visible:ring-offset-0 lg:min-w-[15rem] lg:px-7 lg:text-[1.0625rem] xl:min-w-[16rem]")}
             >
               {t("searchSubmit")}
             </Button>
@@ -95,7 +98,7 @@ export function HeroJobSearch({ quickFilters }: Props) {
       </div>
 
       {quickFilters.length ? (
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2.5">
           {quickFilters.map((id) => {
             const params = heroQuickFilterToSearchParams(id);
             const labelKey = {
@@ -110,9 +113,9 @@ export function HeroJobSearch({ quickFilters }: Props) {
                 key={id}
                 href={buildJobSearchUrl(params)}
                 className={cn(
-                  "inline-flex min-h-11 max-w-full items-center rounded-full border border-white/[0.08] bg-white/[0.035] px-3.5 py-2",
-                  "text-pretty text-[0.9375rem] font-medium leading-snug text-white/68",
-                  "transition-[color,background-color,border-color] duration-300 hover:border-white/[0.13] hover:bg-white/[0.055] hover:text-white/92",
+                  "inline-flex min-h-11 max-w-full items-center rounded-full border border-white/[0.08] bg-white/[0.035] px-4 py-2.5",
+                  "text-pretty text-[0.9375rem] font-medium leading-snug text-white/68 lg:min-h-12 lg:px-5 lg:text-base",
+                  "transition-[color,background-color,border-color,transform] duration-200 ease-out hover:-translate-y-px hover:border-white/[0.13] hover:bg-white/[0.055] hover:text-white/92 active:translate-y-0 motion-reduce:hover:translate-y-0",
                 )}
               >
                 {t(labelKey)}

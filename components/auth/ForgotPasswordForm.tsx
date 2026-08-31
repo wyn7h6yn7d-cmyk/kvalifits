@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SITE_DARK_NOTICE } from "@/lib/site/publicPageLayout";
 
 export function ForgotPasswordForm({ locale }: { locale: string }) {
   const t = useTranslations("auth");
@@ -47,7 +48,7 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
 
   if (sent) {
     return (
-      <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+      <div className={SITE_DARK_NOTICE}>
         {t("resetEmailSent")}
       </div>
     );
@@ -70,7 +71,7 @@ export function ForgotPasswordForm({ locale }: { locale: string }) {
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}

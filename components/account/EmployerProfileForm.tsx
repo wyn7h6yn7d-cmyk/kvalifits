@@ -16,6 +16,7 @@ import {
 } from "@/lib/employer/companyVerification";
 import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
 import { AccountPrivacySettings } from "@/components/account/AccountPrivacySettings";
+import { Link } from "@/i18n/routing";
 import { isEmployerLogoFromStorageUpload } from "@/lib/employer/employerLogoUpload";
 import { queueEmployerCarouselLogoProcessing } from "@/lib/employer/queueEmployerCarouselLogoProcessing";
 import { prepareRasterImageForUpload } from "@/lib/uploads/prepareUploadFile";
@@ -57,6 +58,7 @@ type Props = {
 
 export function EmployerProfileForm({ locale, initial }: Props) {
   const t = useTranslations("onboarding");
+  const tSecurity = useTranslations("accountSecurity");
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
 
@@ -406,7 +408,16 @@ export function EmployerProfileForm({ locale, initial }: Props) {
       </Button>
 
       <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 sm:p-6">
-        <div className="text-sm font-medium text-foreground/80">{t("passwordChangeTitle")}</div>
+        <div className="text-sm font-medium text-foreground/80">{t("accountTitle")}</div>
+        <div className="mt-1 text-xs leading-relaxed text-muted-2">{t("accountHint")}</div>
+        <p className="mt-2 text-xs">
+          <Link href="/account/security" className="font-medium text-muted underline-offset-4 hover:underline">
+            {tSecurity("securitySettingsLink")}
+          </Link>
+        </p>
+
+        <div className="mt-5 rounded-2xl border border-border bg-white p-4">
+          <div className="text-sm font-medium text-foreground/80">{t("passwordChangeTitle")}</div>
         <div className="mt-1 text-xs leading-relaxed text-muted-2">{t("passwordChangeHint")}</div>
 
         {passwordSuccess ? (
@@ -452,6 +463,7 @@ export function EmployerProfileForm({ locale, initial }: Props) {
         >
           {t("changePasswordCta")}
         </Button>
+        </div>
       </div>
 
       <AccountPrivacySettings locale={locale} />

@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { KF_DIALOG_FULLSCREEN, KF_RADIX_OVERLAY } from "@/lib/site/microMotion";
 import {
   isSearchableFacet,
   limitFacetCatalog,
@@ -44,10 +45,14 @@ import { JobCard } from "./JobCard";
 import {
   JOBS_PAGE_CONTAINER,
   JOBS_PAGE_CONTROL_HEIGHT,
+  JOBS_PAGE_EMPTY_STATE,
   JOBS_PAGE_LIST_GAP,
   JOBS_PAGE_MAIN_GRID,
+  JOBS_PAGE_SEARCH_BAR,
+  JOBS_PAGE_SEARCH_FIELD_FOCUS,
   JOBS_PAGE_SECTION_GAP,
   JOBS_PAGE_SIDEBAR_PADDING,
+  JOBS_PAGE_SIDEBAR_SURFACE,
   JOBS_PAGE_TOP,
 } from "@/lib/jobs/jobsPageLayout";
 import { SITE_H1_UTILITY } from "@/lib/site/publicPageLayout";
@@ -373,19 +378,24 @@ export function JobsSearch({
     ) : null;
 
   return (
-    <section className={cn(JOBS_PAGE_TOP, "pb-[calc(2.5rem+var(--site-bottom-nav-offset,0px))] sm:pb-12 lg:pb-16")}>
+    <section className={cn(JOBS_PAGE_TOP, "bg-background pb-8 sm:pb-10 lg:pb-11")}>
       <Container className={JOBS_PAGE_CONTAINER}>
-        <header className="border-b border-border pb-4 md:pb-6 lg:pb-8">
-          <h1 className={SITE_H1_UTILITY}>
+        <header className="border-b border-white/[0.08] pb-4 md:pb-5 lg:pb-6">
+          <h1 className={cn(SITE_H1_UTILITY, "text-[1.625rem] sm:text-[1.75rem] lg:text-[2rem]")}>
             {pageTitle}
           </h1>
 
           <form
             onSubmit={onSearchSubmit}
-            className="mt-4 overflow-hidden rounded-xl border border-border bg-white"
+            className={cn("mt-4", JOBS_PAGE_SEARCH_BAR)}
           >
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_auto]">
-              <label className="relative block border-b border-border transition-colors focus-within:bg-[#f8fafc] lg:border-b-0 lg:border-r lg:border-border">
+              <label
+                className={cn(
+                  "relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r lg:border-white/[0.08]",
+                  JOBS_PAGE_SEARCH_FIELD_FOCUS,
+                )}
+              >
                 <span className="sr-only">{t("searchPlaceholder")}</span>
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-2" />
                 <Input
@@ -401,7 +411,12 @@ export function JobsSearch({
                   )}
                 />
               </label>
-              <label className="relative block border-b border-border transition-colors focus-within:bg-[#f8fafc] lg:border-b-0 lg:border-r lg:border-border">
+              <label
+                className={cn(
+                  "relative block border-b border-white/[0.08] lg:border-b-0 lg:border-r lg:border-white/[0.08]",
+                  JOBS_PAGE_SEARCH_FIELD_FOCUS,
+                )}
+              >
                 <span className="sr-only">{t("locationPlaceholder")}</span>
                 <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-2" />
                 <Input
@@ -440,13 +455,13 @@ export function JobsSearch({
         <div
           className={cn(
             JOBS_PAGE_SECTION_GAP,
-            "sticky top-[var(--site-header-offset)] z-30 space-y-3 border-b border-border bg-background py-3 lg:hidden",
+            "sticky top-[var(--site-header-offset)] z-30 space-y-3 border-b border-white/[0.08] bg-background py-3 lg:hidden",
           )}
         >
           <Button
             type="button"
             variant="outline"
-            className="h-11 w-full min-w-0 justify-start gap-2 px-3"
+            className={cn(JOBS_PAGE_CONTROL_HEIGHT, "w-full min-w-0 justify-start gap-2 px-3")}
             onClick={() => setMobileOpen(true)}
           >
             <SlidersHorizontal className="h-4 w-4 shrink-0 opacity-70" aria-hidden />
@@ -457,7 +472,7 @@ export function JobsSearch({
             </span>
           </Button>
           <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-            <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-border bg-white px-3">
+            <label className="flex h-11 min-w-0 items-center gap-2 rounded-xl border border-white/[0.11] bg-[#14141f] px-3 sm:h-12">
               <span className="shrink-0 text-[0.9375rem] font-medium text-muted">{t("sortLabel")}</span>
               <Select
                 value={sort}
@@ -476,19 +491,19 @@ export function JobsSearch({
               snapshot={searchSnapshot}
               matchSortAvailable={matchSortAvailable}
               canSave={canSaveJobs}
-              className="h-11 w-full min-w-0 shrink-0 sm:w-auto sm:max-w-full"
+              className={cn(JOBS_PAGE_CONTROL_HEIGHT, "w-full min-w-0 shrink-0 sm:w-auto sm:max-w-full")}
             />
           </div>
         </div>
 
         <div className={JOBS_PAGE_SECTION_GAP}>
           <div className={JOBS_PAGE_MAIN_GRID}>
-            <div className="hidden h-11 items-center text-[13px] font-medium leading-none text-foreground/80 lg:flex">
+            <div className="hidden h-11 items-center text-[0.9375rem] font-medium leading-none text-foreground/85 sm:h-12 lg:flex">
               {t("filters")}
             </div>
-            <div className="hidden h-11 min-w-0 items-center justify-between gap-3 lg:flex">
+            <div className="hidden h-11 min-w-0 items-center justify-between gap-4 sm:h-12 lg:flex">
               <p
-                className="min-w-0 truncate pr-2 text-[15px] font-medium text-foreground"
+                className="min-w-0 truncate pr-2 text-[0.9375rem] font-medium text-foreground sm:text-base"
                 aria-live="polite"
               >
                 {resultsLabel}
@@ -499,7 +514,7 @@ export function JobsSearch({
                   <Select
                     value={sort}
                     onChange={(e) => onSortChange(e.target.value as JobSearchSort)}
-                    className="h-11 w-auto min-w-[10.5rem] max-w-[12rem] shrink-0"
+                    className={cn(JOBS_PAGE_CONTROL_HEIGHT, "w-auto min-w-[10.5rem] max-w-[12rem] shrink-0")}
                     aria-label={t("sortLabel")}
                   >
                     {sortOptions.map((opt) => (
@@ -513,7 +528,7 @@ export function JobsSearch({
                   snapshot={searchSnapshot}
                   matchSortAvailable={matchSortAvailable}
                   canSave={canSaveJobs}
-                  className="h-11 shrink-0"
+                  className={cn(JOBS_PAGE_CONTROL_HEIGHT, "shrink-0")}
                 />
               </div>
             </div>
@@ -522,7 +537,8 @@ export function JobsSearch({
               <div
                 className={cn(
                   JOBS_PAGE_SIDEBAR_PADDING,
-                  "max-h-[calc(100vh-var(--site-header-offset)-1.5rem)] overflow-y-auto rounded-xl border border-border bg-white",
+                  JOBS_PAGE_SIDEBAR_SURFACE,
+                  "max-h-[calc(100vh-var(--site-header-offset)-1.5rem)] overflow-y-auto",
                 )}
               >
                 <JobFiltersBody
@@ -553,7 +569,7 @@ export function JobsSearch({
               </div>
 
               {results.length === 0 ? (
-                <div className="flex justify-center py-4 sm:py-5 lg:py-6">
+                <div className="py-3 sm:py-4">
                   <JobSearchEmptyState
                     t={t}
                     catalogEmpty={totalCount === 0 && !Boolean(
@@ -641,16 +657,17 @@ export function JobsSearch({
 
       <DialogPrimitive.Root open={mobileOpen} onOpenChange={setMobileOpen}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-black/70 lg:hidden" />
+          <DialogPrimitive.Overlay className={cn("fixed inset-0 z-[80] bg-black/70 lg:hidden", KF_RADIX_OVERLAY)} />
           <DialogPrimitive.Content
             className={cn(
+              KF_DIALOG_FULLSCREEN,
               "fixed inset-0 z-[90] lg:hidden",
-              "flex h-dvh flex-col bg-white",
+              "flex h-dvh flex-col bg-[#14141f]",
             )}
           >
             <DialogPrimitive.Title className="sr-only">{t("filters")}</DialogPrimitive.Title>
 
-            <div className="flex items-center justify-between border-b border-border px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
               <div className="text-[15px] font-medium text-foreground">
                 {activeFilterCount
                   ? t("filtersWithCount", { count: activeFilterCount })
@@ -676,7 +693,7 @@ export function JobsSearch({
               />
             </div>
 
-            <div className="border-t border-border space-y-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="space-y-2 border-t border-white/[0.08] p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               {activeFilterCount ? (
                 <Button
                   type="button"
@@ -736,17 +753,17 @@ function JobSearchEmptyState({
   const showChangeSearch = !showAdjustFilters;
 
   return (
-    <div className="mx-auto w-full max-w-sm rounded-xl border border-border bg-white px-5 py-5 text-center sm:px-6 sm:py-6">
+    <div className={JOBS_PAGE_EMPTY_STATE}>
       <div
-        className="mx-auto mb-2.5 flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-[#f8fafc] text-muted-2"
+        className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.10] bg-white/[0.04] text-muted"
         aria-hidden
       >
         <Search className="h-4 w-4" strokeWidth={1.75} />
       </div>
-      <p className="mx-auto max-w-[18rem] text-base font-medium leading-snug text-foreground">
+      <p className="mx-auto max-w-md text-base font-medium leading-snug text-foreground sm:text-[1.0625rem]">
         {catalogEmpty && !hasConstraints ? t("emptyCatalog") : t("noResults")}
       </p>
-      <div className="mt-3.5 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+      <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
         {hasConstraints ? (
           <Button
             type="button"

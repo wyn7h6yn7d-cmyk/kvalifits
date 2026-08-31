@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/routing";
 import { SEEKER_BOTTOM_NAV, type NavKey } from "@/lib/navigation/navConfig";
+import { SITE_DARK_FOOTER_BAR } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 const ICONS: Partial<Record<NavKey, typeof Briefcase>> = {
@@ -34,7 +35,10 @@ export function SeekerBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-50 pb-[env(safe-area-inset-bottom)] lg:hidden",
+        SITE_DARK_FOOTER_BAR,
+      )}
       aria-label={t("seekerMobileNav")}
     >
       <div className="mx-auto grid h-[var(--site-bottom-nav-height)] max-w-lg grid-cols-4">

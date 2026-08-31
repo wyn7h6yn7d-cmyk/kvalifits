@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SheetTrigger } from "@/components/ui/sheet";
 import { QuickApplySheet, scrollApplyFieldIntoView } from "@/components/jobs/QuickApplySheet";
+import { SITE_DARK_FOOTER_BAR } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 /** Playwright-only chrome that reuses the production Quick Apply sheet. */
 export function QuickApplyA11yHarness() {
@@ -50,7 +52,7 @@ export function QuickApplyA11yHarness() {
           </label>
           <div className="h-[70vh] rounded-xl border border-border" aria-hidden />
         </div>
-        <div className="shrink-0 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+        <div className={cn(SITE_DARK_FOOTER_BAR, "px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5")}>
           <Button type="submit" variant="primary" size="lg" className="h-12 w-full">
             {t("applyCta")}
           </Button>

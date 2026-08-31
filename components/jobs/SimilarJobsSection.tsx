@@ -2,6 +2,8 @@ import { MapPin } from "lucide-react";
 
 import { Link } from "@/i18n/routing";
 import type { SimilarJobCardData } from "@/lib/jobs/loadSimilarJobsForDetail";
+import { SITE_DARK_CARD, SITE_DARK_CARD_HOVER } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 export function SimilarJobsSection({
   jobs,
@@ -22,7 +24,7 @@ export function SimilarJobsSection({
           <li key={job.id}>
             <Link
               href={`/tood/${job.id}`}
-              className="block h-full rounded-xl border border-border bg-white p-4 transition-colors hover:border-border-strong hover:bg-[#f5f7fb]"
+              className={cn("block h-full p-4", SITE_DARK_CARD, SITE_DARK_CARD_HOVER)}
             >
               <article>
                 <div className="flex items-start justify-between gap-3">

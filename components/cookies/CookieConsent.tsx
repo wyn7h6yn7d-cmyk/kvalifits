@@ -21,6 +21,7 @@ import {
 } from "@/lib/cookies/consent";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
+import { SITE_DARK_INSET, SITE_DARK_MODAL } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 /**
@@ -108,7 +109,7 @@ export function CookieConsent() {
           aria-modal="false"
           aria-labelledby="cookie-consent-title"
         >
-          <div className="mx-auto max-w-3xl rounded-xl border border-border bg-white p-5 sm:p-6">
+          <div className={cn("mx-auto max-w-3xl rounded-xl p-5 sm:p-6", SITE_DARK_MODAL)}>
             <div id="cookie-consent-title" className="text-sm font-semibold text-foreground">
               {t("title")}
             </div>
@@ -147,7 +148,10 @@ export function CookieConsent() {
           onClick={() => setSettingsOpen(false)}
         >
           <div
-            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-xl border border-border bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-h-none sm:max-w-md sm:rounded-xl sm:p-6 sm:pb-6"
+            className={cn(
+              "max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-h-none sm:max-w-md sm:rounded-xl sm:p-6 sm:pb-6",
+              SITE_DARK_MODAL,
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <div id="cookie-settings-title" className="text-sm font-semibold text-foreground">
@@ -216,13 +220,14 @@ function CategoryRow({
   return (
     <label
       className={cn(
-        "flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-3.5 py-3",
+        "flex min-h-11 cursor-pointer items-start gap-3 px-3.5 py-3",
+        SITE_DARK_INSET,
         disabled && "cursor-default opacity-80"
       )}
     >
       <input
         type="checkbox"
-        className="mt-1 h-5 w-5 shrink-0 border-border-strong bg-[#f8fafc]"
+        className="mt-1 h-5 w-5 shrink-0 border-border-strong bg-[#12121a]"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}

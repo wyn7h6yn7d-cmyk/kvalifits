@@ -5,6 +5,8 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { AlreadySignedIn } from "@/components/auth/AlreadySignedIn";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
+import { SITE_DARK_NOTICE } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -33,7 +35,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
   return (
     <AuthShell title={t("loginTitle")} subtitle={t("loginSubtitle")}>
       {notice ? (
-        <div className="mb-4 rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={cn("mb-4", SITE_DARK_NOTICE)}>
           {notice}
         </div>
       ) : null}

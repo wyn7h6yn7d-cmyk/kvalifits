@@ -8,6 +8,7 @@ import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SITE_DARK_INSET, SITE_DARK_NOTICE } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 type Role = "seeker" | "employer";
@@ -121,7 +122,7 @@ export function RegisterForm({
             {t("roleLabel")}
           </legend>
           <div className="grid grid-cols-2 gap-3">
-            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+            <label className={cn("flex cursor-pointer items-center gap-2 px-4 py-3 text-sm text-muted", SITE_DARK_INSET, "rounded-2xl")}>
               <input
                 type="radio"
                 name="role"
@@ -131,7 +132,7 @@ export function RegisterForm({
               />
               <span className="font-medium text-foreground/80">{t("roleSeeker")}</span>
             </label>
-            <label className="flex cursor-pointer items-center gap-2 rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+            <label className={cn("flex cursor-pointer items-center gap-2 px-4 py-3 text-sm text-muted", SITE_DARK_INSET, "rounded-2xl")}>
               <input
                 type="radio"
                 name="role"
@@ -189,7 +190,7 @@ export function RegisterForm({
         />
       </div>
 
-      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3 text-base leading-[1.65] text-body">
+      <label className={cn("flex cursor-pointer items-start gap-3 px-4 py-3 text-base leading-[1.65] text-body", SITE_DARK_INSET, "rounded-2xl")}>
         <input
           type="checkbox"
           checked={termsAccepted}
@@ -227,7 +228,7 @@ export function RegisterForm({
       </label>
 
       {error ? (
-        <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={cn("whitespace-pre-wrap px-4 py-3 text-sm text-muted", SITE_DARK_INSET, "rounded-2xl")}>
           {error}
         </div>
       ) : null}

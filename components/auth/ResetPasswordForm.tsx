@@ -8,6 +8,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SITE_DARK_NOTICE } from "@/lib/site/publicPageLayout";
 
 export function ResetPasswordForm({ locale }: { locale: string }) {
   const t = useTranslations("auth");
@@ -52,7 +53,7 @@ export function ResetPasswordForm({ locale }: { locale: string }) {
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}

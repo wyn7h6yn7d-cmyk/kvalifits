@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { usePathname, useRouter } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { KF_DROPDOWN_PANEL, KF_CHEVRON } from "@/lib/site/microMotion";
 
 const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
@@ -150,7 +151,7 @@ export function LanguageSwitcher({
         <Globe2 className="h-3.5 w-3.5 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
         <span className="uppercase">{t(current as LocaleCode)}</span>
         <ChevronDown
-          className={cn("h-3 w-3 shrink-0 opacity-70 transition-transform duration-150", open && "rotate-180")}
+          className={cn("h-3 w-3 shrink-0 opacity-70", KF_CHEVRON, open && "rotate-180")}
           strokeWidth={2}
           aria-hidden
         />
@@ -158,8 +159,9 @@ export function LanguageSwitcher({
 
       <div
         className={cn(
-          "absolute right-0 top-full z-[70] pt-1.5 transition-[opacity,transform,visibility] duration-150 ease-out",
-          open ? "visible translate-y-0 opacity-100" : "invisible pointer-events-none -translate-y-0.5 opacity-0",
+          "absolute right-0 top-full z-[70] pt-1.5",
+          KF_DROPDOWN_PANEL,
+          open ? "visible translate-y-0 opacity-100" : "invisible pointer-events-none -translate-y-1 opacity-0",
         )}
         aria-hidden={!open}
         inert={!open ? true : undefined}

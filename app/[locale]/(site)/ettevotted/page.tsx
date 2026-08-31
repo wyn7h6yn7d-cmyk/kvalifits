@@ -1,16 +1,15 @@
 import { Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-import { PageHero } from "@/components/site/PageHero";
-import { Container } from "@/components/ui/container";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { CompaniesEmptyState } from "@/components/companies/CompaniesEmptyState";
 import { CompanyCard } from "@/components/companies/CompanyCard";
 import { CompanySearchForm } from "@/components/companies/CompanySearchForm";
-import { SITE_GRID_GAP, SITE_SECTION_PB } from "@/lib/site/publicPageLayout";
-import { cn } from "@/lib/utils";
+import { PageHero } from "@/components/site/PageHero";
+import { Container } from "@/components/ui/container";
 import { loadPublicCompanies } from "@/lib/companies/loadPublicCompanies";
 import { NOINDEX_FOLLOW, publicPageMetadata, searchParamsIndicateDuplicateLanding } from "@/lib/seo/site";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -69,8 +68,17 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
   });
 
   return (
-    <>
-      <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")}>
+    <div className="bg-background">
+      <PageHero
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        subtitle={t("heroSubtitle")}
+        innerClassName="max-w-4xl lg:max-w-5xl"
+        titleClassName="text-[2rem] sm:text-[2.375rem] lg:text-[clamp(2.5rem,3.5vw+1rem,3.5rem)] lg:leading-[1.08]"
+        subtitleClassName="max-w-2xl text-[1.0625rem] sm:text-[1.125rem] lg:text-[1.1875rem]"
+        contentClassName="pb-5 sm:pb-6 lg:pb-7"
+        ctaClassName="mt-6 sm:mt-7 lg:mt-8"
+      >
         <CompanySearchForm
           q={q}
           industry={industry}
@@ -88,16 +96,17 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
           }}
         />
       </PageHero>
-      <section className={cn(SITE_SECTION_PB, "pt-0")}>
+
+      <section className="pb-12 sm:pb-14 lg:pb-16">
         <Container>
           {!companies.length ? (
-            <EmptyState
+            <CompaniesEmptyState
               icon={Building2}
               title={q || industry || location ? tUi("emptyFiltered") : tUi("empty")}
             />
           ) : (
             <>
-              <ul className={cn("mx-auto grid max-w-4xl list-none p-0", SITE_GRID_GAP)}>
+              <ul className={cn("grid list-none gap-4 p-0 sm:gap-5 lg:grid-cols-2 lg:gap-5 xl:gap-6")}>
                 {companies.map((company) => (
                   <li key={company.id}>
                     <CompanyCard company={company} verifiedLabel={tUi("verifiedBadge")} />
@@ -105,22 +114,36 @@ export default async function EttevottedPage({ params, searchParams }: Props) {
                 ))}
               </ul>
               {totalPages > 1 && (
-                <div className="mx-auto mt-6 flex max-w-4xl items-center justify-between text-sm">
+                <div className="mt-8 flex items-center justify-between text-sm sm:text-[0.9375rem]">
                   {currentPage > 1 ? (
-                    <a href={buildCompanyPageUrl(q, industry, location, currentPage - 1)} className="text-body hover:text-foreground">← {tUi("paginationPrev")}</a>
-                  ) : <span />}
+                    <a
+                      href={buildCompanyPageUrl(q, industry, location, currentPage - 1)}
+                      className="text-body hover:text-foreground"
+                    >
+                      ← {tUi("paginationPrev")}
+                    </a>
+                  ) : (
+                    <span />
+                  )}
                   <span className="text-muted-2 tabular-nums">
                     {tUi("paginationStatus", { page: currentPage, totalPages, totalCount })}
                   </span>
                   {currentPage < totalPages ? (
-                    <a href={buildCompanyPageUrl(q, industry, location, currentPage + 1)} className="text-body hover:text-foreground">{tUi("paginationNext")} →</a>
-                  ) : <span />}
+                    <a
+                      href={buildCompanyPageUrl(q, industry, location, currentPage + 1)}
+                      className="text-body hover:text-foreground"
+                    >
+                      {tUi("paginationNext")} →
+                    </a>
+                  ) : (
+                    <span />
+                  )}
                 </div>
               )}
             </>
           )}
         </Container>
       </section>
-    </>
+    </div>
   );
 }

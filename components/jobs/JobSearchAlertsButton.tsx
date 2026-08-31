@@ -11,6 +11,8 @@ import { Select } from "@/components/ui/select";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { useRouter } from "@/i18n/routing";
 import { cn, errorMessageFromUnknown } from "@/lib/utils";
+import { KF_DIALOG_SHEET, KF_RADIX_OVERLAY } from "@/lib/site/microMotion";
+import { SITE_DARK_INSET, SITE_DARK_MODAL } from "@/lib/site/publicPageLayout";
 import {
   DEFAULT_SAVED_SEARCH_MIN_MATCH,
   SAVED_SEARCH_ALERTS_DELIVERY_ENABLED,
@@ -147,9 +149,13 @@ export function JobSearchAlertsButton({
 
       <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-[80] bg-black/70" />
+          <DialogPrimitive.Overlay className={cn("fixed inset-0 z-[80] bg-black/70", KF_RADIX_OVERLAY)} />
           <DialogPrimitive.Content
-            className="fixed inset-x-0 bottom-0 z-[90] max-h-[min(90dvh,36rem)] w-full overflow-y-auto rounded-t-2xl border border-border bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[min(90dvh,36rem)] sm:w-[min(28rem,calc(100vw-1.5rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:pb-5"
+            className={cn(
+              KF_DIALOG_SHEET,
+              "fixed inset-x-0 bottom-0 z-[90] max-h-[min(90dvh,36rem)] w-full overflow-y-auto rounded-t-2xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[min(90dvh,36rem)] sm:w-[min(28rem,calc(100vw-1.5rem))] sm:rounded-2xl sm:pb-5",
+              SITE_DARK_MODAL,
+            )}
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
             <DialogPrimitive.Title className="text-[16px] font-semibold text-foreground">
@@ -161,7 +167,7 @@ export function JobSearchAlertsButton({
 
             {savedOk ? (
               <div className="mt-5 space-y-4">
-                <p className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-muted">
+                <p className={cn(SITE_DARK_INSET, "px-3 py-2.5 text-sm text-muted")}>
                   {tSaved(SAVED_SEARCH_ALERTS_DELIVERY_ENABLED ? "savedOkDelivery" : "savedPendingDelivery")}
                 </p>
                 <div className="flex flex-wrap justify-end gap-2">
@@ -198,7 +204,10 @@ export function JobSearchAlertsButton({
                     {SAVED_SEARCH_FREQUENCIES.map((freq) => (
                       <label
                         key={freq}
-                        className="flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-base text-foreground"
+                        className={cn(
+                          "flex cursor-pointer items-center gap-2 px-3 py-2 text-base text-foreground",
+                          SITE_DARK_INSET,
+                        )}
                       >
                         <input
                           type="radio"
@@ -232,7 +241,7 @@ export function JobSearchAlertsButton({
                 ) : null}
 
                 {error ? (
-                  <p className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2 text-sm text-muted">
+                  <p className={cn(SITE_DARK_INSET, "px-3 py-2 text-sm text-muted")}>
                     {error}
                   </p>
                 ) : null}

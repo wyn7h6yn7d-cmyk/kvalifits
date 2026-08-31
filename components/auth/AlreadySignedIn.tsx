@@ -3,6 +3,8 @@
 import { useLocale, useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
+import { SITE_DARK_INSET } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 export function AlreadySignedIn() {
   const t = useTranslations("auth");
@@ -10,7 +12,7 @@ export function AlreadySignedIn() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
+      <div className={cn("p-5 text-sm text-muted", SITE_DARK_INSET)}>
         {t("alreadySignedIn")}
       </div>
       <form action={`/${locale}/auth/logout`} method="post">

@@ -9,7 +9,7 @@ export function HomepageHeroBand({ children }: { children: ReactNode }) {
       <div className="relative z-10">{children}</div>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-44 bg-gradient-to-b from-transparent via-[#0c0c13]/70 to-[var(--background)] sm:h-52 lg:h-60"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] h-48 bg-gradient-to-b from-transparent to-[var(--background)] sm:h-56 lg:h-64"
       />
     </div>
   );

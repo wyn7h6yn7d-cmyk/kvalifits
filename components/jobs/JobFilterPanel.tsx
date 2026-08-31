@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Bone } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
+import { KF_CHEVRON, KF_EXPAND_BODY, KF_EXPAND_GRID } from "@/lib/site/microMotion";
 import {
   FACET_INITIAL_VISIBLE,
   FACET_SEARCH_MIN_CHARS,
@@ -102,8 +103,8 @@ export function FilterCheckboxOption({
     <label
       className={cn(
         "group/opt flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-1.5 py-2.5 transition-colors duration-150 lg:min-h-0 lg:py-1.5",
-        "hover:bg-[#f5f7fb]",
-        checked ? "bg-[#f8fafc]" : "bg-transparent",
+        "hover:bg-white/[0.04]",
+        checked ? "bg-white/[0.06]" : "bg-transparent",
       )}
     >
       <span className="relative inline-flex h-[20px] w-[20px] shrink-0 items-center justify-center">
@@ -117,10 +118,10 @@ export function FilterCheckboxOption({
           aria-hidden
           className={cn(
             "pointer-events-none flex h-[20px] w-[20px] items-center justify-center rounded-[6px] border transition-all duration-150",
-            "bg-[#f8fafc]",
+            "bg-[#1a1a26]",
             checked
               ? "border-transparent bg-primary"
-              : "border-border-strong shadow-none group-hover/opt:border-[rgba(37,99,235,0.32)]",
+              : "border-white/[0.14] shadow-none group-hover/opt:border-violet-400/35",
             "peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary/50",
           )}
         >
@@ -160,7 +161,7 @@ function FilterGroupShell({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-border last:border-b-0">
+    <div className="border-b border-white/[0.08] last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -169,14 +170,15 @@ function FilterGroupShell({
       >
         <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{title}</span>
         <ChevronDown
-          className={cn(
-            "h-3.5 w-3.5 shrink-0 text-muted-2 transition-transform duration-200",
-            open && "rotate-180",
-          )}
+          className={cn("h-3.5 w-3.5 shrink-0 text-muted-2", KF_CHEVRON, open && "rotate-180")}
           aria-hidden
         />
       </button>
-      {open ? <div className="pb-3.5">{children}</div> : null}
+      <div className={KF_EXPAND_GRID(open)}>
+        <div className="min-h-0 overflow-hidden">
+          <div className={cn(KF_EXPAND_BODY(open), "pb-3.5")}>{children}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -250,7 +252,7 @@ export function FacetFilterGroup({
               setExpanded(false);
             }}
             placeholder={searchPlaceholder ?? t("facetSearchPlaceholder")}
-            className="h-11 rounded-lg border-border bg-[#f8fafc] pl-8 text-base lg:h-9 lg:text-[13px]"
+            className="h-11 rounded-lg border-border bg-[#12121a] pl-8 text-base lg:h-9 lg:text-[13px]"
           />
           {search ? (
             <button
@@ -355,7 +357,7 @@ export function JobFiltersBody({
       ))}
 
       {moreGroups.length ? (
-        <div className="border-t border-border pt-1">
+        <div className="border-t border-white/[0.08] pt-1">
           <div className="px-1 py-2 text-[0.9375rem] font-medium leading-snug text-muted">
             {t("moreFilters")}
           </div>

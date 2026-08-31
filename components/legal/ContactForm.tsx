@@ -44,9 +44,9 @@ export function ContactForm({
     <form
       onSubmit={submit}
       className={cn(
+        "flex min-h-0 flex-col",
         SITE_CARD_SURFACE,
         SITE_CARD_PADDING,
-        "flex min-h-0 flex-col border-border bg-[#f8fafc]",
         className,
       )}
     >
@@ -83,7 +83,7 @@ export function ContactForm({
         <label className="block sm:col-span-2">
           <span className="text-[0.9375rem] font-medium leading-snug text-foreground">{form.messageLabel}</span>
           <textarea
-            className="mt-2 min-h-[140px] w-full resize-y rounded-xl border border-border bg-white px-4 py-3 text-base leading-[1.6] text-foreground placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
+            className="mt-2 min-h-[140px] w-full resize-y rounded-xl border border-white/[0.10] bg-[#12121a] px-4 py-3 text-base leading-[1.6] text-foreground placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required

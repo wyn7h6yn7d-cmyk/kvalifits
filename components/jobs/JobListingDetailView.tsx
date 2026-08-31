@@ -6,7 +6,7 @@ import { CompanyVerifiedBadge } from "@/components/employer/CompanyVerificationB
 import { YoungSeekerJobBadge } from "@/components/jobs/YoungSeekerJobBadge";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
-import { SITE_H1_DETAIL, SITE_PAGE_TOP } from "@/lib/site/publicPageLayout";
+import { SITE_H1_DETAIL, SITE_PAGE_TOP, SITE_DARK_CHIP } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 import {
   jobPassesYoungSeekerAutoEligibility,
@@ -105,7 +105,7 @@ function ChipList({ items }: { items: string[] }) {
       {items.map((item) => (
         <li
           key={item}
-          className="rounded-lg border border-border bg-[#f8fafc] px-2.5 py-1 text-[0.8125rem] leading-snug text-body"
+          className={cn(SITE_DARK_CHIP, "px-2.5 py-1 text-[0.8125rem] leading-snug text-body")}
         >
           {item}
         </li>
@@ -270,7 +270,7 @@ export async function JobListingDetailView({
                 <img
                   src={(employer?.logo_url ?? "").toString().trim()}
                   alt=""
-                  className="h-10 w-10 shrink-0 rounded-xl border border-border bg-[#f8fafc] object-contain"
+                  className="h-10 w-10 shrink-0 rounded-xl border border-white/[0.08] bg-[#12121a] object-contain"
                 />
               ) : null}
               <div className="min-w-0">

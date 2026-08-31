@@ -8,6 +8,11 @@ import { JobSaveButton } from "@/components/jobs/JobSaveButton";
 import { Link } from "@/i18n/routing";
 import type { MatchExplanation } from "@/lib/matching/matchExplanation";
 import { cn } from "@/lib/utils";
+import {
+  SITE_DARK_CARD,
+  SITE_DARK_FOOTER_BAR,
+  SITE_DARK_INSET,
+} from "@/lib/site/publicPageLayout";
 
 export type JobDetailMatchStats = {
   score: number;
@@ -74,7 +79,8 @@ export function JobDetailApplyPanel({
     return (
       <div
         className={cn(
-          "fixed inset-x-0 z-40 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
+          SITE_DARK_FOOTER_BAR,
+          "fixed inset-x-0 z-40 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden",
           className,
         )}
         style={{ bottom: "var(--site-bottom-nav-offset, 0px)" }}
@@ -111,7 +117,7 @@ export function JobDetailApplyPanel({
       </a>
     </Button>
   ) : (
-    <div className="rounded-xl border border-border bg-[#f8fafc] px-3 py-2.5 text-[0.9375rem] leading-[1.6] text-muted">
+    <div className={cn(SITE_DARK_INSET, "px-3 py-2.5 text-[0.9375rem] leading-[1.6] text-muted")}>
       {applyClosedBody}
       {applyUntilLabel ? <span className="mt-1 block font-medium text-foreground/80">{applyUntilLabel}</span> : null}
     </div>
@@ -130,7 +136,7 @@ export function JobDetailApplyPanel({
 
   if (variant === "inline") {
     return (
-      <div className={cn("rounded-xl border border-border bg-[#f8fafc] p-4", className)}>
+      <div className={cn(SITE_DARK_INSET, "p-4", className)}>
         {match ? <MatchLines match={match} /> : null}
         {showCreateProfileCta ? (
           <Link
@@ -156,7 +162,8 @@ export function JobDetailApplyPanel({
         ) : (
           <div
             className={cn(
-              "rounded-xl border border-border bg-[#f8fafc] px-3 py-2.5 text-[0.9375rem] leading-[1.6] text-muted",
+              SITE_DARK_INSET,
+              "px-3 py-2.5 text-[0.9375rem] leading-[1.6] text-muted",
               match || showCreateProfileCta ? "mt-4" : "",
             )}
           >
@@ -171,7 +178,8 @@ export function JobDetailApplyPanel({
   return (
     <aside
       className={cn(
-        "rounded-xl border border-border bg-white p-5",
+        SITE_DARK_CARD,
+        "p-5",
         className,
       )}
     >

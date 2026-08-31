@@ -9,6 +9,7 @@ import {
   type JobPostReportReason,
 } from "@/lib/jobs/jobPostReport";
 import { Button } from "@/components/ui/button";
+import { SITE_DARK_INSET, SITE_DARK_MODAL } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -116,7 +117,10 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
           onClick={close}
         >
           <div
-            className="max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-xl border border-border bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-h-[min(90dvh,36rem)] sm:max-w-md sm:rounded-xl sm:p-6 sm:pb-6"
+            className={cn(
+              "max-h-[min(90dvh,40rem)] w-full overflow-y-auto rounded-t-xl p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:max-h-[min(90dvh,36rem)] sm:max-w-md sm:rounded-xl sm:p-6 sm:pb-6",
+              SITE_DARK_MODAL,
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <div id="job-report-title" className="text-sm font-semibold text-foreground">
@@ -126,7 +130,7 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
 
             {done ? (
               <div className="mt-5 space-y-4">
-                <p className="text-sm leading-relaxed text-emerald-800">{t("jobReportThanks")}</p>
+                <p className="text-sm leading-relaxed text-emerald-400">{t("jobReportThanks")}</p>
                   <Button type="button" variant="outline" className="w-full" onClick={close}>
                     {t("jobReportClose")}
                   </Button>
@@ -140,14 +144,18 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
                   {reasons.map((code) => (
                     <label
                       key={code}
-                      className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-3.5 py-2.5"
+                      className={cn(
+                        "flex min-h-11 cursor-pointer items-start gap-3 px-3.5 py-2.5",
+                        SITE_DARK_INSET,
+                        "rounded-2xl",
+                      )}
                     >
                       <input
                         type="radio"
                         name="job-report-reason"
                         checked={reason === code}
                         onChange={() => setReason(code)}
-                        className="mt-1 h-4 w-4 border-border-strong bg-[#f8fafc]"
+                        className="mt-1 h-4 w-4 border-border-strong bg-[#12121a]"
                       />
                       <span className="text-sm text-foreground/80">{t(`jobReportReason.${code}`)}</span>
                     </label>
@@ -165,7 +173,7 @@ export function JobPostReportLink({ jobPostId, className, variant = "link" }: Pr
                     rows={3}
                     maxLength={2000}
                     placeholder={t("jobReportDetailsPlaceholder")}
-                    className="w-full rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 outline-none focus:border-[rgba(37,99,235,0.35)]"
+                    className="w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 py-3 text-sm text-foreground/80 placeholder:text-muted-2 outline-none focus:border-[rgba(37,99,235,0.35)]"
                   />
                 </div>
 

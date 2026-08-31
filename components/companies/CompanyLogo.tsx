@@ -4,10 +4,12 @@ export function CompanyLogo({
   url,
   name,
   size = "md",
+  className,
 }: {
   url?: string | null;
   name: string;
   size?: "sm" | "md" | "lg";
+  className?: string;
 }) {
   const letter = (name || "?").trim().charAt(0).toUpperCase() || "?";
   const box =
@@ -20,8 +22,9 @@ export function CompanyLogo({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden border border-border bg-[#f8fafc] font-semibold text-body",
+        "flex shrink-0 items-center justify-center overflow-hidden border border-white/[0.08] bg-[#12121a] font-semibold text-body",
         box,
+        className,
       )}
       aria-hidden
     >

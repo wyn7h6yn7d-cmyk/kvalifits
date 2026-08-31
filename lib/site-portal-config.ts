@@ -8,5 +8,5 @@ export const heroPortal: {
 } = {
   variant: "a",
   intensity: "default",
-  ambientIntensity: "default",
+  ambientIntensity: "strong",
 };

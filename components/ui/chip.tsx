@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
+import { KF_HOVER_LIFT } from "@/lib/site/microMotion";
 
 export function Chip({
   label,
@@ -22,7 +23,7 @@ export function Chip({
 }) {
   const t = useTranslations("jobsSearch");
   const base =
-    "inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border px-3 py-2 text-[0.9375rem] leading-snug transition-colors lg:min-h-0 lg:py-1.5";
+    "inline-flex min-h-11 items-center gap-1.5 rounded-[10px] border px-3 py-2 text-[0.9375rem] leading-snug transition-[color,background-color,border-color,transform] duration-200 ease-out lg:min-h-0 lg:py-1.5";
   const toneCls =
     tone === "pink"
       ? "border-[rgba(227,31,141,0.18)] bg-[rgba(227,31,141,0.06)] text-foreground/80"
@@ -44,7 +45,7 @@ export function Chip({
         if (!clickable) return;
         if (e.key === "Enter" || e.key === " ") onClick?.();
       }}
-      className={cn(base, toneCls, selectedCls, clickable ? "cursor-pointer" : "", className)}
+      className={cn(base, toneCls, selectedCls, clickable ? "cursor-pointer" : "", KF_HOVER_LIFT, className)}
       aria-pressed={clickable ? !!selected : undefined}
     >
       <span>{label}</span>

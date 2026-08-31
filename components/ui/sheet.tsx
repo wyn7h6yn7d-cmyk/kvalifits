@@ -25,7 +25,7 @@ export const SheetOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[70] bg-slate-900/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-[70] bg-slate-900/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-200 data-[state=open]:ease-out data-[state=closed]:ease-out",
       className
     )}
     {...props}
@@ -51,7 +51,7 @@ export const SheetContent = React.forwardRef<
         ref={ref}
         className={cn(
           "fixed z-[70] flex flex-col border-border bg-[#111116] shadow-[0_16px_48px_-24px_rgba(0,0,0,0.55)]",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-200 data-[state=open]:ease-out data-[state=closed]:ease-out",
           side === "right" &&
             "inset-y-0 right-0 h-dvh w-full max-w-sm overflow-y-auto border-l p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
           side === "full" &&

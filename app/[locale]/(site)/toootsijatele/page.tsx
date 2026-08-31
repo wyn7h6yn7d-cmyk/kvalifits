@@ -1,18 +1,13 @@
 import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
+import { SeekerLandingSteps } from "@/components/sections/seeker/SeekerLandingSteps";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/routing";
 import { publicPageMetadata } from "@/lib/seo/site";
-import {
-  SITE_CONTROL_HEIGHT,
-  SITE_EYEBROW,
-  SITE_H2_SECTION,
-  SITE_SECTION_PB,
-  SITE_SECTION_PY,
-} from "@/lib/site/publicPageLayout";
+import { SITE_HOME_CTA_PRIMARY } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -41,50 +36,36 @@ export default async function ToootsijatelePage({ params }: Props) {
   ] as const;
 
   return (
-    <>
-      <PageHero eyebrow={t("heroEyebrow")} title={t("heroTitle")} subtitle={t("heroSubtitle")}>
-        <Button
-          asChild
-          variant="primary"
-          className={cn(SITE_CONTROL_HEIGHT, "w-full sm:w-auto")}
-        >
+    <div className="bg-background">
+      <PageHero
+        eyebrow={t("heroEyebrow")}
+        title={t("heroTitle")}
+        subtitle={t("heroSubtitle")}
+        innerClassName="max-w-4xl lg:max-w-5xl xl:max-w-[56rem]"
+        titleClassName="lg:text-[clamp(3.25rem,4.8vw+1rem,5.25rem)]"
+        subtitleClassName="max-w-[42rem] text-[1.125rem] sm:text-[1.1875rem] lg:text-[1.3125rem] lg:leading-[1.62]"
+        contentClassName="pb-6 sm:pb-8 lg:pb-10"
+        ctaInsideInner
+      >
+        <Button asChild variant="primary" className={cn(SITE_HOME_CTA_PRIMARY, "w-full sm:w-auto")}>
           <Link href="/tood">{t("ctaSearchJobs")}</Link>
         </Button>
       </PageHero>
 
-      <section className={cn(SITE_SECTION_PY, SITE_SECTION_PB)}>
+      <SeekerLandingSteps eyebrow={t("tutorialEyebrow")} title={t("tutorialTitle")} steps={tutorialSteps} />
+
+      <section className="bg-background pb-10 sm:pb-12 lg:pb-14">
         <Container>
-          <div className="mx-auto max-w-3xl">
-            <div className={SITE_EYEBROW}>{t("tutorialEyebrow")}</div>
-            <h2 className={cn("mt-3", SITE_H2_SECTION)}>{t("tutorialTitle")}</h2>
-            <ol className="mt-8 list-none space-y-7 sm:space-y-8">
-              {tutorialSteps.map((step, index) => (
-                <li key={step.title} className="flex gap-5 sm:gap-6">
-                  <span className="mt-0.5 shrink-0 text-[13px] font-medium tabular-nums text-muted-2">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0">
-                    <div className="text-[1.0625rem] font-semibold leading-snug text-foreground">{step.title}</div>
-                    <p className="mt-2 text-base leading-[1.65] text-muted">{step.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="mt-10">
-              <Button
-                asChild
-                variant="primary"
-                className={cn(SITE_CONTROL_HEIGHT, "w-full sm:w-auto")}
-              >
-                <Link href="/auth/register?role=seeker">
-                  <UserPlus className="h-4 w-4" />
-                  {t("tutorialCtaRegister")}
-                </Link>
-              </Button>
-            </div>
+          <div className="mx-auto flex max-w-4xl justify-center rounded-2xl border border-white/[0.08] px-6 py-8 sm:px-10 sm:py-9">
+            <Button asChild variant="primary" className={cn(SITE_HOME_CTA_PRIMARY, "w-full sm:w-auto")}>
+              <Link href="/auth/register?role=seeker">
+                <UserPlus className="h-4 w-4" />
+                {t("tutorialCtaRegister")}
+              </Link>
+            </Button>
           </div>
         </Container>
       </section>
-    </>
+    </div>
   );
 }

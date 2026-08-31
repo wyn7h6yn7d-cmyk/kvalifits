@@ -56,6 +56,7 @@ import { FitScoreExplain } from "@/components/jobs/FitScoreExplain";
 import { hasCvStorageRef } from "@/lib/seeker/cvStorage";
 import { calculateAgeYears, isLearningObligationStatus, minorAgeBandFromAge } from "@/lib/seeker/age";
 import { cn } from "@/lib/utils";
+import { SITE_DARK_FOOTER_BAR, SITE_DARK_INSET } from "@/lib/site/publicPageLayout";
 
 type PanelMode = "closed" | "answers" | "review";
 
@@ -89,8 +90,8 @@ function ChoiceButton({
       className={cn(
         "min-h-11 rounded-[10px] border px-3.5 py-2.5 text-left text-[0.9375rem] font-medium leading-snug transition-[color,background-color,border-color,box-shadow] duration-200 ease-out",
         selected
-          ? "border-[rgba(37,99,235,0.34)] bg-white text-foreground shadow-[inset_0_0_0_1px_rgba(227,31,141,0.12)]"
-          : "border-[rgba(37,99,235,0.16)] bg-white text-body hover:border-[rgba(37,99,235,0.28)] hover:bg-surface",
+          ? "border-[rgba(37,99,235,0.34)] bg-[#14141f] text-foreground shadow-[inset_0_0_0_1px_rgba(227,31,141,0.12)]"
+          : "border-[rgba(37,99,235,0.16)] bg-[#12121a] text-body hover:border-[rgba(37,99,235,0.28)] hover:bg-white/[0.04]",
         className,
       )}
     >
@@ -635,7 +636,7 @@ export function JobApplyForm({
 
   if (!acceptsApplications) {
     return (
-      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+      <div className={cn(SITE_DARK_INSET, "p-5 sm:p-6")}>
         <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
         <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyClosedBody")}</div>
         {applyUntilLabel ? <p className="mt-3 text-base font-medium text-muted">{applyUntilLabel}</p> : null}
@@ -645,7 +646,7 @@ export function JobApplyForm({
 
   if (!authed) {
     return (
-      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+      <div className={cn(SITE_DARK_INSET, "p-5 sm:p-6")}>
         <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
         <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyLoginHint")}</div>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -663,7 +664,7 @@ export function JobApplyForm({
 
   if (role !== "seeker") {
     return (
-      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+      <div className={cn(SITE_DARK_INSET, "p-5 sm:p-6")}>
         <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
         <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyOnlySeekers")}</div>
       </div>
@@ -672,7 +673,7 @@ export function JobApplyForm({
 
   if (profileCoreComplete === false) {
     return (
-      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+      <div className={cn(SITE_DARK_INSET, "p-5 sm:p-6")}>
         <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
         <div className="mt-1 text-base leading-[1.65] text-muted">{t("applyProfileRequired")}</div>
         <Link
@@ -687,7 +688,7 @@ export function JobApplyForm({
 
   if (success) {
     return (
-      <div className="rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+      <div className={cn(SITE_DARK_INSET, "p-5 sm:p-6")}>
         <div className="text-base font-semibold leading-snug text-foreground">
           {alreadyApplied ? t("applyDuplicate") : t("applySuccessTitle")}
         </div>
@@ -890,20 +891,20 @@ export function JobApplyForm({
             onChange={(e) => setNoteForEmployer(e.target.value)}
             rows={3}
             maxLength={500}
-            className="min-h-[6.5rem] w-full rounded-2xl border border-border bg-white px-4 py-3 text-base leading-[1.6] text-foreground placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
+            className="min-h-[6.5rem] w-full rounded-2xl border border-white/[0.10] bg-[#12121a] px-4 py-3 text-base leading-[1.6] text-foreground placeholder:text-muted-2 outline-none transition-colors focus:border-[rgba(37,99,235,0.35)]"
             placeholder={t("applyNotePlaceholder")}
             onFocus={scrollApplyFieldIntoView}
           />
         </div>
 
         {error ? (
-          <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-base leading-[1.65] text-muted">
+          <div className={cn("whitespace-pre-wrap px-4 py-3 text-base leading-[1.65] text-muted", SITE_DARK_INSET, "rounded-2xl")}>
             {error}
           </div>
         ) : null}
       </div>
 
-      <div className="shrink-0 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+      <div className={cn(SITE_DARK_FOOTER_BAR, "px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5")}>
         <Button type="submit" variant="primary" size="lg" className="h-12 w-full">
           {t("applyContinueToReview")}
         </Button>
@@ -916,7 +917,7 @@ export function JobApplyForm({
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 pb-4 pt-1 sm:px-5">
         {eligibility ? <JobApplyEligibilityBanner result={eligibility} /> : null}
 
-        <dl className="space-y-3 rounded-2xl border border-border bg-[#f8fafc] px-4 py-4">
+        <dl className={cn("space-y-3 px-4 py-4", SITE_DARK_INSET, "rounded-2xl")}>
           {displayTitle ? (
             <div>
               <dt className="text-[0.9375rem] font-medium leading-snug text-muted">{t("applyReviewJob")}</dt>
@@ -989,7 +990,7 @@ export function JobApplyForm({
           {profileHints.hasCv ? t("quickApplyCvFromProfile") : t("quickApplyNoCvRequired")}
         </p>
 
-        <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-white px-4 py-3 text-base leading-[1.6] text-body">
+        <label className={cn("flex min-h-11 cursor-pointer items-start gap-3 px-4 py-3 text-base leading-[1.6] text-body", SITE_DARK_INSET, "rounded-2xl")}>
           <input
             type="checkbox"
             checked={consent}
@@ -1000,13 +1001,13 @@ export function JobApplyForm({
         </label>
 
         {error ? (
-          <div className="whitespace-pre-wrap rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-base leading-[1.65] text-muted">
+          <div className={cn("whitespace-pre-wrap px-4 py-3 text-base leading-[1.65] text-muted", SITE_DARK_INSET, "rounded-2xl")}>
             {error}
           </div>
         ) : null}
       </div>
 
-      <div className="shrink-0 space-y-2 border-t border-border bg-white px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5">
+      <div className={cn(SITE_DARK_FOOTER_BAR, "space-y-2 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-5")}>
         <Button type="submit" variant="primary" size="lg" className="h-12 w-full" loading={loading} loadingText={t("applySending")}>
           {t("applyCta")}
         </Button>
@@ -1035,7 +1036,7 @@ export function JobApplyForm({
       description={panel === "review" ? t("quickApplySummarySubtitle") : t("quickApplySubtitle")}
       closeLabel={t("applySheetClose")}
       trigger={
-        <div className={cn("rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6", sheetOpen && "lg:hidden")}>
+        <div className={cn(SITE_DARK_INSET, "p-5 sm:p-6", sheetOpen && "lg:hidden")}>
           <div className="text-base font-semibold leading-snug text-foreground">{t("applyTitle")}</div>
           <div className="mt-1 text-base leading-[1.65] text-muted">{t("applySubtitle")}</div>
           <p className="mt-3 text-[0.9375rem] leading-[1.6] text-muted">{t("quickApplyNoCvHint")}</p>

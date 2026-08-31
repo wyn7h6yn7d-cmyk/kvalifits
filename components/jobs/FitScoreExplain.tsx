@@ -7,6 +7,7 @@ import { MatchExplanationSkeleton } from "@/components/skeletons/MatchPanelSkele
 import { Bone, SkeletonRegion } from "@/components/ui/Skeleton";
 import type { MatchCriterion, MatchExplanation } from "@/lib/matching/matchExplanation";
 import { parseMatchExplanation } from "@/lib/matching/matchExplanation";
+import { SITE_DARK_INSET } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 const LANG_NAME_IDS = new Set(["et", "en", "ru", "fi", "de", "fr", "es", "sv", "lv", "lt"]);
@@ -172,9 +173,10 @@ export function FitScoreExplain({
       {open && hasScore ? (
         <div
           className={cn(
-            "mt-3 space-y-3 rounded-xl border border-border bg-[#f8fafc] px-3.5 py-3",
+            "mt-3 space-y-3 px-3.5 py-3",
+            SITE_DARK_INSET,
             compact &&
-              "max-lg:relative max-lg:right-auto max-lg:mt-2 max-lg:w-full max-lg:shadow-none lg:absolute lg:right-0 lg:z-30 lg:w-[min(20.5rem,calc(100vw-2rem))] lg:border-border lg:bg-white lg:shadow-[0_12px_32px_-16px_rgba(15,23,42,0.14)]",
+              "max-lg:relative max-lg:right-auto max-lg:mt-2 max-lg:w-full max-lg:shadow-none lg:absolute lg:right-0 lg:z-30 lg:w-[min(20.5rem,calc(100vw-2rem))] lg:shadow-[0_12px_32px_-16px_rgba(0,0,0,0.55)]",
           )}
         >
           {loading && !explanation ? (
@@ -195,7 +197,7 @@ export function FitScoreExplain({
                       <span
                         className={cn(
                           "mt-px shrink-0 font-semibold",
-                          row.status === "pass" && "text-emerald-700",
+                          row.status === "pass" && "text-emerald-400",
                           row.status === "partial" && "text-amber-200/80",
                           row.status === "gap" && "text-muted-2",
                         )}

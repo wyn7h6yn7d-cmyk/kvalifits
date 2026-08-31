@@ -16,10 +16,10 @@ export function portalLayerOpacity(intensity: PortalIntensity): number {
 export function portalDurationScale(intensity: PortalIntensity): number {
   switch (intensity) {
     case "soft":
-      return 1.65;
+      return 1.45;
     case "strong":
-      return 1.1;
+      return 0.95;
     default:
-      return 1.35;
+      return 1.1;
   }
 }

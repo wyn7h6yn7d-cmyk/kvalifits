@@ -154,7 +154,7 @@ export async function Audience() {
                             "h-1 flex-1 rounded-full",
                             i < 6
                               ? "bg-primary/40"
-                              : "bg-[#f8fafc]",
+                              : "bg-white/[0.08]",
                           )}
                         />
                       ))}

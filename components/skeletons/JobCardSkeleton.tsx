@@ -1,6 +1,7 @@
 import { Bone } from "@/components/ui/Skeleton";
 import { MatchPanelSkeleton } from "@/components/skeletons/MatchPanelSkeleton";
 import { JOBS_PAGE_CARD_PADDING } from "@/lib/jobs/jobsPageLayout";
+import { SITE_DARK_CARD } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
@@ -8,7 +9,7 @@ export function JobCardSkeleton({ withMatch = true }: { withMatch?: boolean }) {
     <div
       className={cn(
         JOBS_PAGE_CARD_PADDING,
-        "rounded-xl border border-border bg-white",
+        SITE_DARK_CARD,
       )}
     >
       <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_12.75rem] lg:items-stretch lg:gap-x-6 lg:gap-y-3">

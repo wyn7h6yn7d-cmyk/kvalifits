@@ -2,13 +2,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
 import { nativeSelectFormClassName } from "@/components/ui/controlStyles";
-import { SITE_CONTROL_HEIGHT } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 const fieldLabelClass =
-  "mb-1.5 block text-[0.9375rem] font-medium leading-snug text-foreground";
+  "mb-2 block text-[0.9375rem] font-medium leading-snug text-foreground sm:text-base";
 
-const actionClass = cn(SITE_CONTROL_HEIGHT, "w-full");
+const controlClass = "h-11 sm:h-12";
 
 export function CompanySearchForm({
   q,
@@ -17,6 +16,7 @@ export function CompanySearchForm({
   industries,
   locations,
   labels,
+  className,
 }: {
   q: string;
   industry: string;
@@ -32,26 +32,38 @@ export function CompanySearchForm({
     submit: string;
     reset: string;
   };
+  className?: string;
 }) {
   const filtered = Boolean(q || industry || location);
 
   return (
     <form
       method="get"
-      className="mx-auto grid w-full max-w-4xl items-end gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
+      className={cn(
+        "grid w-full items-end gap-4",
+        "lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:gap-3 xl:gap-4",
+        className,
+      )}
     >
-      <label className="block min-w-0 sm:col-span-2 lg:col-span-1">
+      <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.search}</span>
-        <Input name="q" defaultValue={q} placeholder={labels.searchPlaceholder} />
+        <Input
+          name="q"
+          defaultValue={q}
+          placeholder={labels.searchPlaceholder}
+          className={controlClass}
+        />
       </label>
       <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.industry}</span>
-        <select name="industry" defaultValue={industry} className={nativeSelectFormClassName()}>
-          <option value="" className="bg-white">
-            {labels.all}
-          </option>
+        <select
+          name="industry"
+          defaultValue={industry}
+          className={nativeSelectFormClassName(cn(controlClass, "text-[0.9375rem] sm:text-base"))}
+        >
+          <option value="">{labels.all}</option>
           {industries.map((v) => (
-            <option key={v} value={v} className="bg-white">
+            <option key={v} value={v}>
               {v}
             </option>
           ))}
@@ -59,23 +71,25 @@ export function CompanySearchForm({
       </label>
       <label className="block min-w-0">
         <span className={fieldLabelClass}>{labels.location}</span>
-        <select name="location" defaultValue={location} className={nativeSelectFormClassName()}>
-          <option value="" className="bg-white">
-            {labels.all}
-          </option>
+        <select
+          name="location"
+          defaultValue={location}
+          className={nativeSelectFormClassName(cn(controlClass, "text-[0.9375rem] sm:text-base"))}
+        >
+          <option value="">{labels.all}</option>
           {locations.map((v) => (
-            <option key={v} value={v} className="bg-white">
+            <option key={v} value={v}>
               {v}
             </option>
           ))}
         </select>
       </label>
-      <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:w-auto sm:items-end">
-        <Button type="submit" variant="primary" className={actionClass}>
+      <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row lg:w-auto lg:flex-row lg:items-end">
+        <Button type="submit" variant="primary" className={cn(controlClass, "w-full px-6 sm:px-7 lg:w-auto")}>
           {labels.submit}
         </Button>
         {filtered ? (
-          <Button asChild variant="ghost" className={`${actionClass} px-4 text-body`}>
+          <Button asChild variant="ghost" className={cn(controlClass, "w-full px-4 text-body lg:w-auto")}>
             <Link href="/ettevotted">{labels.reset}</Link>
           </Button>
         ) : null}

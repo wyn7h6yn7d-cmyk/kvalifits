@@ -4,6 +4,8 @@ import { Link } from "@/i18n/routing";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { PublicCompanyJob } from "@/lib/companies/loadPublicCompany";
 import { formatJobDateDdMmYyyy } from "@/lib/jobs/jobLifecycle";
+import { SITE_DARK_CARD, SITE_DARK_CARD_HOVER } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 export function CompanyActiveJobs({
   jobs,
@@ -27,7 +29,7 @@ export function CompanyActiveJobs({
             const posted = formatJobDateDdMmYyyy(job.publishedAt);
             return (
               <li key={job.id}>
-                <article className="relative rounded-2xl border border-border bg-white p-4 transition-[border-color] hover:border-border-strong sm:p-5">
+                <article className={cn("relative rounded-2xl p-4 sm:p-5", SITE_DARK_CARD, SITE_DARK_CARD_HOVER)}>
                   <Link
                     href={`/tood/${job.id}`}
                     className="absolute inset-0 z-0 rounded-2xl"

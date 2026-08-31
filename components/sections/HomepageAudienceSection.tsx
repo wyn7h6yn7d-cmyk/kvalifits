@@ -31,27 +31,27 @@ export async function HomepageAudienceSection() {
   ] as const;
 
   return (
-    <HomeSectionShell tone="raised" glow="top" aria-labelledby="home-audience-title">
+    <HomeSectionShell tone="base" aria-labelledby="home-audience-title">
       <HomeSectionHeader title={t("title")} id="home-audience-title" />
-      <div className="grid gap-5 sm:grid-cols-2 lg:gap-6">
+      <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
         {paths.map((path) => {
           const Icon = path.icon;
           return (
             <article
               key={path.ctaHref}
-              className={cn(SITE_HOME_CARD, "relative overflow-hidden p-6 sm:p-7")}
+              className={cn(SITE_HOME_CARD, "relative overflow-hidden p-7 sm:p-8 lg:p-9")}
             >
               <div
                 aria-hidden
                 className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.12),transparent_70%)]"
               />
               <div className="relative">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.12] bg-white/[0.05] text-violet-300">
-                  <Icon className="h-5 w-5" aria-hidden />
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/[0.12] bg-white/[0.05] text-violet-300">
+                  <Icon className="h-6 w-6" aria-hidden />
                 </div>
-                <h3 className={cn("mt-6", SITE_H3)}>{path.title}</h3>
-                <p className={cn("mt-3 max-w-sm text-pretty", SITE_BODY, "text-muted")}>{path.desc}</p>
-                <div className="mt-6">
+                <h3 className={cn("mt-7", SITE_H3)}>{path.title}</h3>
+                <p className={cn("mt-3.5 max-w-md text-pretty", SITE_BODY, "text-muted")}>{path.desc}</p>
+                <div className="mt-8">
                   <Button
                     asChild
                     variant={path.primary ? "primary" : "outline"}

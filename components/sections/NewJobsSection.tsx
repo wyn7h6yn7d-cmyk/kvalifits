@@ -7,7 +7,7 @@ import { HomeSectionShell } from "@/components/sections/home/HomeSectionShell";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
 import { getNewJobsForHomepage } from "@/lib/jobs/loadNewJobsForHomepage";
-import { SITE_BODY, SITE_GRID_GAP, SITE_HOME_CTA_PRIMARY, SITE_HOME_CTA_SECONDARY } from "@/lib/site/publicPageLayout";
+import { SITE_BODY, SITE_GRID_GAP, SITE_HOME_CARD, SITE_HOME_CTA_PRIMARY, SITE_HOME_CTA_SECONDARY } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 const EMPTY_ALERT_SNAPSHOT = {
@@ -22,7 +22,7 @@ export async function NewJobsSection({ locale }: { locale: string }) {
   const savedSet = new Set(savedJobIds);
 
   return (
-    <HomeSectionShell id="home-jobs" tone="base" glow="center" aria-labelledby="home-jobs-title">
+    <HomeSectionShell id="home-jobs" tone="base" aria-labelledby="home-jobs-title">
       <HomeSectionHeader
         id="home-jobs-title"
         title={t("newTitle")}
@@ -41,9 +41,9 @@ export async function NewJobsSection({ locale }: { locale: string }) {
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-white/[0.08] bg-[#13131a]/70 px-5 py-8 sm:px-8 sm:py-10">
+        <div className={cn(SITE_HOME_CARD, "px-6 py-9 sm:px-8 sm:py-10 lg:px-10")}>
           <p className={cn(SITE_BODY, "text-muted")}>{t("empty")}</p>
-          <div className="mt-5">
+          <div className="mt-6">
             <JobSearchAlertsButton
               snapshot={EMPTY_ALERT_SNAPSHOT}
               matchSortAvailable={false}

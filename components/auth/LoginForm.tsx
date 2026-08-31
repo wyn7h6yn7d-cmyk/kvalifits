@@ -8,6 +8,7 @@ import { mapAuthError } from "@/lib/auth/mapAuthError";
 import { reportException } from "@/lib/monitoring/report";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SITE_DARK_NOTICE } from "@/lib/site/publicPageLayout";
 
 export function LoginForm({ locale, promptResend = false }: { locale: string; promptResend?: boolean }) {
   const t = useTranslations("auth");
@@ -133,13 +134,13 @@ export function LoginForm({ locale, promptResend = false }: { locale: string; pr
       </div>
 
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}
 
       {resendSent ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {t("resendVerificationSent")}
         </div>
       ) : null}

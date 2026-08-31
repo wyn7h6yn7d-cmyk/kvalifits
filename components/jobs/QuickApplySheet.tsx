@@ -40,7 +40,7 @@ export function QuickApplySheet({
         side="full"
         showCloseButton={false}
         overlayClassName="z-[80]"
-        className="z-[80] bg-white"
+        className="z-[80] bg-[#0e0e14]"
         data-testid="quick-apply-dialog"
         aria-modal="true"
       >

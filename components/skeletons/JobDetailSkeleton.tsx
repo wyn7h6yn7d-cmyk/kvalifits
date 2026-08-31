@@ -1,5 +1,7 @@
 import { Bone, SkeletonRegion } from "@/components/ui/Skeleton";
 import { MatchPanelSkeleton } from "@/components/skeletons/MatchPanelSkeleton";
+import { SITE_DARK_CARD, SITE_DARK_INSET } from "@/lib/site/publicPageLayout";
+import { cn } from "@/lib/utils";
 
 export function JobDetailSkeleton({ label }: { label?: string }) {
   return (
@@ -39,7 +41,7 @@ export function JobDetailSkeleton({ label }: { label?: string }) {
           </div>
           <div className="border-t border-border pt-8">
             <Bone className="h-4 w-36" />
-            <div className="mt-4 rounded-xl border border-border bg-[#f8fafc] p-5 sm:p-6">
+            <div className={cn("mt-4 p-5 sm:p-6", SITE_DARK_INSET)}>
               <Bone className="h-4 w-40" />
               <Bone className="mt-3 h-11 w-full rounded-xl" />
               <Bone className="mt-3 h-11 w-full rounded-xl" />
@@ -48,7 +50,7 @@ export function JobDetailSkeleton({ label }: { label?: string }) {
           </div>
         </div>
         <div className="mt-8 hidden lg:sticky lg:top-[calc(var(--site-header-offset)+0.75rem)] lg:mt-0 lg:block">
-          <div className="rounded-xl border border-border bg-white p-5">
+          <div className={cn("p-5", SITE_DARK_CARD)}>
             <MatchPanelSkeleton />
             <Bone className="mt-5 h-11 w-full rounded-xl" />
             <Bone className="mt-2 h-11 w-full rounded-xl" />

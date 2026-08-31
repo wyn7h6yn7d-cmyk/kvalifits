@@ -11,12 +11,11 @@ export function HomepageBodyAtmosphere({
   className?: string;
 }) {
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative bg-background", className)}>
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-24 top-[8%] h-[28rem] w-[28rem] rounded-full bg-indigo-600/[0.07] blur-3xl lg:-left-32 lg:h-[32rem] lg:w-[32rem]" />
-        <div className="absolute -right-20 top-[32%] h-[24rem] w-[24rem] rounded-full bg-violet-600/[0.06] blur-3xl lg:-right-28" />
-        <div className="absolute left-1/2 top-[58%] h-[18rem] w-[18rem] -translate-x-1/2 rounded-full bg-[var(--accent-pink)]/[0.045] blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/15 to-transparent" />
+        <div className="absolute -left-24 top-[8%] h-[28rem] w-[28rem] rounded-full bg-indigo-600/[0.045] blur-3xl lg:-left-32 lg:h-[32rem] lg:w-[32rem]" />
+        <div className="absolute -right-20 top-[32%] h-[24rem] w-[24rem] rounded-full bg-violet-600/[0.04] blur-3xl lg:-right-28" />
+        <div className="absolute left-1/2 top-[58%] h-[18rem] w-[18rem] -translate-x-1/2 rounded-full bg-[var(--accent-pink)]/[0.03] blur-3xl" />
       </div>
       <div className="relative z-[1]">{children}</div>
     </div>

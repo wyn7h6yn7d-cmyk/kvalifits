@@ -15,9 +15,9 @@ export async function HomepageFaqSection() {
   }));
 
   return (
-    <HomeSectionShell tone="base" glow="top" narrow aria-labelledby="home-faq-title">
+    <HomeSectionShell tone="base" contentWidth="faq" aria-labelledby="home-faq-title">
       <HomeSectionHeader title={t("title")} id="home-faq-title" />
-      <div className="relative flex flex-col gap-3 sm:gap-3.5">
+      <div className="relative flex flex-col gap-4 lg:gap-5">
         {items.map((item) => (
           <HomeFaqItem key={item.question} question={item.question} answer={item.answer} />
         ))}
