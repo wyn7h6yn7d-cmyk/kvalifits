@@ -121,6 +121,26 @@ export const SITE_DARK_EMPTY_ICON =
 export const SITE_DARK_FOOTER_BAR =
   "shrink-0 border-t border-white/[0.08] bg-[#0e0e14]/95 backdrop-blur-sm";
 
+/** Admin / account list panel and empty states. */
+export const SITE_DARK_PANEL =
+  "rounded-3xl border border-white/[0.08] bg-[#12121a]";
+
+/** Admin list item card. */
+export const SITE_DARK_LIST_ITEM =
+  "rounded-3xl border border-white/[0.09] bg-[#12121a]/95";
+
+/** Admin table header strip. */
+export const SITE_DARK_TABLE_HEADER =
+  "border-b border-white/[0.08] bg-white/[0.04]";
+
+/** Admin table row. */
+export const SITE_DARK_TABLE_ROW =
+  "border-b border-white/[0.06] bg-transparent hover:bg-white/[0.02] last:border-b-0";
+
+/** Admin form input (native select/textarea in tables). */
+export const SITE_DARK_FIELD =
+  "rounded-2xl border border-white/[0.10] bg-[#12121a] text-foreground/80 outline-none focus:border-[rgba(37,99,235,0.35)]";
+
 export const SITE_GRID_GAP = "gap-5 lg:gap-7";
 
 export const SITE_GRID_GAP_LOOSE = "gap-8 lg:gap-12";

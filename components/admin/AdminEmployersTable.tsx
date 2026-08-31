@@ -18,7 +18,13 @@ import {
   AdminEmployerHomepageCarouselPanel,
   type AdminEmployerHomepageCarouselRow,
 } from "@/components/admin/AdminEmployerHomepageCarouselPanel";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import {
+  SITE_DARK_FIELD,
+  SITE_DARK_LIST_ITEM,
+  SITE_DARK_NOTICE,
+  SITE_DARK_PANEL,
+} from "@/lib/site/publicPageLayout";
+import { cn, errorMessageFromUnknown } from "@/lib/utils";
 
 export type AdminEmployerRow = AdminEmployerHomepageCarouselRow & {
   company_name: string | null;
@@ -124,7 +130,7 @@ export function AdminEmployersTable({
 
   if (!employers.length) {
     return (
-      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
+      <div className={cn(SITE_DARK_PANEL, "p-6 text-sm text-body")}>
         {t("noEmployers")}
       </div>
     );
@@ -133,7 +139,7 @@ export function AdminEmployersTable({
   return (
     <div className="space-y-4">
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}
@@ -145,7 +151,7 @@ export function AdminEmployersTable({
         return (
           <div
             key={e.id}
-            className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
+            className={cn(SITE_DARK_LIST_ITEM, "p-4 sm:p-5")}
           >
             <div className="min-w-0">
               <div className="text-sm font-medium text-foreground">{name}</div>
@@ -187,7 +193,7 @@ export function AdminEmployersTable({
                       [e.id]: ev.target.value as EmployerCompanyVerificationStatus,
                     }))
                   }
-                  className="w-full rounded-2xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-foreground/80 outline-none"
+                  className={cn(SITE_DARK_FIELD, "w-full px-3 py-2.5 text-sm")}
                 >
                   {EMPLOYER_COMPANY_VERIFICATION_STATUS_VALUES.map((s) => (
                     <option key={s} value={s}>

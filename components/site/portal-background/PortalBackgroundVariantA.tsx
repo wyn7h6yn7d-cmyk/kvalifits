@@ -3,9 +3,37 @@ import { cn } from "@/lib/utils";
 import type { PortalIntensity } from "./portal-tokens";
 import { portalDurationScale, portalLayerOpacity } from "./portal-tokens";
 
+/** Endpoint + junction nodes along the profile → hub → job network. */
+const NETWORK_NODES = [
+  { cx: 140, cy: 360, r: 3, kind: "profile" as const, delay: "0s" },
+  { cx: 80, cy: 260, r: 2.5, kind: "profile" as const, delay: "-4s" },
+  { cx: 220, cy: 420, r: 2.5, kind: "profile" as const, delay: "-9s" },
+  { cx: 360, cy: 240, r: 2, kind: "profile" as const, delay: "-6s" },
+  { cx: 900, cy: 200, r: 3.5, kind: "job" as const, delay: "-2s" },
+  { cx: 760, cy: 260, r: 2.5, kind: "job" as const, delay: "-11s" },
+  { cx: 900, cy: 360, r: 2.5, kind: "job" as const, delay: "-7s" },
+  { cx: 640, cy: 380, r: 2, kind: "job" as const, delay: "-13s" },
+  { cx: 520, cy: 520, r: 2.5, kind: "branch" as const, delay: "-5s" },
+] as const;
+
+const NODE_STYLES = {
+  profile: {
+    fill: "rgba(99,102,241,0.34)",
+    stroke: "rgba(129,140,248,0.58)",
+  },
+  job: {
+    fill: "rgba(227,31,141,0.38)",
+    stroke: "rgba(227,31,141,0.62)",
+  },
+  branch: {
+    fill: "rgba(168,85,247,0.26)",
+    stroke: "rgba(168,85,247,0.44)",
+  },
+} as const;
+
 /**
  * Connection network — profile → hub → job posting.
- * Lines animate via stroke-dashoffset; no decorative dot clutter.
+ * Dots sit on line endpoints so the flow reads at a glance.
  */
 export function PortalBackgroundVariantA({
   intensity = "soft",
@@ -108,6 +136,28 @@ export function PortalBackgroundVariantA({
             strokeWidth="0.95"
             strokeLinecap="round"
           />
+        </g>
+
+        <g className="portal-bg-a--nodes">
+          {NETWORK_NODES.map((node) => {
+            const style = NODE_STYLES[node.kind];
+            return (
+              <circle
+                key={`${node.cx}-${node.cy}`}
+                className={cn(
+                  "portal-bg-a__node",
+                  node.kind === "job" && "portal-bg-a__node--job",
+                )}
+                cx={node.cx}
+                cy={node.cy}
+                r={node.r}
+                fill={style.fill}
+                stroke={style.stroke}
+                strokeWidth="0.85"
+                style={{ animationDelay: node.delay }}
+              />
+            );
+          })}
         </g>
 
         <circle

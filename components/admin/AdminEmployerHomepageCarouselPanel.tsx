@@ -6,8 +6,12 @@ import { useRouter } from "next/navigation";
 
 import { resolveCarouselLogoPublicUrl } from "@/lib/employer/carouselLogo";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import {
+  SITE_DARK_CHIP,
+  SITE_DARK_INSET,
+  SITE_DARK_LIST_ITEM,
+} from "@/lib/site/publicPageLayout";
+import { cn, errorMessageFromUnknown } from "@/lib/utils";
 
 export type AdminEmployerHomepageCarouselRow = {
   id: string;
@@ -100,7 +104,7 @@ function DarkLogoPreview({
   emptyLabel: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-white p-3">
+    <div className={cn(SITE_DARK_INSET, "rounded-xl p-3")}>
       <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">{label}</div>
       <div className="mt-2 flex h-24 items-center justify-center rounded-lg border border-border bg-background px-3">
         {src ? (
@@ -110,7 +114,7 @@ function DarkLogoPreview({
             alt=""
             className={cn(
               "max-h-14 w-auto max-w-full object-contain",
-              plate && "rounded-md bg-[#f8fafc] px-3 py-2",
+              plate && "rounded-md bg-[#12121a] px-3 py-2",
             )}
           />
         ) : (
@@ -194,7 +198,7 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
   if (disabled) return null;
 
   return (
-    <div className="mt-4 space-y-4 rounded-2xl border border-border bg-white px-3 py-4 sm:px-4">
+    <div className={cn(SITE_DARK_LIST_ITEM, "mt-4 space-y-4 rounded-2xl px-3 py-4 sm:px-4")}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="text-[11px] font-medium uppercase tracking-wide text-muted-2">
@@ -206,9 +210,9 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
         <div
           className={cn(
             "inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-medium",
-            luminanceHint === "good" && "border-emerald-400/25 bg-emerald-500/10 text-emerald-800",
-            luminanceHint === "needs_plate" && "border-amber-400/25 bg-amber-500/10 text-amber-50",
-            luminanceHint === "unknown" && "border-border bg-[#f8fafc] text-muted-2",
+            luminanceHint === "good" && "border-emerald-400/25 bg-emerald-500/10 text-emerald-300",
+            luminanceHint === "needs_plate" && "border-amber-400/25 bg-amber-500/10 text-amber-200",
+            luminanceHint === "unknown" && "border-white/[0.08] bg-[#12121a] text-muted-2",
           )}
         >
           {luminanceHint === "good"
@@ -357,7 +361,7 @@ export function AdminEmployerHomepageCarouselPanel({ companyName, employer, disa
           <span className="rounded-full border border-border px-2 py-0.5">{t("homepageCarouselStatusHidden")}</span>
         )}
         {usePlate ? (
-          <span className="rounded-full border border-border bg-[#f8fafc] px-2 py-0.5">
+          <span className={cn(SITE_DARK_CHIP, "rounded-full px-2 py-0.5")}>
             {t("homepageCarouselStatusPlate")}
           </span>
         ) : null}

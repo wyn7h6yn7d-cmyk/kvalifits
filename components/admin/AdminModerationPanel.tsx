@@ -11,7 +11,7 @@ import {
 } from "@/lib/jobs/jobPostReport";
 import type { AdminModerationAction, ModerationQueue } from "@/lib/admin/moderationTypes";
 import { Button } from "@/components/ui/button";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import { cn, errorMessageFromUnknown } from "@/lib/utils";
 import { parseCertificateVerificationStatus } from "@/lib/seeker/certificateVerification";
 import { parseEmployerCompanyVerificationStatus } from "@/lib/employer/companyVerification";
 import {
@@ -19,6 +19,11 @@ import {
   certificateViewLabelsFromT,
 } from "@/components/seeker/CertificateVerificationBadge";
 import { CompanyVerificationBadge } from "@/components/employer/CompanyVerificationBadge";
+import {
+  SITE_DARK_LIST_ITEM,
+  SITE_DARK_NOTICE,
+  SITE_DARK_PANEL,
+} from "@/lib/site/publicPageLayout";
 
 export type ModerationReportItem = {
   id: string;
@@ -160,7 +165,7 @@ export function AdminModerationPanel({
   return (
     <div className="space-y-10">
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}
@@ -171,14 +176,14 @@ export function AdminModerationPanel({
           <p className="mt-1 text-sm text-muted-2">{t("modQueueReportsHint")}</p>
         </div>
         {!reports.length ? (
-          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
+          <div className={cn(SITE_DARK_PANEL, "p-5 text-sm text-muted")}>
             {t("modEmptyReports")}
           </div>
         ) : (
           reports.map((r) => (
             <div
               key={r.id}
-              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
+              className={cn(SITE_DARK_LIST_ITEM, "p-4 sm:p-5")}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -233,14 +238,14 @@ export function AdminModerationPanel({
           <p className="mt-1 text-sm text-muted-2">{t("modQueueCertificatesHint")}</p>
         </div>
         {!certificates.length ? (
-          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
+          <div className={cn(SITE_DARK_PANEL, "p-5 text-sm text-muted")}>
             {t("modEmptyCertificates")}
           </div>
         ) : (
           certificates.map((c) => (
             <div
               key={c.id}
-              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
+              className={cn(SITE_DARK_LIST_ITEM, "p-4 sm:p-5")}
             >
               <CertificateStatusBlock
                 name={(c.certificate_name ?? "").trim() || "—"}
@@ -281,14 +286,14 @@ export function AdminModerationPanel({
           <p className="mt-1 text-sm text-muted-2">{t("modQueueCompaniesHint")}</p>
         </div>
         {!companies.length ? (
-          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
+          <div className={cn(SITE_DARK_PANEL, "p-5 text-sm text-muted")}>
             {t("modEmptyCompanies")}
           </div>
         ) : (
           companies.map((e) => (
             <div
               key={e.id}
-              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
+              className={cn(SITE_DARK_LIST_ITEM, "p-4 sm:p-5")}
             >
               <div className="text-sm font-medium text-foreground">
                 {(e.company_name ?? "").trim() || "—"}
@@ -324,14 +329,14 @@ export function AdminModerationPanel({
           <p className="mt-1 text-sm text-muted-2">{t("modQueueBlockedHint")}</p>
         </div>
         {!blockedUsers.length ? (
-          <div className="rounded-3xl border border-border bg-[#f8fafc] p-5 text-sm text-muted">
+          <div className={cn(SITE_DARK_PANEL, "p-5 text-sm text-muted")}>
             {t("modEmptyBlocked")}
           </div>
         ) : (
           blockedUsers.map((u) => (
             <div
               key={u.id}
-              className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
+              className={cn(SITE_DARK_LIST_ITEM, "p-4 sm:p-5")}
             >
               <div className="text-sm font-medium text-foreground">{u.email ?? u.id}</div>
               <div className="mt-1 text-xs text-muted-2">

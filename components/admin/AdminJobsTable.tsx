@@ -7,7 +7,13 @@ import { useRouter } from "next/navigation";
 import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import {
+  SITE_DARK_NOTICE,
+  SITE_DARK_PANEL,
+  SITE_DARK_TABLE_HEADER,
+  SITE_DARK_TABLE_ROW,
+} from "@/lib/site/publicPageLayout";
+import { cn, errorMessageFromUnknown } from "@/lib/utils";
 
 type JobRow = {
   id: string;
@@ -105,7 +111,7 @@ export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
 
   if (!jobs.length) {
     return (
-      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
+      <div className={cn(SITE_DARK_PANEL, "p-6 text-sm text-body")}>
         {t("noJobs")}
       </div>
     );
@@ -114,13 +120,13 @@ export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
   return (
     <div className="space-y-3">
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}
 
       <div className="overflow-hidden rounded-3xl border border-border">
-        <div className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-border bg-[#f8fafc] px-4 py-3 text-[0.9375rem] font-medium leading-snug text-foreground">
+        <div className={cn("grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 px-4 py-3 text-[0.9375rem] font-medium leading-snug text-foreground", SITE_DARK_TABLE_HEADER)}>
           <div>{t("colJob")}</div>
           <div className="hidden sm:block">{t("colCompany")}</div>
           <div>{t("colStatus")}</div>
@@ -130,7 +136,7 @@ export function AdminJobsTable({ jobs }: { locale?: string; jobs: JobRow[] }) {
         {jobs.map((j) => (
           <div
             key={j.id}
-            className="grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 border-b border-border bg-white px-4 py-3 last:border-b-0"
+            className={cn("grid grid-cols-[1.3fr_0.9fr_0.7fr_1fr] gap-3 px-4 py-3", SITE_DARK_TABLE_ROW)}
           >
             <div className="min-w-0">
               <div className="truncate text-sm font-medium text-foreground/80">{j.title}</div>

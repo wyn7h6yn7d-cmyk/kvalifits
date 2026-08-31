@@ -276,6 +276,15 @@ input:-webkit-autofill:focus-visible {
   animation: portal-hub-breathe var(--portal-pulse-duration, 28s) ease-in-out infinite;
 }
 
+.portal-bg-a__node {
+  animation: portal-hub-breathe var(--portal-pulse-duration, 28s) ease-in-out infinite;
+  will-change: opacity;
+}
+
+.portal-bg-a__node--job {
+  filter: drop-shadow(0 0 6px rgba(227, 31, 141, 0.42));
+}
+
 .homepage-motion-network {
   animation: kf-network-drift 46s ease-in-out infinite;
   will-change: transform;
@@ -322,6 +331,7 @@ input:-webkit-autofill:focus-visible {
   .portal-bg-a--lines path.portal-bg-a__path,
   .portal-bg-a__hub-ring,
   .portal-bg-a__hub-core,
+  .portal-bg-a__node,
   .homepage-motion-network,
   .homepage-motion-signal-ring,
   .homepage-hero-aurora,

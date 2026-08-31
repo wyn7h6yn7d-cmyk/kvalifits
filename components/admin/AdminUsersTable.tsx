@@ -6,7 +6,13 @@ import { useRouter } from "next/navigation";
 
 import { ACCOUNT_DELETE_CONFIRM_WORD } from "@/lib/account/privacyCategories";
 import { Button } from "@/components/ui/button";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import {
+  SITE_DARK_NOTICE,
+  SITE_DARK_PANEL,
+  SITE_DARK_TABLE_HEADER,
+  SITE_DARK_TABLE_ROW,
+} from "@/lib/site/publicPageLayout";
+import { cn, errorMessageFromUnknown } from "@/lib/utils";
 
 type Row = {
   id: string;
@@ -100,7 +106,7 @@ export function AdminUsersTable({
 
   if (!users.length) {
     return (
-      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
+      <div className={cn(SITE_DARK_PANEL, "p-6 text-sm text-body")}>
         {t("noUsers")}
       </div>
     );
@@ -109,13 +115,13 @@ export function AdminUsersTable({
   return (
     <div className="space-y-3">
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}
 
       <div className="overflow-hidden rounded-3xl border border-border">
-        <div className="grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 border-b border-border bg-[#f8fafc] px-4 py-3 text-[0.9375rem] font-medium leading-snug text-foreground">
+        <div className={cn("grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 px-4 py-3 text-[0.9375rem] font-medium leading-snug text-foreground", SITE_DARK_TABLE_HEADER)}>
           <div>{t("colEmail")}</div>
           <div>{t("colRole")}</div>
           <div>{t("colProfiles")}</div>
@@ -127,7 +133,7 @@ export function AdminUsersTable({
           return (
             <div
               key={u.id}
-              className="grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 border-b border-border bg-white px-4 py-3 text-sm text-muted last:border-b-0"
+              className={cn("grid grid-cols-[1.1fr_0.45fr_0.7fr_0.85fr] gap-3 px-4 py-3 text-sm text-muted", SITE_DARK_TABLE_ROW)}
             >
               <div className="min-w-0 truncate">{u.email ?? "—"}</div>
               <div className="text-xs text-muted">{u.role ?? "—"}</div>

@@ -13,11 +13,7 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
 
   return (
     <div className={cn("kf-enter-slow min-w-0", SITE_HOME_HERO_INNER)}>
-      <div className="relative max-w-3xl lg:max-w-none">
-        <span
-          aria-hidden
-          className="absolute -left-1 top-3 hidden h-2.5 w-2.5 rounded-full bg-[var(--accent-pink)] shadow-[0_0_14px_rgba(227,31,141,0.6)] sm:block"
-        />
+      <div className="max-w-3xl lg:max-w-none">
         <h1 className={cn("text-pretty", SITE_H1_HERO)}>
           {t("headlineLead")}{" "}
           <GradientAccentText wrapClassName="font-bold">{t("headlineAccent")}</GradientAccentText>

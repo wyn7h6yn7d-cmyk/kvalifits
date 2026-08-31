@@ -12,10 +12,13 @@ import {
   type AdminAuditFilters,
 } from "@/lib/admin/auditLogView";
 import type { AdminAuditLogPage, AdminAuditLogRow } from "@/lib/admin/loadAdminAuditLog";
+import { SITE_DARK_FIELD, SITE_DARK_INSET } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
-const fieldClass =
-  "h-12 w-full rounded-2xl border border-border bg-white px-4 font-sans text-base text-foreground/80 outline-none transition-[border-color,background-color] focus:border-[rgba(37,99,235,0.35)] focus:bg-white lg:h-11 lg:text-sm";
+const fieldClass = cn(
+  "h-12 w-full px-4 font-sans text-base lg:h-11 lg:text-sm",
+  SITE_DARK_FIELD,
+);
 
 type AdminT = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -79,7 +82,7 @@ export async function AdminAuditLogView({
     <div className="space-y-6">
       <p className="text-sm text-muted-2">{t("auditReadOnlyHint")}</p>
 
-      <form method="get" action={`/${locale}/admin/audit`} className="rounded-2xl border border-border bg-white p-4 sm:p-5">
+      <form method="get" action={`/${locale}/admin/audit`} className={cn(SITE_DARK_INSET, "rounded-2xl p-4 sm:p-5")}>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block">
             <span className="mb-1.5 block text-xs font-medium text-muted-2">{t("auditFilterAction")}</span>

@@ -13,7 +13,13 @@ import {
 } from "@/lib/jobs/jobPostReport";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
-import { errorMessageFromUnknown } from "@/lib/utils";
+import {
+  SITE_DARK_FIELD,
+  SITE_DARK_LIST_ITEM,
+  SITE_DARK_NOTICE,
+  SITE_DARK_PANEL,
+} from "@/lib/site/publicPageLayout";
+import { cn, errorMessageFromUnknown } from "@/lib/utils";
 
 export type AdminJobReportRow = {
   id: string;
@@ -82,7 +88,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
 
   if (!reports.length) {
     return (
-      <div className="rounded-3xl border border-border bg-[#f8fafc] p-6 text-sm text-body">
+      <div className={cn(SITE_DARK_PANEL, "p-6 text-sm text-body")}>
         {t("noReports")}
       </div>
     );
@@ -91,7 +97,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
   return (
     <div className="space-y-4">
       {error ? (
-        <div className="rounded-2xl border border-border bg-[#f8fafc] px-4 py-3 text-sm text-muted">
+        <div className={SITE_DARK_NOTICE}>
           {error}
         </div>
       ) : null}
@@ -99,7 +105,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
       {reports.map((r) => (
         <div
           key={r.id}
-          className="rounded-3xl border border-border bg-[#f8fafc] p-4 sm:p-5"
+          className={cn(SITE_DARK_LIST_ITEM, "p-4 sm:p-5")}
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
@@ -141,7 +147,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
                 onChange={(e) =>
                   setStatusDraft((prev) => ({ ...prev, [r.id]: e.target.value }))
                 }
-                className="w-full rounded-2xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-foreground/80 outline-none"
+                className={cn(SITE_DARK_FIELD, "w-full px-3 py-2.5 text-sm")}
               >
                 {JOB_POST_REPORT_STATUS_VALUES.map((s) => (
                   <option key={s} value={s}>
@@ -161,7 +167,7 @@ export function AdminJobReportsTable({ reports }: { reports: AdminJobReportRow[]
                   setNotesDraft((prev) => ({ ...prev, [r.id]: e.target.value.slice(0, 8000) }))
                 }
                 rows={3}
-                className="w-full rounded-2xl border border-border bg-[#f8fafc] px-3 py-2.5 text-sm text-foreground/80 outline-none"
+                className={cn(SITE_DARK_FIELD, "w-full px-3 py-2.5 text-sm")}
                 placeholder={t("adminNotesPlaceholder")}
               />
               <p className="text-[11px] text-muted-2">{t("adminNotesPrivateHint")}</p>
