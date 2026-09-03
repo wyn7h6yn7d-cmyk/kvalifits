@@ -356,6 +356,43 @@ input:-webkit-autofill:focus-visible {
   will-change: transform;
 }
 
+@keyframes kf-hero-photo-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kf-hero-match-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kf-hero-photo-enter {
+  animation: kf-hero-photo-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.kf-hero-match-enter {
+  animation: kf-hero-match-enter 0.55s 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kf-hero-photo-enter,
+  .kf-hero-match-enter {
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .portal-bg-a--lines path.portal-bg-a__path,
   .portal-bg-a__hub-ring,
