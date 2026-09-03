@@ -11,15 +11,13 @@ import { SITE_EYEBROW } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 /**
- * Search-first hero — one product surface (search → live match).
- * Not a left-copy / right-dashboard SaaS split.
+ * Search-first hero — search and live workspace as two separate blocks.
  */
 export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[] }) {
   const t = useTranslations("hero");
 
   return (
     <div className="relative mx-auto min-w-0 w-full max-w-5xl lg:max-w-6xl">
-      {/* Compact copy — hierarchy points at the system below */}
       <div className="kf-enter-slow max-w-3xl">
         <p className={cn(SITE_EYEBROW, "text-white/45")}>{t("eyebrow")}</p>
 
@@ -45,15 +43,15 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
         </p>
       </div>
 
-      {/* The product: search + live workspace as one unit */}
       <div className="kf-enter kf-enter-d1 mt-6 sm:mt-7 lg:mt-8">
-        <HeroJobSearch
-          quickFilters={quickFilters}
-          workspace={<HeroWorkspacePanel />}
-        />
+        <HeroJobSearch quickFilters={quickFilters} />
       </div>
 
-      <div className="kf-enter mt-4 sm:mt-5" style={{ animationDelay: "0.2s" }}>
+      <div className="kf-enter mt-4 sm:mt-5 lg:mt-6" style={{ animationDelay: "0.14s" }}>
+        <HeroWorkspacePanel className="rounded-2xl border border-white/[0.11] bg-[#0c0c14]/95 shadow-[0_24px_48px_-28px_rgba(0,0,0,0.85)]" />
+      </div>
+
+      <div className="kf-enter mt-4 sm:mt-5" style={{ animationDelay: "0.22s" }}>
         <Link
           href="/tooandjatele"
           className={cn(
