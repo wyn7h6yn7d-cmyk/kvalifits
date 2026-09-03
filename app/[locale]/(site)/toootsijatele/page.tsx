@@ -11,6 +11,9 @@ import { publicPageMetadata } from "@/lib/seo/site";
 import { SITE_HOME_CTA_PRIMARY } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
+/** Shared left-aligned column for hero, photo, and steps. */
+const LANDING_COL = "w-full max-w-5xl";
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -43,7 +46,7 @@ export default async function ToootsijatelePage({ params }: Props) {
         eyebrow={t("heroEyebrow")}
         title={t("heroTitle")}
         subtitle={t("heroSubtitle")}
-        innerClassName="max-w-4xl lg:max-w-5xl xl:max-w-[56rem]"
+        innerClassName={cn("mx-0", LANDING_COL)}
         titleClassName="lg:text-[clamp(3.25rem,4.8vw+1rem,5.25rem)]"
         subtitleClassName="max-w-[42rem] text-[1.125rem] sm:text-[1.1875rem] lg:text-[1.3125rem] lg:leading-[1.62]"
         contentClassName="pb-6 sm:pb-8 lg:pb-10"
@@ -62,16 +65,23 @@ export default async function ToootsijatelePage({ params }: Props) {
             alt={t("heroPhotoAlt")}
             caption={t("heroPhotoCaption")}
             aspect="16/9"
-            className="mx-auto max-w-5xl"
+            priority
+            className={LANDING_COL}
+            frameClassName="rounded-[1.25rem]"
           />
         </Container>
       </section>
 
-      <SeekerLandingSteps eyebrow={t("tutorialEyebrow")} title={t("tutorialTitle")} steps={tutorialSteps} />
+      <SeekerLandingSteps
+        eyebrow={t("tutorialEyebrow")}
+        title={t("tutorialTitle")}
+        steps={tutorialSteps}
+        contentClassName={LANDING_COL}
+      />
 
       <section className="bg-background pb-14 sm:pb-16 lg:pb-20">
         <Container>
-          <div className="mx-auto flex max-w-3xl justify-center border-t border-white/[0.08] px-2 pt-10 sm:pt-12">
+          <div className={cn(LANDING_COL, "border-t border-white/[0.08] pt-10 sm:pt-12")}>
             <Button asChild variant="primary" className={cn(SITE_HOME_CTA_PRIMARY, "w-full sm:w-auto")}>
               <Link href="/auth/register?role=seeker">
                 <UserPlus className="h-4 w-4" />

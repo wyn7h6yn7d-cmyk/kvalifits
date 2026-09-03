@@ -16,14 +16,14 @@ describe("employer primary navigation", () => {
 });
 
 describe("public guest navigation", () => {
-  it("lists jobs first, then companies and audience pages", () => {
+  it("lists jobs first, then companies, audience pages, and FAQ", () => {
     assert.deepEqual(
       GUEST_NAV.map((item) => item.key),
-      ["jobs", "companies", "forSeekers", "forEmployers"],
+      ["jobs", "companies", "forSeekers", "forEmployers", "faq"],
     );
     assert.deepEqual(
       GUEST_NAV.map((item) => item.href),
-      ["/tood", "/ettevotted", "/toootsijatele", "/tooandjatele"],
+      ["/tood", "/ettevotted", "/toootsijatele", "/tooandjatele", "/kkk"],
     );
   });
 

@@ -80,7 +80,7 @@ function ListScore({ score, sampleLabel }: { score: number; sampleLabel: string 
   );
 }
 
-export function EmployerProductPreview() {
+export function EmployerProductPreview({ contentClassName }: { contentClassName?: string }) {
   const t = useTranslations("pages.employers");
   const suitabilityLabel = t("previewSuitabilityLabel");
   const sampleLabel = t("previewSampleBadge");
@@ -116,10 +116,12 @@ export function EmployerProductPreview() {
   const fitBullets = (id: ApplicantId) =>
     [1, 2, 3, 4].map((n) => t(detailKey(id, `FitBullet${n}`)));
 
+  const col = cn("w-full max-w-5xl", contentClassName);
+
   return (
     <section className="bg-background py-6 sm:py-8 lg:py-10">
       <Container>
-        <div className="max-w-4xl lg:max-w-5xl">
+        <div className={col}>
           <p className={SITE_EYEBROW}>{t("previewSectionEyebrow")}</p>
           <h2 className={cn("mt-2.5 sm:mt-3", SITE_H2_SECTION, "lg:text-[2.125rem]")}>{t("previewSectionTitle")}</h2>
           <p className={cn("mt-3 max-w-3xl sm:mt-4", SITE_BODY, "text-muted")}>{t("previewSectionLead")}</p>
@@ -127,7 +129,8 @@ export function EmployerProductPreview() {
 
         <div
           className={cn(
-            "mx-auto mt-8 max-w-[1200px] rounded-2xl border border-white/[0.11] sm:mt-10",
+            col,
+            "mt-8 rounded-2xl border border-white/[0.11] sm:mt-10",
             "bg-[linear-gradient(165deg,rgba(22,22,32,0.98)_0%,rgba(14,14,21,0.96)_100%)]",
             "p-5 shadow-[0_28px_72px_-44px_rgba(0,0,0,0.92),inset_0_1px_0_rgba(255,255,255,0.08)]",
             "sm:p-7 lg:p-8",

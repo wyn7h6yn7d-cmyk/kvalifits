@@ -3,14 +3,20 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   steps: readonly string[];
+  contentClassName?: string;
 };
 
 /** Quiet numbered list — editorial, not a SaaS feature card grid. */
-export function EmployerLandingSteps({ steps }: Props) {
+export function EmployerLandingSteps({ steps, contentClassName }: Props) {
   return (
     <section className="bg-background py-10 sm:py-14 lg:py-16">
       <Container>
-        <ol className="mx-auto max-w-3xl list-none divide-y divide-white/[0.07] border-y border-white/[0.07]">
+        <ol
+          className={cn(
+            "w-full max-w-5xl list-none divide-y divide-white/[0.07] border-y border-white/[0.07]",
+            contentClassName,
+          )}
+        >
           {steps.map((step, index) => (
             <li
               key={step}

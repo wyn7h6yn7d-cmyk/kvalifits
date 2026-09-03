@@ -4,6 +4,7 @@ export type NavKey =
   | "companies"
   | "forSeekers"
   | "forEmployers"
+  | "faq"
   | "seekerOverview"
   | "seekerMatches"
   | "seekerMatchesShort"
@@ -29,6 +30,7 @@ export const GUEST_NAV: NavItem[] = [
   { href: "/ettevotted", key: "companies" },
   { href: "/toootsijatele", key: "forSeekers" },
   { href: "/tooandjatele", key: "forEmployers" },
+  { href: "/kkk", key: "faq" },
 ];
 
 /** Public marketing/site pages keep the simple guest nav even when signed in. */

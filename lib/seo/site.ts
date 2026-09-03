@@ -17,6 +17,7 @@ export const PUBLIC_STATIC_PATHS = [
   "/tood",
   "/toootsijatele",
   "/tooandjatele",
+  "/kkk",
   "/kontakt",
   "/privaatsus",
   "/tingimused",

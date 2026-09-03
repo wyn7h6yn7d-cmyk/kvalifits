@@ -124,6 +124,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/tood": 0.9,
     "/toootsijatele": 0.8,
     "/tooandjatele": 0.8,
+    "/kkk": 0.6,
     "/kontakt": 0.6,
     "/privaatsus": 0.4,
     "/tingimused": 0.4,

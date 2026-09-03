@@ -17,6 +17,9 @@ import {
 } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
+/** Shared left-aligned column — hero, photo, steps, preview, CTA. */
+const LANDING_COL = "w-full max-w-5xl";
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props) {
@@ -46,7 +49,7 @@ export default async function TooandjatelePage({ params }: Props) {
         eyebrow={t("heroEyebrow")}
         title={t("heroTitle")}
         subtitle={t("heroSubtitle")}
-        innerClassName="max-w-4xl lg:max-w-5xl xl:max-w-[56rem]"
+        innerClassName={cn("mx-0", LANDING_COL)}
         titleClassName="lg:text-[clamp(3.25rem,4.8vw+1rem,5.25rem)]"
         subtitleClassName="max-w-[42rem] text-[1.125rem] sm:text-[1.1875rem] lg:text-[1.3125rem] lg:leading-[1.62]"
         ctaClassName="mt-5 sm:mt-6 lg:mt-7"
@@ -73,20 +76,21 @@ export default async function TooandjatelePage({ params }: Props) {
             alt={t("heroPhotoAlt")}
             caption={t("heroPhotoCaption")}
             aspect="16/9"
-            className="mx-auto max-w-5xl"
+            priority
+            className={LANDING_COL}
           />
         </Container>
       </section>
 
-      <EmployerLandingSteps steps={steps} />
+      <EmployerLandingSteps steps={steps} contentClassName={LANDING_COL} />
 
-      <EmployerProductPreview />
+      <EmployerProductPreview contentClassName={LANDING_COL} />
 
       <section className="bg-background pb-14 sm:pb-16 lg:pb-20">
         <Container>
-          <div className="mx-auto max-w-3xl border-t border-white/[0.08] px-2 pt-10 text-center sm:pt-12">
+          <div className={cn(LANDING_COL, "border-t border-white/[0.08] pt-10 sm:pt-12")}>
             <h2 className={SITE_H2_SECTION}>{t("tutorialCtaSectionTitle")}</h2>
-            <div className="mt-7 flex justify-center">
+            <div className="mt-7">
               <Button
                 asChild
                 variant="primary"
@@ -100,7 +104,7 @@ export default async function TooandjatelePage({ params }: Props) {
             </div>
 
             {showPricing ? (
-              <div className="mx-auto mt-10 max-w-xl border-t border-white/[0.08] pt-8 text-left">
+              <div className="mt-10 max-w-xl border-t border-white/[0.08] pt-8">
                 <div className={SITE_EYEBROW}>{t("pricingTitle")}</div>
                 <ul className="mt-4 space-y-2 text-base font-medium text-foreground">
                   <li>{t("pricingDuration30")}</li>

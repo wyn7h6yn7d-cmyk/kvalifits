@@ -34,6 +34,7 @@
     "companiesEyebrow": "Tööportaal",
     "companiesSubtitle": "Vaata ettevõtteid, kellel on tööpakkumine.",
     "contact": "Kontakt",
+    "faq": "KKK",
     "pricing": "Hinnakiri",
     "login": "Logi sisse",
     "signup": "Registreeru",
@@ -624,6 +625,12 @@
     "scrollToTopAria": "Kerida lehe algusesse"
   },
   "pages": {
+    "faq": {
+      "title": "KKK",
+      "description": "Korduma kippuvad küsimused Kvalifitsi kohta.",
+      "eyebrow": "Abi",
+      "subtitle": "Lühikesed vastused tööotsimise ja tööandja kasutuse kohta."
+    },
     "jobs": {
       "title": "Tööpakkumised",
       "description": "Otsi tööd ameti, asukoha või oskuse järgi.",
@@ -647,7 +654,7 @@
       "heroEyebrow": "Tööandjale",
       "heroTitle": "Lisa tööpakkumine ja leia sobivad inimesed",
       "heroSubtitle": "Kirjuta, keda otsid. Näed, kes tööle sobib.",
-      "heroPhotoAlt": "Tööandja meeskond — foto asukoht",
+      "heroPhotoAlt": "Tööandja rahulikus töökeskkonnas",
       "heroPhotoCaption": "Inimesed, kes otsivad õiget kolleegi.",
       "step1": "Lisa tööpakkumine",
       "step2": "Kirjuta, mida tööl oodatakse",
@@ -760,8 +767,8 @@
       "heroEyebrow": "Tööotsijale",
       "heroTitle": "Otsi tööd ja kandideeri",
       "heroSubtitle": "Otsi tööd kohe. Konto on vaja alles kandideerimiseks.",
-      "heroPhotoAlt": "Tööotsija igapäevas — foto asukoht",
-      "heroPhotoCaption": "Inimene, kes otsib sobivat rolli.",
+      "heroPhotoAlt": "Elektrik tööl, keskendunud ülesandele",
+      "heroPhotoCaption": "Inimene, kes otsib tööd, mis tema oskustega sobib.",
       "ctaSearchJobs": "Otsi tööpakkumisi",
       "ctaSignup": "Loo konto",
       "ctaLogin": "Logi sisse",

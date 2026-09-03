@@ -6,7 +6,6 @@ import { Hero } from "@/components/sections/Hero";
 import { HomepageAudienceSection } from "@/components/sections/HomepageAudienceSection";
 import { HomepageBenefitsSection } from "@/components/sections/HomepageBenefitsSection";
 import { HomepageCompaniesSection } from "@/components/sections/HomepageCompaniesSection";
-import { HomepageFaqSection } from "@/components/sections/HomepageFaqSection";
 import { HomepageHeroBand } from "@/components/sections/HomepageHeroBand";
 import { HomepageJobsSection } from "@/components/sections/HomepageJobsSection";
 import { HomepageMatchDemoSection } from "@/components/sections/HomepageMatchDemoSection";
@@ -54,9 +53,7 @@ export default async function HomePage({ params }: Props) {
         <HomepageAudienceSection />
         {/* 7. One compact match demo */}
         <HomepageMatchDemoSection />
-        {/* 8. FAQ */}
-        <HomepageFaqSection />
-        {/* 9. Final CTA — 10. Footer via PublicSiteShell */}
+        {/* 8. Final CTA — Footer via PublicSiteShell */}
         <FinalCTA />
       </HomepageBodyAtmosphere>
     </>

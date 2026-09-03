@@ -142,19 +142,23 @@ export const MARKETING_PHOTO_SLOTS: Record<MarketingSlotId, MarketingPhotoSlot> 
     path: "/marketing/landing-seeker.jpg",
     profession: "electrician_technician",
     alsoFits: ["warehouse_logistics", "production_worker"],
-    status: "needed",
+    status: "filled",
     brief:
       "Job seeker energy without cliché: trades or logistics person in real gear at work, looking capable and at ease.",
     avoid: "Resume-holding pose, suit on white background, fake celebration.",
+    credit: "Unsplash",
+    sourceUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e",
   },
   landingEmployer: {
     path: "/marketing/landing-employer.jpg",
     profession: "office_worker",
     alsoFits: ["it_specialist", "production_worker"],
-    status: "needed",
+    status: "filled",
     brief:
       "Hiring context that still feels human: supervisor or lead talking with a colleague on the floor or in a modest office — not a boardroom.",
     avoid: "Corporate handshake, glass-tower skyline, pointing at whiteboard stock.",
+    credit: "Unsplash",
+    sourceUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a",
   },
   audienceSeeker: {
     path: "/marketing/audience-seeker.jpg",

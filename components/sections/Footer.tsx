@@ -13,6 +13,7 @@ const PLATFORM_PATHS = [
   { href: "/toootsijatele", key: "forSeekers" as const },
   { href: "/tooandjatele", key: "forEmployers" as const },
   { href: "/ettevotted", key: "companies" as const },
+  { href: "/kkk", key: "faq" as const },
 ] as const;
 
 const LEGAL_PATHS = [

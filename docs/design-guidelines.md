@@ -38,9 +38,9 @@ Public photos of people must feel like a real job portal for real workers — no
 
 Animated background stays — as **atmosphere**, not a product demo.
 
-1. **Human first, technology second.** The person photo is foreground.
+1. **Content first, technology second.** Headline and search lead; motion stays behind.
 2. Keep existing motion (aurora + network); do not remove it.
-3. Motion is strongest in **empty** hero zones (copy side / margins).
-4. No lines, nodes, or color glow on the real person’s face.
-5. Use **mask / gradient** so tech fades under the photo.
-6. Reduce tech-effect dominance behind the photo; soft ambient only.
+3. Motion is soft — supporting, not competing with copy or CTAs.
+4. Prefer quiet ambient in empty zones; avoid loud tech effects over the search area.
+5. Use soft scrims / gradients for readability.
+6. Do not put decorative people photos in the hero unless they clearly support the message (see HUMAN IMAGE RULES).

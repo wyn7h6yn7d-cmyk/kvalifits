@@ -61,8 +61,8 @@ export function EditorialPhotoSlot({
             alt={alt}
             fill
             priority={priority}
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 640px"
-            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 90vw, 1024px"
+            className="object-cover object-[center_28%]"
           />
         ) : (
           <>
@@ -98,7 +98,9 @@ export function EditorialPhotoSlot({
         )}
       </div>
       {caption ? (
-        <figcaption className="mt-3 text-[0.875rem] leading-snug text-muted-2 sm:mt-3.5">{caption}</figcaption>
+        <figcaption className="mt-3 max-w-[40rem] text-[0.875rem] leading-snug text-muted-2 sm:mt-3.5 sm:text-[0.9375rem]">
+          {caption}
+        </figcaption>
       ) : null}
     </figure>
   );

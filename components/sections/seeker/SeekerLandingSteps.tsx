@@ -11,13 +11,14 @@ type Props = {
   eyebrow: string;
   title: string;
   steps: readonly Step[];
+  contentClassName?: string;
 };
 
-export function SeekerLandingSteps({ eyebrow, title, steps }: Props) {
+export function SeekerLandingSteps({ eyebrow, title, steps, contentClassName }: Props) {
   return (
     <section className="bg-background py-12 sm:py-16 lg:py-20">
       <Container>
-        <div className="max-w-4xl lg:max-w-5xl">
+        <div className={cn("w-full max-w-5xl", contentClassName)}>
           <div className="mb-5 flex items-center gap-3" aria-hidden>
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-pink)]/80" />
             <span className="h-px w-10 bg-white/[0.14]" />
@@ -26,7 +27,7 @@ export function SeekerLandingSteps({ eyebrow, title, steps }: Props) {
           <h2 className={cn("mt-3 sm:mt-3.5", SITE_H2_SECTION, "lg:text-[2.125rem]")}>{title}</h2>
         </div>
 
-        <ol className="relative mt-12 list-none sm:mt-14 lg:mt-16">
+        <ol className={cn("relative mt-12 list-none sm:mt-14 lg:mt-16", "w-full max-w-5xl", contentClassName)}>
           {/* Desktop horizontal connector */}
           <div
             aria-hidden

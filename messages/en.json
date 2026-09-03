@@ -34,6 +34,7 @@
     "companiesEyebrow": "Job portal",
     "companiesSubtitle": "See companies that have a job posting.",
     "contact": "Contact",
+    "faq": "FAQ",
     "pricing": "Pricing",
     "login": "Log in",
     "signup": "Sign up",
@@ -624,6 +625,12 @@
     "scrollToTopAria": "Scroll to top of page"
   },
   "pages": {
+    "faq": {
+      "title": "FAQ",
+      "description": "Frequently asked questions about Kvalifits.",
+      "eyebrow": "Help",
+      "subtitle": "Short answers about job search and employer use."
+    },
     "jobs": {
       "title": "Jobs",
       "description": "Search for jobs by title, place or skill.",
@@ -647,7 +654,7 @@
       "heroEyebrow": "For employers",
       "heroTitle": "Add a job posting and find the right people",
       "heroSubtitle": "Write who you are looking for. See who fits the job.",
-      "heroPhotoAlt": "Hiring team — photo placeholder",
+      "heroPhotoAlt": "Employer in a calm workplace",
       "heroPhotoCaption": "People looking for the right colleague.",
       "step1": "Add a job posting",
       "step2": "Write what the job needs",
@@ -760,8 +767,8 @@
       "heroEyebrow": "For job seekers",
       "heroTitle": "Search for jobs and apply",
       "heroSubtitle": "Search for jobs right away. You only need an account to apply.",
-      "heroPhotoAlt": "Job seeker day-to-day — photo placeholder",
-      "heroPhotoCaption": "Someone looking for the right role.",
+      "heroPhotoAlt": "Electrician at work, focused on the task",
+      "heroPhotoCaption": "Someone looking for a job that matches their skills.",
       "ctaSearchJobs": "Search jobs",
       "ctaSignup": "Create an account",
       "ctaLogin": "Log in",

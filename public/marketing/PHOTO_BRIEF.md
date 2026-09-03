@@ -51,8 +51,8 @@ Source of truth for slots: `lib/site/marketingPhotos.ts` (`MARKETING_PHOTO_SLOTS
 |---|---|---|---|---|
 | `heroPerson` | `hero-person.jpg` | Builder / carpenter | **filled** — Ali Mkumbwa / Unsplash | Person mid-work in a real workshop, natural smile/focus |
 | `realLife` | `real-life.jpg` | Electrician / technician | **filled** — Unsplash | Tradesperson mid-task with real tools and focus |
-| `landingSeeker` | `landing-seeker.jpg` | Electrician / technician | **needed** | Trades/logistics person in real gear, capable and at ease |
-| `landingEmployer` | `landing-employer.jpg` | Office worker | **needed** | Lead talking with colleague on floor / modest office — not boardroom |
+| `landingSeeker` | `landing-seeker.jpg` | Electrician / technician | **filled** — Unsplash (same source as realLife) | Tradesperson mid-task with real tools and focus |
+| `landingEmployer` | `landing-employer.jpg` | Office worker | **filled** — Unsplash (same source as audienceEmployer) | Calm manager portrait in workplace light |
 | `audienceSeeker` | `audience-seeker.jpg` | Service worker | **filled** — Unsplash | Café worker, natural smile at work |
 | `audienceEmployer` | `audience-employer.jpg` | Office / hiring lead | **filled** — Unsplash | Calm manager portrait in workplace light |
 | `benefitsWorkspace` | `benefits-workspace.jpg` | Production worker | **needed** | Workplace frame; hands/tools tell the story |
