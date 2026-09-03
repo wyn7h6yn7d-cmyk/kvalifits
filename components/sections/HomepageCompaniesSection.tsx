@@ -1,12 +1,13 @@
 import { getTranslations } from "next-intl/server";
 
-import { HomepageCompanyCarousel } from "@/components/sections/HomepageCompanyCarousel";
+import { HomepageCompanyCarouselLazy } from "@/components/sections/HomepageCompanyCarouselLazy";
 import { HomeSectionShell } from "@/components/sections/home/HomeSectionShell";
 import { getHomepageShowcaseCompanies } from "@/lib/companies/loadHomepageShowcaseCompanies";
 import { SITE_H2_HOME } from "@/lib/site/publicPageLayout";
 
 /**
  * Admin-approved company logos only — quiet trust strip, not a sponsor banner.
+ * Carousel is lazy-loaded below the fold (client dynamic, ssr:false).
  */
 export async function HomepageCompaniesSection() {
   const companies = await getHomepageShowcaseCompanies();
@@ -26,7 +27,12 @@ export async function HomepageCompaniesSection() {
           {t("title")}
         </h2>
       </div>
-      <HomepageCompanyCarousel companies={companies} logoAlt={(name) => t("logoAlt", { name })} />
+      <div className="min-h-[3.25rem] sm:min-h-14">
+        <HomepageCompanyCarouselLazy
+          companies={companies}
+          logoAlt={(name) => t("logoAlt", { name })}
+        />
+      </div>
     </HomeSectionShell>
   );
 }

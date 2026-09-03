@@ -120,12 +120,10 @@ export const MARKETING_PHOTO_SLOTS: Record<MarketingSlotId, MarketingPhotoSlot> 
     path: "/marketing/hero-person.jpg",
     profession: "builder_carpenter",
     alsoFits: ["production_worker"],
-    status: "filled",
+    status: "needed",
     brief:
       "Person mid-work in a real workshop or site, natural smile or quiet focus, documentary light. Ages 30–55 welcome.",
     avoid: "White studio, handshake, laptop hero, thumbs-up, polished fashion lighting.",
-    credit: "Ali Mkumbwa / Unsplash",
-    sourceUrl: "https://unsplash.com/photos/a-man-smiles-as-he-works-on-a-piece-of-wood-PxlKOcj0a3Q",
   },
   realLife: {
     path: "/marketing/real-life.jpg",
@@ -139,26 +137,22 @@ export const MARKETING_PHOTO_SLOTS: Record<MarketingSlotId, MarketingPhotoSlot> 
     sourceUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e",
   },
   landingSeeker: {
-    path: "/marketing/landing-seeker.jpg",
+    path: "/marketing/real-life.jpg",
     profession: "electrician_technician",
     alsoFits: ["warehouse_logistics", "production_worker"],
-    status: "filled",
+    status: "needed",
     brief:
       "Job seeker energy without cliché: trades or logistics person in real gear at work, looking capable and at ease.",
     avoid: "Resume-holding pose, suit on white background, fake celebration.",
-    credit: "Unsplash",
-    sourceUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e",
   },
   landingEmployer: {
-    path: "/marketing/landing-employer.jpg",
+    path: "/marketing/audience-employer.jpg",
     profession: "office_worker",
     alsoFits: ["it_specialist", "production_worker"],
-    status: "filled",
+    status: "needed",
     brief:
       "Hiring context that still feels human: supervisor or lead talking with a colleague on the floor or in a modest office — not a boardroom.",
     avoid: "Corporate handshake, glass-tower skyline, pointing at whiteboard stock.",
-    credit: "Unsplash",
-    sourceUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a",
   },
   audienceSeeker: {
     path: "/marketing/audience-seeker.jpg",

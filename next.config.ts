@@ -41,4 +41,14 @@ export default withSentryConfig(withNextIntl(nextConfig), {
     disable: !sentryAuthToken,
     deleteSourcemapsAfterUpload: true,
   },
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+      /** Client needs error capture; drop tracing/replay code from the browser bundle. */
+      removeTracing: true,
+      excludeReplayIframe: true,
+      excludeReplayShadowDOM: true,
+      excludeReplayCompressionWorker: true,
+    },
+  },
 });

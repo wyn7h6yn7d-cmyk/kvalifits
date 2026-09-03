@@ -9,6 +9,10 @@ import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import { CookieConsent } from "@/components/cookies/CookieConsent";
 import { CurrentAuthProvider } from "@/components/auth/CurrentAuthProvider";
 import { getCurrentAuth } from "@/lib/auth/currentAuth";
+import {
+  pickClientMessages,
+  SHARED_CLIENT_MESSAGE_NAMESPACES,
+} from "@/lib/i18n/clientMessages";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { SITE_NAME } from "@/lib/seo/site";
 
@@ -27,8 +31,6 @@ export async function generateMetadata({ params }: Props) {
     return {};
   }
   const t = await getTranslations({ locale, namespace: "metadata" });
-  // Canonical / hreflang are set per page (see publicPageMetadata). Layout only
-  // provides defaults so nested routes do not inherit the homepage canonical.
   return {
     applicationName: SITE_NAME,
     appleWebApp: {
@@ -48,11 +50,12 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound();
   }
   setRequestLocale(locale);
-  const messages = await getMessages();
+  const allMessages = await getMessages();
+  const shellMessages = pickClientMessages(allMessages, SHARED_CLIENT_MESSAGE_NAMESPACES);
   const auth = await getCurrentAuth();
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider messages={shellMessages}>
       <CurrentAuthProvider initialAuth={auth}>
         <LocaleHtml />
         <ClipboardPlainCopy />

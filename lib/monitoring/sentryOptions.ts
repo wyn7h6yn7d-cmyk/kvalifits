@@ -32,6 +32,13 @@ export function tracesSampleRateForEnv(environment: string): number {
   return 0;
 }
 
+const scrubBeforeSend = {
+  beforeSend(event: ErrorEvent): ErrorEvent {
+    return scrubSentryEvent(event);
+  },
+};
+
+/** Server / edge — keep performance traces. */
 export function getSharedSentryOptions() {
   const environment = sentryEnvironment();
   return {
@@ -44,8 +51,29 @@ export function getSharedSentryOptions() {
     tracesSampleRate: tracesSampleRateForEnv(environment),
     sampleRate: 1,
     maxBreadcrumbs: 30,
-    beforeSend(event: ErrorEvent): ErrorEvent {
-      return scrubSentryEvent(event);
-    },
+    ...scrubBeforeSend,
+  };
+}
+
+/**
+ * Browser — error monitoring only (no Replay; no client tracing bundle).
+ * Server-side traces remain via getSharedSentryOptions().
+ */
+export function getBrowserSentryOptions() {
+  const environment = sentryEnvironment();
+  return {
+    dsn: sentryDsn(),
+    enabled: sentryEnabled(),
+    environment,
+    release: sentryRelease(),
+    sendDefaultPii: false,
+    enableLogs: false,
+    /** Drop browser performance instrumentation from the client path. */
+    tracesSampleRate: 0,
+    sampleRate: 1,
+    maxBreadcrumbs: 20,
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 0,
+    ...scrubBeforeSend,
   };
 }

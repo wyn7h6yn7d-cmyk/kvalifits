@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { ClientMessagesProvider } from "@/components/i18n/ClientMessagesProvider";
+import { ADMIN_CLIENT_MESSAGE_NAMESPACES } from "@/lib/i18n/clientMessages";
 import { NOINDEX_ROBOTS } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   robots: NOINDEX_ROBOTS,
 };
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
-  return children;
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  return (
+    <ClientMessagesProvider namespaces={ADMIN_CLIENT_MESSAGE_NAMESPACES}>
+      {children}
+    </ClientMessagesProvider>
+  );
 }

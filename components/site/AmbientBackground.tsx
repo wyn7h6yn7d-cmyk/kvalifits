@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Hero ambient — indigo/violet wash with a small pink accent.
- * `layout="hero"` keeps orbs in empty zones (left / top), away from the person photo.
+ * `layout="hero"` biases soft orbs toward the copy / upper band.
  */
 export function AmbientBackground({
   className,
