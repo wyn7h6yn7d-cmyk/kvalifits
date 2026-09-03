@@ -12,14 +12,14 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
   const t = useTranslations("hero");
 
   return (
-    <div className="kf-enter-slow relative mx-auto min-w-0 max-w-3xl lg:mx-0 lg:max-w-2xl xl:max-w-3xl">
-      <h1 className={cn("max-w-[18ch] text-pretty sm:max-w-none", SITE_H1_HERO)}>
+    <div className="kf-enter-slow relative min-w-0 w-full">
+      <h1 className={cn("max-w-[20ch] text-pretty sm:max-w-[22ch] lg:max-w-[24ch]", SITE_H1_HERO)}>
         {t("headlineLead")}{" "}
         <GradientAccentText wrapClassName="font-bold">{t("headlineAccent")}</GradientAccentText>
       </h1>
       <p
         className={cn(
-          "mt-6 max-w-[36rem] text-pretty sm:mt-7 lg:mt-8",
+          "mt-5 max-w-[40rem] text-pretty sm:mt-6 lg:mt-7",
           "text-[1.0625rem] leading-[1.72] text-white/82 sm:text-[1.125rem] lg:text-[1.25rem] lg:leading-[1.66]",
         )}
       >

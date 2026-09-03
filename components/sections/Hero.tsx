@@ -15,16 +15,12 @@ export function Hero({
       id="avaleht"
       className={cn(
         "relative scroll-mt-[var(--site-header-offset)]",
-        embedded ? "pb-16 sm:pb-20 lg:pb-24" : "overflow-hidden bg-surface-deep pb-16 sm:pb-20 lg:pb-24",
+        embedded ? "pb-10 sm:pb-12 lg:pb-14" : "overflow-hidden bg-surface-deep pb-10 sm:pb-12 lg:pb-14",
       )}
     >
       <Container className="relative z-10">
         <div
-          className={cn(
-            "flex flex-col justify-center",
-            embedded &&
-              "min-h-[min(62svh,calc(100svh-var(--site-header-offset)-2.5rem))] lg:min-h-[min(70svh,calc(100svh-var(--site-header-offset)-3rem))]",
-          )}
+          className="flex flex-col justify-center"
           style={{ paddingTop: "var(--site-hero-content-top)" }}
         >
           <HeroContent quickFilters={quickFilters} />
