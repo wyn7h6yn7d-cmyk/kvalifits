@@ -2,6 +2,8 @@
 
 Kvalifits is an Estonian job platform. Copy should feel as calm and familiar as a mature employment portal — without borrowing another site’s slogans or structure.
 
+Visual / photography rules: `docs/design-guidelines.md` (HUMAN IMAGE RULES).
+
 ## Kvalifits sounds
 
 - **Clear** — understood on first read

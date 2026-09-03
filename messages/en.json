@@ -430,6 +430,8 @@
     "headlineLead": "Find a job that",
     "headlineAccent": "really fits you",
     "subheadline": "Search job postings and see how well they match your skills and what you want.",
+    "photoAlt": "Carpenter in a workshop, smiling about his work",
+    "photoCaption": "Person. Job. Apply.",
     "searchQueryPlaceholder": "Job, skill or company",
     "searchLocationPlaceholder": "Location",
     "searchSubmit": "Search job postings",
@@ -524,6 +526,7 @@
   },
   "finalCta": {
     "title": "Looking for a job or a worker?",
+    "lead": "Start with a search or add a job posting — the next step is yours.",
     "ctaSeeker": "See job postings",
     "ctaEmployer": "Add a job posting"
   },
@@ -534,25 +537,40 @@
     "empty": "There are no new job postings right now.",
     "emptyCta": "Notify me about new jobs"
   },
+  "homeRealLife": {
+    "eyebrow": "Kvalifits in real life",
+    "title": "Find work where your skills actually count.",
+    "lead": "Kvalifits helps you see what the employer expects — and which requirements you already meet — before you apply.",
+    "matchScore": "87%",
+    "matchLabel": "match",
+    "reqsFilled": "8/10 requirements met",
+    "photoAlt": "Electrician at work, focused on the task",
+    "photoCaption": "Real skills. Real workplace."
+  },
+  "homeTestimonials": {
+    "title": "Stories from Kvalifits",
+    "lead": "Short stories from people who have actually used Kvalifits."
+  },
   "homeBenefits": {
     "title": "Why Kvalifits",
-    "b1Title": "See if the job fits you",
-    "b1Desc": "You see how well the job posting matches your skills and what you want.",
-    "b2Title": "Clear requirements",
-    "b2Desc": "You see which skills, experience and licences the employer expects.",
-    "b3Title": "Certificates and licences",
-    "b3Desc": "Checked certificates are marked separately on the profile."
+    "lead": "Three things. Briefly.",
+    "b1Title": "Clear requirements",
+    "b1Desc": "Skills, languages and certificates are shown separately on the job posting.",
+    "b2Title": "Checked credentials",
+    "b2Desc": "Verified certificates are marked separately on the profile.",
+    "b3Title": "Clear match",
+    "b3Desc": "You see which requirements you already meet."
   },
   "homeAudience": {
     "title": "For job seekers and employers",
     "seekerTitle": "Looking for a job?",
-    "seekerDesc": "Search job postings, see how well a job fits you, and apply.",
+    "seekerDesc": "Browse job postings and see how well a role fits you before you apply.",
     "seekerLink": "See job postings",
-    "seekerSecondary": "How to search for a job here",
+    "seekerPhotoAlt": "Service worker in a café",
     "employerTitle": "Looking for a worker?",
-    "employerDesc": "Add a job posting and see who matches what you need.",
+    "employerDesc": "Add a job posting and find people whose skills match what you need.",
     "employerLink": "Add a job posting",
-    "employerSecondary": "How an employer gets started"
+    "employerPhotoAlt": "Manager in a workplace"
   },
   "homeFaq": {
     "title": "Frequently asked questions",
@@ -574,7 +592,15 @@
     "q8Answer": "No. The employer only sees the information needed for hiring."
   },
   "homeMatchDemo": {
-    "title": "Match example"
+    "title": "Match in brief",
+    "lead": "See what fits before you apply.",
+    "matchScore": "87%",
+    "matchLabel": "match",
+    "reqsFilled": "8/10 requirements met",
+    "reason1": "Required certificate on file",
+    "reason2": "Location fits",
+    "reason3": "Workload fits",
+    "reason4": "Recommended experience partly met"
   },
   "homeCompanies": {
     "title": "Companies on Kvalifits",
@@ -621,6 +647,8 @@
       "heroEyebrow": "For employers",
       "heroTitle": "Add a job posting and find the right people",
       "heroSubtitle": "Write who you are looking for. See who fits the job.",
+      "heroPhotoAlt": "Hiring team — photo placeholder",
+      "heroPhotoCaption": "People looking for the right colleague.",
       "step1": "Add a job posting",
       "step2": "Write what the job needs",
       "step3": "See who fits",
@@ -732,6 +760,8 @@
       "heroEyebrow": "For job seekers",
       "heroTitle": "Search for jobs and apply",
       "heroSubtitle": "Search for jobs right away. You only need an account to apply.",
+      "heroPhotoAlt": "Job seeker day-to-day — photo placeholder",
+      "heroPhotoCaption": "Someone looking for the right role.",
       "ctaSearchJobs": "Search jobs",
       "ctaSignup": "Create an account",
       "ctaLogin": "Log in",

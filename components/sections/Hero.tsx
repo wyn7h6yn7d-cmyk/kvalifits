@@ -23,7 +23,7 @@ export function Hero({
           className={cn(
             "flex flex-col justify-center",
             embedded &&
-              "min-h-[min(68svh,calc(100svh-var(--site-header-offset)-2.5rem))] lg:min-h-[min(72svh,calc(100svh-var(--site-header-offset)-3rem))]",
+              "min-h-[min(62svh,calc(100svh-var(--site-header-offset)-2.5rem))] lg:min-h-[min(70svh,calc(100svh-var(--site-header-offset)-3rem))]",
           )}
           style={{ paddingTop: "var(--site-hero-content-top)" }}
         >

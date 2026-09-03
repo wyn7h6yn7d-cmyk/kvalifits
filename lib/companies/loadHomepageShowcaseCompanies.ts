@@ -9,8 +9,13 @@ import {
 import { isE2eOfflineSupabase } from "@/lib/e2e/offlineHarness";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-const SELECT = "id,public_slug,company_name,logo_url,carousel_logo_path,use_logo_plate,website";
+const SELECT =
+  "id,public_slug,company_name,logo_url,carousel_logo_path,use_logo_plate,website";
 
+/**
+ * Admin-approved homepage logos only (`employer_show_on_homepage_profiles`
+ * requires show_on_homepage + homepage_logo_approved).
+ */
 async function queryShowcaseRows(supabase: SupabaseClient): Promise<HomepageShowcaseCompany[]> {
   const { data, error } = await supabase
     .from("employer_show_on_homepage_profiles")

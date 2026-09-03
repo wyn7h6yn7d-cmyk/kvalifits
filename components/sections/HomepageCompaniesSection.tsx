@@ -1,11 +1,13 @@
 import { getTranslations } from "next-intl/server";
 
 import { HomepageCompanyCarousel } from "@/components/sections/HomepageCompanyCarousel";
-import { Container } from "@/components/ui/container";
+import { HomeSectionShell } from "@/components/sections/home/HomeSectionShell";
 import { getHomepageShowcaseCompanies } from "@/lib/companies/loadHomepageShowcaseCompanies";
-import { SITE_H2_SECTION } from "@/lib/site/publicPageLayout";
-import { cn } from "@/lib/utils";
+import { SITE_H2_HOME } from "@/lib/site/publicPageLayout";
 
+/**
+ * Admin-approved company logos only — quiet trust strip, not a sponsor banner.
+ */
 export async function HomepageCompaniesSection() {
   const companies = await getHomepageShowcaseCompanies();
   if (!companies.length) return null;
@@ -13,21 +15,18 @@ export async function HomepageCompaniesSection() {
   const t = await getTranslations("homeCompanies");
 
   return (
-    <section
-      className="border-b border-border bg-surface py-9 sm:py-11 lg:py-12"
-      aria-labelledby="home-companies-title"
-    >
-      <Container>
-        <h2
-          id="home-companies-title"
-          className={cn("text-center", SITE_H2_SECTION)}
-        >
+    <HomeSectionShell tone="base" aria-labelledby="home-companies-title">
+      <div className="mb-8 flex flex-col items-center text-center sm:mb-10 lg:mb-12">
+        <div className="mb-5 flex items-center gap-3" aria-hidden>
+          <span className="h-px w-8 bg-white/[0.12]" />
+          <span className="h-1 w-1 rounded-full bg-[var(--accent-pink)]/70" />
+          <span className="h-px w-8 bg-white/[0.12]" />
+        </div>
+        <h2 id="home-companies-title" className={SITE_H2_HOME}>
           {t("title")}
         </h2>
-        <div className="mt-5 sm:mt-6">
-          <HomepageCompanyCarousel companies={companies} logoAlt={(name) => t("logoAlt", { name })} />
-        </div>
-      </Container>
-    </section>
+      </div>
+      <HomepageCompanyCarousel companies={companies} logoAlt={(name) => t("logoAlt", { name })} />
+    </HomeSectionShell>
   );
 }

@@ -48,7 +48,7 @@ function useInViewOnce(ref: RefObject<HTMLElement | null>) {
 
 function Tag({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-block max-w-full break-words rounded-md border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.75rem] leading-snug text-muted">
+    <span className="inline-block max-w-full break-words rounded-md border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[0.75rem] leading-snug text-muted">
       {children}
     </span>
   );
@@ -70,7 +70,7 @@ function SideCard({
   dense?: boolean;
 }) {
   return (
-    <div className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-white p-3 sm:p-3.5 md:p-4">
+    <div className="relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#12121a] p-3 sm:p-3.5 md:p-4">
       <div className="text-[0.8125rem] font-medium leading-snug text-muted">{eyebrow}</div>
       <div
         className={cn(
@@ -111,7 +111,7 @@ function MatchScoreRing() {
             cy="66"
             r={RING_R}
             fill="none"
-            stroke="rgba(15,23,42,0.08)"
+            stroke="rgba(255,255,255,0.08)"
             strokeWidth={RING_STROKE}
           />
           <circle
@@ -127,8 +127,8 @@ function MatchScoreRing() {
           />
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#2563eb" />
+              <stop offset="0%" stopColor="#818cf8" />
+              <stop offset="100%" stopColor="#6366f1" />
             </linearGradient>
           </defs>
         </svg>
@@ -172,8 +172,8 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
       ref={rootRef}
       className="relative mx-auto w-full min-w-0 max-w-[min(100%,780px)] lg:ml-auto lg:mr-0"
     >
-      <div className="relative min-w-0 overflow-hidden rounded-[24px] border border-border bg-white p-px shadow-[0_12px_40px_-20px_rgba(15,23,42,0.14)] sm:rounded-[28px] md:rounded-[32px]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-8%,rgba(37,99,235,0.08),transparent_55%)]" />
+      <div className="relative min-w-0 overflow-hidden rounded-[24px] border border-white/[0.10] bg-[#101018] p-px shadow-[0_20px_48px_-40px_rgba(0,0,0,0.85)] sm:rounded-[28px] md:rounded-[32px]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_-8%,rgba(99,102,241,0.08),transparent_55%)]" />
 
         <div
           {...(locale === "ru" ? { "data-hero-mock-locale": "ru" } : {})}
@@ -186,7 +186,7 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
             <span className="min-w-0 text-pretty text-[0.8125rem] font-medium leading-snug text-muted">
               {t("matching")}
             </span>
-            <span className="shrink-0 rounded-full border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.75rem] text-muted">
+            <span className="shrink-0 rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[0.75rem] text-muted">
               {t("sampleBadge")}
             </span>
           </div>
@@ -245,7 +245,7 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
 
           {!compact ? (
             <>
-              <div className="min-w-0 overflow-hidden rounded-2xl border border-border bg-[#f8fafc] p-3 sm:p-3.5 md:p-4">
+              <div className="min-w-0 overflow-hidden rounded-2xl border border-white/[0.09] bg-[#12121a] p-3 sm:p-3.5 md:p-4">
                 <div className="text-pretty text-[0.9375rem] font-medium text-foreground">{t("whyTitle")}</div>
                 <ul className="mt-3 grid min-w-0 gap-2 md:grid-cols-2 md:gap-x-5 md:gap-y-2">
                   {reasons.map((r, i) => (
@@ -286,8 +286,8 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
                       {DEMO_FILLED}/{DEMO_TOTAL}
                     </span>
                   </div>
-                  <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-[#f8fafc]">
-                    <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6]" />
+                  <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                    <div className="h-full w-4/5 rounded-full bg-gradient-to-r from-indigo-400 to-violet-400" />
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[0.8125rem] leading-snug text-muted">
                     <span className="min-w-0 text-pretty">{t("reqsMandatory")}</span>
@@ -296,7 +296,7 @@ export function HeroMatchMockup({ compact = false }: { compact?: boolean }) {
                 </div>
 
                 <div className="relative inline-flex min-w-0 max-w-full flex-col gap-1.5 overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/[0.08] px-3 py-2.5">
-                  <span className="self-start rounded-full border border-border bg-[#f8fafc] px-2 py-0.5 text-[0.75rem] text-muted">
+                  <span className="self-start rounded-full border border-white/[0.08] bg-white/[0.04] px-2 py-0.5 text-[0.75rem] text-muted">
                     {t("sampleBadge")}
                   </span>
                   <CertificateVerificationBadge

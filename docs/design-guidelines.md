@@ -1,0 +1,46 @@
+# Kvalifits public design guidelines
+
+Visual and content rules for the public site (homepage, landings, marketing surfaces).
+
+Related:
+
+- Voice and copy: `docs/brand-voice.md`
+- Photography slots and briefs: `public/marketing/PHOTO_BRIEF.md`
+- Photo catalog (code): `lib/site/marketingPhotos.ts`
+
+---
+
+## HUMAN IMAGE RULES
+
+Public photos of people must feel like a real job portal for real workers — not SaaS marketing filler.
+
+1. **Never use AI-generated people.**
+2. **Prefer real documentary-style workplace photography.**
+3. **Avoid generic corporate stock photography.**
+4. **Avoid handshake photos.**
+5. **Avoid exaggerated smiles / thumbs-up.**
+6. **Avoid staged “person with laptop” scenes.**
+7. **Show different ages, jobs and environments.**
+8. **Prefer natural expressions and real work situations.**
+9. **Photos must support the content, not decorate empty space.**
+10. **If no good photo exists, use no photo rather than a bad stock photo.**
+
+### How to apply
+
+- Leave a slot empty (`status: "needed"` / no image) when nothing suitable is available.
+- Do not invent testimonial faces or quotes to fill a layout.
+- Prefer licensed documentary images (e.g. Unsplash with clear workplace context) over polished corporate packs.
+- Full slot list and occupation targets: `public/marketing/PHOTO_BRIEF.md`.
+
+---
+
+## Hero motion (Human Premium)
+
+Animated background stays — as **atmosphere**, not a product demo.
+
+1. **Human first, technology second.** The person photo is foreground.
+2. Keep existing motion (aurora + network); do not remove it.
+3. Motion is strongest in **empty** hero zones (copy side / margins).
+4. No lines, nodes, or color glow on the real person’s face.
+5. Use **mask / gradient** so tech fades under the photo.
+6. Reduce tech-effect dominance behind the photo; soft ambient only.

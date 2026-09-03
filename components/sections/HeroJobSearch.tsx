@@ -51,11 +51,11 @@ export function HeroJobSearch({ quickFilters }: Props) {
       <div className="relative">
         <div
           aria-hidden
-          className="pointer-events-none absolute -inset-3 rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_50%,rgba(99,102,241,0.22),rgba(168,85,247,0.08)_45%,transparent_72%)] blur-md sm:-inset-4"
+          className="pointer-events-none absolute -inset-2 rounded-[1.35rem] bg-[radial-gradient(ellipse_at_50%_50%,rgba(99,102,241,0.10),transparent_70%)] blur-md sm:-inset-3"
         />
         <form
           onSubmit={onSubmit}
-          className="relative min-w-0 overflow-hidden rounded-2xl border border-white/[0.22] bg-[#121216]/95 shadow-[0_24px_80px_-36px_rgba(0,0,0,0.85),inset_0_1px_0_0_rgba(255,255,255,0.12)] ring-1 ring-white/[0.10] backdrop-blur-sm lg:rounded-[1.125rem]"
+          className="relative min-w-0 overflow-hidden rounded-2xl border border-white/[0.16] bg-[#121216]/92 shadow-[0_20px_56px_-40px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.08)] backdrop-blur-sm lg:rounded-[1.125rem]"
         >
           <div className={cn("grid min-w-0 items-stretch gap-0 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_auto]", SITE_HERO_SEARCH_HEIGHT)}>
             <label className={cn("relative flex min-w-0 items-center border-b border-white/[0.08] transition-colors focus-within:bg-white/[0.03] lg:border-b-0 lg:border-r lg:border-white/[0.08]", SITE_HERO_SEARCH_HEIGHT)}>

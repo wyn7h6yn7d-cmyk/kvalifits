@@ -430,6 +430,8 @@
     "headlineLead": "Leia töö, mis sulle",
     "headlineAccent": "päriselt sobib",
     "subheadline": "Otsi tööpakkumisi ja vaata, kui hästi need sinu oskuste ja soovidega sobivad.",
+    "photoAlt": "Puusepp töökojas, naeratades oma töö üle",
+    "photoCaption": "Inimene. Töö. Kandideerimine.",
     "searchQueryPlaceholder": "Amet, oskus või ettevõte",
     "searchLocationPlaceholder": "Asukoht",
     "searchSubmit": "Otsi tööpakkumisi",
@@ -524,6 +526,7 @@
   },
   "finalCta": {
     "title": "Otsid tööd või töötajat?",
+    "lead": "Alusta otsingust või lisa tööpakkumine — järgmine samm on sinu.",
     "ctaSeeker": "Vaata tööpakkumisi",
     "ctaEmployer": "Lisa tööpakkumine"
   },
@@ -534,25 +537,40 @@
     "empty": "Praegu uusi tööpakkumisi ei ole.",
     "emptyCta": "Teavita mind uutest töödest"
   },
+  "homeRealLife": {
+    "eyebrow": "Kvalifits päriselus",
+    "title": "Leia töö, kus sinu oskused päriselt loevad.",
+    "lead": "Kvalifits aitab sul enne kandideerimist näha, mida tööandja ootab ja millised nõuded sul juba täidetud on.",
+    "matchScore": "87%",
+    "matchLabel": "sobivus",
+    "reqsFilled": "8/10 nõuet täidetud",
+    "photoAlt": "Elektrik tööl, keskendunud oma ülesandele",
+    "photoCaption": "Päris oskused. Päris töökoht."
+  },
+  "homeTestimonials": {
+    "title": "Lood Kvalifitsist",
+    "lead": "Lühikesed lood inimestelt, kes on Kvalifitsi päriselt kasutanud."
+  },
   "homeBenefits": {
     "title": "Miks Kvalifits",
-    "b1Title": "Näed sobivust",
-    "b1Desc": "Näed, kui hästi tööpakkumine sinu oskuste ja soovidega klapib.",
-    "b2Title": "Selged nõuded",
-    "b2Desc": "Näed, milliseid oskusi, kogemust ja lubasid tööandja ootab.",
-    "b3Title": "Sertifikaadid ja load",
-    "b3Desc": "Kontrollitud tunnistused on profiilis eraldi märgitud."
+    "lead": "Kolm asja. Lühidalt.",
+    "b1Title": "Selged nõuded",
+    "b1Desc": "Oskused, keeled ja sertifikaadid on tööpakkumisel eraldi näha.",
+    "b2Title": "Kontrollitud pädevused",
+    "b2Desc": "Kontrollitud tunnistused on profiilis eraldi märgitud.",
+    "b3Title": "Selge sobivus",
+    "b3Desc": "Näed, millised nõuded sul juba täidetud on."
   },
   "homeAudience": {
     "title": "Tööotsijale ja tööandjale",
     "seekerTitle": "Otsid tööd?",
-    "seekerDesc": "Otsi tööpakkumisi, vaata kui hästi töö sulle sobib, ja kandideeri.",
+    "seekerDesc": "Vaata tööpakkumisi ja näe enne kandideerimist, kui hästi töö sulle sobib.",
     "seekerLink": "Vaata tööpakkumisi",
-    "seekerSecondary": "Kuidas siin tööd otsida",
+    "seekerPhotoAlt": "Teenindaja tööl kohvikus",
     "employerTitle": "Otsid töötajat?",
-    "employerDesc": "Lisa tööpakkumine ja vaata, kes sinu ootustele vastab.",
+    "employerDesc": "Lisa tööpakkumine ja leia inimesed, kelle oskused sinu ootustele vastavad.",
     "employerLink": "Lisa tööpakkumine",
-    "employerSecondary": "Kuidas tööandja siin alustab"
+    "employerPhotoAlt": "Juht töökeskkonnas"
   },
   "homeFaq": {
     "title": "Korduma kippuvad küsimused",
@@ -574,7 +592,15 @@
     "q8Answer": "Ei. Tööandja näeb ainult värbamiseks vajalikku infot."
   },
   "homeMatchDemo": {
-    "title": "Sobivus näites"
+    "title": "Sobivus lühidalt",
+    "lead": "Enne kandideerimist näed, mis klapib.",
+    "matchScore": "87%",
+    "matchLabel": "sobivus",
+    "reqsFilled": "8/10 nõuet täidetud",
+    "reason1": "Vajalik sertifikaat olemas",
+    "reason2": "Asukoht sobib",
+    "reason3": "Töökoormus sobib",
+    "reason4": "Soovituslik kogemus osaliselt täidetud"
   },
   "homeCompanies": {
     "title": "Ettevõtted Kvalifitsis",
@@ -621,6 +647,8 @@
       "heroEyebrow": "Tööandjale",
       "heroTitle": "Lisa tööpakkumine ja leia sobivad inimesed",
       "heroSubtitle": "Kirjuta, keda otsid. Näed, kes tööle sobib.",
+      "heroPhotoAlt": "Tööandja meeskond — foto asukoht",
+      "heroPhotoCaption": "Inimesed, kes otsivad õiget kolleegi.",
       "step1": "Lisa tööpakkumine",
       "step2": "Kirjuta, mida tööl oodatakse",
       "step3": "Vaata, kes sobib",
@@ -732,6 +760,8 @@
       "heroEyebrow": "Tööotsijale",
       "heroTitle": "Otsi tööd ja kandideeri",
       "heroSubtitle": "Otsi tööd kohe. Konto on vaja alles kandideerimiseks.",
+      "heroPhotoAlt": "Tööotsija igapäevas — foto asukoht",
+      "heroPhotoCaption": "Inimene, kes otsib sobivat rolli.",
       "ctaSearchJobs": "Otsi tööpakkumisi",
       "ctaSignup": "Loo konto",
       "ctaLogin": "Logi sisse",

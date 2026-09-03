@@ -15,14 +15,18 @@ type Props = {
 
 export function SeekerLandingSteps({ eyebrow, title, steps }: Props) {
   return (
-    <section className="bg-background py-6 sm:py-8 lg:py-10">
+    <section className="bg-background py-12 sm:py-16 lg:py-20">
       <Container>
         <div className="max-w-4xl lg:max-w-5xl">
+          <div className="mb-5 flex items-center gap-3" aria-hidden>
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-pink)]/80" />
+            <span className="h-px w-10 bg-white/[0.14]" />
+          </div>
           <div className={SITE_EYEBROW}>{eyebrow}</div>
           <h2 className={cn("mt-3 sm:mt-3.5", SITE_H2_SECTION, "lg:text-[2.125rem]")}>{title}</h2>
         </div>
 
-        <ol className="relative mt-8 list-none sm:mt-10 lg:mt-12">
+        <ol className="relative mt-12 list-none sm:mt-14 lg:mt-16">
           {/* Desktop horizontal connector */}
           <div
             aria-hidden

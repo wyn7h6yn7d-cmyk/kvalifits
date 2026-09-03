@@ -3,11 +3,15 @@ import { getTranslations } from "next-intl/server";
 
 import { FinalCTA } from "@/components/sections/FinalCTA";
 import { Hero } from "@/components/sections/Hero";
-import { HomepageHeroBand } from "@/components/sections/HomepageHeroBand";
-import { NewJobsSection } from "@/components/sections/NewJobsSection";
 import { HomepageAudienceSection } from "@/components/sections/HomepageAudienceSection";
 import { HomepageBenefitsSection } from "@/components/sections/HomepageBenefitsSection";
+import { HomepageCompaniesSection } from "@/components/sections/HomepageCompaniesSection";
 import { HomepageFaqSection } from "@/components/sections/HomepageFaqSection";
+import { HomepageHeroBand } from "@/components/sections/HomepageHeroBand";
+import { HomepageJobsSection } from "@/components/sections/HomepageJobsSection";
+import { HomepageMatchDemoSection } from "@/components/sections/HomepageMatchDemoSection";
+import { HomepageRealLifeSection } from "@/components/sections/HomepageRealLifeSection";
+import { HomepageTestimonialsSection } from "@/components/sections/HomepageTestimonialsSection";
 import { WebsiteJsonLd } from "@/components/seo/WebsiteJsonLd";
 import { HomepageBodyAtmosphere } from "@/components/site/HomepageBodyAtmosphere";
 import { getHeroQuickFilters } from "@/lib/jobs/getHeroQuickFilters";
@@ -31,14 +35,28 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       <WebsiteJsonLd />
+      {/* 1. Hero + job search + person photo */}
       <HomepageHeroBand>
         <Hero embedded quickFilters={quickFilters} />
       </HomepageHeroBand>
       <HomepageBodyAtmosphere>
-        <HomepageAudienceSection />
-        <NewJobsSection locale={locale} />
+        {/* 2. New / featured jobs */}
+        <HomepageJobsSection locale={locale} />
+        {/* 3. Kvalifits in real life */}
+        <HomepageRealLifeSection />
+        {/* Success stories — omitted when no approved testimonials */}
+        <HomepageTestimonialsSection locale={locale} />
+        {/* 4. Three simple advantages */}
         <HomepageBenefitsSection />
+        {/* 5. Company logo carousel */}
+        <HomepageCompaniesSection />
+        {/* 6. Seeker / employer */}
+        <HomepageAudienceSection />
+        {/* 7. One compact match demo */}
+        <HomepageMatchDemoSection />
+        {/* 8. FAQ */}
         <HomepageFaqSection />
+        {/* 9. Final CTA — 10. Footer via PublicSiteShell */}
         <FinalCTA />
       </HomepageBodyAtmosphere>
     </>

@@ -13,8 +13,8 @@ export const SITE_SECTION_PB = "pb-12 sm:pb-16 lg:pb-20";
 
 export const SITE_SECTION_GAP = "mt-10 md:mt-12 lg:mt-16";
 
-/** Homepage vertical rhythm — single dark canvas, no banded section fills. */
-export const SITE_HOME_SECTION = "relative bg-background py-16 sm:py-20 lg:py-24";
+/** Homepage vertical rhythm — editorial whitespace on a single dark canvas. */
+export const SITE_HOME_SECTION = "relative bg-background py-20 sm:py-24 lg:py-32";
 
 /** @deprecated Same as SITE_HOME_SECTION — kept for API compatibility. */
 export const SITE_HOME_SECTION_RAISED = SITE_HOME_SECTION;
@@ -22,13 +22,13 @@ export const SITE_HOME_SECTION_RAISED = SITE_HOME_SECTION;
 /** @deprecated Same as SITE_HOME_SECTION — kept for API compatibility. */
 export const SITE_HOME_SECTION_DEEP = SITE_HOME_SECTION;
 
-export const SITE_HOME_SECTION_HEADER = "mb-10 sm:mb-12 lg:mb-14";
+export const SITE_HOME_SECTION_HEADER = "mb-12 sm:mb-14 lg:mb-16";
 
 /** Centered CTA copy column (final CTA). */
 export const SITE_HOME_INNER_CTA = "mx-auto w-full max-w-3xl lg:max-w-[42rem]";
 
 /** FAQ accordion — wide but not full-bleed on ultra-wide screens. */
-export const SITE_HOME_INNER_FAQ = "mx-auto w-full max-w-5xl";
+export const SITE_HOME_INNER_FAQ = "mx-auto w-full max-w-3xl lg:max-w-4xl";
 
 /** @deprecated Use SITE_HOME_INNER_CTA or SITE_HOME_INNER_FAQ */
 export const SITE_HOME_INNER = SITE_HOME_INNER_CTA;
@@ -41,8 +41,9 @@ export const SITE_H1_HERO =
 export const SITE_H2_HOME =
   "text-balance text-[1.625rem] font-bold leading-[1.12] tracking-[-0.03em] text-foreground sm:text-[1.875rem] lg:text-[2.375rem]";
 
+/** Quiet editorial surface — less glass/glow than classic SaaS cards. */
 export const SITE_HOME_CARD =
-  "rounded-2xl border border-white/[0.11] bg-[linear-gradient(165deg,rgba(22,22,32,0.96)_0%,rgba(14,14,21,0.94)_100%)] shadow-[0_24px_64px_-36px_rgba(0,0,0,0.92),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[6px] transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-px hover:border-violet-400/20 hover:shadow-[0_28px_72px_-32px_rgba(79,70,229,0.2),inset_0_1px_0_rgba(255,255,255,0.1)] motion-reduce:hover:translate-y-0";
+  "rounded-2xl border border-white/[0.08] bg-[#12121a]/90 shadow-[0_20px_48px_-40px_rgba(0,0,0,0.85)] transition-[border-color,background-color] duration-200 ease-out hover:border-white/[0.12] hover:bg-[#14141c]";
 
 export const SITE_HOME_CTA_PRIMARY = "h-12 min-h-12 px-7 lg:h-14 lg:min-h-14 lg:px-8 lg:text-[1.0625rem]";
 

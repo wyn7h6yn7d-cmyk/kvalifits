@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { EmployerProductPreview } from "@/components/employer/EmployerProductPreview";
 import { EmployerLandingSteps } from "@/components/sections/employer/EmployerLandingSteps";
+import { EditorialPhotoSlot } from "@/components/site/EditorialPhotoSlot";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -32,6 +33,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function TooandjatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
+  const photoLocale = locale === "en" || locale === "ru" ? locale : "et";
 
   const { role } = await getCurrentAuth();
   const showPricing = role === "employer";
@@ -63,21 +65,28 @@ export default async function TooandjatelePage({ params }: Props) {
         </Button>
       </PageHero>
 
+      <section className="bg-background pb-10 sm:pb-14 lg:pb-16">
+        <Container>
+          <EditorialPhotoSlot
+            slotId="landingEmployer"
+            locale={photoLocale}
+            alt={t("heroPhotoAlt")}
+            caption={t("heroPhotoCaption")}
+            aspect="16/9"
+            className="mx-auto max-w-5xl"
+          />
+        </Container>
+      </section>
+
       <EmployerLandingSteps steps={steps} />
 
       <EmployerProductPreview />
 
-      <section className="bg-background pb-10 sm:pb-12 lg:pb-14">
+      <section className="bg-background pb-14 sm:pb-16 lg:pb-20">
         <Container>
-          <div
-            className={cn(
-              "mx-auto max-w-4xl rounded-2xl border border-white/[0.11] px-6 py-8 text-center sm:px-10 sm:py-10",
-              "bg-[linear-gradient(165deg,rgba(22,22,32,0.96)_0%,rgba(14,14,21,0.94)_100%)]",
-              "shadow-[0_24px_64px_-40px_rgba(0,0,0,0.88),inset_0_1px_0_rgba(255,255,255,0.07)]",
-            )}
-          >
+          <div className="mx-auto max-w-3xl border-t border-white/[0.08] px-2 pt-10 text-center sm:pt-12">
             <h2 className={SITE_H2_SECTION}>{t("tutorialCtaSectionTitle")}</h2>
-            <div className="mt-6 flex justify-center">
+            <div className="mt-7 flex justify-center">
               <Button
                 asChild
                 variant="primary"
@@ -91,7 +100,7 @@ export default async function TooandjatelePage({ params }: Props) {
             </div>
 
             {showPricing ? (
-              <div className="mx-auto mt-8 max-w-xl border-t border-white/[0.08] pt-8 text-left">
+              <div className="mx-auto mt-10 max-w-xl border-t border-white/[0.08] pt-8 text-left">
                 <div className={SITE_EYEBROW}>{t("pricingTitle")}</div>
                 <ul className="mt-4 space-y-2 text-base font-medium text-foreground">
                   <li>{t("pricingDuration30")}</li>

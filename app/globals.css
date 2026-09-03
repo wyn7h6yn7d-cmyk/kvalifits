@@ -321,6 +321,35 @@ input:-webkit-autofill:focus-visible {
   animation: kf-hero-aurora-drift-reverse 68s ease-in-out infinite;
 }
 
+/**
+ * Human Premium: tech motion strongest in empty hero zones.
+ * Fades out over the person photo so lines/glow never sit on the face.
+ * Mobile → upper band; desktop → copy / left side.
+ */
+.homepage-hero-tech-mask {
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 0%, #000 28%, rgba(0, 0, 0, 0.4) 48%, transparent 72%),
+    linear-gradient(to right, #000 0%, #000 42%, rgba(0, 0, 0, 0.45) 72%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, #000 0%, #000 28%, rgba(0, 0, 0, 0.4) 48%, transparent 72%),
+    linear-gradient(to right, #000 0%, #000 42%, rgba(0, 0, 0, 0.45) 72%, transparent 100%);
+  mask-composite: intersect;
+}
+
+@media (min-width: 1024px) {
+  .homepage-hero-tech-mask {
+    -webkit-mask-image:
+      linear-gradient(to right, #000 0%, #000 34%, rgba(0, 0, 0, 0.35) 50%, transparent 68%),
+      linear-gradient(to bottom, #000 0%, #000 75%, rgba(0, 0, 0, 0.45) 90%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, #000 0%, #000 34%, rgba(0, 0, 0, 0.35) 50%, transparent 68%),
+      linear-gradient(to bottom, #000 0%, #000 75%, rgba(0, 0, 0, 0.45) 90%, transparent 100%);
+    mask-composite: intersect;
+  }
+}
+
 .homepage-hero-radar-sweep {
   transform-origin: 0 0;
   animation: kf-hero-radar-sweep 34s linear infinite;

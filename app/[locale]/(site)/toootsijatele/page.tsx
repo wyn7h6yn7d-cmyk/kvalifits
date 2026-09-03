@@ -2,6 +2,7 @@ import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { SeekerLandingSteps } from "@/components/sections/seeker/SeekerLandingSteps";
+import { EditorialPhotoSlot } from "@/components/site/EditorialPhotoSlot";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -26,6 +27,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function ToootsijatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.seekers" });
+  const photoLocale = locale === "en" || locale === "ru" ? locale : "et";
 
   const tutorialSteps = [
     { title: t("tutorialStep1Title"), body: t("tutorialStep1Body") },
@@ -52,11 +54,24 @@ export default async function ToootsijatelePage({ params }: Props) {
         </Button>
       </PageHero>
 
+      <section className="bg-background pb-10 sm:pb-14 lg:pb-16">
+        <Container>
+          <EditorialPhotoSlot
+            slotId="landingSeeker"
+            locale={photoLocale}
+            alt={t("heroPhotoAlt")}
+            caption={t("heroPhotoCaption")}
+            aspect="16/9"
+            className="mx-auto max-w-5xl"
+          />
+        </Container>
+      </section>
+
       <SeekerLandingSteps eyebrow={t("tutorialEyebrow")} title={t("tutorialTitle")} steps={tutorialSteps} />
 
-      <section className="bg-background pb-10 sm:pb-12 lg:pb-14">
+      <section className="bg-background pb-14 sm:pb-16 lg:pb-20">
         <Container>
-          <div className="mx-auto flex max-w-4xl justify-center rounded-2xl border border-white/[0.08] px-6 py-8 sm:px-10 sm:py-9">
+          <div className="mx-auto flex max-w-3xl justify-center border-t border-white/[0.08] px-2 pt-10 sm:pt-12">
             <Button asChild variant="primary" className={cn(SITE_HOME_CTA_PRIMARY, "w-full sm:w-auto")}>
               <Link href="/auth/register?role=seeker">
                 <UserPlus className="h-4 w-4" />

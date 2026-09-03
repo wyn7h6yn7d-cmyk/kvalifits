@@ -11,10 +11,10 @@ type Props = {
   logoAlt: (name: string) => string;
 };
 
-/** Shared slot height — every logo occupies the same vertical space in the carousel. */
-const LOGO_SLOT_CLASS = "h-11 lg:h-12";
+/** Uniform logo height — transparent mark or quiet neutral plate. */
+const LOGO_SLOT_CLASS = "h-10 sm:h-11";
 const LOGO_IMAGE_CLASS =
-  "max-h-full w-auto max-w-[min(100%,9.5rem)] object-contain object-center [image-rendering:auto]";
+  "max-h-full w-auto max-w-[min(100%,8.75rem)] object-contain object-center opacity-[0.72] transition-opacity duration-200 group-hover:opacity-[0.96] group-focus-visible:opacity-[0.96]";
 
 function usePrefersReducedMotion() {
   const [reduce, setReduce] = useState(false);
@@ -29,9 +29,10 @@ function usePrefersReducedMotion() {
 }
 
 function visibleLogoCount(viewportWidth: number) {
+  if (viewportWidth >= 1280) return 7;
   if (viewportWidth >= 1024) return 6;
   if (viewportWidth >= 640) return 4;
-  return 2.5;
+  return 2.75;
 }
 
 function HomepageCarouselLogo({
@@ -46,17 +47,15 @@ function HomepageCarouselLogo({
       <div className={cn("flex w-full items-center justify-center", LOGO_SLOT_CLASS)}>
         <div
           className={cn(
-            "inline-flex max-w-[min(100%,10.5rem)] items-center justify-center rounded-full",
-            "border border-border bg-[#f3f3f5] px-3.5 py-1.5",
-            "shadow-[inset_0_1px_0_rgba(255,255,255,0.85),0_2px_8px_rgba(0,0,0,0.14)]",
-            "sm:px-4 sm:py-2",
+            "inline-flex max-w-[min(100%,9.5rem)] items-center justify-center rounded-md",
+            "bg-[#e8e8ec] px-3 py-1.5",
           )}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={company.logoUrl}
             alt={logoAlt(company.name)}
-            className="max-h-[1.25rem] w-auto max-w-[8.25rem] object-contain object-center sm:max-h-[1.375rem] lg:max-h-[1.5rem]"
+            className="max-h-[1.125rem] w-auto max-w-[7.5rem] object-contain object-center sm:max-h-[1.25rem]"
             loading="lazy"
             decoding="async"
             draggable={false}
@@ -72,10 +71,7 @@ function HomepageCarouselLogo({
       <img
         src={company.logoUrl}
         alt={logoAlt(company.name)}
-        className={cn(
-          LOGO_IMAGE_CLASS,
-          "opacity-[0.84] transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100",
-        )}
+        className={LOGO_IMAGE_CLASS}
         loading="lazy"
         decoding="async"
         draggable={false}
@@ -99,7 +95,7 @@ function LogoLink({
     <Link
       href={`/ettevotted/${company.slug}`}
       className={cn(
-        "group flex shrink-0 items-center justify-center px-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+        "group flex shrink-0 items-center justify-center px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07070c]",
         LOGO_SLOT_CLASS,
       )}
       style={{ width: slotWidth > 0 ? slotWidth : undefined }}
@@ -132,10 +128,10 @@ export function HomepageCompanyCarousel({ companies, logoAlt }: Props) {
     return [...companies, ...companies, ...companies];
   }, [companies]);
 
-  const gapPx = viewportWidth >= 1024 ? 40 : viewportWidth >= 640 ? 32 : 24;
+  const gapPx = viewportWidth >= 1024 ? 48 : viewportWidth >= 640 ? 36 : 28;
   const visible = visibleLogoCount(viewportWidth);
   const slotWidth =
-    viewportWidth > 0 ? Math.max(88, (viewportWidth - gapPx * (Math.ceil(visible) - 1)) / visible) : 0;
+    viewportWidth > 0 ? Math.max(96, (viewportWidth - gapPx * (Math.ceil(visible) - 1)) / visible) : 0;
 
   const syncViewportWidth = useCallback(() => {
     const el = viewportRef.current;
@@ -194,7 +190,8 @@ export function HomepageCompanyCarousel({ companies, logoAlt }: Props) {
     const tick = () => {
       const viewport = viewportRef.current;
       if (viewport && !pauseRef.current) {
-        viewport.scrollLeft += 0.35;
+        // Slow, seamless drift — trust strip, not ad ticker.
+        viewport.scrollLeft += 0.28;
         normalizeScroll();
       }
       frame = window.requestAnimationFrame(tick);
@@ -257,15 +254,20 @@ export function HomepageCompanyCarousel({ companies, logoAlt }: Props) {
 
   if (companies.length === 1) {
     return (
-      <div className="flex justify-center py-2">
-        <LogoLink company={companies[0]!} logoAlt={logoAlt} slotWidth={slotWidth || 160} onDragIntent={noteDragIntent} />
+      <div className="flex justify-center py-1">
+        <LogoLink
+          company={companies[0]!}
+          logoAlt={logoAlt}
+          slotWidth={slotWidth || 160}
+          onDragIntent={noteDragIntent}
+        />
       </div>
     );
   }
 
   return (
     <div
-      className="homepage-company-carousel-shell rounded-2xl border border-white/[0.06] bg-white/[0.02] px-1 py-4 sm:py-5"
+      className="relative"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
@@ -278,7 +280,8 @@ export function HomepageCompanyCarousel({ companies, logoAlt }: Props) {
       <div
         ref={viewportRef}
         className={cn(
-          "homepage-company-carousel-viewport overflow-x-auto overscroll-x-contain [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]",
+          "homepage-company-carousel-viewport overflow-x-auto overscroll-x-contain py-1",
+          "[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]",
           dragging ? "cursor-grabbing" : "cursor-grab",
         )}
         onPointerDown={onPointerDown}

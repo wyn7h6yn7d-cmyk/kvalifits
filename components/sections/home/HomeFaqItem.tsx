@@ -19,14 +19,13 @@ export function HomeFaqItem({ question, answer }: { question: string; answer: st
       className={cn(
         "relative",
         SITE_HOME_CARD,
-        open &&
-          "border-violet-400/22 shadow-[0_24px_64px_-36px_rgba(79,70,229,0.18),inset_0_1px_0_rgba(255,255,255,0.09),0_0_0_1px_rgba(129,140,248,0.06)]",
+        open && "border-white/[0.14] bg-[#14141c]",
       )}
     >
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-y-3 left-0 w-px bg-gradient-to-b from-transparent via-violet-400/45 to-transparent transition-opacity duration-[220ms] ease-out motion-reduce:duration-75",
+          "pointer-events-none absolute inset-y-4 left-0 w-px bg-[var(--accent-pink)]/50 transition-opacity duration-[220ms] ease-out motion-reduce:duration-75",
           open ? "opacity-100" : "opacity-0",
         )}
       />
@@ -36,7 +35,7 @@ export function HomeFaqItem({ question, answer }: { question: string; answer: st
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          "flex min-w-0 w-full cursor-pointer list-none items-start justify-between gap-4 p-6 text-left sm:gap-5 sm:p-7 lg:p-8",
+          "flex min-w-0 w-full cursor-pointer list-none items-start justify-between gap-4 p-6 text-left sm:gap-5 sm:p-7 lg:px-8 lg:py-7",
           "text-pretty rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         )}
       >
@@ -46,9 +45,9 @@ export function HomeFaqItem({ question, answer }: { question: string; answer: st
         <span
           aria-hidden
           className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/[0.10] bg-white/[0.04]",
-            "text-muted transition-[border-color,background-color,color] duration-[220ms] ease-out motion-reduce:duration-75",
-            open && "border-violet-400/28 bg-violet-500/[0.1] text-violet-200/90",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-transparent",
+            "text-muted transition-[border-color,color] duration-[220ms] ease-out motion-reduce:duration-75",
+            open && "border-white/[0.14] text-white/80",
           )}
         >
           <ChevronDown className={cn("h-4 w-4", KF_CHEVRON, open && "rotate-180")} />
