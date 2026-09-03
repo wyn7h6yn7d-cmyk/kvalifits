@@ -7,6 +7,7 @@ import { HomepageAudienceSection } from "@/components/sections/HomepageAudienceS
 import { HomepageBenefitsSection } from "@/components/sections/HomepageBenefitsSection";
 import { HomepageCompaniesSection } from "@/components/sections/HomepageCompaniesSection";
 import { HomepageHeroBand } from "@/components/sections/HomepageHeroBand";
+import { HomepageIntroSection } from "@/components/sections/HomepageIntroSection";
 import { HomepageJobsSection } from "@/components/sections/HomepageJobsSection";
 import { HomepageMatchDemoSection } from "@/components/sections/HomepageMatchDemoSection";
 import { HomepageRealLifeSection } from "@/components/sections/HomepageRealLifeSection";
@@ -34,26 +35,28 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       <WebsiteJsonLd />
-      {/* 1. Hero + job search + person photo */}
+      {/* 1. Hero + job search */}
       <HomepageHeroBand>
         <Hero embedded quickFilters={quickFilters} />
       </HomepageHeroBand>
       <HomepageBodyAtmosphere>
-        {/* 2. New / featured jobs */}
-        <HomepageJobsSection locale={locale} />
+        {/* 2. What Kvalifits is — clear secondary hero */}
+        <HomepageIntroSection />
         {/* 3. Kvalifits in real life */}
         <HomepageRealLifeSection />
+        {/* 4. Jobs — further down the page */}
+        <HomepageJobsSection locale={locale} />
         {/* Success stories — omitted when no approved testimonials */}
         <HomepageTestimonialsSection locale={locale} />
-        {/* 4. Three simple advantages */}
+        {/* 5. Three simple advantages */}
         <HomepageBenefitsSection />
-        {/* 5. Company logo carousel */}
+        {/* 6. Company logo carousel */}
         <HomepageCompaniesSection />
-        {/* 6. Seeker / employer */}
+        {/* 7. Seeker / employer */}
         <HomepageAudienceSection />
-        {/* 7. One compact match demo */}
+        {/* 8. One compact match demo */}
         <HomepageMatchDemoSection />
-        {/* 8. Final CTA — Footer via PublicSiteShell */}
+        {/* 9. Final CTA — Footer via PublicSiteShell */}
         <FinalCTA />
       </HomepageBodyAtmosphere>
     </>

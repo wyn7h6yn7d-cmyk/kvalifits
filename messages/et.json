@@ -538,6 +538,18 @@
     "empty": "Praegu uusi tööpakkumisi ei ole.",
     "emptyCta": "Teavita mind uutest töödest"
   },
+  "homeIntro": {
+    "eyebrow": "Mis on Kvalifits",
+    "title": "Tööportaal, kus näed enne kandideerimist, kas töö sulle sobib.",
+    "lead": "Kvalifits aitab leida tööd oskuste, asukoha ja nõuete järgi. Saad vaadata tööpakkumisi, võrrelda neid oma profiiliga ja kandideerida siis, kui asi klapib.",
+    "s1Title": "Otsi tööd",
+    "s1Body": "Vaata tööpakkumisi ameti, oskuse või asukoha järgi. Kontot otsimiseks vaja ei ole.",
+    "s2Title": "Vaata sobivust",
+    "s2Body": "Iga töö juures näed, millised nõuded sul juba täidetud on ja mis veel puudu on.",
+    "s3Title": "Kandideeri",
+    "s3Body": "Kui töö sobib, saada kandideerimine Kvalifitsis. Jälgi vastust oma kontol.",
+    "cta": "Vaata tööpakkumisi"
+  },
   "homeRealLife": {
     "eyebrow": "Kvalifits päriselus",
     "title": "Leia töö, kus sinu oskused päriselt loevad.",

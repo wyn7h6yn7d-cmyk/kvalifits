@@ -538,6 +538,18 @@
     "empty": "There are no new job postings right now.",
     "emptyCta": "Notify me about new jobs"
   },
+  "homeIntro": {
+    "eyebrow": "What is Kvalifits",
+    "title": "A job portal where you see if a role fits you before you apply.",
+    "lead": "Kvalifits helps you find work by skills, location and requirements. Browse jobs, compare them with your profile, and apply when it fits.",
+    "s1Title": "Search jobs",
+    "s1Body": "Browse openings by role, skill or place. You don’t need an account just to look.",
+    "s2Title": "See the match",
+    "s2Body": "For each job you see which requirements you already meet — and what is still missing.",
+    "s3Title": "Apply",
+    "s3Body": "When a job fits, apply in Kvalifits and follow the reply in your account.",
+    "cta": "Browse jobs"
+  },
   "homeRealLife": {
     "eyebrow": "Kvalifits in real life",
     "title": "Find work where your skills actually count.",
