@@ -4,8 +4,8 @@ import type { HeroQuickFilterId } from "@/lib/jobs/heroQuickFilters";
 import { cn } from "@/lib/utils";
 
 /**
- * Homepage mega hero — emotion + clear value + job search.
- * Desktop ~75–85vh; content uses full container width in a 2-column split.
+ * Homepage hero — search-first Human Premium.
+ * Desktop uses most of the viewport height; ~70% of the band is for finding work.
  */
 export function Hero({
   quickFilters,
@@ -29,7 +29,7 @@ export function Hero({
           className={cn(
             "flex flex-col justify-center",
             embedded &&
-              "min-h-[min(78svh,calc(100svh-var(--site-header-offset)-1.5rem))] lg:min-h-[min(82svh,calc(100svh-var(--site-header-offset)-2rem))]",
+              "lg:min-h-[min(74svh,calc(100svh-var(--site-header-offset)-2rem))]",
           )}
           style={{ paddingTop: "var(--site-hero-content-top)" }}
         >

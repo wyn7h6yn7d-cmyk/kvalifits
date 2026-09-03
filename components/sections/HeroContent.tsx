@@ -3,31 +3,42 @@
 import { useTranslations } from "next-intl";
 
 import { HeroJobSearch } from "@/components/sections/HeroJobSearch";
-import { HeroPersonPhoto } from "@/components/sections/HeroPersonPhoto";
+import { HeroMatchPanel } from "@/components/sections/HeroMatchPanel";
 import { GradientAccentText } from "@/components/site/GradientAccentText";
 import { Link } from "@/i18n/routing";
 import type { HeroQuickFilterId } from "@/lib/jobs/heroQuickFilters";
+import { SITE_EYEBROW } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
 /**
- * Mega hero content — Human Premium.
- * Left: headline, short lead, large search, employer secondary link.
- * Right: real workplace photo + one small match overlay.
+ * Homepage hero — conversion-first.
+ * Desktop lg+: 70/30. Below lg: stacked mobile order
+ * H1 → lead → search → employer link → match card → visual.
  */
 export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[] }) {
   const t = useTranslations("hero");
 
+  const reasons = [
+    { status: "match" as const, text: t("matchReason1") },
+    { status: "match" as const, text: t("matchReason2") },
+    { status: "match" as const, text: t("matchReason3") },
+    { status: "match" as const, text: t("matchReason4") },
+    { status: "partial" as const, text: t("matchReason5") },
+  ] as const;
+
   return (
-    <div className="relative grid min-w-0 w-full items-center gap-9 sm:gap-10 lg:grid-cols-12 lg:gap-8 xl:gap-12 2xl:gap-14">
-      {/* LEFT — value + search */}
-      <div className="relative z-[2] min-w-0 lg:col-span-6 xl:col-span-6">
+    <div className="relative grid min-w-0 w-full gap-7 sm:gap-8 lg:grid-cols-10 lg:items-center lg:gap-8 xl:gap-10">
+      {/* LEFT — copy + search (items 1–4 on mobile) */}
+      <div className="relative z-[2] min-w-0 lg:col-span-7">
         <div className="kf-enter-slow">
+          <p className={cn(SITE_EYEBROW, "text-white/45")}>{t("eyebrow")}</p>
+
           <h1
             className={cn(
-              "type-hero-title max-w-[14ch] text-balance font-bold tracking-[-0.042em] text-white",
-              "text-[2.375rem] leading-[1.08] sm:max-w-[16ch] sm:text-[3rem] sm:leading-[1.06]",
-              "lg:max-w-[15ch] lg:text-[clamp(3.25rem,4.4vw+0.5rem,4.5rem)] lg:leading-[1.04]",
-              "xl:text-[clamp(3.5rem,3.8vw+1rem,4.75rem)]",
+              "type-hero-title mt-2.5 max-w-[16ch] text-balance font-bold tracking-[-0.042em] text-white sm:mt-3",
+              "text-[2.125rem] leading-[1.1] sm:max-w-[18ch] sm:text-[2.75rem] sm:leading-[1.06]",
+              "lg:max-w-[18ch] lg:text-[clamp(3rem,3.6vw+0.6rem,4.25rem)] lg:leading-[1.05]",
+              "xl:text-[clamp(3.25rem,3.2vw+0.85rem,4.5rem)]",
             )}
           >
             {t("headlineLead")}{" "}
@@ -37,9 +48,9 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
 
           <p
             className={cn(
-              "mt-5 max-w-[36rem] text-pretty sm:mt-6",
-              "text-[1.0625rem] leading-[1.7] text-white/84 sm:text-[1.125rem] sm:leading-[1.68]",
-              "lg:mt-7 lg:text-[1.1875rem] lg:leading-[1.65]",
+              "mt-3.5 max-w-[40rem] text-pretty sm:mt-4",
+              "text-[1.0625rem] leading-[1.68] text-white/84 sm:text-[1.125rem] sm:leading-[1.68]",
+              "lg:mt-5 lg:text-[1.125rem] lg:leading-[1.66] xl:text-[1.1875rem]",
             )}
           >
             {t("subheadline")}
@@ -47,10 +58,10 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
         </div>
 
         <div className="kf-enter kf-enter-d1">
-          <HeroJobSearch quickFilters={quickFilters} layout="split" />
+          <HeroJobSearch quickFilters={quickFilters} layout="primary" />
         </div>
 
-        <div className="kf-enter mt-5 flex flex-col gap-3 sm:mt-6 sm:gap-3.5" style={{ animationDelay: "0.2s" }}>
+        <div className="kf-enter mt-4 flex flex-col gap-2 sm:mt-5 sm:gap-2.5" style={{ animationDelay: "0.18s" }}>
           <Link
             href="/tooandjatele"
             className={cn(
@@ -62,19 +73,21 @@ export function HeroContent({ quickFilters }: { quickFilters: HeroQuickFilterId[
           >
             {t("employerLink")}
           </Link>
-          <p className="text-[0.8125rem] leading-snug text-white/38 sm:text-[0.875rem]">{t("trustLine")}</p>
+          <p className="text-[0.875rem] leading-snug text-white/40 sm:text-[0.9375rem]">{t("trustLine")}</p>
         </div>
       </div>
 
-      {/* RIGHT — human photo + match proof */}
-      <div className="relative z-[1] min-w-0 lg:col-span-6">
-        <HeroPersonPhoto
-          alt={t("photoAlt")}
+      {/* RIGHT — match card then visual on mobile; soft visual column on desktop */}
+      <div className="relative z-[1] min-w-0 w-full lg:col-span-3">
+        <HeroMatchPanel
+          photoAlt={t("photoAlt")}
           priority
-          matchScore={t("matchScore")}
-          matchLabel={t("matchLabel")}
-          matchReqs={t("matchReqs")}
-          className="mx-auto w-full max-w-[22rem] sm:max-w-md lg:ml-auto lg:mr-[-0.5rem] lg:max-w-none xl:mr-[-1rem]"
+          score={t("matchScore")}
+          scoreLabel={t("matchLabel")}
+          reqsFilled={t("matchReqs")}
+          whyTitle={t("matchWhyTitle")}
+          reasons={reasons}
+          className="w-full lg:ml-auto lg:max-w-[20rem] xl:max-w-none"
         />
       </div>
     </div>
