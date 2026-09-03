@@ -3,7 +3,6 @@ import { getTranslations } from "next-intl/server";
 
 import { EmployerProductPreview } from "@/components/employer/EmployerProductPreview";
 import { EmployerLandingSteps } from "@/components/sections/employer/EmployerLandingSteps";
-import { EditorialPhotoSlot } from "@/components/site/EditorialPhotoSlot";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -17,7 +16,7 @@ import {
 } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
-/** Shared left-aligned column — hero, photo, steps, preview, CTA. */
+/** Shared left-aligned column — hero, steps, preview, CTA. */
 const LANDING_COL = "w-full max-w-5xl";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -36,7 +35,6 @@ export async function generateMetadata({ params }: Props) {
 export default async function TooandjatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.employers" });
-  const photoLocale = locale === "en" || locale === "ru" ? locale : "et";
 
   const { role } = await getCurrentAuth();
   const showPricing = role === "employer";
@@ -67,20 +65,6 @@ export default async function TooandjatelePage({ params }: Props) {
           </Link>
         </Button>
       </PageHero>
-
-      <section className="bg-background pb-10 sm:pb-14 lg:pb-16">
-        <Container>
-          <EditorialPhotoSlot
-            slotId="landingEmployer"
-            locale={photoLocale}
-            alt={t("heroPhotoAlt")}
-            caption={t("heroPhotoCaption")}
-            aspect="16/9"
-            priority
-            className={LANDING_COL}
-          />
-        </Container>
-      </section>
 
       <EmployerLandingSteps steps={steps} contentClassName={LANDING_COL} />
 

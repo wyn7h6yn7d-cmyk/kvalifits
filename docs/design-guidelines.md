@@ -40,7 +40,6 @@ Animated background stays — as **atmosphere**, not a product demo.
 
 1. **Content first, technology second.** Headline and search lead; motion stays behind.
 2. Keep existing motion (aurora + network); do not remove it.
-3. Motion is soft — supporting, not competing with copy or CTAs.
-4. Prefer quiet ambient in empty zones; avoid loud tech effects over the search area.
-5. Use soft scrims / gradients for readability.
-6. Do not put decorative people photos in the hero unless they clearly support the message (see HUMAN IMAGE RULES).
+3. Motion should be clearly visible across the hero canvas when there is no person photo.
+4. Use soft scrims / gradients so copy and search stay readable.
+5. Do not put decorative people photos in the hero unless they clearly support the message (see HUMAN IMAGE RULES).

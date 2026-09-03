@@ -2,7 +2,6 @@ import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { SeekerLandingSteps } from "@/components/sections/seeker/SeekerLandingSteps";
-import { EditorialPhotoSlot } from "@/components/site/EditorialPhotoSlot";
 import { PageHero } from "@/components/site/PageHero";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
@@ -11,7 +10,7 @@ import { publicPageMetadata } from "@/lib/seo/site";
 import { SITE_HOME_CTA_PRIMARY } from "@/lib/site/publicPageLayout";
 import { cn } from "@/lib/utils";
 
-/** Shared left-aligned column for hero, photo, and steps. */
+/** Shared left-aligned column for hero, steps, and CTA. */
 const LANDING_COL = "w-full max-w-5xl";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -30,7 +29,6 @@ export async function generateMetadata({ params }: Props) {
 export default async function ToootsijatelePage({ params }: Props) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "pages.seekers" });
-  const photoLocale = locale === "en" || locale === "ru" ? locale : "et";
 
   const tutorialSteps = [
     { title: t("tutorialStep1Title"), body: t("tutorialStep1Body") },
@@ -56,21 +54,6 @@ export default async function ToootsijatelePage({ params }: Props) {
           <Link href="/tood">{t("ctaSearchJobs")}</Link>
         </Button>
       </PageHero>
-
-      <section className="bg-background pb-10 sm:pb-14 lg:pb-16">
-        <Container>
-          <EditorialPhotoSlot
-            slotId="landingSeeker"
-            locale={photoLocale}
-            alt={t("heroPhotoAlt")}
-            caption={t("heroPhotoCaption")}
-            aspect="16/9"
-            priority
-            className={LANDING_COL}
-            frameClassName="rounded-[1.25rem]"
-          />
-        </Container>
-      </section>
 
       <SeekerLandingSteps
         eyebrow={t("tutorialEyebrow")}
