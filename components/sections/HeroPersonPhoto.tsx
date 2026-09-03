@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Hero person photo — soft-masked into the dark canvas (no card chrome).
- * Uses catalog slot `heroPerson` only when status is `filled`.
+ * Right half of the homepage hero split.
  */
 export function HeroPersonPhoto({
   alt,
@@ -21,7 +21,7 @@ export function HeroPersonPhoto({
 
   return (
     <div className={cn("relative isolate", className)}>
-      <div className="relative aspect-[4/5] w-full overflow-hidden sm:aspect-[5/6] lg:aspect-[4/5]">
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[1.25rem] sm:aspect-[5/6] lg:aspect-[4/5] lg:rounded-[1.35rem]">
         {src ? (
           <Image
             src={src}
@@ -29,7 +29,7 @@ export function HeroPersonPhoto({
             fill
             priority={priority}
             sizes="(max-width: 1024px) 92vw, 42vw"
-            className="object-cover object-[center_18%] scale-[1.02]"
+            className="object-cover object-[center_18%]"
           />
         ) : (
           <div className="absolute inset-0 bg-[#101018]">
@@ -41,26 +41,18 @@ export function HeroPersonPhoto({
           </div>
         )}
 
-        {/*
-          Edge fades only — no color glow over the face.
-          Keep the person opaque in the center so backdrop tech cannot show through.
-        */}
+        {/* Soft edge blend into dark hero — face stays clear */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-r from-[#07070c] via-[#07070c]/40 to-transparent lg:from-[#07070c]/95 lg:via-[#07070c]/28 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-[#07070c]/55 via-transparent to-transparent lg:from-[#07070c]/35"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-[#07070c] via-[#07070c]/18 to-[#07070c]/50"
+          className="absolute inset-0 bg-gradient-to-t from-[#07070c]/70 via-transparent to-[#07070c]/20"
         />
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-l from-[#07070c]/50 via-transparent to-transparent max-lg:hidden"
-        />
-        {/* Soft vignette at edges; center (face) stays clear of tech bleed */}
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[radial-gradient(ellipse_at_58%_36%,transparent_0%,transparent_48%,rgba(7,7,12,0.28)_78%,rgba(7,7,12,0.78)_100%)]"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_55%_35%,transparent_0%,transparent_52%,rgba(7,7,12,0.25)_82%,rgba(7,7,12,0.55)_100%)]"
         />
       </div>
     </div>
